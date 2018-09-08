@@ -3,6 +3,8 @@ import { ICommandPalette, InstanceTracker } from '@jupyterlab/apputils';
 import { JSONExt } from '@phosphor/coreutils'
 import { Widget } from '@phosphor/widgets';
 import { Message } from '@phosphor/messaging';
+import * as React from 'react';
+import * as ReactDom from 'react-dom';
 import '../style/index.css';
 
 /**
