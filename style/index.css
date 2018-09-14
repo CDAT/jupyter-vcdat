@@ -4,8 +4,12 @@
     overflow: auto;
 }
 
-.jp-xkcdCartoon {
+#test-component, .jp-xkcdCartoon {
     margin: auto;
+}
+
+#test-component {
+    background-color: white;
 }
 
 .jp-xkcdAttribution {
