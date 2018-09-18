@@ -5,29 +5,8 @@ import { Widget } from '@phosphor/widgets';
 import { Message } from '@phosphor/messaging';
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
+import Test from './components/test';
 import '../style/index.css';
-
-class Test extends React.Component <any, any> {
-
-  constructor (props: any){
-    super(props);
-    this.state = { 
-      src: this.props.imgSrc,
-      alt: this.props.imgAlt,
-      title: this.props.imgTitle,
-      test: this.props.test
-    };
-  }
-
-  render() {
-    return (
-      <div>
-        <p>This finally worked!! This is rendered by React: {this.props.test}</p>
-        <img src={this.state.src} alt={this.state.alt} title={this.state.title}></img>
-      </div>
-    )
-  }
-}
 
 /**
  * An xckd comic viewer
@@ -36,13 +15,13 @@ class XkcdWidget extends Widget {
   /**
    * Construct a new xkcd widget.
    */
-  constructor() {
+  constructor(testInput: any) {
     super();
 
     this.id = 'jupyter-react-ext';
     this.title.label = 'xkcd.com';
     this.title.closable = true;
-    this.test = 1005;
+    this.test = testInput;
     this.addClass('jp-xkcdWidget');
     console.log('Widget constructor part 1');
     this.div = document.createElement('div');
@@ -61,10 +40,7 @@ class XkcdWidget extends Widget {
       </div>`
     );
 
-    console.log('Widget constructor part 4');
-
     ReactDom.render(<Test test={this.test} src={this.imgSrc} alt={this.imgAlt} title={this.imgTitle} />, this.div);
-    console.log('Widget constructor part 5');
   }
   /**
    * The image element associated with the widget.
@@ -75,7 +51,7 @@ class XkcdWidget extends Widget {
   imgSrc: any;
   imgAlt: any;
   imgTitle: any;
-  test: number;
+  test: any;
 
   /**
    * Handle update requests for the widget.
@@ -100,6 +76,8 @@ class XkcdWidget extends Widget {
 function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
   console.log('JupyterLab REACT jupyter-react-ext is activated!');
 
+  const testValue: string = "THIS IS A TEST";
+
   // Declare a widget variable
   let widget: XkcdWidget;
   console.log('Widget set!');
@@ -112,7 +90,7 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
       if (!widget) {
         // Create a new widget if one does not exist
         console.log('Widget before constructor');
-        widget = new XkcdWidget();
+        widget = new XkcdWidget(testValue);
         console.log('Widget after constructor');
         widget.update();
       }
