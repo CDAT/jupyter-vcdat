@@ -11,19 +11,23 @@ class Test extends React.Component <any, any> {
 
   constructor (props: any){
     super(props);
-    this.state = { src: this.props.imgSrc, alt: this.props.imgAlt, title: this.props.imgTitle };
+    this.state = { 
+      src: this.props.imgSrc,
+      alt: this.props.imgAlt,
+      title: this.props.imgTitle,
+      test: this.props.test
+    };
   }
 
   render() {
     return (
       <div>
-        <p>This finally worked!! This is rendered by React</p>
+        <p>This finally worked!! This is rendered by React: {this.props.test}</p>
         <img src={this.state.src} alt={this.state.alt} title={this.state.title}></img>
       </div>
     )
   }
 }
-
 
 /**
  * An xckd comic viewer
@@ -38,6 +42,7 @@ class XkcdWidget extends Widget {
     this.id = 'jupyter-react-ext';
     this.title.label = 'xkcd.com';
     this.title.closable = true;
+    this.test = 1005;
     this.addClass('jp-xkcdWidget');
     console.log('Widget constructor part 1');
     this.div = document.createElement('div');
@@ -58,7 +63,7 @@ class XkcdWidget extends Widget {
 
     console.log('Widget constructor part 4');
 
-    ReactDom.render(<Test src={this.imgSrc} alt={this.imgAlt} title={this.imgTitle} />, this.div);
+    ReactDom.render(<Test test={this.test} src={this.imgSrc} alt={this.imgAlt} title={this.imgTitle} />, this.div);
     console.log('Widget constructor part 5');
   }
   /**
@@ -70,6 +75,7 @@ class XkcdWidget extends Widget {
   imgSrc: any;
   imgAlt: any;
   imgTitle: any;
+  test: number;
 
   /**
    * Handle update requests for the widget.
