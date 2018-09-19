@@ -5,9 +5,9 @@ class Test extends React.Component <any, any> {
     constructor (props: any){
       super(props);
       this.state = { 
-        src: this.props.imgSrc.bind(this),
-        alt: this.props.imgAlt.bind(this),
-        title: this.props.imgTitle.bind(this),
+        src: this.props.imgSrc,
+        alt: this.props.imgAlt,
+        title: this.props.imgTitle,
         test: this.props.test
       };
     }
