@@ -6,7 +6,6 @@ import { Message } from '@phosphor/messaging';
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import Test from './components/test';
-//import LeftSideBar from ''
 import '../style/index.css';
 
 /**
@@ -25,6 +24,7 @@ class XkcdWidget extends Widget {
     this.title.closable = true;
     this.addClass('jp-xkcdWidget');
     this.div = document.createElement('div');
+    this.div.id = "app";
     this.div.className = 'jp-xkcdCartoon';
     this.node.appendChild(this.div);
 
@@ -51,8 +51,12 @@ class XkcdWidget extends Widget {
       this.imgAlt = data.title;
       this.imgTitle = data.alt;
 
-      ReactDom.render(<Test headerText={this.headerText} src={this.imgSrc} alt={this.imgAlt} title={this.imgTitle} />, this.div);
+      this.reRender();
     });
+  }
+
+  reRender(): void {
+    ReactDom.render(<Test headerText={this.headerText} src={this.imgSrc} alt={this.imgAlt} title={this.imgTitle} />, this.div);
   }
 };
 
@@ -67,10 +71,15 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
   // Declare a widget variable
   let widget: XkcdWidget;
   
-  // Add an application command
-  const command: string = 'xkcd:open';
+  // Add application commands
+  const COMMANDS = {
+    hello: "xkcd:hello",
+    showComic: "xkcd:open"
+  };
 
-  app.commands.addCommand(command, {
+  //const command: string = 'xkcd:open';
+
+  app.commands.addCommand(COMMANDS.showComic, {
     label: 'Show random xkcd comic',
     execute: () => {
 
@@ -85,7 +94,7 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
       }
       if (!widget.isAttached) {
         // Attach the widget to the main work area if it's not there
-        app.shell.addToMainArea(widget);
+        app.shell.addToLeftArea(widget);
       } else {
         // Refresh the comic in the widget
         widget.update();
@@ -95,15 +104,35 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
     }
   });
 
-  // Add the command to the palette.
-  palette.addItem({ command, category: 'App React Test' });
+  app.commands.addCommand(COMMANDS.hello, {
+    label: 'Say Hello',
+    execute: () => {
+      if(widget.isAttached){
+        widget.headerText = "Hello World!!";
+        widget.reRender();
+      }
+    }
+  });
+
+  // Add commands to the palette.
+  [
+    COMMANDS.showComic,
+    COMMANDS.hello
+  ].forEach(command => {
+    palette.addItem({ command, category: 'App React Test' });
+  });
 
   // Track and restore the widget state
   let tracker = new InstanceTracker<Widget>({ namespace: 'xkcd' });
-  restorer.restore(tracker, {
-    command,
-    args: () => JSONExt.emptyObject,
-    name: () => 'xkcd'
+  [
+    COMMANDS.showComic,
+    COMMANDS.hello
+  ].forEach(command => {
+    restorer.restore(tracker, {
+      command,
+      args: () => JSONExt.emptyObject,
+      name: () => 'xkcd'
+    });
   });
 };
 
