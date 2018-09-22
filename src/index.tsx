@@ -1,140 +1,42 @@
-import { JupyterLab, JupyterLabPlugin, ILayoutRestorer } from '@jupyterlab/application';
-import { ICommandPalette, InstanceTracker } from '@jupyterlab/apputils';
+import {
+  ABCWidgetFactory,
+  DocumentRegistry,
+  IDocumentWidget,
+  DocumentWidget
+} 
+from '@jupyterlab/docregistry';
+
+import { 
+  JupyterLab, 
+  JupyterLabPlugin,
+  ApplicationShell, 
+  ILayoutRestorer } 
+from '@jupyterlab/application';
+
+import { 
+  ICommandPalette, 
+  InstanceTracker 
+} from '@jupyterlab/apputils';
+
+import { CommandRegistry } from '@phosphor/commands';
 import { JSONExt } from '@phosphor/coreutils'
 import { Widget } from '@phosphor/widgets';
-import { Message } from '@phosphor/messaging';
-import * as React from 'react';
-import * as ReactDom from 'react-dom';
-import Test from './components/test';
+import XkcdComic from './components/Comic';
+import NumberField from './components/vcs_widgets';
 import '../style/index.css';
 
-/**
- * An xckd comic viewer
- */
-class XkcdWidget extends Widget {
-  /**
-   * Construct a new xkcd widget.
-   */
-  constructor(widgetId: string, headerText: any) {
-    super();
+const FILETYPE = 'NetCDF';
+const FACTORY_NAME = 'vcs';
 
-    this.id = widgetId;
-    this.title.label = 'xkcd.com';
-    this.headerText = headerText;
-    this.title.closable = true;
-    this.addClass('jp-xkcdWidget');
-    this.div = document.createElement('div');
-    this.div.id = "app";
-    this.div.className = 'jp-xkcdCartoon';
-    this.node.appendChild(this.div);
+import NCSetupWidget from './components/nc_setup_widget';
+import VCDAT_Widgets from './components/vcs_widgets';
 
-    ReactDom.render(<Test headerText={this.headerText} src={this.imgSrc} alt={this.imgAlt} title={this.imgTitle} />, this.div);
-  }
-  /**
-   * The image element associated with the widget.
-   */
-
-  div: HTMLDivElement;
-  imgSrc: any;
-  imgAlt: any;
-  imgTitle: any;
-  headerText: string;
-
-  /**
-   * Handle update requests for the widget.
-   */
-  onUpdateRequest(msg: Message): void {
-    fetch('https://egszlpbmle.execute-api.us-east-1.amazonaws.com/prod').then(response => {
-      return response.json();
-    }).then(data => {
-      this.imgSrc = data.img;
-      this.imgAlt = data.title;
-      this.imgTitle = data.alt;
-
-      this.reRender();
-    });
-  }
-
-  reRender(): void {
-    ReactDom.render(<Test headerText={this.headerText} src={this.imgSrc} alt={this.imgAlt} title={this.imgTitle} />, this.div);
-  }
-};
-
-/**
- * Activate the xckd widget extension.
- */
-function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
-  console.log('JupyterLab REACT jupyter-react-ext is activated!');
-
-  const headerText: string = "This Comic is rendered by a React Component...";
-
-  // Declare a widget variable
-  let widget: XkcdWidget;
-  
-  // Add application commands
-  const COMMANDS = {
-    hello: "xkcd:hello",
-    showComic: "xkcd:open"
-  };
-
-  //const command: string = 'xkcd:open';
-
-  app.commands.addCommand(COMMANDS.showComic, {
-    label: 'Show random xkcd comic',
-    execute: () => {
-
-      if (!widget) {
-        // Create a new widget if one does not exist
-        widget = new XkcdWidget('jupyter-react-ext',headerText);
-        widget.update();
-      }
-      if (!tracker.has(widget)) {
-        // Track the state of the widget for later restoration
-        tracker.add(widget);
-      }
-      if (!widget.isAttached) {
-        // Attach the widget to the main work area if it's not there
-        app.shell.addToLeftArea(widget);
-      } else {
-        // Refresh the comic in the widget
-        widget.update();
-      }
-      // Activate the widget
-      app.shell.activateById(widget.id);
-    }
-  });
-
-  app.commands.addCommand(COMMANDS.hello, {
-    label: 'Say Hello',
-    execute: () => {
-      if(widget.isAttached){
-        widget.headerText = "Hello World!!";
-        widget.reRender();
-      }
-    }
-  });
-
-  // Add commands to the palette.
-  [
-    COMMANDS.showComic,
-    COMMANDS.hello
-  ].forEach(command => {
-    palette.addItem({ command, category: 'App React Test' });
-  });
-
-  // Track and restore the widget state
-  let tracker = new InstanceTracker<Widget>({ namespace: 'xkcd' });
-  [
-    COMMANDS.showComic,
-    COMMANDS.hello
-  ].forEach(command => {
-    restorer.restore(tracker, {
-      command,
-      args: () => JSONExt.emptyObject,
-      name: () => 'xkcd'
-    });
-  });
-};
+// Declare the widget variables
+let xkcdComic: XkcdComic;
+let numField: NumberField;
+let commands: CommandRegistry;
+let shell: ApplicationShell;
+let widget: NCSetupWidget;
 
 /**
  * Initialization data for the jupyter-react-ext extension.
@@ -147,3 +49,194 @@ const extension: JupyterLabPlugin<void> = {
 };
 
 export default extension;
+
+/**
+ * Activate the xckd widget extension.
+ */
+function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
+  
+  console.log('JupyterLab REACT jupyter-react-ext is activated!');
+  commands = app.commands;
+  shell = app.shell;
+
+  const factory = new NCViewerFactory({
+    name: FACTORY_NAME,
+    fileTypes: [FILETYPE],
+    defaultFor: [FILETYPE],
+    readOnly: true
+  });
+
+  let ft: DocumentRegistry.IFileType = {
+      name: FILETYPE,
+      extensions: ['.nc'],
+      mimeTypes: ['application/netcdf'],
+      contentType: 'file',
+      fileFormat: 'base64'
+  }
+
+  app.docRegistry.addFileType(ft);
+  app.docRegistry.addWidgetFactory(factory);
+
+  factory.widgetCreated.connect((sender, widget) => {
+      console.log('NCViewerWidget created from factory');
+  });
+  
+  // Add application commands
+  const COMMANDS = {
+    hello: "xkcd:hello",
+    showComic: "xkcd:open",
+    open_setup: "vcs:open-setup",
+    showWidget: "vcs:open-widget"
+  };
+
+  //const command: string = 'xkcd:open';
+
+  commands.addCommand(COMMANDS.showComic, {
+    label: 'Show random xkcd comic',
+    execute: () => {
+
+      if (!xkcdComic) {
+        // Create a new widget if one does not exist
+        xkcdComic = new XkcdComic('jupyter-react-ext',"This Comic is rendered by React...");
+        xkcdComic.update();
+      }
+
+      if (!tracker.has(xkcdComic)) {
+        // Track the state of the widget for later restoration
+        tracker.add(xkcdComic);
+      }
+
+      if (!xkcdComic.isAttached) {
+        // Attach the widget to the main work area if it's not there
+        shell.addToMainArea(xkcdComic);
+      } else {
+        // Refresh the comic in the widget
+        xkcdComic.update();
+      }
+
+      // Activate the widget
+      shell.activateById(xkcdComic.id);
+    }
+  });
+
+  commands.addCommand(COMMANDS.hello, {
+    label: 'Say Hello World',
+    execute: () => {
+      if(xkcdComic.isAttached){
+        xkcdComic.title.label = "Hello World!!";
+      }
+      if(widget.isAttached){
+        widget.title.label = "Hello World!!";
+      }
+      if(numField.isAttached){
+        numField.title.label = "Hello World!!";
+      }
+    }
+  });
+
+  commands.addCommand(COMMANDS.open_setup, {
+    label: 'VCS Setup',
+    execute: () => {
+        if(!widget){
+            widget = new NCSetupWidget();
+            widget.id = 'vcs-setup';
+            widget.title.label = 'VCS Setup';
+            widget.title.closable = true;
+        }
+        if (!widget.isAttached) {
+            // Attach the widget to the left area if it's not there
+            shell.addToLeftArea(widget);
+        } else {
+            widget.update();
+        }
+        // Activate the widget
+        shell.activateById(widget.id);
+    }
+  });
+
+  commands.addCommand(COMMANDS.showWidget, {
+    label: 'VCDAT Widget',
+    execute: () => {
+        if(!numField){
+            numField = new VCDAT_Widgets("numFieldTest");
+            numField.id = "vcdat-widget";
+            numField.title.label = "VCDAT Widget";
+            numField.title.closable = true;
+        }
+        if (!numField.isAttached) {
+            // Attach the widget to the left area if it's not there
+            shell.addToRightArea(numField);
+        } else {
+          numField.update();
+        }
+        // Activate the widget
+        shell.activateById(numField.id);
+    }
+  });
+
+  // Add commands to the palette.
+  [
+    COMMANDS.showComic,
+    COMMANDS.hello,
+    COMMANDS.open_setup,
+    COMMANDS.showWidget
+  ].forEach(command => {
+    palette.addItem({ command, category: '1. Visualization' });
+  });
+
+  // Track and restore the widget state
+  let tracker = new InstanceTracker<Widget>({ namespace: 'xkcd' });
+  [
+    COMMANDS.showComic
+  ].forEach(command => {
+    restorer.restore(tracker, {
+      command,
+      args: () => JSONExt.emptyObject,
+      name: () => 'xkcd'
+    });
+  });
+};
+
+export class NCViewerFactory extends ABCWidgetFactory<
+    IDocumentWidget<NCViewerWidget>
+    > {
+    /**
+     * Create a new widget given a context.
+     */
+    protected createNewWidget(
+        context: DocumentRegistry.Context
+    ): IDocumentWidget<NCViewerWidget> {
+        const content = new NCViewerWidget(context);
+        const ncWidget = new DocumentWidget({ content, context });
+        // debugger;
+        console.log('executing command console:create');
+        commands.execute('console:create', {
+            activate: true,
+            path: context.path,
+            preferredLanguage: context.model.defaultKernelLanguage
+        }).then(consolePanel => {
+            consolePanel.session.ready.then(() => {
+                consolePanel.console.inject('import cdms2');
+                consolePanel.console.inject('import vcs');
+
+                let dataLoadString = 'data = cdms2.open(\'' + context.session.path + '\')';
+                consolePanel.console.inject(dataLoadString);
+                consolePanel.console.inject('clt = data("clt")');
+                consolePanel.console.inject('x=vcs.init()');
+                consolePanel.console.inject('x.plot(clt)');
+            });
+        });
+        return ncWidget;
+    }
+}
+
+export class NCViewerWidget extends Widget {
+    constructor(context: DocumentRegistry.Context) {
+        super();
+        this.context = context;
+    }
+
+    readonly context: DocumentRegistry.Context;
+
+    readonly ready = Promise.resolve(void 0);
+}

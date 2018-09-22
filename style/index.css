@@ -4,7 +4,7 @@
     overflow: auto;
 }
 
-.jp-xkcdCartoon {
+.jp-xkcdCartoon, .numberField {
     margin: auto;
     background-color: white;
 }

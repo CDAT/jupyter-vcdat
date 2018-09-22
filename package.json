@@ -27,11 +27,16 @@
     "build": "tsc",
     "clean": "rimraf lib",
     "watch": "tsc -w",
+    "link": "jupyter labextension link . --nobuild",
     "prepare": "npm run clean && npm run build"
   },
   "dependencies": {
     "@jupyterlab/application": "^0.18.0",
     "@jupyterlab/apputils": "^0.18.4",
+    "@jupyterlab/cells": "^0.18.4",
+    "@jupyterlab/console": "^0.18.4",
+    "@jupyterlab/filebrowser": "^0.18.6",
+    "@phosphor/commands": "1.6.1",
     "@phosphor/coreutils": "^1.3.0",
     "@phosphor/messaging": "^1.2.2",
     "@phosphor/widgets": "^1.6.0",
