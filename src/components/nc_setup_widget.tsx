@@ -4,10 +4,23 @@ import * as React from 'react';
 
 import * as ReactDOM from 'react-dom';
 
-import { VCSComponentLeft } from './vcs_component_left'
+import { VCSComponentLeft } from './vcs_component_left';
+
+import { CommandRegistry } from '@phosphor/commands';
+
+function injectCode(commands: CommandRegistry, code: string){
+
+    commands.execute('console:create', {
+        activate: true,
+        }).then(consolePanel => {
+                consolePanel.session.ready.then(() => {
+                consolePanel.console.inject(code);
+            });
+        });
+}
 
 class NCSetupWidget extends Widget {
-    constructor(){
+    constructor(commands: CommandRegistry){
         super();
         this.div = document.createElement('div');
         this.div.id = 'vcs-component';
@@ -17,7 +30,10 @@ class NCSetupWidget extends Widget {
         let props = {
             var_name: '',
             file_path: '',
-            thing: 'WORLD'
+            title: 'VCS Python Commands',
+            clickHandler: (cmdStr: string) => {
+                return injectCode(commands, cmdStr);
+            }
         };
         ReactDOM.render(
             <VCSComponentLeft {...props} className="p-Widget p-StackedPanel" ></VCSComponentLeft>,

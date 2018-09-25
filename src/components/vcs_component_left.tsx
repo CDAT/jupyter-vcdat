@@ -7,6 +7,10 @@ export class VCSComponentLeft extends React.Component<any, any> {
         this.state = {
             file_path: '',
             selected_var: '',
+            CMD_STR: [
+                '#This code was injected by clicking on the button in left area.\nmsg = "Hello world!"\nprint(msg)',
+                "#This is another command.\nmsg = 5+9\nprint(msg)"
+            ]
         };
         this.props = props;
     }
@@ -16,15 +20,19 @@ export class VCSComponentLeft extends React.Component<any, any> {
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange(event: any) {
+    handleChange(event: any, cmd: string) {
+        this.props.clickHandler(cmd);
         console.log(event);
     }
 
     render() {
         return (
             <div>
-                <h1>HELLO {this.props.thing}</h1>
-                <button onClick={(e) => {this.handleChange(e)}}> CLICK ME </button>
+                <h1>{this.props.title}</h1>
+                <p>
+                    <button onClick={(e) => {this.handleChange(e,this.state.CMD_STR[0])}}> CLICK ME </button><br />
+                    <button onClick={(e) => {this.handleChange(e,this.state.CMD_STR[1])}}> CLICK ME 2</button>
+                </p>
             </div>
         )
     }

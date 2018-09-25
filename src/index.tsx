@@ -122,15 +122,16 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
   commands.addCommand(COMMANDS.hello, {
     label: 'Say Hello World',
     execute: () => {
-      if(xkcdComic.isAttached){
-        xkcdComic.title.label = "Hello World!!";
-      }
-      if(widget.isAttached){
-        widget.title.label = "Hello World!!";
-      }
-      if(numField.isAttached){
-        numField.title.label = "Hello World!!";
-      }
+
+      commands.execute('console:create', {
+        activate: true,
+      }).then(consolePanel => {
+          consolePanel.session.ready.then(() => {
+            let code = '#This code was injected by clicking on the "';
+            code += '"Say Hello World" command.\nmsg = "Hello world!"\nprint(msg)';
+            consolePanel.console.inject(code);
+          });
+      });
     }
   });
 
@@ -138,7 +139,7 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
     label: 'VCS Setup',
     execute: () => {
         if(!widget){
-            widget = new NCSetupWidget();
+            widget = new NCSetupWidget(commands);
             widget.id = 'vcs-setup';
             widget.title.label = 'VCS Setup';
             widget.title.closable = true;
