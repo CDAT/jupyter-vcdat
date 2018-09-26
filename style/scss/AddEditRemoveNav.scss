@@ -1,0 +1,51 @@
+$add-base: rgba(40, 167, 69, .8);
+$edit-base: rgba(217, 120, 36, .8); 
+$remove-base:rgba(196, 28, 31, .8);
+
+$add-hover:rgba(66, 193, 95, .8);
+$edit-hover:rgba(243, 146, 62, .8);
+$remove-hover:rgba(222, 53, 56, .8);
+
+$disabled-base: rgba(119, 119, 119, .6);
+$disabled-hover:rgba(119, 119, 119, .5);
+
+i.glyphicon.glyphicon-plus-sign{
+    color: $add-base;
+}
+
+li.action-add-button:hover i.glyphicon.glyphicon-plus-sign{
+    color: $add-hover;
+}
+
+li.action-add-button:hover i.glyphicon.glyphicon-plus-sign.disabled{
+    color: $disabled-hover;
+}
+
+i.glyphicon.glyphicon-edit{
+    color: $edit-base;
+}
+
+li.action-edit-button:hover i.glyphicon.glyphicon-edit{
+    color: $edit-hover;
+}
+
+li.action-edit-button:hover i.glyphicon.glyphicon-edit.disabled{
+    color: $disabled-hover;
+}
+
+i.glyphicon.glyphicon-remove-sign{
+    color: $remove-base;
+}
+
+li.action-remove-button:hover i.glyphicon.glyphicon-remove-sign{
+    color: $remove-hover;
+}
+
+li.action-remove-button:hover i.glyphicon.glyphicon-remove-sign.disabled{
+    color: $disabled-base;
+}
+
+i.glyphicon.disabled{
+    color: $disabled-base;
+    cursor: not-allowed;
+}

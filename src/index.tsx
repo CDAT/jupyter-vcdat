@@ -1,29 +1,35 @@
+
+import './../style/css/bootstrap.min.css';
+import './../style/css/jquery-ui.min.css';
+import './../style/css/Styles.css';
+import './../style/css/index.css';
+
 import {
-  ABCWidgetFactory,
-  DocumentRegistry,
-  IDocumentWidget,
-  DocumentWidget
+	ABCWidgetFactory,
+	DocumentRegistry,
+	IDocumentWidget,
+	DocumentWidget
 } 
 from '@jupyterlab/docregistry';
 
 import { 
-  JupyterLab, 
-  JupyterLabPlugin,
-  ApplicationShell, 
-  ILayoutRestorer } 
+	JupyterLab, 
+	JupyterLabPlugin,
+	ApplicationShell, 
+	ILayoutRestorer } 
 from '@jupyterlab/application';
 
 import { 
-  ICommandPalette, 
-  InstanceTracker 
+	ICommandPalette, 
+	InstanceTracker 
 } from '@jupyterlab/apputils';
 
 import { CommandRegistry } from '@phosphor/commands';
 import { JSONExt } from '@phosphor/coreutils'
 import { Widget } from '@phosphor/widgets';
-import XkcdComic from './components/Comic';
+import XkcdComic from './components/comic';
 import NumberField from './components/vcs_widgets';
-import '../style/index.css';
+import LeftSideBarWidget from './components/left_side_bar_widget';
 
 const FILETYPE = 'NetCDF';
 const FACTORY_NAME = 'vcs';
@@ -37,15 +43,16 @@ let numField: NumberField;
 let commands: CommandRegistry;
 let shell: ApplicationShell;
 let widget: NCSetupWidget;
+let sidebar: LeftSideBarWidget;
 
 /**
  * Initialization data for the jupyter-react-ext extension.
  */
 const extension: JupyterLabPlugin<void> = {
-  id: 'jupyter-react-ext',
-  autoStart: true,
-  requires: [ICommandPalette, ILayoutRestorer],
-  activate: activate
+	id: 'jupyter-react-ext',
+	autoStart: true,
+	requires: [ICommandPalette, ILayoutRestorer],
+	activate: activate
 };
 
 export default extension;
@@ -54,190 +61,212 @@ export default extension;
  * Activate the xckd widget extension.
  */
 function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
-  
-  console.log('JupyterLab REACT jupyter-react-ext is activated!');
-  commands = app.commands;
-  shell = app.shell;
+	
+	console.log('JupyterLab REACT jupyter-react-ext is activated!');
+	commands = app.commands;
+	shell = app.shell;
 
-  const factory = new NCViewerFactory({
-    name: FACTORY_NAME,
-    fileTypes: [FILETYPE],
-    defaultFor: [FILETYPE],
-    readOnly: true
-  });
+	const factory = new NCViewerFactory({
+	name: FACTORY_NAME,
+	fileTypes: [FILETYPE],
+	defaultFor: [FILETYPE],
+	readOnly: true
+	});
 
-  let ft: DocumentRegistry.IFileType = {
-      name: FILETYPE,
-      extensions: ['.nc'],
-      mimeTypes: ['application/netcdf'],
-      contentType: 'file',
-      fileFormat: 'base64'
-  }
+	let ft: DocumentRegistry.IFileType = {
+		name: FILETYPE,
+		extensions: ['.nc'],
+		mimeTypes: ['application/netcdf'],
+		contentType: 'file',
+		fileFormat: 'base64'
+	}
 
-  app.docRegistry.addFileType(ft);
-  app.docRegistry.addWidgetFactory(factory);
+	app.docRegistry.addFileType(ft);
+	app.docRegistry.addWidgetFactory(factory);
 
-  factory.widgetCreated.connect((sender, widget) => {
-      console.log('NCViewerWidget created from factory');
-  });
-  
-  // Add application commands
-  const COMMANDS = {
-    hello: "xkcd:hello",
-    showComic: "xkcd:open",
-    open_setup: "vcs:open-setup",
-    showWidget: "vcs:open-widget"
-  };
+	factory.widgetCreated.connect((sender, widget) => {
+		console.log('NCViewerWidget created from factory');
+	});
+	
+	// Add application commands
+	const COMMANDS = {
+	hello: "xkcd:hello",
+	showComic: "xkcd:open",
+	open_setup: "vcs:open-setup",
+	showWidget: "vcs:open-widget",
+	showLeftSideBar: "vcs:open-sidebar"
+	};
 
-  //const command: string = 'xkcd:open';
+	//const command: string = 'xkcd:open';
 
-  commands.addCommand(COMMANDS.showComic, {
-    label: 'Show random xkcd comic',
-    execute: () => {
+	commands.addCommand(COMMANDS.showComic, {
+	label: 'Show random xkcd comic',
+	execute: () => {
 
-      if (!xkcdComic) {
-        // Create a new widget if one does not exist
-        xkcdComic = new XkcdComic('jupyter-react-ext',"This Comic is rendered by React...");
-        xkcdComic.update();
-      }
+		if (!xkcdComic) {
+		// Create a new widget if one does not exist
+		xkcdComic = new XkcdComic('jupyter-react-ext',"This Comic is rendered by React...");
+		xkcdComic.update();
+		}
 
-      if (!tracker.has(xkcdComic)) {
-        // Track the state of the widget for later restoration
-        tracker.add(xkcdComic);
-      }
+		if (!tracker.has(xkcdComic)) {
+		// Track the state of the widget for later restoration
+		tracker.add(xkcdComic);
+		}
 
-      if (!xkcdComic.isAttached) {
-        // Attach the widget to the main work area if it's not there
-        shell.addToMainArea(xkcdComic);
-      } else {
-        // Refresh the comic in the widget
-        xkcdComic.update();
-      }
+		if (!xkcdComic.isAttached) {
+		// Attach the widget to the main work area if it's not there
+		shell.addToMainArea(xkcdComic);
+		} else {
+		// Refresh the comic in the widget
+		xkcdComic.update();
+		}
 
-      // Activate the widget
-      shell.activateById(xkcdComic.id);
-    }
-  });
+		// Activate the widget
+		shell.activateById(xkcdComic.id);
+	}
+	});
 
-  commands.addCommand(COMMANDS.hello, {
-    label: 'Say Hello World',
-    execute: () => {
+	commands.addCommand(COMMANDS.hello, {
+	label: 'Say Hello World',
+	execute: () => {
 
-      commands.execute('console:create', {
-        activate: true,
-      }).then(consolePanel => {
-          consolePanel.session.ready.then(() => {
-            let code = '#This code was injected by clicking on the "';
-            code += '"Say Hello World" command.\nmsg = "Hello world!"\nprint(msg)';
-            consolePanel.console.inject(code);
-          });
-      });
-    }
-  });
+		commands.execute('console:create', {
+		activate: true,
+		}).then(consolePanel => {
+			consolePanel.session.ready.then(() => {
+			let code = '#This code was injected by clicking on the "';
+			code += '"Say Hello World" command.\nmsg = "Hello world!"\nprint(msg)';
+			consolePanel.console.inject(code);
+			});
+		});
+	}
+	});
 
-  commands.addCommand(COMMANDS.open_setup, {
-    label: 'VCS Setup',
-    execute: () => {
-        if(!widget){
-            widget = new NCSetupWidget(commands);
-            widget.id = 'vcs-setup';
-            widget.title.label = 'VCS Setup';
-            widget.title.closable = true;
-        }
-        if (!widget.isAttached) {
-            // Attach the widget to the left area if it's not there
-            shell.addToLeftArea(widget);
-        } else {
-            widget.update();
-        }
-        // Activate the widget
-        shell.activateById(widget.id);
-    }
-  });
+	commands.addCommand(COMMANDS.open_setup, {
+	label: 'VCS Setup',
+	execute: () => {
+		if(!widget){
+			widget = new NCSetupWidget(commands);
+			widget.id = 'vcs-setup';
+			widget.title.label = 'VCS Setup';
+			widget.title.closable = true;
+		}
+		if (!widget.isAttached) {
+			// Attach the widget to the left area if it's not there
+			shell.addToLeftArea(widget);
+		} else {
+			widget.update();
+		}
+		// Activate the widget
+		shell.activateById(widget.id);
+	}
+	});
 
-  commands.addCommand(COMMANDS.showWidget, {
-    label: 'VCDAT Widget',
-    execute: () => {
-        if(!numField){
-            numField = new VCDAT_Widgets("numFieldTest");
-            numField.id = "vcdat-widget";
-            numField.title.label = "VCDAT Widget";
-            numField.title.closable = true;
-        }
-        if (!numField.isAttached) {
-            // Attach the widget to the left area if it's not there
-            shell.addToRightArea(numField);
-        } else {
-          numField.update();
-        }
-        // Activate the widget
-        shell.activateById(numField.id);
-    }
-  });
+	commands.addCommand(COMMANDS.showLeftSideBar, {
+		label: 'VCDAT LeftSideBar',
+		execute: () => {
+			if(!sidebar){
+				sidebar = new LeftSideBarWidget();
+				sidebar.id = 'left-side-bar';
+				sidebar.title.label = 'VCS LeftSideBar';
+				sidebar.title.closable = false;
+			}
+			if (!sidebar.isAttached) {
+				// Attach the widget to the left area if it's not there
+				shell.addToLeftArea(sidebar);
+			} else {
+				sidebar.update();
+			}
+			// Activate the widget
+			shell.activateById(sidebar.id);
+		}
+		});
 
-  // Add commands to the palette.
-  [
-    COMMANDS.showComic,
-    COMMANDS.hello,
-    COMMANDS.open_setup,
-    COMMANDS.showWidget
-  ].forEach(command => {
-    palette.addItem({ command, category: '1. Visualization' });
-  });
+	commands.addCommand(COMMANDS.showWidget, {
+	label: 'VCDAT Widget',
+	execute: () => {
+		if(!numField){
+			numField = new VCDAT_Widgets("numFieldTest");
+			numField.id = "vcdat-widget";
+			numField.title.label = "VCDAT Widget";
+			numField.title.closable = true;
+		}
+		if (!numField.isAttached) {
+			// Attach the widget to the left area if it's not there
+			shell.addToRightArea(numField);
+		} else {
+			numField.update();
+		}
+		// Activate the widget
+		shell.activateById(numField.id);
+	}
+	});
 
-  // Track and restore the widget state
-  let tracker = new InstanceTracker<Widget>({ namespace: 'xkcd' });
-  [
-    COMMANDS.showComic
-  ].forEach(command => {
-    restorer.restore(tracker, {
-      command,
-      args: () => JSONExt.emptyObject,
-      name: () => 'xkcd'
-    });
-  });
+	// Add commands to the palette.
+	[
+	COMMANDS.showComic,
+	COMMANDS.hello,
+	COMMANDS.open_setup,
+	COMMANDS.showWidget,
+	COMMANDS.showLeftSideBar
+	].forEach(command => {
+	palette.addItem({ command, category: '1. Visualization' });
+	});
+
+	// Track and restore the widget state
+	let tracker = new InstanceTracker<Widget>({ namespace: 'xkcd' });
+	[
+	COMMANDS.showComic
+	].forEach(command => {
+	restorer.restore(tracker, {
+		command,
+		args: () => JSONExt.emptyObject,
+		name: () => 'xkcd'
+	});
+	});
 };
 
 export class NCViewerFactory extends ABCWidgetFactory<
-    IDocumentWidget<NCViewerWidget>
-    > {
-    /**
-     * Create a new widget given a context.
-     */
-    protected createNewWidget(
-        context: DocumentRegistry.Context
-    ): IDocumentWidget<NCViewerWidget> {
-        const content = new NCViewerWidget(context);
-        const ncWidget = new DocumentWidget({ content, context });
-        // debugger;
-        console.log('executing command console:create');
-        commands.execute('console:create', {
-            activate: true,
-            path: context.path,
-            preferredLanguage: context.model.defaultKernelLanguage
-        }).then(consolePanel => {
-            consolePanel.session.ready.then(() => {
-                consolePanel.console.inject('import cdms2');
-                consolePanel.console.inject('import vcs');
+	IDocumentWidget<NCViewerWidget>
+	> {
+	/**
+	 * Create a new widget given a context.
+	 */
+	protected createNewWidget(
+		context: DocumentRegistry.Context
+	): IDocumentWidget<NCViewerWidget> {
+		const content = new NCViewerWidget(context);
+		const ncWidget = new DocumentWidget({ content, context });
+		// debugger;
+		console.log('executing command console:create');
+		commands.execute('console:create', {
+			activate: true,
+			path: context.path,
+			preferredLanguage: context.model.defaultKernelLanguage
+		}).then(consolePanel => {
+			consolePanel.session.ready.then(() => {
+				consolePanel.console.inject('import cdms2');
+				consolePanel.console.inject('import vcs');
 
-                let dataLoadString = 'data = cdms2.open(\'' + context.session.path + '\')';
-                consolePanel.console.inject(dataLoadString);
-                consolePanel.console.inject('clt = data("clt")');
-                consolePanel.console.inject('x=vcs.init()');
-                consolePanel.console.inject('x.plot(clt)');
-            });
-        });
-        return ncWidget;
-    }
+				let dataLoadString = 'data = cdms2.open(\'' + context.session.path + '\')';
+				consolePanel.console.inject(dataLoadString);
+				consolePanel.console.inject('clt = data("clt")');
+				consolePanel.console.inject('x=vcs.init()');
+				consolePanel.console.inject('x.plot(clt)');
+			});
+		});
+		return ncWidget;
+	}
 }
 
 export class NCViewerWidget extends Widget {
-    constructor(context: DocumentRegistry.Context) {
-        super();
-        this.context = context;
-    }
+	constructor(context: DocumentRegistry.Context) {
+		super();
+		this.context = context;
+	}
 
-    readonly context: DocumentRegistry.Context;
+	readonly context: DocumentRegistry.Context;
 
-    readonly ready = Promise.resolve(void 0);
+	readonly ready = Promise.resolve(void 0);
 }

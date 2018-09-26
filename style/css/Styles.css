@@ -1,0 +1,325 @@
+#vcdat-left-side-bar {
+  /*makes stuff work in firefox*/
+  /* .dropdown-menu {
+        background-color: #31b0d5;
+        position: absolute;
+        top: 100%;
+        right: 0;
+    } */
+  /* Responsive styling for the template editor*/ }
+
+@font-face {
+  #vcdat-left-side-bar {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(MaterialIcons-Regular.eot);
+    /* For IE6-8 */
+    src: local("Material Icons"), local("MaterialIcons-Regular"), url(MaterialIcons-Regular.woff2) format("woff2"), url(MaterialIcons-Regular.woff) format("woff"), url(MaterialIcons-Regular.ttf) format("truetype"); } }
+  #vcdat-left-side-bar .material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+    /* Support for IE. */
+    font-feature-settings: 'liga'; }
+  #vcdat-left-side-bar * {
+    min-height: 0;
+    min-width: 0; }
+  #vcdat-left-side-bar button:focus {
+    outline: 0 !important; }
+  #vcdat-left-side-bar .btn-default:focus {
+    /* Fixes issue where buttons appear to stay pressed when clicked */
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+    outline: 0; }
+  #vcdat-left-side-bar .no-bullets {
+    list-style-type: none; }
+  #vcdat-left-side-bar .black {
+    color: black; }
+  #vcdat-left-side-bar .toolbar {
+    margin: 2px; }
+  #vcdat-left-side-bar .undo-redo-button:disabled {
+    color: #ACADAD; }
+  #vcdat-left-side-bar .ui-selected .border {
+    width: 100%;
+    box-sizing: border-box;
+    border: 10px solid blue; }
+  #vcdat-left-side-bar .ui-selecting .border {
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px solid blue; }
+  #vcdat-left-side-bar .border {
+    width: 100%;
+    position: absolute;
+    top: 0; }
+  #vcdat-left-side-bar #spin-row, #vcdat-left-side-bar #spin-column {
+    width: 40px; }
+  #vcdat-left-side-bar .sheet-list-item {
+    cursor: pointer; }
+  #vcdat-left-side-bar .sheet-list-item > a > button {
+    display: inline-block; }
+  #vcdat-left-side-bar .sheet-list-item > a > span {
+    display: inline-block; }
+  #vcdat-left-side-bar #left-side-bar {
+    width: 100%;
+    background-color: white;
+    height: 100%;
+    vertical-align: top;
+    padding: 0; }
+  #vcdat-left-side-bar .spreadsheet-container {
+    flex: 1;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    padding-left: 2px; }
+  #vcdat-left-side-bar #right-side-bar {
+    width: 200px;
+    background-color: white;
+    margin-left: 2px; }
+  #vcdat-left-side-bar #var-ulist {
+    width: 115px; }
+  #vcdat-left-side-bar #var-ulist li a {
+    padding: 0 4px; }
+  #vcdat-left-side-bar #app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; }
+  #vcdat-left-side-bar #main-container {
+    flex-grow: 1;
+    height: 100%;
+    margin: 2px;
+    display: flex; }
+  #vcdat-left-side-bar #add-sheet-button {
+    vertical-align: top;
+    margin: 0 2px 0 2px;
+    height: 100%; }
+  #vcdat-left-side-bar .icon-flipped {
+    transform: scaleX(-1);
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    -ms-transform: scaleX(-1); }
+  #vcdat-left-side-bar .side-nav-header, #vcdat-left-side-bar .top-nav-header {
+    margin-top: 10px;
+    margin-left: -8px; }
+  #vcdat-left-side-bar .left-side-list {
+    height: 33.33%;
+    background: #fafafa; }
+  #vcdat-left-side-bar .right-side-list {
+    /*height:50%;*/ }
+  #vcdat-left-side-bar #inspector {
+    height: 75%; }
+  #vcdat-left-side-bar .scroll-area-list-parent {
+    display: flex;
+    flex-flow: column; }
+  #vcdat-left-side-bar .scroll-area {
+    overflow-y: auto;
+    flex: 1; }
+  #vcdat-left-side-bar #animation {
+    height: 25%; }
+  #vcdat-left-side-bar .navbar {
+    border-radius: 0;
+    margin-bottom: 0; }
+  #vcdat-left-side-bar .main-left-list-item a {
+    display: block;
+    color: black;
+    cursor: pointer;
+    width: 100%;
+    padding-left: 10px;
+    text-decoration: none; }
+  #vcdat-left-side-bar .main-left-list-item a:hover {
+    background-color: #6D7F91;
+    color: white; }
+  #vcdat-left-side-bar .sub-left-list-item a {
+    display: block;
+    color: black;
+    width: 100%;
+    padding-left: 10px;
+    text-decoration: none;
+    cursor: pointer; }
+  #vcdat-left-side-bar .left-list {
+    padding-left: 0; }
+  #vcdat-left-side-bar .dropdown-button {
+    width: 100%;
+    text-align: right; }
+  #vcdat-left-side-bar .edit-button {
+    width: 60.55px; }
+  #vcdat-left-side-bar .dropdown-container {
+    position: relative; }
+  #vcdat-left-side-bar .inspector-selector td {
+    vertical-align: top;
+    padding: 0;
+    margin: 0; }
+  #vcdat-left-side-bar .inspector-selector table {
+    border-collapse: collapse; }
+  #vcdat-left-side-bar .nav-tabs > li .close {
+    margin: 1px 0 0 10px;
+    font-size: 18px; }
+  #vcdat-left-side-bar .cell {
+    border: 1px solid #cecece; }
+  #vcdat-left-side-bar .cell:hover {
+    border: 1px solid #afafff; }
+  #vcdat-left-side-bar .cell.cell-selected {
+    border: 1px solid blue; }
+  #vcdat-left-side-bar .canvas-container {
+    overflow: hidden;
+    position: absolute;
+    background-color: #fbfbfb;
+    height: 100%;
+    width: 100%; }
+  #vcdat-left-side-bar .plotter {
+    display: flex;
+    color: black; }
+  #vcdat-left-side-bar .plotter-plots {
+    width: 100%;
+    display: flex; }
+  #vcdat-left-side-bar .plotter-plots > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%; }
+  #vcdat-left-side-bar .plotter-plots > div > div {
+    flex: 1; }
+  #vcdat-left-side-bar .plotter-add-plot {
+    flex: 1;
+    max-width: 350px; }
+  #vcdat-left-side-bar .plot {
+    box-sizing: border-box;
+    padding: 0 10px 0 10px; }
+  #vcdat-left-side-bar .plotter-add-plot > svg:hover circle {
+    stroke: lime; }
+  #vcdat-left-side-bar .plotter-add-plot > svg:hover path {
+    fill: lime; }
+  #vcdat-left-side-bar .plot-var {
+    display: inline-block;
+    width: 50%;
+    height: 20px;
+    vertical-align: top; }
+  #vcdat-left-side-bar .plot-hover {
+    opacity: 0.7;
+    background-color: #A3E2F7; }
+  #vcdat-left-side-bar .colored-second-var {
+    background-color: gray; }
+  #vcdat-left-side-bar .second-var-highlight {
+    background-color: yellow; }
+  #vcdat-left-side-bar .plot-var {
+    padding-left: 5px; }
+  #vcdat-left-side-bar .first-var {
+    background-color: gray;
+    width: 40%;
+    margin-right: 5px; }
+  #vcdat-left-side-bar .ui-sortable-placeholder {
+    display: inline-block;
+    height: 1px; }
+  #vcdat-left-side-bar #file {
+    display: none; }
+  #vcdat-left-side-bar .tree {
+    color: black;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    padding-left: 1em; }
+  #vcdat-left-side-bar li.tree-node:before {
+    content: "\e080";
+    font-family: 'Glyphicons Halflings';
+    font-size: 9px;
+    float: left;
+    margin-top: 4px;
+    margin-left: -17px;
+    color: #CCCCCC; }
+  #vcdat-left-side-bar li.tree-node.disclosed:before {
+    content: "\e114"; }
+  #vcdat-left-side-bar #temp-list > li, #vcdat-left-side-bar #var-list > li {
+    cursor: pointer; }
+  #vcdat-left-side-bar .tree li.tree-leaf.active, #vcdat-left-side-bar #temp-list > li.active, #vcdat-left-side-bar #var-list > li.active {
+    background-color: #df691a; }
+  #vcdat-left-side-bar .tree li.tree-leaf.active a, #vcdat-left-side-bar #temp-list > li.active a, #vcdat-left-side-bar #var-list > li.active a {
+    color: white; }
+  #vcdat-left-side-bar .tree li {
+    display: block;
+    padding: .1em .25em; }
+  #vcdat-left-side-bar li.tree-leaf {
+    list-style-type: none;
+    cursor: pointer; }
+  #vcdat-left-side-bar .tree-view {
+    max-height: 80vh;
+    overflow: auto; }
+  #vcdat-left-side-bar .tree-view a {
+    text-decoration: none;
+    display: inline-block;
+    width: 100%;
+    cursor: pointer; }
+  #vcdat-left-side-bar .tree-view a > i {
+    padding-right: 5px; }
+  #vcdat-left-side-bar .tree-view .directory {
+    color: #EDC566; }
+  #vcdat-left-side-bar .tree-view a.active {
+    padding: 0 5px 0 5px;
+    background-color: white; }
+  #vcdat-left-side-bar .template-editor-tab-content {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 200px; }
+  @media screen and (min-height: 920px) {
+    #vcdat-left-side-bar .template-editor-tab-content {
+      height: 250px; } }
+  @media screen and (min-height: 970px) {
+    #vcdat-left-side-bar .template-editor-tab-content {
+      height: 300px; } }
+  @media screen and (min-height: 1020px) {
+    #vcdat-left-side-bar .template-editor-tab-content {
+      height: 350px; } }
+  @media screen and (min-height: 1070px) {
+    #vcdat-left-side-bar .template-editor-tab-content {
+      height: 400px; } }
+  @media screen and (min-height: 1120px) {
+    #vcdat-left-side-bar .template-editor-tab-content {
+      height: 450px; } }
+  #vcdat-left-side-bar .colormap-apply-menu.dropdown-menu {
+    background-color: #fff; }
+  #vcdat-left-side-bar .canvas-spinner-hidden {
+    display: none; }
+  #vcdat-left-side-bar .canvas-spinner-show {
+    z-index: 1;
+    background-color: rgba(250, 250, 250, 0.6);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center; }
+  #vcdat-left-side-bar .canvas-spinner-show span {
+    margin-left: 5px; }
+  #vcdat-left-side-bar .loading-spinner {
+    border: 3px solid #f3f3f3;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
+    border-top: 3px solid #555;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px; }
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg); }
+  100% {
+    transform: rotate(360deg); } }
+  #vcdat-left-side-bar div.contact-us-link {
+    margin-top: 10px; }
