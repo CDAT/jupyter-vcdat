@@ -21,6 +21,28 @@ class NumberField extends React.Component <any, any> {
 
     constructor (props: any){
       super(props);
+      /*
+      this.box = {
+        "g_name": "Gfb", "boxfill_type": "linear", "color_1": 0, "color_2": 255, "colormap": null, "datawc_calendar": 135441, "datawc_timeunits": "days since 2000", "datawc_x1": 1e+20, "datawc_x2": 1e+20, "datawc_y1": 1e+20, "datawc_y2": 1e+20, "ext_1": false, "ext_2": false, "fillareacolors": null, "fillareaindices": [1], "fillareaopacity": [], "fillareapixelscale": null, "fillareapixelspacing": null, "fillareastyle": "solid", "legend": null, "level_1": 1e+20, "level_2": 1e+20, "levels": [1e+20, 1e+20], "missing": [0.0, 0.0, 0.0, 100.0], "name": "__boxfill_117978341755590", "projection": "linear", "xaxisconvert": "linear", "xmtics1": {}, "xmtics2": {}, "xticlabels1": {}, 
+        "xticlabels2": {}, "yaxisconvert": "linear", 
+        "ymtics1": {}, "ymtics2": {}, "yticlabels1": {}, "yticlabels2": {}
+      };
+      */
+      let gm:any = {
+        g_name: "Gfb", boxfill_type: "linear", color_1: 0, color_2: 255, colormap: null, 
+        datawc_calendar: 135441, datawc_timeunits: "days since 2000", datawc_x1: 1e+20, datawc_x2: 1e+20,
+        datawc_y1: 1e+20, datawc_y2: 1e+20, ext_1: false, ext_2: false, fillareacolors: null, fillareaindices: [1],
+        fillareaopacity: [], fillareapixelscale: null, fillareapixelspacing: null, fillareastyle: "solid", 
+        legend: null, level_1: 1e+20, level_2: 1e+20, levels: [1e+20, 1e+20], missing: [0.0, 0.0, 0.0, 100.0],
+        name: "__boxfill_117978341755590", projection: "linear", xaxisconvert: "linear",
+        xmtics1: {}, xmtics2: {}, xticlabels1: {}, 
+        xticlabels2: {}, yaxisconvert: "linear", 
+        ymtics1: {}, ymtics2: {}, yticlabels1: {}, yticlabels2: {}};
+      let gms:any = {};
+      gms[gm.g_name] = {};
+      gms[gm.g_name][gm.name] = gm;
+
+
       this.state = { 
         value: 15,
         minValue: 0,
@@ -32,28 +54,25 @@ class NumberField extends React.Component <any, any> {
         autoround: true,
         placeholder: "Value must be <= 100.",
         exponential: false,
-        inline: true
+        inline: true,
+        gm: gm,
+        gms: gms
       };
     }
   
     render() {
-
-      var NumField = vcs_widgets.NumberField;
+      var NumField = vcs_widgets.GMEdit;
       return (
         <div className = 'numberField'>
-          <h2>This is a NumberField widget imported from vcs-widgets!</h2>
+          <h2>This is a GMEdit widget imported from vcs-widgets!</h2>
           <NumField 
-                value={this.state.value}
-                minValue={this.state.minValue}
-                maxValue={this.state.maxValue}
-                updatedValue={this.state.updated}
-                label={this.state.label}
-                controlId={this.props.id}
-                step={this.state.step}
-                autoround={this.state.autoround}
-                placeholder={this.state.placeholder}
-                exponential={this.state.exponential}
-                inline={this.state.inline}
+         graphicsMethod={this.state.gm.name}
+         graphicsMethodParent={this.state.gm.g_name}
+         gmProps={this.state.gm}
+         graphicsMethods={this.state.gms}
+         updateGraphicsMethod={function() {}}
+         updateActiveGM={function() {}}
+         colormaps={["AMIP", "NCAR", "bl_to_darkred", "bl_to_drkorang", "blends"]}
               />
         </div>
       )
