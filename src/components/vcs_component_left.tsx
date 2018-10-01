@@ -1,5 +1,11 @@
 import * as React from 'react';
 
+/**
+ * A component to test code injection in JupyterLab
+ * 
+ * props: clickHandler and function that takes a string parameter for code to inject in JupyterLab notebook
+ */
+
 export class VCSComponentLeft extends React.Component<any, any> {
 
     constructor(props: any) {

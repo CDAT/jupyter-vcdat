@@ -4,6 +4,16 @@ import VarList from './VarList';
 import GMList from './GMList';
 import TemplateList from './TemplateList';
 
+/**
+ * A left sidebar container that holds the variable, graphics methods and templates lists.
+ * 
+ * props: 
+ *  varClickHandler: a function that handles when an item in the variables list is clicked.
+ *  variables: A dictionary containing variable names and values
+ *  graphicMethods: A dictionary conatining graphic method names and values
+ *  templates: A dictionary conatining template names and values
+ */
+
 export class LeftSideBar extends React.Component <any> {
     
     render() {
@@ -13,13 +23,14 @@ export class LeftSideBar extends React.Component <any> {
                     <div id='main-container'>
                         <div id='left-side-bar'>
                             <VarList
-                                variables={{"TestVar1":123,"TestVar2":"The value","Test Variable 3":1234}}
+                                clickHandler={this.props.varClickHandler}
+                                variables={this.props.variables}
                             />
                             <GMList 
-                                variables={{"Graphics Method 1":123,"Method 2":"The value","GMethod 3":1234}}
+                                graphicMethods={this.props.graphicMethods}
                             />
                             <TemplateList
-                                templates={{"Template 1":123,"Template 2":"The template?","Template 3":1234}}
+                                templates={this.props.templates}
                             />
                             <ToastContainer />
                         </div>

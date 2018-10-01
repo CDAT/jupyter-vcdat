@@ -2,6 +2,15 @@ import * as React from 'react';
 import { toast } from 'react-toastify';
 import AddEditRemoveNav from './AddEditRemoveNav';
 
+/**
+ * A test component to show variables list where variables can be clicked on.
+ * 
+ * props:
+ *  variables: A dictionary containing key value pairs of variable names and their data.
+ *  clickHandler: onClick handler for when a specific variable in the list is clicked,
+ *  the onClick event is passed to the function.
+ */
+
 class VarList extends React.Component <any, any> {
     constructor(props: any){
         super(props)
@@ -12,18 +21,27 @@ class VarList extends React.Component <any, any> {
         this.addVariable = this.addVariable.bind(this);
         this.editVariable = this.editVariable.bind(this)
         this.removeVariable = this.removeVariable.bind(this)
+        this.clickItemHandler = this.clickItemHandler.bind(this);
     }
     
     addVariable() {
+        console.log("A form should open for a variable to be added.");
         toast.info("A form should open for a variable to be added.", { position: toast.POSITION.BOTTOM_CENTER })
     }
 
     editVariable() {
+        console.log("A form should open for a variable to be edited.");
         toast.info("A form should open for a variable to be edited.", { position: toast.POSITION.BOTTOM_CENTER })
     }
 
     removeVariable() {
-        toast.info("A variable will be removed from the list", { position: toast.POSITION.BOTTOM_CENTER })
+        console.log("A variable will be removed from the list.");
+        toast.info("A variable will be removed from the list.", { position: toast.POSITION.BOTTOM_CENTER })
+    }
+
+    clickItemHandler(event: any, varName: string, varVal: any) {
+        this.props.clickHandler(varName, varVal);
+        console.log(event);
     }
 
     render() {
@@ -40,10 +58,10 @@ class VarList extends React.Component <any, any> {
                 />
                 <div className='scroll-area'>
                     <ul id='var-list' className='no-bullets left-list'>
-                        {Object.keys(this.props.variables).map((value, index) => {
+                        {Object.keys(this.props.variables).map((key, index) => {
                             return(
                                 <li>
-                                    Key: {index} Value: {value}
+                                    <a href='#' onClick={(e) => {this.clickItemHandler(e,key,this.props.variables[key])}}>   Key: {key} Value: {this.props.variables[key]}</a>
                                 </li>
                             ) 
                         })}

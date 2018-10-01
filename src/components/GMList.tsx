@@ -41,7 +41,7 @@ class GMList extends React.Component <any, any> {
                 />
                 <div className='scroll-area'>
                     <ul id='gm-list' className='no-bullets left-list'>
-                        {Object.keys(this.props.variables).map((value, index) => {
+                        {Object.keys(this.props.graphicMethods).map((value, index) => {
                             return(
                                 <li>
                                     Key: {index} Value: {value}

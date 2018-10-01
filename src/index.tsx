@@ -167,7 +167,7 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
 		label: 'VCDAT LeftSideBar',
 		execute: () => {
 			if(!sidebar){
-				sidebar = new LeftSideBarWidget();
+				sidebar = new LeftSideBarWidget(commands);
 				sidebar.id = 'left-side-bar';
 				sidebar.title.label = 'VCS LeftSideBar';
 				sidebar.title.closable = false;
