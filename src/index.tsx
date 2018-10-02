@@ -27,22 +27,14 @@ import {
 import { CommandRegistry } from '@phosphor/commands';
 import { JSONExt } from '@phosphor/coreutils'
 import { Widget } from '@phosphor/widgets';
-import XkcdComic from './components/comic';
-import NumberField from './components/vcs_widgets';
 import LeftSideBarWidget from './components/left_side_bar_widget';
 
 const FILETYPE = 'NetCDF';
 const FACTORY_NAME = 'vcs';
 
-import NCSetupWidget from './components/nc_setup_widget';
-import VCDAT_Widgets from './components/vcs_widgets';
-
 // Declare the widget variables
-let xkcdComic: XkcdComic;
-let numField: NumberField;
 let commands: CommandRegistry;
 let shell: ApplicationShell;
-let widget: NCSetupWidget;
 let sidebar: LeftSideBarWidget;
 
 /**
@@ -90,79 +82,10 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
 	
 	// Add application commands
 	const COMMANDS = {
-	hello: "xkcd:hello",
-	showComic: "xkcd:open",
-	open_setup: "vcs:open-setup",
-	showWidget: "vcs:open-widget",
-	showLeftSideBar: "vcs:open-sidebar"
+		showLeftSideBar: "vcs:open-sidebar"
 	};
 
 	//const command: string = 'xkcd:open';
-
-	commands.addCommand(COMMANDS.showComic, {
-	label: 'Show random xkcd comic',
-	execute: () => {
-
-		if (!xkcdComic) {
-		// Create a new widget if one does not exist
-		xkcdComic = new XkcdComic('jupyter-react-ext',"This Comic is rendered by React...");
-		xkcdComic.update();
-		}
-
-		if (!tracker.has(xkcdComic)) {
-		// Track the state of the widget for later restoration
-		tracker.add(xkcdComic);
-		}
-
-		if (!xkcdComic.isAttached) {
-		// Attach the widget to the main work area if it's not there
-		shell.addToMainArea(xkcdComic);
-		} else {
-		// Refresh the comic in the widget
-		xkcdComic.update();
-		}
-
-		// Activate the widget
-		shell.activateById(xkcdComic.id);
-	}
-	});
-
-	commands.addCommand(COMMANDS.hello, {
-	label: 'Say Hello World',
-	execute: () => {
-
-		commands.execute('console:create', {
-		activate: true,
-		}).then(consolePanel => {
-			consolePanel.session.ready.then(() => {
-			let code = '#This code was injected by clicking on the "';
-			code += '"Say Hello World" command.\nmsg = "Hello world!"\nprint(msg)';
-			consolePanel.console.inject(code);
-			});
-		});
-	}
-	});
-
-	commands.addCommand(COMMANDS.open_setup, {
-	label: 'VCS Setup',
-	execute: () => {
-		if(!widget){
-			widget = new NCSetupWidget(commands);
-			widget.id = 'vcs-setup';
-			widget.title.label = 'VCS Setup';
-			widget.title.closable = true;
-		}
-		if (!widget.isAttached) {
-			// Attach the widget to the left area if it's not there
-			shell.addToLeftArea(widget);
-		} else {
-			widget.update();
-		}
-		// Activate the widget
-		shell.activateById(widget.id);
-	}
-	});
-
 	commands.addCommand(COMMANDS.showLeftSideBar, {
 		label: 'VCDAT LeftSideBar',
 		execute: () => {
@@ -181,49 +104,25 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
 			// Activate the widget
 			shell.activateById(sidebar.id);
 		}
-		});
-
-	commands.addCommand(COMMANDS.showWidget, {
-	label: 'VCDAT Widget',
-	execute: () => {
-		if(!numField){
-			numField = new VCDAT_Widgets("numFieldTest");
-			numField.id = "vcdat-widget";
-			numField.title.label = "VCDAT Widget";
-			numField.title.closable = true;
-		}
-		if (!numField.isAttached) {
-			// Attach the widget to the left area if it's not there
-			shell.addToRightArea(numField);
-		} else {
-			numField.update();
-		}
-		// Activate the widget
-		shell.activateById(numField.id);
-	}
 	});
 
 	// Add commands to the palette.
 	[
-	COMMANDS.showComic,
-	COMMANDS.hello,
-	COMMANDS.open_setup,
-	COMMANDS.showWidget,
 	COMMANDS.showLeftSideBar
 	].forEach(command => {
-	palette.addItem({ command, category: '1. Visualization' });
+		palette.addItem({ command, category: '1. Visualization' });
 	});
 
 	// Track and restore the widget state
-	let tracker = new InstanceTracker<Widget>({ namespace: 'xkcd' });
+	let tracker = new InstanceTracker<Widget>({ namespace: 'vcs' });
 	[
-	COMMANDS.showComic
+	COMMANDS.showLeftSideBar
 	].forEach(command => {
 	restorer.restore(tracker, {
-		command,
-		args: () => JSONExt.emptyObject,
-		name: () => 'xkcd'
-	});
+			command,
+			args: () => JSONExt.emptyObject,
+			name: () => 'vcs'
+		});
 	});
 };
 
