@@ -44,7 +44,7 @@ For a development install (requires npm version 4 or later), do the following in
     cd jupyter-react-ext
     git checkout vcdat2.0
     npm install
-    jupyter labextension install
+    jupyter labextension install .
 
     #To run, activate jupyter-vcdat environment (if not active) and enter:
     jupyter lab
