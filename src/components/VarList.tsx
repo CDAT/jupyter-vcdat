@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import AddEditRemoveNav from './AddEditRemoveNav';
+import List from "./List";
 
 /**
  * A test component to show variables list where variables can be clicked on.
@@ -21,7 +22,7 @@ class VarList extends React.Component <any, any> {
         this.addVariable = this.addVariable.bind(this);
         this.editVariable = this.editVariable.bind(this)
         this.removeVariable = this.removeVariable.bind(this)
-        this.clickItemHandler = this.clickItemHandler.bind(this);
+        this.clickVariable = this.clickVariable.bind(this);
     }
     
     addVariable() {
@@ -39,9 +40,8 @@ class VarList extends React.Component <any, any> {
         toast.info("A variable will be removed from the list.", { position: toast.POSITION.BOTTOM_CENTER })
     }
 
-    clickItemHandler(event: any, varName: string, varVal: any) {
-        this.props.clickHandler(varName, varVal);
-        console.log(event);
+    clickVariable(event: any, varName: string) {
+        this.props.clickHandler(event, varName);
     }
 
     render() {
@@ -56,7 +56,11 @@ class VarList extends React.Component <any, any> {
                     editText="Edit a loaded variable"
                     removeText="Remove a loaded variable"
                 />
-                <div className='scroll-area'>
+                <List 
+                    clickAction={this.clickVariable}
+                    itemList={this.props.variables}
+                />
+                {/*<div className='scroll-area'>
                     <ul id='var-list' className='no-bullets left-list'>
                         {Object.keys(this.props.variables).map((key, index) => {
                             return(
@@ -66,7 +70,7 @@ class VarList extends React.Component <any, any> {
                             ) 
                         })}
                     </ul>
-                </div>
+                    </div>*/}
             </div>
         )
     }

@@ -28,12 +28,11 @@ class LeftSideBarWidget extends Widget {
         console.log('firing LeftSideBar constructor');
 
         let props = {
-            variables: {"TestVar1":123,"TestVar2":"The value","TestVariable3":1234},
+            variables: ["TestVar1","TestVar2","TestVariable3"],
             graphicMethods: {"GraphicsMethod1":123,"Method2":"Thevalue","GMethod 3":1234},
             templates: {"Template 1":123,"Template 2":"The template?","Template 3":1234},
-            varClickHandler: (varName: string, varVal: any)=>{
-                injectCode(commands,"#Hello world! Code injection example.\n" + varName + " = " + varVal + " \nmsg = 'hello world! {0} is equal to: {1}'.format('" + 
-                varName + "'," + varVal + ")\nprint(msg)");
+            varClickHandler: (event: any, varName: string)=>{
+                injectCode(commands,"#Hello world! Code injection example.\nVariable clicked is: " + varName);
             }
         };
         ReactDOM.render(<LeftSideBar {...props}></LeftSideBar>,this.div);
