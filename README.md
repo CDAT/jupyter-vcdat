@@ -24,7 +24,7 @@ For a development install (requires npm version 4 or later), do the following in
 ```bash
 
     #Create the environment
-    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat ipython nodejs vcs jupyterlab jupyter flake8 autopep8 pip nb_conda jupyterhub ipywidgets python=3
+    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda libcurl ipython nodejs vcs jupyterlab jupyter flake8 autopep8 pip nb_conda jupyterhub ipywidgets python=3
     source activate jupyter-vcdat
 
     # Go to vcs repo
@@ -32,7 +32,6 @@ For a development install (requires npm version 4 or later), do the following in
     cd vcs
     git checkout boxfill_widgets_jupyter
     python setup.py install --old-and-unmanageable
-    cd ..
 
     # Install sidecar
     pip install sidecar
@@ -40,13 +39,14 @@ For a development install (requires npm version 4 or later), do the following in
     jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
     #install the react-tutorial extension
+    cd ..
     git clone https://github.com/downiec/jupyter-react-ext.git
     cd jupyter-react-ext
     git checkout vcdat2.0
     npm install
-    jupyter labextension install
+    jupyter labextension install .
 
-    #To run, activate jupyter-vcdat environment (if not active) and enter:
+    #To run, got to jupyter-react-ext repo
     jupyter lab
 
 ```

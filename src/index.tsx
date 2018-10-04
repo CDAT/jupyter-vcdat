@@ -15,14 +15,9 @@ from '@jupyterlab/docregistry';
 import { 
 	JupyterLab, 
 	JupyterLabPlugin,
-	ApplicationShell, 
-	ILayoutRestorer } 
+	ApplicationShell
+} 
 from '@jupyterlab/application';
-
-import { 
-	ICommandPalette, 
-	//InstanceTracker 
-} from '@jupyterlab/apputils';
 
 import { CommandRegistry } from '@phosphor/commands';
 //import { JSONExt } from '@phosphor/coreutils'
@@ -43,7 +38,7 @@ let sidebar: LeftSideBarWidget;
 const extension: JupyterLabPlugin<void> = {
 	id: 'jupyter-react-ext',
 	autoStart: true,
-	requires: [ICommandPalette, ILayoutRestorer],
+	requires: [],
 	activate: activate
 };
 
@@ -79,52 +74,6 @@ function activate(app: JupyterLab) {
 	factory.widgetCreated.connect((sender, widget) => {
 		console.log('NCViewerWidget created from factory');
 	});
-	
-	/*// Add application commands
-	const COMMANDS = {
-		showLeftSideBar: "vcs:open-sidebar"
-	};
-
-	//const command: string = 'xkcd:open';
-	commands.addCommand(COMMANDS.showLeftSideBar, {
-		label: 'VCDAT LeftSideBar',
-		execute: () => {
-			if(!sidebar){
-				sidebar = new LeftSideBarWidget(commands);
-				sidebar.id = 'left-side-bar';
-				sidebar.title.label = 'VCS LeftSideBar';
-				sidebar.title.closable = false;
-			}
-			if (!sidebar.isAttached) {
-				// Attach the widget to the left area if it's not there
-				shell.addToLeftArea(sidebar);
-			} else {
-				sidebar.update();
-			}
-			// Activate the widget
-			shell.activateById(sidebar.id);
-		}
-	});
-
-	// Add commands to the palette.
-	[
-	COMMANDS.showLeftSideBar
-	].forEach(command => {
-		palette.addItem({ command, category: '1. Visualization' });
-	});
-
-	// Track and restore the widget state
-	let tracker = new InstanceTracker<Widget>({ namespace: 'vcs' });
-	[
-	COMMANDS.showLeftSideBar
-	].forEach(command => {
-	restorer.restore(tracker, {
-			command,
-			args: () => JSONExt.emptyObject,
-			name: () => 'vcs'
-		});
-	});
-	*/
 };
 
 export class NCViewerFactory extends ABCWidgetFactory<
