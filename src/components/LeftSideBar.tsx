@@ -5,32 +5,26 @@ import { ToastContainer } from 'react-toastify';
 import VarList from './VarList';
 import GMList from './GMList';
 import TemplateList from './TemplateList';
-import { EditVariable } from './EditVariable';
+
 
 declare var vcs: any;
 
 type LeftSideBarProps = {};
 type LeftSideBarState = {
-    file_path: string,
-    variables: any, // object of varnames: varinfo
-    graphicMethods: any,
-    templates: any,
-    showEditVariable: boolean, // should the edit variable modal show up
-    active_variable: string // name of the selected variable
+    file_path: string,          // path to the file in question
+    variables: any,             // object of varnames: varinfo
+    graphicMethods: any,        // list of available graphicsmethods
+    templates: any,             // list of availabe templates
+    showEditVariable: boolean,  // should the edit variable modal show up
+    active_variable: string     // name of the selected variable
 };
-/**
- * A left sidebar container that holds the variable, graphics methods and templates lists.
- * 
- * props: 
- *  varClickHandler: a function that handles when an item in the variables list is clicked.
- *  variables: A dictionary containing variable names and values
- *  graphicMethods: A dictionary conatining graphic method names and values
- *  templates: A dictionary conatining template names and values
- */
+
 export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarState> {
-    
+
     canvas: any;
-    constructor(props: any){
+    console: any;
+    varListEl: any;
+    constructor(props: LeftSideBarProps) {
         super(props);
         this.state = {
             file_path: '',
@@ -38,26 +32,24 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
             graphicMethods: [],
             templates: [],
             showEditVariable: false,
-            active_variable: ''
+            active_variable: '',
         }
+        this.varListEl = (React as any).createRef();
+
         this.handleVCSLoad = this.handleVCSLoad.bind(this);
         this.handleVarClick = this.handleVarClick.bind(this);
+        this.handleLoadVariable = this.handleLoadVariable.bind(this);
+        this.handleLoadFile = this.handleLoadFile.bind(this);
     }
-    // initialize the vcs.js object and query for variable info
-    handleVCSLoad(){
-        debugger;
+    // initialize the vcs.js object and pass it the children that need it
+    handleVCSLoad() {
         console.log('vcs.js load complete');
         let vcs_target = $('#vcs-target')[0];
         this.canvas = vcs.init(vcs_target);
-
-        vcs.allvariables(this.state.file_path).then((variableAxes: any) => {
-            this.setState({
-                variables: variableAxes[0]
-            })
-        })
+        this.varListEl.current.setupVcs(vcs);
     }
     // setup the global vcs.js object
-    componentDidMount(){
+    componentDidMount() {
         console.log('starting vcs.js load');
         let script = document.createElement('script');
         script.src = `http://localhost:5000/vcs.js`;
@@ -66,8 +58,24 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
         document.body.appendChild(script);
     }
     // handle click on a variable by opening dimension select modal
-    handleVarClick(){
+    handleVarClick(e: any) {
         debugger;
+    }
+    handleSetupConsole(console: any) {
+        this.console = console;
+        let script = [
+            'import cdms2',
+            'import vcs',
+            'x = vcs.init()'];
+        script.forEach((item, idx) => {
+            this.console.inject(item);
+        });
+    }
+    handleLoadFile() {
+        this.console.inject(`data = cdms2.open('${this.state.file_path}')`)
+    }
+    handleLoadVariable(variable: string) {
+        this.console.inject(`${variable} = data('${variable}')`)
     }
     render() {
         return (
@@ -75,22 +83,20 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
                 <div id="app-container">
                     <div id='main-container'>
                         <div id='left-side-bar'>
-                            <VarList 
+                            <VarList ref={this.varListEl}
+                                file_path={this.state.file_path}
                                 variables={this.state.variables}
-                                handleClick={this.handleVarClick}/>
-                            <GMList 
-                                graphicMethods={this.state.graphicMethods}/>
+                                handleClick={this.handleVarClick}
+                                loadVariable={this.handleLoadVariable} />
+                            <GMList
+                                graphicMethods={this.state.graphicMethods} />
                             <TemplateList
-                                templates={this.state.templates}/>
+                                templates={this.state.templates} />
                             <ToastContainer />
                         </div>
                         <div id="vcs-target"></div>
                     </div>
                 </div>
-                <EditVariable
-                    show={this.state.showEditVariable}
-                    onTryClose={() => {this.setState({ showEditVariable: false })}}
-                    active_variable={this.state.active_variable}/>
             </div>
         );
     }

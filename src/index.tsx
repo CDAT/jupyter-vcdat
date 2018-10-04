@@ -52,7 +52,6 @@ export default extension;
  */
 function activate(app: JupyterLab, restorer: ILayoutRestorer) {
 
-	console.log('JupyterLab REACT jupyter-react-ext is activated!');
 	commands = app.commands;
 	shell = app.shell;
 
@@ -85,12 +84,12 @@ function activate(app: JupyterLab, restorer: ILayoutRestorer) {
 	const COMMANDS = [leftBarCommand];
 
 	commands.addCommand(COMMANDS[0].showLeftSideBar, {
-		label: 'VCDAT LeftSideBar',
+		label: 'vcs',
 		execute: () => {
 			if (!sidebar) {
 				sidebar = new LeftSideBarWidget();
 				sidebar.id = 'vcs-left-side-bar';
-				sidebar.title.label = 'VCS LeftSideBar';
+				sidebar.title.label = 'vcs';
 				sidebar.title.closable = false;
 			}
 			if (!sidebar.isAttached) {
@@ -140,7 +139,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
 			consolePanel.session.ready.then(() => {
 				commands.execute('vcs:open-sidebar');
 				sidebar.updatePath(path);
-				sidebar.updateConsole(consolePanel);
+				sidebar.updateConsole(consolePanel.console);
 			});
 		});
 		return ncWidget;

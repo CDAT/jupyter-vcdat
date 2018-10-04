@@ -30,9 +30,8 @@ export class LeftSideBarWidget extends Widget {
     }
     updateConsole(console: any){
         this.console = console;
-        this.component.setState({
-            console: this.console
-        });
+        this.component.handleSetupConsole(console);
+        this.component.handleLoadFile();
     }
     
 }
