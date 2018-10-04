@@ -2,6 +2,10 @@ import * as React from 'react';
 import { toast } from 'react-toastify';
 import AddEditRemoveNav from './AddEditRemoveNav';
 
+type VarListProps = {
+    handleClick: any, //function
+    variables: any // array of variables {varName: {variableAttributes}}
+}
 /**
  * A test component to show variables list where variables can be clicked on.
  * 
@@ -11,20 +15,20 @@ import AddEditRemoveNav from './AddEditRemoveNav';
  *  the onClick event is passed to the function.
  */
 
-class VarList extends React.Component <any, any> {
+class VarList extends React.Component <VarListProps, any> {
     constructor(props: any){
         super(props)
         this.state = {
+            variables: [],
             showFile: false,
             showEdit: false
         }
-        this.addVariable = this.addVariable.bind(this);
+        this.addVariables = this.addVariables.bind(this);
         this.editVariable = this.editVariable.bind(this)
         this.removeVariable = this.removeVariable.bind(this)
-        this.clickItemHandler = this.clickItemHandler.bind(this);
     }
     
-    addVariable() {
+    addVariables(variables: any) {
         console.log("A form should open for a variable to be added.");
         toast.info("A form should open for a variable to be added.", { position: toast.POSITION.BOTTOM_CENTER })
     }
@@ -39,12 +43,10 @@ class VarList extends React.Component <any, any> {
         toast.info("A variable will be removed from the list.", { position: toast.POSITION.BOTTOM_CENTER })
     }
 
-    clickItemHandler(event: any, varName: string, varVal: any) {
-        this.props.clickHandler(varName, varVal);
-        console.log(event);
-    }
-
     render() {
+        let itemStyle = {
+            paddingLeft: '1em'
+        }
         return (
             <div className='left-side-list scroll-area-list-parent var-list-container'>
                 <AddEditRemoveNav 
@@ -60,8 +62,8 @@ class VarList extends React.Component <any, any> {
                     <ul id='var-list' className='no-bullets left-list'>
                         {Object.keys(this.props.variables).map((key, index) => {
                             return(
-                                <li>
-                                    <a href='#' onClick={(e) => {this.clickItemHandler(e,key,this.props.variables[key])}}>   Key: {key} Value: {this.props.variables[key]}</a>
+                                <li key={index} style={itemStyle}>
+                                    <a onClick={this.props.handleClick}>{key}</a>
                                 </li>
                             ) 
                         })}

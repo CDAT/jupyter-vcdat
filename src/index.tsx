@@ -9,25 +9,23 @@ import {
 	DocumentRegistry,
 	IDocumentWidget,
 	DocumentWidget
-} 
-from '@jupyterlab/docregistry';
+} from '@jupyterlab/docregistry';
 
-import { 
-	JupyterLab, 
+import {
+	JupyterLab,
 	JupyterLabPlugin,
-	ApplicationShell, 
-	ILayoutRestorer } 
-from '@jupyterlab/application';
+	ApplicationShell,
+	ILayoutRestorer
+} from '@jupyterlab/application';
 
-import { 
-	ICommandPalette, 
-	InstanceTracker 
+import {
+	InstanceTracker
 } from '@jupyterlab/apputils';
 
 import { CommandRegistry } from '@phosphor/commands';
 import { JSONExt } from '@phosphor/coreutils'
 import { Widget } from '@phosphor/widgets';
-import LeftSideBarWidget from './components/left_side_bar_widget';
+import { LeftSideBarWidget } from './widgets';
 
 const FILETYPE = 'NetCDF';
 const FACTORY_NAME = 'vcs';
@@ -43,7 +41,7 @@ let sidebar: LeftSideBarWidget;
 const extension: JupyterLabPlugin<void> = {
 	id: 'jupyter-react-ext',
 	autoStart: true,
-	requires: [ICommandPalette, ILayoutRestorer],
+	requires: [ILayoutRestorer],
 	activate: activate
 };
 
@@ -52,17 +50,17 @@ export default extension;
 /**
  * Activate the xckd widget extension.
  */
-function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
-	
+function activate(app: JupyterLab, restorer: ILayoutRestorer) {
+
 	console.log('JupyterLab REACT jupyter-react-ext is activated!');
 	commands = app.commands;
 	shell = app.shell;
 
 	const factory = new NCViewerFactory({
-	name: FACTORY_NAME,
-	fileTypes: [FILETYPE],
-	defaultFor: [FILETYPE],
-	readOnly: true
+		name: FACTORY_NAME,
+		fileTypes: [FILETYPE],
+		defaultFor: [FILETYPE],
+		readOnly: true
 	});
 
 	let ft: DocumentRegistry.IFileType = {
@@ -79,19 +77,19 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
 	factory.widgetCreated.connect((sender, widget) => {
 		console.log('NCViewerWidget created from factory');
 	});
-	
+
 	// Add application commands
-	const COMMANDS = {
+	let leftBarCommand = {
 		showLeftSideBar: "vcs:open-sidebar"
 	};
+	const COMMANDS = [leftBarCommand];
 
-	//const command: string = 'xkcd:open';
-	commands.addCommand(COMMANDS.showLeftSideBar, {
+	commands.addCommand(COMMANDS[0].showLeftSideBar, {
 		label: 'VCDAT LeftSideBar',
 		execute: () => {
-			if(!sidebar){
-				sidebar = new LeftSideBarWidget(commands);
-				sidebar.id = 'left-side-bar';
+			if (!sidebar) {
+				sidebar = new LeftSideBarWidget();
+				sidebar.id = 'vcs-left-side-bar';
 				sidebar.title.label = 'VCS LeftSideBar';
 				sidebar.title.closable = false;
 			}
@@ -106,19 +104,10 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
 		}
 	});
 
-	// Add commands to the palette.
-	[
-	COMMANDS.showLeftSideBar
-	].forEach(command => {
-		palette.addItem({ command, category: '1. Visualization' });
-	});
-
 	// Track and restore the widget state
 	let tracker = new InstanceTracker<Widget>({ namespace: 'vcs' });
-	[
-	COMMANDS.showLeftSideBar
-	].forEach(command => {
-	restorer.restore(tracker, {
+	[leftBarCommand.showLeftSideBar].forEach(command => {
+		restorer.restore(tracker, {
 			command,
 			args: () => JSONExt.emptyObject,
 			name: () => 'vcs'
@@ -126,46 +115,44 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
 	});
 };
 
+/**
+ * Create a new widget given a context.
+ */
 export class NCViewerFactory extends ABCWidgetFactory<
 	IDocumentWidget<NCViewerWidget>
 	> {
-	/**
-	 * Create a new widget given a context.
-	 */
 	protected createNewWidget(
 		context: DocumentRegistry.Context
 	): IDocumentWidget<NCViewerWidget> {
 		const content = new NCViewerWidget(context);
 		const ncWidget = new DocumentWidget({ content, context });
-		// debugger;
-		console.log('executing command console:create');
+
+		// the path to the file that was clicked to launch this widget
+		const path = context.session.path.split('/').slice(-1)[0];
+
+		// create new console
 		commands.execute('console:create', {
 			activate: true,
 			path: context.path,
 			preferredLanguage: context.model.defaultKernelLanguage
 		}).then(consolePanel => {
+			// once the console is created setup launch the sidebar
 			consolePanel.session.ready.then(() => {
-				consolePanel.console.inject('import cdms2');
-				consolePanel.console.inject('import vcs');
-
-				let dataLoadString = 'data = cdms2.open(\'' + context.session.path + '\')';
-				consolePanel.console.inject(dataLoadString);
-				consolePanel.console.inject('clt = data("clt")');
-				consolePanel.console.inject('x=vcs.init()');
-				consolePanel.console.inject('x.plot(clt)');
+				commands.execute('vcs:open-sidebar');
+				sidebar.updatePath(path);
+				sidebar.updateConsole(consolePanel);
 			});
 		});
 		return ncWidget;
 	}
 }
 
+// dummy widget to make the NCViewerFactory happy
 export class NCViewerWidget extends Widget {
 	constructor(context: DocumentRegistry.Context) {
 		super();
 		this.context = context;
 	}
-
 	readonly context: DocumentRegistry.Context;
-
 	readonly ready = Promise.resolve(void 0);
 }
