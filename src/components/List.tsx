@@ -11,40 +11,39 @@ import * as React from 'react';
 
 class List extends React.Component <any, any> {
 
-    itemList: Array<string>;
+    //itemList: Array<string>;
     clickAction: Function;
-    hidden: Boolean;
-    activeItem: string;
 
     constructor(props: any){
         super(props)
         this.state = {
-            showFile: false,
-            showEdit: false
+            activeItem: this.props.itemList[0], //Get first item and set as active by default
+            collapsed: false //Whether list is hidden or shown
         }
-        this.clickAction = this.clickAction.bind(this);
+        this.clickHandler = this.clickHandler.bind(this);
     }
     
     clickHandler(event: any,itemName: string) {
         console.log("Item: " + itemName + " was clicked. Event: " + event);
+        this.setState({activeItem: itemName})
         this.props.clickAction(itemName);
+        this.render();
     }
 
     render() {
-
-        return (
-            <div className='scroll-area'>
+        if(!this.state.collapsed){
+            return (
                 <ul id='var-list' className='no-bullets left-list'>
-                    {this.props.itemList.forEach((itemName: string) => {
-                        return(
-                            <li className="active">
-                                <a href="#" onClick={(e) => this.clickHandler(e,itemName)}>{itemName}</a>
+                    {this.props.itemList.map((itemName: string, index: number) => {
+                        return (
+                            <li key={index} className={this.state.activeItem===itemName ? 'active':''}>
+                                <a href="#" onClick={(e: any) => this.clickHandler(e,itemName)}>{itemName}</a>
                             </li>
-                        ) 
+                        )
                     })}
                 </ul>
-            </div>
-        )
+            )
+        }
     }
 }
 

@@ -40,8 +40,8 @@ class VarList extends React.Component <any, any> {
         toast.info("A variable will be removed from the list.", { position: toast.POSITION.BOTTOM_CENTER })
     }
 
-    clickVariable(event: any, varName: string) {
-        this.props.clickHandler(event, varName);
+    clickVariable(varName: string) {
+        this.props.clickHandler(varName);
     }
 
     render() {
@@ -56,10 +56,12 @@ class VarList extends React.Component <any, any> {
                     editText="Edit a loaded variable"
                     removeText="Remove a loaded variable"
                 />
-                <List 
-                    clickAction={this.clickVariable}
-                    itemList={this.props.variables}
-                />
+                <div className='scroll-area'>
+                    <List 
+                        clickAction={this.clickVariable}
+                        itemList={this.props.variables}
+                    />
+                </div>
                 {/*<div className='scroll-area'>
                     <ul id='var-list' className='no-bullets left-list'>
                         {Object.keys(this.props.variables).map((key, index) => {

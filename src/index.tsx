@@ -21,11 +21,11 @@ from '@jupyterlab/application';
 
 import { 
 	ICommandPalette, 
-	InstanceTracker 
+	//InstanceTracker 
 } from '@jupyterlab/apputils';
 
 import { CommandRegistry } from '@phosphor/commands';
-import { JSONExt } from '@phosphor/coreutils'
+//import { JSONExt } from '@phosphor/coreutils'
 import { Widget } from '@phosphor/widgets';
 import LeftSideBarWidget from './components/left_side_bar_widget';
 
@@ -52,17 +52,17 @@ export default extension;
 /**
  * Activate the xckd widget extension.
  */
-function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
+function activate(app: JupyterLab) {
 	
 	console.log('JupyterLab REACT jupyter-react-ext is activated!');
 	commands = app.commands;
 	shell = app.shell;
 
 	const factory = new NCViewerFactory({
-	name: FACTORY_NAME,
-	fileTypes: [FILETYPE],
-	defaultFor: [FILETYPE],
-	readOnly: true
+		name: FACTORY_NAME,
+		fileTypes: [FILETYPE],
+		defaultFor: [FILETYPE],
+		readOnly: true
 	});
 
 	let ft: DocumentRegistry.IFileType = {
@@ -80,7 +80,7 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
 		console.log('NCViewerWidget created from factory');
 	});
 	
-	// Add application commands
+	/*// Add application commands
 	const COMMANDS = {
 		showLeftSideBar: "vcs:open-sidebar"
 	};
@@ -124,6 +124,7 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
 			name: () => 'vcs'
 		});
 	});
+	*/
 };
 
 export class NCViewerFactory extends ABCWidgetFactory<
@@ -137,7 +138,24 @@ export class NCViewerFactory extends ABCWidgetFactory<
 	): IDocumentWidget<NCViewerWidget> {
 		const content = new NCViewerWidget(context);
 		const ncWidget = new DocumentWidget({ content, context });
-		// debugger;
+
+		//Create and show LeftSideBar
+		if(!sidebar){
+			sidebar = new LeftSideBarWidget(commands);
+			sidebar.id = 'left-side-bar';
+			sidebar.title.label = 'VCS LeftSideBar';
+			sidebar.title.closable = true;
+		}
+		if (!sidebar.isAttached) {
+			// Attach the widget to the left area if it's not there
+			shell.addToLeftArea(sidebar);
+		} else {
+			sidebar.update();
+		}
+		// Activate the widget
+		shell.activateById(sidebar.id);
+
+		// Inject command;
 		console.log('executing command console:create');
 		commands.execute('console:create', {
 			activate: true,
@@ -145,14 +163,11 @@ export class NCViewerFactory extends ABCWidgetFactory<
 			preferredLanguage: context.model.defaultKernelLanguage
 		}).then(consolePanel => {
 			consolePanel.session.ready.then(() => {
-				consolePanel.console.inject('import cdms2');
-				consolePanel.console.inject('import vcs');
 
-				let dataLoadString = 'data = cdms2.open(\'' + context.session.path + '\')';
-				consolePanel.console.inject(dataLoadString);
-				consolePanel.console.inject('clt = data("clt")');
-				consolePanel.console.inject('x=vcs.init()');
-				consolePanel.console.inject('x.plot(clt)');
+				var injectCmd = "import cdms2\nimport vcs\ndata = cdms2.open(\'";
+				injectCmd += context.session.path + "\')\nclt = data('clt')\n";
+				injectCmd += "x=vcs.init()\nx.plot(clt)";
+				consolePanel.console.inject(injectCmd);
 			});
 		});
 		return ncWidget;
