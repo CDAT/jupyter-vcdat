@@ -22,7 +22,7 @@ class VarList extends React.Component <any, any> {
         this.addVariable = this.addVariable.bind(this);
         this.editVariable = this.editVariable.bind(this)
         this.removeVariable = this.removeVariable.bind(this)
-        this.clickVariable = this.clickVariable.bind(this);
+        this.varClickHandler = this.varClickHandler.bind(this);
     }
     
     addVariable() {
@@ -40,8 +40,8 @@ class VarList extends React.Component <any, any> {
         toast.info("A variable will be removed from the list.", { position: toast.POSITION.BOTTOM_CENTER })
     }
 
-    clickVariable(varName: string) {
-        this.props.clickHandler(varName);
+    varClickHandler(listName: string, varName: string) {
+        this.props.varClickHandler(listName,varName);
     }
 
     render() {
@@ -58,8 +58,9 @@ class VarList extends React.Component <any, any> {
                 />
                 <div className='scroll-area'>
                     <List 
-                        clickAction={this.clickVariable}
+                        clickAction={this.varClickHandler}
                         itemList={this.props.variables}
+                        hidden={false}
                     />
                 </div>
                 {/*<div className='scroll-area'>

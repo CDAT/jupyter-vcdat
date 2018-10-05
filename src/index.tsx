@@ -4,33 +4,32 @@ import './../style/css/jquery-ui.min.css';
 import './../style/css/Styles.css';
 import './../style/css/index.css';
 
-import {
-	ABCWidgetFactory,
-	DocumentRegistry,
-	IDocumentWidget,
-	DocumentWidget
-} 
-from '@jupyterlab/docregistry';
+import { NCViewerWidget, LeftSideBarWidget } from './widgets';
+
+import { CommandRegistry } from '@phosphor/commands';
 
 import { 
 	JupyterLab, 
 	JupyterLabPlugin,
 	ApplicationShell
-} 
-from '@jupyterlab/application';
+} from '@jupyterlab/application'
 
-import { CommandRegistry } from '@phosphor/commands';
-//import { JSONExt } from '@phosphor/coreutils'
-import { Widget } from '@phosphor/widgets';
-import LeftSideBarWidget from './components/left_side_bar_widget';
+import {
+	ABCWidgetFactory,
+    IDocumentWidget,
+    DocumentRegistry,
+	DocumentWidget
+} from '@jupyterlab/docregistry';
+
+//import { OutputArea } from '@jupyterlab/outputarea';
 
 const FILETYPE = 'NetCDF';
 const FACTORY_NAME = 'vcs';
 
 // Declare the widget variables
 let commands: CommandRegistry;
-let shell: ApplicationShell;
 let sidebar: LeftSideBarWidget;
+let shell: ApplicationShell;
 
 /**
  * Initialization data for the jupyter-react-ext extension.
@@ -38,18 +37,15 @@ let sidebar: LeftSideBarWidget;
 const extension: JupyterLabPlugin<void> = {
 	id: 'jupyter-react-ext',
 	autoStart: true,
-	requires: [],
+	requires: [ ],
 	activate: activate
 };
 
 export default extension;
 
-/**
- * Activate the xckd widget extension.
- */
-function activate(app: JupyterLab) {
-	
-	console.log('JupyterLab REACT jupyter-react-ext is activated!');
+//Activate extension
+function activate(app: JupyterLab ) {
+
 	commands = app.commands;
 	shell = app.shell;
 
@@ -74,6 +70,7 @@ function activate(app: JupyterLab) {
 	factory.widgetCreated.connect((sender, widget) => {
 		console.log('NCViewerWidget created from factory');
 	});
+
 };
 
 export class NCViewerFactory extends ABCWidgetFactory<
@@ -90,7 +87,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
 
 		//Create and show LeftSideBar
 		if(!sidebar){
-			sidebar = new LeftSideBarWidget(commands);
+			sidebar = new LeftSideBarWidget(commands, context);
 			sidebar.id = 'left-side-bar';
 			sidebar.title.label = 'VCS LeftSideBar';
 			sidebar.title.closable = true;
@@ -104,8 +101,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
 		// Activate the widget
 		shell.activateById(sidebar.id);
 
-		// Inject command;
-		console.log('executing command console:create');
+		/*
 		commands.execute('console:create', {
 			activate: true,
 			path: context.path,
@@ -113,23 +109,18 @@ export class NCViewerFactory extends ABCWidgetFactory<
 		}).then(consolePanel => {
 			consolePanel.session.ready.then(() => {
 
-				var injectCmd = "import cdms2\nimport vcs\ndata = cdms2.open(\'";
-				injectCmd += context.session.path + "\')\nclt = data('clt')\n";
-				injectCmd += "x=vcs.init()\nx.plot(clt)";
+				//Temp cmd for testing
+				var injectCmd = "import cdms2\nimport vcs\ndata = cdms2.open(\'" +
+				context.session.path + "\')\nclt = data('clt')";
 				consolePanel.console.inject(injectCmd);
+
+				//Command to pull variables
+				consolePanel.console.inject(getVarCmd);
+				consolePanel.console.clear();
+				consolePanel.console.inject("variables()");
 			});
-		});
+		});*/
+
 		return ncWidget;
 	}
-}
-
-export class NCViewerWidget extends Widget {
-	constructor(context: DocumentRegistry.Context) {
-		super();
-		this.context = context;
-	}
-
-	readonly context: DocumentRegistry.Context;
-
-	readonly ready = Promise.resolve(void 0);
 }
