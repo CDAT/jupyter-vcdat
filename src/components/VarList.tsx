@@ -11,6 +11,7 @@ type VarListProps = {
 }
 type VarEditState = {
     variables: any,     // object containing variable information
+    axis: any
 }
 
 class VarList extends React.Component<VarListProps, VarEditState> {
@@ -20,7 +21,8 @@ class VarList extends React.Component<VarListProps, VarEditState> {
     constructor(props: any) {
         super(props)
         this.state = {
-            variables: [],
+            variables: {},
+            axis: {}
         }
         this.varLoader = (React as any).createRef();
 
@@ -38,9 +40,12 @@ class VarList extends React.Component<VarListProps, VarEditState> {
         this.vcs.allvariables(this.props.file_path).then((variableAxes: any) => {
             this.setState({
                 variables: variableAxes[0],
+                axis: variableAxes[1]
             })
             this.varLoader.toggle();
-            this.varLoader.setVariables(variableAxes[0]);
+            this.varLoader.setVariables(
+                variableAxes[0],
+                variableAxes[1]);
         })
     }
 
@@ -59,8 +64,9 @@ class VarList extends React.Component<VarListProps, VarEditState> {
             paddingLeft: '1em'
         }
         let varLoaderProps = {
-            file_path: this.props.file_path,
             variables: {},
+            axis: {},
+            file_path: this.props.file_path,
             loadVariable: this.props.loadVariable
         };
         return (

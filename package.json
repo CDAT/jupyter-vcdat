@@ -46,6 +46,7 @@
 		"@types/jquery": "^3.3.10",
 		"@types/lodash": "^4.14.116",
 		"@types/query-string": "^6.1.0",
+		"@types/rc-slider": "^8.6.0",
 		"@types/react-bootstrap": "^0.32.14",
 		"@types/react-dom": "^16.0.7",
 		"@types/react-list": "^0.8.4",
@@ -56,12 +57,15 @@
 		"lodash": "^4.17.11",
 		"nodejs": "0.0.0",
 		"query-string": "^6.1.0",
+		"rc-slider": "^8.6.3",
 		"react-bootstrap": "^1.0.0-beta.1",
+		"react-compound-slider": "^0.15.1",
 		"react-dom": "^16.5.1",
 		"react-list": "^0.8.10",
 		"react-load-script": "0.0.6",
 		"react-toastify": "^4.4.0",
 		"reactstrap": "^6.4.0",
+		"remove": "^0.1.5",
 		"vcs-widgets": "github:uv-cdat/vcs-widgets"
 	},
 	"devDependencies": {

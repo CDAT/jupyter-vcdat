@@ -14,6 +14,8 @@ import {
     FormGroup,
     Input
 } from "reactstrap";
+import { DimensionSlider } from './DimensionSlider';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 type VarLoaderProps = {
@@ -23,8 +25,9 @@ type VarLoaderProps = {
 type VarLoaderState = {
     show: boolean                   // should the modal be shown
     variables: any                  // list of variable objects
+    axis: any                       // variable axis information
     selectedVariableName: string    // cdms name of selected variable
-    selectedVariableAxis: any       // axis objects for selected variab;le
+    selectedVariableInfo: any       // axis objects for selected variab;le
 }
 
 export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
@@ -33,7 +36,8 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
         this.state = {
             show: false,
             selectedVariableName: '',
-            selectedVariableAxis: {},
+            selectedVariableInfo: {},
+            axis: {},
             variables: {}
         };
 
@@ -47,20 +51,22 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
             show: !this.state.show
         });
     }
-    setVariables(variables: any) {
+    setVariables(variables: any, axis: any) {
         this.setState({
-            variables: variables
+            variables: variables,
+            axis: axis
         })
     }
     selectVariable(event: any) {
         if (event.target.value == 'select variable') return
 
+        let vName = event.target.selectedOptions[0].title
         this.setState({
-            selectedVariableName: event.target.value,
-            selectedVariableAxis: this.state.variables[event.target.value].axisList
+            selectedVariableName: vName,
+            selectedVariableInfo: this.state.variables[vName]
         });
     }
-    loadVariable(){
+    loadVariable() {
         this.toggle();
         this.props.loadVariable(
             this.state.selectedVariableName);
@@ -92,7 +98,7 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
                                     <Input type="select" onChange={this.selectVariable}>
                                         <option key="default">select variable</option>
                                         {Object.keys(this.state.variables).map((key: any) => {
-                                            return (<option key={key}>{key}</option>)
+                                            return (<option key={key} title={key}>{key}: {this.state.variables[key].name}</option>)
                                         })}
                                     </Input>
                                 </FormGroup>
@@ -100,17 +106,28 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
                         </Row>
                     </ModalBody>
                     {/* Once the user selects a variable show the dimension sliders */}
-                    {/* { this.state.selectedVariableName &&
-                        Object.keys(this.state.selectedVariableAxis).forEach((item: string) => {
-                            if(item){
-                                debugger;
-                            }
-                        })
-                    } */}
+                    {<this.DimSliders
+                        selectedVariableName={this.state.selectedVariableName}
+                        selectedVariableInfo={this.state.selectedVariableInfo}
+                        axis={this.state.axis}
+                        variables={this.state.variables} />}
                     <ModalFooter>
                         <Button color="primary" onClick={this.loadVariable}>Load</Button>{' '}
                     </ModalFooter>
                 </Modal>
             </div>);
+    }
+    DimSliders(props: any) {
+        if (props.selectedVariableName) {
+            let axisNames = props.variables[props.selectedVariableName].axisList;
+            return (
+                axisNames.map((item: any) => {
+                    let axisInfo = props.axis[item];
+                    return (<DimensionSlider key={item} {...axisInfo} />)
+                })
+            );
+        } else {
+            return null;
+        }
     }
 }
