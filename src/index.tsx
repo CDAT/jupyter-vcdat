@@ -18,13 +18,7 @@ import {
 	ILayoutRestorer
 } from '@jupyterlab/application';
 
-import {
-	InstanceTracker
-} from '@jupyterlab/apputils';
-
 import { CommandRegistry } from '@phosphor/commands';
-import { JSONExt } from '@phosphor/coreutils'
-import { Widget } from '@phosphor/widgets';
 import { NCViewerWidget, LeftSideBarWidget } from './widgets';
 
 const FILETYPE = 'NetCDF';
@@ -50,7 +44,7 @@ export default extension;
 /**
  * Activate the xckd widget extension.
  */
-function activate(app: JupyterLab, restorer: ILayoutRestorer) {
+function activate(app: JupyterLab) {
 
 	commands = app.commands;
 	shell = app.shell;
@@ -77,42 +71,6 @@ function activate(app: JupyterLab, restorer: ILayoutRestorer) {
 		console.log('NCViewerWidget created from factory');
 	});
 
-	// Add application commands
-	let leftBarCommand = {
-		showLeftSideBar: "vcs:open-sidebar"
-	};
-	const COMMANDS = [leftBarCommand];
-
-	commands.addCommand(COMMANDS[0].showLeftSideBar, {
-		label: 'vcs',
-		execute: () => {
-			if (!sidebar) {
-				sidebar = new LeftSideBarWidget();
-				sidebar.id = 'vcs-left-side-bar';
-				sidebar.title.label = 'vcs';
-				sidebar.title.closable = false;
-			}
-			if (!sidebar.isAttached) {
-				// Attach the widget to the left area if it's not there
-				shell.addToLeftArea(sidebar);
-			} else {
-				sidebar.update();
-			}
-			// Activate the widget
-			shell.activateById(sidebar.id);
-		}
-	});
-
-	// Track and restore the widget state
-	let tracker = new InstanceTracker<Widget>({ namespace: 'vcs' });
-	[leftBarCommand.showLeftSideBar].forEach(command => {
-		restorer.restore(tracker, {
-			command,
-			args: () => JSONExt.emptyObject,
-			name: () => 'vcs'
-		});
-	});
-
 };
 
 /**
@@ -127,22 +85,38 @@ export class NCViewerFactory extends ABCWidgetFactory<
 		const content = new NCViewerWidget(context);
 		const ncWidget = new DocumentWidget({ content, context });
 
+		//Create and show LeftSideBar
+		if(!sidebar){
+			sidebar = new LeftSideBarWidget(commands, context);
+			sidebar.id = 'vcs-left-side-bar';
+			sidebar.title.label = 'vcs';
+			sidebar.title.closable = true;
+		}
+		if (!sidebar.isAttached) {
+			// Attach the widget to the left area if it's not there
+			shell.addToLeftArea(sidebar);
+		} else {
+			sidebar.update();
+		}
+		// Activate the widget
+		shell.activateById(sidebar.id);
+
 		// the path to the file that was clicked to launch this widget
 		const path = context.session.path.split('/').slice(-1)[0];
 
-		// create new console
-		commands.execute('console:create', {
-			activate: true,
-			path: context.path,
-			preferredLanguage: context.model.defaultKernelLanguage
-		}).then(consolePanel => {
-			// once the console is created setup launch the sidebar
-			consolePanel.session.ready.then(() => {
-				commands.execute('vcs:open-sidebar');
-				sidebar.updatePath(path);
-				sidebar.updateConsole(consolePanel.console);
-			});
-		});
+		// // create new console
+		// commands.execute('console:create', {
+		// 	activate: true,
+		// 	path: context.path,
+		// 	preferredLanguage: context.model.defaultKernelLanguage
+		// }).then(consolePanel => {
+		// 	// once the console is created setup launch the sidebar
+		// 	consolePanel.session.ready.then(() => {
+		// 		commands.execute('vcs:open-sidebar');
+		// 		sidebar.updatePath(path);
+		// 		sidebar.updateConsole(consolePanel.console);
+		// 	});
+		// });
 		return ncWidget;
 	}
 }

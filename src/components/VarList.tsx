@@ -6,9 +6,9 @@ import List from "./List";
 
 type VarListProps = {
     file_path: string,  // path to the file we're loading variables from
-    handleClick: any,   // function
     variables: any      // array of variables {varName: {variableAttributes}}
     loadVariable: any   // function to call when user hits load
+    varClickHandler: any// function to call when user clicks on a variable
 }
 type VarEditState = {
     variables: any,     // object containing variable information
@@ -62,7 +62,7 @@ class VarList extends React.Component<VarListProps, VarEditState> {
     }
 
     varClickHandler(listName: string, varName: string) {
-        this.props.varClickHandler(listName,varName);
+        this.props.varClickHandler(listName, varName);
     }
 
     render() {
@@ -88,7 +88,7 @@ class VarList extends React.Component<VarListProps, VarEditState> {
                 <VarLoader {...varLoaderProps} ref={(loader) => this.varLoader = loader}/>
                 <div className='scroll-area'>
                     <List 
-                        clickAction={this.varClickHandler}
+                        clickAction={this.props.varClickHandler}
                         itemList={this.props.variables}
                         hidden={false}
                     />

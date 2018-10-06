@@ -6,10 +6,21 @@ import VarList from './VarList';
 import GMList from './GMList';
 import TemplateList from './TemplateList';
 
-
 declare var vcs: any;
 
-type LeftSideBarProps = {};
+const leftBtnStyle = {
+    margin: '5px',
+};
+const rightBtnStyle = {
+    float: 'right',
+    margin: '5px'
+};
+
+type LeftSideBarProps = {
+    refreshAction: any          // method to call onClick of refresh button
+    plotAction: any             // method to call onClico of plot button
+    varClickHandler: any        // a function that handles when an item in the variables list is clicked.
+};
 type LeftSideBarState = {
     file_path: string,          // path to the file in question
     variables: any,             // object of varnames: varinfo
@@ -88,10 +99,11 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
                 <div id="app-container">
                     <div id='main-container'>
                         <div id='left-side-bar'>
-                            <VarList ref={this.varListEl}
+                            <VarList 
+                                ref={this.varListEl}
                                 file_path={this.state.file_path}
                                 variables={this.state.variables}
-                                handleClick={this.handleVarClick}
+                                varClickHandler={this.props.varClickHandler}
                                 loadVariable={this.handleLoadVariable} />
                             <GMList
                                 graphicMethods={this.state.graphicMethods} />
