@@ -74,8 +74,13 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
     handleLoadFile() {
         this.console.inject(`data = cdms2.open('${this.state.file_path}')`)
     }
-    handleLoadVariable(variable: string) {
-        this.console.inject(`${variable} = data('${variable}')`)
+    handleLoadVariable(name: string, dimInfo: any) {
+        let dimInfoString = `data('${name}'`;
+        Object.keys(dimInfo).forEach((item: any) => {
+            dimInfoString += `, ${item}=(${dimInfo[item].min}, ${dimInfo[item].max})`;
+        })
+        dimInfoString += ')';
+        this.console.inject(`${name} = ${dimInfoString}`);
     }
     render() {
         return (

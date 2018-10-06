@@ -28,35 +28,41 @@ type VarLoaderState = {
     axis: any                       // variable axis information
     selectedVariableName: string    // cdms name of selected variable
     selectedVariableInfo: any       // axis objects for selected variab;le
+    dimInfo: any                    // information returned from the loader about the selected dimenesions
 }
 
 export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
-    constructor(props: any) {
+    constructor(props: VarLoaderProps) {
         super(props);
         this.state = {
             show: false,
             selectedVariableName: '',
             selectedVariableInfo: {},
             axis: {},
-            variables: {}
+            variables: {},
+            dimInfo: {}
         };
 
         this.toggle = this.toggle.bind(this);
         this.setVariables = this.setVariables.bind(this);
         this.selectVariable = this.selectVariable.bind(this);
         this.loadVariable = this.loadVariable.bind(this);
+        this.updateDimInfo = this.updateDimInfo.bind(this);
     }
+    // open and close the variable loader modal
     toggle() {
         this.setState({
             show: !this.state.show
         });
     }
+    // set the variables and axis info
     setVariables(variables: any, axis: any) {
         this.setState({
             variables: variables,
             axis: axis
         })
     }
+    // user has selected a variable from the drop down list
     selectVariable(event: any) {
         if (event.target.value == 'select variable') return
 
@@ -66,10 +72,31 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
             selectedVariableInfo: this.state.variables[vName]
         });
     }
+    // user has clicked the load button
     loadVariable() {
         this.toggle();
+        let dimInfo: any = {};
+        this.state.selectedVariableInfo.axisList.map((info: string) => {
+            dimInfo[info] = {
+                min: this.state.dimInfo[info].min,
+                max: this.state.dimInfo[info].max
+            }
+        });
         this.props.loadVariable(
-            this.state.selectedVariableName);
+            this.state.selectedVariableName,
+            dimInfo
+        );
+    }
+    // user has moved one of the dimension sliders
+    updateDimInfo(dimInfo: any){
+        let newDimInfo = this.state.dimInfo;
+        newDimInfo[dimInfo.name] = {
+            min: dimInfo.min,
+            max: dimInfo.max
+        }
+        this.setState({
+            dimInfo: newDimInfo
+        });
     }
     render() {
         return (
@@ -110,7 +137,8 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
                         selectedVariableName={this.state.selectedVariableName}
                         selectedVariableInfo={this.state.selectedVariableInfo}
                         axis={this.state.axis}
-                        variables={this.state.variables} />}
+                        variables={this.state.variables}
+                        updateDimInfo={this.updateDimInfo} />}
                     <ModalFooter>
                         <Button color="primary" onClick={this.loadVariable}>Load</Button>{' '}
                     </ModalFooter>
@@ -123,6 +151,7 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
             return (
                 axisNames.map((item: any) => {
                     let axisInfo = props.axis[item];
+                    axisInfo.updateDimInfo = props.updateDimInfo;
                     return (<DimensionSlider key={item} {...axisInfo} />)
                 })
             );

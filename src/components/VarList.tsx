@@ -18,7 +18,7 @@ class VarList extends React.Component<VarListProps, VarEditState> {
 
     vcs: any;
     varLoader: VarLoader;
-    constructor(props: any) {
+    constructor(props: VarListProps) {
         super(props)
         this.state = {
             variables: {},
