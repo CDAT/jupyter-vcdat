@@ -1,33 +1,54 @@
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import AddEditRemoveNav from './AddEditRemoveNav';
+import { VarLoader } from './VarLoader';
 import List from "./List";
 
-/**
- * A test component to show variables list where variables can be clicked on.
- * 
- * props:
- *  variables: A dictionary containing key value pairs of variable names and their data.
- *  clickHandler: onClick handler for when a specific variable in the list is clicked,
- *  the onClick event is passed to the function.
- */
+type VarListProps = {
+    file_path: string,  // path to the file we're loading variables from
+    handleClick: any,   // function
+    variables: any      // array of variables {varName: {variableAttributes}}
+    loadVariable: any   // function to call when user hits load
+}
+type VarEditState = {
+    variables: any,     // object containing variable information
+    axis: any
+}
 
-class VarList extends React.Component <any, any> {
-    constructor(props: any){
+class VarList extends React.Component<VarListProps, VarEditState> {
+
+    vcs: any;
+    varLoader: VarLoader;
+    constructor(props: VarListProps) {
         super(props)
         this.state = {
-            showFile: false,
-            showEdit: false
+            variables: {},
+            axis: {}
         }
-        this.addVariable = this.addVariable.bind(this);
+        this.varLoader = (React as any).createRef();
+
+        this.addVariables = this.addVariables.bind(this);
         this.editVariable = this.editVariable.bind(this)
         this.removeVariable = this.removeVariable.bind(this)
+        this.setupVcs = this.setupVcs.bind(this);
         this.varClickHandler = this.varClickHandler.bind(this);
     }
-    
-    addVariable() {
-        console.log("A form should open for a variable to be added.");
-        toast.info("A form should open for a variable to be added.", { position: toast.POSITION.BOTTOM_CENTER })
+
+    setupVcs(vcs: any) {
+        this.vcs = vcs;
+    }
+
+    addVariables() {
+        this.vcs.allvariables(this.props.file_path).then((variableAxes: any) => {
+            this.setState({
+                variables: variableAxes[0],
+                axis: variableAxes[1]
+            })
+            this.varLoader.toggle();
+            this.varLoader.setVariables(
+                variableAxes[0],
+                variableAxes[1]);
+        })
     }
 
     editVariable() {
@@ -45,17 +66,26 @@ class VarList extends React.Component <any, any> {
     }
 
     render() {
+        let itemStyle = {
+            paddingLeft: '1em'
+        }
+        let varLoaderProps = {
+            variables: {},
+            axis: {},
+            file_path: this.props.file_path,
+            loadVariable: this.props.loadVariable
+        };
         return (
             <div className='left-side-list scroll-area-list-parent var-list-container'>
-                <AddEditRemoveNav 
+                <AddEditRemoveNav
                     title='Variables'
-                    addAction={()=>this.setState({ showFile: true, showEdit: false })} 
-                    editAction={()=>this.editVariable()}
-                    removeAction={()=>this.removeVariable()}
+                    addAction={this.addVariables}
+                    editAction={this.editVariable}
+                    removeAction={this.removeVariable}
                     addText="Load a variable"
                     editText="Edit a loaded variable"
-                    removeText="Remove a loaded variable"
-                />
+                    removeText="Remove a loaded variable"/>
+                <VarLoader {...varLoaderProps} ref={(loader) => this.varLoader = loader}/>
                 <div className='scroll-area'>
                     <List 
                         clickAction={this.varClickHandler}
@@ -63,17 +93,6 @@ class VarList extends React.Component <any, any> {
                         hidden={false}
                     />
                 </div>
-                {/*<div className='scroll-area'>
-                    <ul id='var-list' className='no-bullets left-list'>
-                        {Object.keys(this.props.variables).map((key, index) => {
-                            return(
-                                <li>
-                                    <a href='#' onClick={(e) => {this.clickItemHandler(e,key,this.props.variables[key])}}>   Key: {key} Value: {this.props.variables[key]}</a>
-                                </li>
-                            ) 
-                        })}
-                    </ul>
-                    </div>*/}
             </div>
         )
     }

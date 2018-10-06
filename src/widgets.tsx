@@ -1,6 +1,6 @@
-import { Widget } from '@phosphor/widgets';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { Widget } from '@phosphor/widgets';
 import { LeftSideBar } from './components/LeftSideBar';
 import { CommandRegistry } from '@phosphor/commands';
 import { DocumentRegistry } from '@jupyterlab/docregistry';
@@ -83,7 +83,7 @@ export class LeftSideBarWidget extends Widget {
     currentPanel: ConsolePanel;
     variables: string;
     props: any; //An object that stores the props to pass down to LeftSideBar
-
+    component: any; // the LeftSidebar component
     constructor(commands: CommandRegistry, context: DocumentRegistry.Context){
         super();
         this.div = document.createElement('div');
@@ -118,17 +118,31 @@ export class LeftSideBarWidget extends Widget {
                 this.updateVars();
             }
         };
-        ReactDOM.render(<LeftSideBar {...this.props}></LeftSideBar>,this.div);
+        this.component = ReactDOM.render(
+          <LeftSideBar {...this.props}/>,
+          this.div);
 
         this.updateVars = this.updateVars.bind(this);
         this.reRender = this.reRender.bind(this);
         this.updateVars();
     }
-
+    updatePath(file_path: string){
+        this.file_path = file_path;
+        this.component.setState({
+            file_path: file_path
+        });
+    }
+    updateConsole(console: any){
+        this.console = console;
+        this.component.handleSetupConsole(console);
+        this.component.handleLoadFile();
+    }
     //Called whenever the LeftSideBar needs it's props updated.
     reRender(){
         ReactDOM.unmountComponentAtNode(this.div);//Remove old LeftSideBar (avoid memory leak)
-        ReactDOM.render(<LeftSideBar {...this.props}></LeftSideBar>,this.div);
+        this.component = ReactDOM.render(
+          <LeftSideBar {...this.props}/>,
+          this.div);
     }
 
     //Helper function to convert console output string to an object/dictionary
@@ -239,9 +253,7 @@ export class NCViewerWidget extends Widget {
 		super();
 		this.context = context;
 	}
-
 	readonly context: DocumentRegistry.Context;
-
 	readonly ready = Promise.resolve(void 0);
 }
 

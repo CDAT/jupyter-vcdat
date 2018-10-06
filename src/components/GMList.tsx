@@ -38,7 +38,7 @@ class GMList extends React.Component <any, any> {
             <div className='left-side-list scroll-area-list-parent gm-list-container'>
                 <AddEditRemoveNav 
                     title='Graphics Methods'
-                    addAction={this.clickedAdd}
+                    addAction={undefined}
                     addText="Create a new Graphics Method"
                     editAction={this.clickedEdit}
                     editText="Edit a selected graphics method"

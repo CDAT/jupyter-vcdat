@@ -36,7 +36,7 @@ class TemplateList extends React.Component <any, any> {
             <div className='left-side-list scroll-area-list-parent template-list-container'>
                 <AddEditRemoveNav
                     addText="Create a new template"
-                    addAction={this.addTemplate}
+                    addAction={undefined}
                     editAction={this.editTemplate}
                     editText="Edit a selected template"
                     removeAction={this.removeTemplate}
