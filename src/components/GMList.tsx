@@ -1,5 +1,6 @@
 import * as React from 'react';
 import AddEditRemoveNav from './AddEditRemoveNav';
+import ListSet from './ListSet';
 import { toast } from "react-toastify";
 
 class GMList extends React.Component <any, any> {
@@ -9,9 +10,10 @@ class GMList extends React.Component <any, any> {
             show_edit_modal: false,
             show_create_modal: false,
         }
-        this.clickedAdd = this.clickedAdd.bind(this)
-        this.clickedEdit = this.clickedEdit.bind(this)
-        this.confirmRemove = this.confirmRemove.bind(this)
+        this.clickedAdd = this.clickedAdd.bind(this);
+        this.clickedEdit = this.clickedEdit.bind(this);
+        this.confirmRemove = this.confirmRemove.bind(this);
+        this.graphClickHandler = this.graphClickHandler.bind(this);
     }
 
     clickedAdd() {
@@ -24,6 +26,10 @@ class GMList extends React.Component <any, any> {
 
     confirmRemove() {
         toast.info("A Graphics Method must be selected to delete", { position: toast.POSITION.BOTTOM_CENTER })
+    }
+
+    graphClickHandler(graphicsType: string, graphicsName: string) {
+        this.props.graphClickHandler(graphicsType, graphicsName);
     }
 
     render() {
@@ -39,17 +45,10 @@ class GMList extends React.Component <any, any> {
                     removeAction={this.confirmRemove}
                     removeText="Removing a graphics method is not supported yet"
                 />
-                <div className='scroll-area'>
-                    <ul id='gm-list' className='no-bullets left-list'>
-                        {Object.keys(this.props.graphicMethods).map((value, index) => {
-                            return(
-                                <li>
-                                    Key: {index} Value: {value}
-                                </li>
-                            ) 
-                        })}
-                    </ul>
-                </div>
+                <ListSet 
+                    listSet={this.props.graphicsMethods}
+                    clickAction={this.graphClickHandler}
+                />
             </div>
         )
     }

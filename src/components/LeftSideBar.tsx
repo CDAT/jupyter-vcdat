@@ -97,6 +97,8 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
                                 graphicMethods={this.state.graphicMethods} />
                             <TemplateList
                                 templates={this.state.templates} />
+                            <button type="button" style={leftBtnStyle} onClick={this.props.refreshAction}>Refresh</button>
+                            <button type="button" style={rightBtnStyle} onClick={this.props.plotAction}>Plot</button><br />
                             <ToastContainer />
                         </div>
                         <div id="vcs-target"></div>

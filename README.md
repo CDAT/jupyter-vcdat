@@ -44,7 +44,7 @@ For a development install (requires npm version 4 or later), do the following in
     cd jupyter-react-ext
     git checkout vcdat2.0
     npm install
-    jupyter labextension install
+    jupyter labextension install .
 
     #To run, got to jupyter-react-ext repo
     jupyter lab
@@ -57,4 +57,3 @@ To rebuild the package and the JupyterLab app:
 npm run build
 jupyter lab build
 ```
-

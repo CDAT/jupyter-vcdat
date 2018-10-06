@@ -2,6 +2,7 @@ import * as React from 'react';
 import { toast } from 'react-toastify';
 import AddEditRemoveNav from './AddEditRemoveNav';
 import { VarLoader } from './VarLoader';
+import List from "./List";
 
 type VarListProps = {
     file_path: string,  // path to the file we're loading variables from
@@ -30,6 +31,7 @@ class VarList extends React.Component<VarListProps, VarEditState> {
         this.editVariable = this.editVariable.bind(this)
         this.removeVariable = this.removeVariable.bind(this)
         this.setupVcs = this.setupVcs.bind(this);
+        this.varClickHandler = this.varClickHandler.bind(this);
     }
 
     setupVcs(vcs: any) {
@@ -59,6 +61,10 @@ class VarList extends React.Component<VarListProps, VarEditState> {
         toast.info("A variable will be removed from the list.", { position: toast.POSITION.BOTTOM_CENTER })
     }
 
+    varClickHandler(listName: string, varName: string) {
+        this.props.varClickHandler(listName,varName);
+    }
+
     render() {
         let itemStyle = {
             paddingLeft: '1em'
@@ -81,15 +87,11 @@ class VarList extends React.Component<VarListProps, VarEditState> {
                     removeText="Remove a loaded variable"/>
                 <VarLoader {...varLoaderProps} ref={(loader) => this.varLoader = loader}/>
                 <div className='scroll-area'>
-                    <ul id='var-list' className='no-bullets left-list'>
-                        {Object.keys(this.props.variables).map((key, index) => {
-                            return (
-                                <li key={index} style={itemStyle}>
-                                    <a onClick={this.props.handleClick}>{key}</a>
-                                </li>
-                            )
-                        })}
-                    </ul>
+                    <List 
+                        clickAction={this.varClickHandler}
+                        itemList={this.props.variables}
+                        hidden={false}
+                    />
                 </div>
             </div>
         )

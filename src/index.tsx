@@ -25,15 +25,15 @@ import {
 import { CommandRegistry } from '@phosphor/commands';
 import { JSONExt } from '@phosphor/coreutils'
 import { Widget } from '@phosphor/widgets';
-import { LeftSideBarWidget } from './widgets';
+import { NCViewerWidget, LeftSideBarWidget } from './widgets';
 
 const FILETYPE = 'NetCDF';
 const FACTORY_NAME = 'vcs';
 
 // Declare the widget variables
 let commands: CommandRegistry;
-let shell: ApplicationShell;
 let sidebar: LeftSideBarWidget;
+let shell: ApplicationShell;
 
 /**
  * Initialization data for the jupyter-react-ext extension.
@@ -112,6 +112,7 @@ function activate(app: JupyterLab, restorer: ILayoutRestorer) {
 			name: () => 'vcs'
 		});
 	});
+
 };
 
 /**
@@ -144,14 +145,4 @@ export class NCViewerFactory extends ABCWidgetFactory<
 		});
 		return ncWidget;
 	}
-}
-
-// dummy widget to make the NCViewerFactory happy
-export class NCViewerWidget extends Widget {
-	constructor(context: DocumentRegistry.Context) {
-		super();
-		this.context = context;
-	}
-	readonly context: DocumentRegistry.Context;
-	readonly ready = Promise.resolve(void 0);
 }
