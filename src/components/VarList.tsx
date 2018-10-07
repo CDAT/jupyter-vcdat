@@ -12,7 +12,8 @@ type VarListProps = {
 }
 type VarEditState = {
     variables: any,     // object containing variable information
-    axis: any
+    axis: any,
+    file_path: string
 }
 
 class VarList extends React.Component<VarListProps, VarEditState> {
@@ -20,8 +21,9 @@ class VarList extends React.Component<VarListProps, VarEditState> {
     vcs: any;
     varLoader: VarLoader;
     constructor(props: VarListProps) {
-        super(props)
+        super(props);
         this.state = {
+            file_path: '',
             variables: {},
             axis: {}
         }
@@ -85,7 +87,9 @@ class VarList extends React.Component<VarListProps, VarEditState> {
                     addText="Load a variable"
                     editText="Edit a loaded variable"
                     removeText="Remove a loaded variable"/>
-                <VarLoader {...varLoaderProps} ref={(loader) => this.varLoader = loader}/>
+                <VarLoader 
+                    {...varLoaderProps} 
+                    ref={(loader) => this.varLoader = loader}/>
                 <div className='scroll-area'>
                     <List 
                         activeItem={''}

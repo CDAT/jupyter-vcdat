@@ -81,7 +81,7 @@ export class LeftSideBarWidget extends Widget {
     commands: CommandRegistry;          // Jupyter app CommandRegistry
     context: DocumentRegistry.Context;  // Jupyter app DocumentRegistry.Context
     currentPanel: ConsolePanel;         // The console panel this widget is interacting with
-    variables: string;                  
+    variables: string;
     props: any;                         // An object that stores the props to pass down to LeftSideBar
     component: any;                     // the LeftSidebar component
     currentGm: string                   // name of the active graphics method
@@ -98,45 +98,16 @@ export class LeftSideBarWidget extends Widget {
         this.currentPanel = null;
         this.currentGm = '';
         this.currentVariable = '';
-        this.currentTemplate= '';
+        this.currentTemplate = '';
         this.props = {
-            variables: ["TestVar1", "TestVar2", "TestVariable3"],
-            graphicsMethods: {
-                "default":
-                    ['boxfill',
-                        'isofill',
-                        'isoline',
-                        'meshfill',
-                        'scatter',
-                        'vector',
-                        'streamline',
-                        'xvsy',
-                        'xyvsy',
-                        'yxvsx',
-                        'taylordiagram',
-                        '1d',
-                        '3d_scalar',
-                        '3d_dual_scalar',
-                        '3d_vector']
-            },
-            templates: ['ASD', 'ASD_dud', 'BL_of6_1legend',
-                'BLof6', 'BR_of6_1legend', 'BRof6', 'LLof4', 
-                'LLof4_dud', 'LRof4', 'LRof4_dud', 'ML_of6', 
-                'ML_of6_1legend', 'MR_of6', 'MR_of6_1legend', 
-                'UL_of6_1legend', 'ULof4', 'ULof4_dud', 'ULof6', 
-                'UR_of6', 'UR_of6_1legend', 'URof4', 'URof4_dud', 
-                'bold_mid_of3', 'bold_top_of3', 'boldbot_of3_l', 
-                'boldmid_of3_l', 'boldtop_of3_l', 'bot_of2', 'default', 
-                'deftaylor', 'hovmuller', 'mollweide2', 'no_legend', 
-                'polar', 'por_botof3', 'por_botof3_dud', 'por_midof3', 
-                'por_midof3_dud', 'por_topof3', 'por_topof3_dud', 
-                'quick', 'top_of2'],
-
+            variables: [],
+            graphicsMethods: {},
+            templates: [],
             //The handlers below are run when a variable, template or graphicMethod link is clicked
             varClickHandler: (listName: string, varName: string) => {
                 listName = listName.replace(/\s/g, '');
                 varName = varName.replace(/\s/g, '');
-                if(this.currentVariable != varName){
+                if (this.currentVariable != varName) {
                     this.currentVariable = varName;
                     let varString = `selectedVariable = ${varName}`;
                     this.currentPanel.console.inject(varString);
@@ -144,16 +115,16 @@ export class LeftSideBarWidget extends Widget {
             },
             templateClickHandler: (listName: string, tmplName: string) => {
                 tmplName = tmplName.replace(/\s/g, '');
-                if(this.currentTemplate != tmplName){
+                if (this.currentTemplate != tmplName) {
                     this.currentTemplate = tmplName;
-                    let tmplString = `template = x.gettemplate('${tmplName}')`;
+                    let tmplString = `${tmplName} = x.gettemplate('${tmplName}')`;
                     this.currentPanel.console.inject(tmplString);
                 }
             },
             graphClickHandler: (graphicType: string, graphicName: string) => {
                 graphicName = graphicName.replace(/\s/g, '');
                 graphicType = graphicType.replace(/\s/g, '');
-                if(this.currentGm != graphicName){
+                if (this.currentGm != graphicName) {
                     this.currentGm = graphicName;
                     let gmLoadString = `${graphicName} = vcs.get${graphicType}('${graphicName}')`;
                     this.currentPanel.console.inject(gmLoadString);
@@ -167,14 +138,17 @@ export class LeftSideBarWidget extends Widget {
             plotAction: () => {
                 let plotString = `x.plot(${this.currentVariable}, ${this.currentGm}, ${this.currentTemplate})`;
                 this.currentPanel.console.inject(plotString);
-            }
+            },
+            clearAction: () => {
+                this.currentPanel.console.clear();
+            },
+            file_path: this.context.session.path
         };
         this.component = ReactDOM.render(
             <LeftSideBar {...this.props} />,
             this.div);
 
         this.updateVars = this.updateVars.bind(this);
-        this.reRender = this.reRender.bind(this);
         this.updateVars();
     }
     updatePath(file_path: string) {
@@ -182,14 +156,39 @@ export class LeftSideBarWidget extends Widget {
             file_path: file_path
         });
     }
-    //Called whenever the LeftSideBar needs it's props updated.
-    reRender() {
-        ReactDOM.unmountComponentAtNode(this.div);//Remove old LeftSideBar (avoid memory leak)
-        this.component = ReactDOM.render(
-            <LeftSideBar {...this.props} />,
-            this.div);
+    //This is where the code injection occurs in the current console.
+    updateVars() {
+        if (!this.currentPanel) {
+            // Create Console and inject code
+            this.commands.execute('console:create', {
+                activate: true,
+                path: this.context.path,
+                preferredLanguage: this.context.model.defaultKernelLanguage
+            }).then(consolePanel => {
+                consolePanel.session.ready.then(() => {
+                    this.currentPanel = consolePanel;
+                    this.component.console = consolePanel.console;
+                    //Temp cmd for testing
+                    var injectCmd = `import cdms2\nimport vcs\nx = vcs.init()\ndata = cdms2.open('${this.context.session.path}')`
+                    this.currentPanel.console.inject(injectCmd);
+                    //Command to put variables
+                    this.currentPanel.console.inject(GET_VARS_CMD).then(() => {
+                        this.handleGetVarsComplete();
+                    });
+                })
+            })
+        }
+        else {
+            // Just inject code, console exists
+            console.log('Executing command console: inject');
+            this.currentPanel.session.ready.then(() => {
+                //Command to put variables
+                this.currentPanel.console.inject(GET_VARS_CMD).then(() => {
+                    this.handleGetVarsComplete();
+                });
+            });
+        }
     }
-
     //Helper function to convert console output string to an object/dictionary
     outputStrToDict(output: string) {
         var dict: any = { variables: {}, templates: {}, graphicsMethods: {} };
@@ -219,76 +218,19 @@ export class LeftSideBarWidget extends Widget {
 
         return dict;
     }
+    handleGetVarsComplete() {
+        //Once injection is done read output as string
+        var consoleOutputStr: string = document.getElementsByClassName("jp-OutputArea-output")[0].getElementsByTagName("pre")[0].innerHTML;
+        var outputObj = this.outputStrToDict(consoleOutputStr);
 
-    //This is where the code injection occurs in the current console.
-    updateVars() {
+        this.component.updateListInfo(
+            outputObj["variables"],
+            outputObj["graphicsMethods"],
+            outputObj["templates"])
 
-        if (!this.currentPanel) {
-            // Create Console and inject code
-            console.log('Executing command console:create');
-            this.commands.execute('console:create', {
-                activate: true,
-                path: this.context.path,
-                preferredLanguage: this.context.model.defaultKernelLanguage
-            }).then(consolePanel => {
-                consolePanel.session.ready.then(() => {
-                    this.currentPanel = consolePanel;
-
-                    //Temp cmd for testing
-                    var injectCmd = `import cdms2\nimport vcs\nx = vcs.init()\ndata = cdms2.open('${this.context.session.path}')`
-                    this.currentPanel.console.inject(injectCmd);
-
-                    //Command to put variables
-                    this.currentPanel.console.inject(GET_VARS_CMD).then(() => {
-
-                        //Once injection is done read output as string
-                        var consoleOutputStr: string = document.getElementsByClassName("jp-OutputArea-output")[0].getElementsByTagName("pre")[0].innerHTML;
-                        var outputObj = this.outputStrToDict(consoleOutputStr);
-
-                        //Update props
-                        this.props.variables = outputObj["variables"];
-                        this.props.templates = outputObj["templates"];
-                        this.props.graphicsMethods = outputObj["graphicsMethods"];
-
-                        //Rerender the LeftSideBar
-                        this.reRender();
-
-                        //Calc the number of cells in console and remove last cell once props are updated
-                        var cellCount = this.currentPanel.console.cells.length;
-                        console.log("Cell count: " + cellCount);
-                        this.currentPanel.console.cells.get(cellCount - 1).close();
-                    });
-                })
-            })
-        }
-        else {
-            // Just inject code, console exists
-            console.log('Executing command console: inject');
-            this.currentPanel.session.ready.then(() => {
-
-                //Command to put variables
-                this.currentPanel.console.inject(GET_VARS_CMD).then((consolePanel) => {
-
-                    //Once injection is done read output as string
-                    var consoleOutputStr: string = document.getElementsByClassName("jp-OutputArea-output")[0].getElementsByTagName("pre")[0].innerHTML;
-                    console.log(consoleOutputStr);
-                    var outputObj = this.outputStrToDict(consoleOutputStr);
-
-                    //Update props
-                    this.props.variables = outputObj["variables"];
-                    this.props.templates = outputObj["templates"];
-                    this.props.graphicsMethods = outputObj["graphicsMethods"];
-
-                    //Rerender the LeftSideBar
-                    this.reRender();
-
-                    //Calc the number of cells in console and remove last cell once props are updated
-                    var cellCount = this.currentPanel.console.cells.length;
-                    console.log("Cell count: " + cellCount);
-                    this.currentPanel.console.cells.get(cellCount - 1).close();
-                });
-            });
-        }
+        //Calc the number of cells in console and remove last cell once props are updated
+        var cellCount = this.currentPanel.console.cells.length;
+        this.currentPanel.console.cells.get(cellCount - 1).close();
     }
 }
 
