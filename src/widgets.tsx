@@ -77,13 +77,16 @@ print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
 
 export class LeftSideBarWidget extends Widget {
 
-    div: HTMLDivElement; //The div container for this widget
-    commands: CommandRegistry;
-    context: DocumentRegistry.Context;
-    currentPanel: ConsolePanel;
-    variables: string;
-    props: any; //An object that stores the props to pass down to LeftSideBar
-    component: any; // the LeftSidebar component
+    div: HTMLDivElement;                // The div container for this widget
+    commands: CommandRegistry;          // Jupyter app CommandRegistry
+    context: DocumentRegistry.Context;  // Jupyter app DocumentRegistry.Context
+    currentPanel: ConsolePanel;         // The console panel this widget is interacting with
+    variables: string;                  
+    props: any;                         // An object that stores the props to pass down to LeftSideBar
+    component: any;                     // the LeftSidebar component
+    currentGm: string                   // name of the active graphics method
+    currentVariable: string             // name of the activate variable
+    currentTemplate: string             // name of the activate template
     constructor(commands: CommandRegistry, context: DocumentRegistry.Context) {
         super();
         this.div = document.createElement('div');
@@ -93,29 +96,77 @@ export class LeftSideBarWidget extends Widget {
         this.commands = commands;
         this.context = context;
         this.currentPanel = null;
-
+        this.currentGm = '';
+        this.currentVariable = '';
+        this.currentTemplate= '';
         this.props = {
             variables: ["TestVar1", "TestVar2", "TestVariable3"],
-            graphicsMethods: { "GraphicType1": ['method a', 'method b', 'method c'], "GraphicType2": ["method a", "method z"], "GraphicType3": ["method 1", "method 2", "method 3"] },
-            templates: ["Template1", "Template2", "Template3"],
+            graphicsMethods: {
+                "default":
+                    ['boxfill',
+                        'isofill',
+                        'isoline',
+                        'meshfill',
+                        'scatter',
+                        'vector',
+                        'streamline',
+                        'xvsy',
+                        'xyvsy',
+                        'yxvsx',
+                        'taylordiagram',
+                        '1d',
+                        '3d_scalar',
+                        '3d_dual_scalar',
+                        '3d_vector']
+            },
+            templates: ['ASD', 'ASD_dud', 'BL_of6_1legend',
+                'BLof6', 'BR_of6_1legend', 'BRof6', 'LLof4', 
+                'LLof4_dud', 'LRof4', 'LRof4_dud', 'ML_of6', 
+                'ML_of6_1legend', 'MR_of6', 'MR_of6_1legend', 
+                'UL_of6_1legend', 'ULof4', 'ULof4_dud', 'ULof6', 
+                'UR_of6', 'UR_of6_1legend', 'URof4', 'URof4_dud', 
+                'bold_mid_of3', 'bold_top_of3', 'boldbot_of3_l', 
+                'boldmid_of3_l', 'boldtop_of3_l', 'bot_of2', 'default', 
+                'deftaylor', 'hovmuller', 'mollweide2', 'no_legend', 
+                'polar', 'por_botof3', 'por_botof3_dud', 'por_midof3', 
+                'por_midof3_dud', 'por_topof3', 'por_topof3_dud', 
+                'quick', 'top_of2'],
 
             //The handlers below are run when a variable, template or graphicMethod link is clicked
             varClickHandler: (listName: string, varName: string) => {
-                console.log("Variable: " + varName + " was clicked.");
+                listName = listName.replace(/\s/g, '');
+                varName = varName.replace(/\s/g, '');
+                if(this.currentVariable != varName){
+                    this.currentVariable = varName;
+                    let varString = `selectedVariable = ${varName}`;
+                    this.currentPanel.console.inject(varString);
+                }
             },
-            tmplClickHandler: (listName: string, tmplName: string) => {
-                console.log("Template: " + tmplName + " was clicked.");
+            templateClickHandler: (listName: string, tmplName: string) => {
+                tmplName = tmplName.replace(/\s/g, '');
+                if(this.currentTemplate != tmplName){
+                    this.currentTemplate = tmplName;
+                    let tmplString = `template = x.gettemplate('${tmplName}')`;
+                    this.currentPanel.console.inject(tmplString);
+                }
             },
             graphClickHandler: (graphicType: string, graphicName: string) => {
-                console.log("GraphicType: " + graphicType + " method: '" + graphicName + "' was clicked.");
+                graphicName = graphicName.replace(/\s/g, '');
+                graphicType = graphicType.replace(/\s/g, '');
+                if(this.currentGm != graphicName){
+                    this.currentGm = graphicName;
+                    let gmLoadString = `${graphicName} = vcs.get${graphicType}('${graphicName}')`;
+                    this.currentPanel.console.inject(gmLoadString);
+                }
             },
             //These are the refresh and plot handlers.
             refreshAction: () => {
                 this.updateVars();
             },
+            // plot using the currently selected variable, gm, template
             plotAction: () => {
-                //Need to do some plot injection code here
-                this.updateVars();
+                let plotString = `x.plot(${this.currentVariable}, ${this.currentGm}, ${this.currentTemplate})`;
+                this.currentPanel.console.inject(plotString);
             }
         };
         this.component = ReactDOM.render(
@@ -184,7 +235,7 @@ export class LeftSideBarWidget extends Widget {
                     this.currentPanel = consolePanel;
 
                     //Temp cmd for testing
-                    var injectCmd = `import cdms2\nimport vcs\ndata = cdms2.open('${this.context.session.path}')`
+                    var injectCmd = `import cdms2\nimport vcs\nx = vcs.init()\ndata = cdms2.open('${this.context.session.path}')`
                     this.currentPanel.console.inject(injectCmd);
 
                     //Command to put variables

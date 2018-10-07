@@ -14,7 +14,15 @@ const itemStyle = {
     testDecoration: 'none'
 }
 
-class List extends React.Component <any, any> {
+type ListProps = {
+    listName: string        // the name of the active list
+    clickAction: any        // a function to call when an item is clicked
+    itemList: any           // a list of items
+    activeItem: string      // the name of the active item
+    activeList: string      // the name of the active list
+}
+
+class List extends React.Component<ListProps, any> {
 
     itemList: Array<string>;
     clickAction: Function;
@@ -22,34 +30,44 @@ class List extends React.Component <any, any> {
     activeList: string;
     activeItem: string;
 
-    constructor(props: any){
+    constructor(props: any) {
         super(props)
 
         this.state = {
             listName: this.props.listName
         }
         this.clickHandler = this.clickHandler.bind(this);
-        this.handleChange = this.handleChange.bind(this);
     };
 
-    handleChange(e: any){
-        this.props.onListSetChange(e.target.activeList);
-        this.props.onListSetChange(e.target.activeItem);
-        console.log("Change handled");
-    }
-    
     clickHandler(event: any, listName: string, itemName: string) {
-        this.props.clickAction(listName,itemName);
+        this.setState({
+            activeList: listName, 
+            activeItem: itemName
+        });
+        this.props.clickAction(listName, itemName);
     };
 
     render() {
-
         return (
             <ul id='var-list' className='no-bullets left-list'>
                 {this.props.itemList.map((itemName: string, index: number) => {
+                    let liClassName;
+                    if (this.state.listName === this.state.activeList && itemName === this.state.activeItem) {
+                        liClassName = 'active';
+                    } else {
+                        liClassName = ""
+                    }
                     return (
-                        <li key={index} className={this.state.listName===this.props.activeList&&itemName===this.props.activeItem ? "active" : ""}>
-                            <a href="#" style={itemStyle} onClick={(e) => this.clickHandler(e,this.state.listName,itemName)}>{itemName}</a>
+                        <li key={index} className={liClassName}>
+                            <a href="#"
+                                style={itemStyle}
+                                onClick={(event: any) => {
+                                    this.clickHandler(event,
+                                        this.state.listName,
+                                        itemName)
+                                }}>
+                                {itemName}
+                            </a>
                         </li>
                     )
                 })}

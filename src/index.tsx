@@ -92,8 +92,8 @@ export class NCViewerFactory extends ABCWidgetFactory<
 			sidebar.title.label = 'vcs';
 			sidebar.title.closable = true;
 		}
+		// Attach the widget to the left area if it's not there
 		if (!sidebar.isAttached) {
-			// Attach the widget to the left area if it's not there
 			shell.addToLeftArea(sidebar);
 		} else {
 			sidebar.update();
@@ -101,22 +101,6 @@ export class NCViewerFactory extends ABCWidgetFactory<
 		// Activate the widget
 		shell.activateById(sidebar.id);
 
-		// the path to the file that was clicked to launch this widget
-		const path = context.session.path.split('/').slice(-1)[0];
-
-		// // create new console
-		// commands.execute('console:create', {
-		// 	activate: true,
-		// 	path: context.path,
-		// 	preferredLanguage: context.model.defaultKernelLanguage
-		// }).then(consolePanel => {
-		// 	// once the console is created setup launch the sidebar
-		// 	consolePanel.session.ready.then(() => {
-		// 		commands.execute('vcs:open-sidebar');
-		// 		sidebar.updatePath(path);
-		// 		sidebar.updateConsole(consolePanel.console);
-		// 	});
-		// });
 		return ncWidget;
 	}
 }

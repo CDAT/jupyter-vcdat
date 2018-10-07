@@ -11,7 +11,7 @@ import List from './List';
 
 const setStyle = {
     margin: '2px 5px',
-    fontWeight: 'bold' as 'bold',//Typescript needs this to be cast to 'bold' type or it will complain
+    fontWeight: 'bold' as 'bold', // Typescript needs this to be cast to 'bold' type or it will complain
     testDecoration: 'none'
 }
 
@@ -21,20 +21,25 @@ class ListSet extends React.Component <any,any> {
         super(props)
         this.state = {
             activeList: null,
-            activeItem: null, //Get first item and set as active by default
+            activeItem: null, // Get first item and set as active by default
         }
         this.listClickHandler = this.listClickHandler.bind(this);
         this.clickItemHandler = this.clickItemHandler.bind(this);
     }
     
     listClickHandler(event: any, listName: string, itemName: string) {
-        this.setState({activeList: listName, activeItem: itemName});
-        console.log("ListName: " + listName + " was clicked.")
+        this.setState({
+            activeList: listName, 
+            activeItem: itemName
+        });
     }
 
-    clickItemHandler(activeL: string, listItem: string){
-        this.setState({activeItem: listItem, activeList: activeL});
-        this.props.clickAction(activeL, listItem);
+    clickItemHandler(activeList: string, listItem: string){
+        this.setState({
+            activeItem: listItem, 
+            activeList: activeList
+        });
+        this.props.clickAction(activeList, listItem);
     }
 
     render() {
@@ -43,15 +48,20 @@ class ListSet extends React.Component <any,any> {
             {listNames.map((listName: string, index: number) => {
                 return (
                     <ul key={index} className='no-bullets left-list active'>
-                        <a href="#" style={setStyle} onClick={(e) => this.listClickHandler(e,listName,this.state.activeItem)}>{listName}</a>
+                        <a href="#" 
+                           style={setStyle} 
+                           onClick={(event: any) => {
+                               this.listClickHandler(event,
+                                                     listName,
+                                                     this.state.activeItem)}}>
+                               {listName}
+                        </a>
                         <List
                             activeList={this.state.activeList}
                             activeItem={this.state.activeItem}
                             listName={listName}
                             itemList={this.props.listSet[listName]}
-                            clickAction={this.clickItemHandler}
-                            //onListSetChange={this.listClickHandler}
-                        />
+                            clickAction={this.clickItemHandler}/>
                     </ul>
                 )
             })}

@@ -88,10 +88,11 @@ class VarList extends React.Component<VarListProps, VarEditState> {
                 <VarLoader {...varLoaderProps} ref={(loader) => this.varLoader = loader}/>
                 <div className='scroll-area'>
                     <List 
+                        activeItem={''}
+                        activeList={''}
+                        listName={''}
                         clickAction={this.props.varClickHandler}
-                        itemList={this.props.variables}
-                        hidden={false}
-                    />
+                        itemList={this.props.variables}/>
                 </div>
             </div>
         )

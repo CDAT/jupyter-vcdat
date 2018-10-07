@@ -28,7 +28,7 @@ class TemplateList extends React.Component <any, any> {
     }
 
     tmplClickHandler(listName: string, templateName: string) {
-        this.props.tmplClickHandler(listName,templateName);
+        this.props.templateClickHandler(listName, templateName);
     }
 
     render() {
@@ -44,11 +44,12 @@ class TemplateList extends React.Component <any, any> {
                     title='Templates'
                 />
                 <div className='scroll-area'>
-                    <List 
+                    <List
+                        activeList={''}
+                        activeItem={''}
+                        listName={''}
                         clickAction={this.tmplClickHandler}
-                        itemList={this.props.templates}
-                        hidden={false}
-                    />
+                        itemList={this.props.templates}/>
                 </div>
             </div>
         );

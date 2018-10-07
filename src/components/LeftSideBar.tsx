@@ -20,6 +20,10 @@ type LeftSideBarProps = {
     refreshAction: any          // method to call onClick of refresh button
     plotAction: any             // method to call onClico of plot button
     varClickHandler: any        // a function that handles when an item in the variables list is clicked.
+    graphicsMethods: any        // a dictionary containing graphic method names and values
+    graphClickHandler: any      // a handler for clicks on GMList items
+    templates: string[]         // list of templates available to the user
+    templateClickHandler: any   // a handler for when the user clicks a template
 };
 type LeftSideBarState = {
     file_path: string,          // path to the file in question
@@ -99,6 +103,8 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
                 <div id="app-container">
                     <div id='main-container'>
                         <div id='left-side-bar'>
+                            <button type="button" style={leftBtnStyle} onClick={this.props.refreshAction}>Refresh</button>
+                            <button type="button" style={rightBtnStyle} onClick={this.props.plotAction}>Plot</button><br />
                             <VarList 
                                 ref={this.varListEl}
                                 file_path={this.state.file_path}
@@ -106,11 +112,11 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
                                 varClickHandler={this.props.varClickHandler}
                                 loadVariable={this.handleLoadVariable} />
                             <GMList
-                                graphicMethods={this.state.graphicMethods} />
+                                graphicsMethods={this.props.graphicsMethods} 
+                                graphClickHandler={this.props.graphClickHandler}/>
                             <TemplateList
-                                templates={this.state.templates} />
-                            <button type="button" style={leftBtnStyle} onClick={this.props.refreshAction}>Refresh</button>
-                            <button type="button" style={rightBtnStyle} onClick={this.props.plotAction}>Plot</button><br />
+                                templates={this.props.templates}
+                                templateClickHandler={this.props.templateClickHandler}/>
                             <ToastContainer />
                         </div>
                         <div id="vcs-target"></div>
