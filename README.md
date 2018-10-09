@@ -40,13 +40,13 @@ For a development install (requires npm version 4 or later), do the following in
 
     #install the react-tutorial extension
     cd ..
-    git clone https://github.com/downiec/jupyter-react-ext.git
-    cd jupyter-react-ext
+    git clone https://github.com/CDAT/jupyter-vcdat.git
+    cd jupyter-vcdat
     git checkout vcdat2.0
     npm install
     jupyter labextension install .
 
-    #To run, got to jupyter-react-ext repo
+    #To run, got to jupyter-vcdat repo
     jupyter lab
 
 ```
