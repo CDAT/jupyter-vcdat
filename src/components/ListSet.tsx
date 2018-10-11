@@ -22,15 +22,20 @@ class ListSet extends React.Component <any,any> {
         this.state = {
             activeList: null,
             activeItem: null, // Get first item and set as active by default
+            show: false
         }
         this.listClickHandler = this.listClickHandler.bind(this);
         this.clickItemHandler = this.clickItemHandler.bind(this);
     }
     
     listClickHandler(event: any, listName: string, itemName: string) {
+
+        if(listName===this.state.activeList){
+            this.setState({show: !this.state.show});
+        }
         this.setState({
             activeList: listName, 
-            activeItem: itemName
+            activeItem: itemName,
         });
     }
 
@@ -56,12 +61,14 @@ class ListSet extends React.Component <any,any> {
                                                      this.state.activeItem)}}>
                                {listName}
                         </a>
+                        { this.state.show ?
                         <List
                             activeList={this.state.activeList}
                             activeItem={this.state.activeItem}
                             listName={listName}
                             itemList={this.props.listSet[listName]}
                             clickAction={this.clickItemHandler}/>
+                        : "" }
                     </ul>
                 )
             })}

@@ -11,7 +11,7 @@ Learning to make extensions for JupyterLab and incorporating React.
 
 ```bash
     #Install
-    jupyter labextension install jupyter-react-ext
+    jupyter labextension install jupyter-vcdat
 
     #To run
     jupyter lab
@@ -45,6 +45,9 @@ For a development install (requires npm version 4 or later), do the following in
     git checkout vcdat2.0
     npm install
     jupyter labextension install .
+
+    #IF YOU GET FFMPEG IMPORT ERROR DO COMMAND:
+    conda install -c conda-forge "ffmpeg>4"
 
     #To run, got to jupyter-vcdat repo
     jupyter lab

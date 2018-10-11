@@ -1,15 +1,15 @@
 {
-	"name": "jupyter-react-ext",
+	"name": "jupyter-vcdat",
 	"version": "0.1.0",
-	"description": "Learning to make extensions for JupyterLab and incorporating React.",
+	"description": "A vCDAT extension for JupyterLab.",
 	"keywords": [
 		"jupyter",
 		"jupyterlab",
 		"jupyterlab-extension"
 	],
-	"homepage": "https://github.com/downiec/jupyter-react-ext.git",
+	"homepage": "https://github.com/CDAT/jupyter-vcdat.git",
 	"bugs": {
-		"url": "https://github.com/downiec/jupyter-react-ext.git/issues"
+		"url": "https://github.com/CDAT/jupyter-vcdat.git/issues"
 	},
 	"license": "BSD-3-Clause",
 	"author": "Carlos Downie",
@@ -21,7 +21,7 @@
 	"types": "lib/index.d.ts",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/downiec/jupyter-react-ext.git"
+		"url": "https://github.com/CDAT/jupyter-vcdat.git"
 	},
 	"scripts": {
 		"build": "tsc",
@@ -33,22 +33,22 @@
 		"scss": "node-sass style/scss -o style/css"
 	},
 	"dependencies": {
-		"@jupyterlab/application": "^0.18.0",
-		"@jupyterlab/apputils": "^0.18.4",
-		"@jupyterlab/cells": "^0.18.4",
-		"@jupyterlab/console": "^0.18.4",
-		"@jupyterlab/filebrowser": "^0.18.6",
+		"@jupyterlab/application": "^0.19.1",
+		"@jupyterlab/apputils": "^0.19.1",
+		"@jupyterlab/cells": "^0.19.1",
+		"@jupyterlab/console": "^0.19.1",
+		"@jupyterlab/filebrowser": "^0.19.1",
 		"@phosphor/commands": "^1.6.1",
 		"@phosphor/coreutils": "^1.3.0",
 		"@phosphor/messaging": "^1.2.2",
 		"@phosphor/widgets": "^1.6.0",
 		"@types/bootstrap-slider": "^9.9.0",
-		"@types/jquery": "^3.3.10",
-		"@types/lodash": "^4.14.116",
+		"@types/jquery": "^3.3.14",
+		"@types/lodash": "^4.14.117",
 		"@types/query-string": "^6.1.0",
 		"@types/rc-slider": "^8.6.0",
 		"@types/react-bootstrap": "^0.32.14",
-		"@types/react-dom": "^16.0.7",
+		"@types/react-dom": "^16.0.9",
 		"@types/react-list": "^0.8.4",
 		"@types/reactstrap": "^6.4.0",
 		"bootstrap": "^4.1.3",
@@ -64,9 +64,8 @@
 		"react-list": "^0.8.10",
 		"react-load-script": "0.0.6",
 		"react-toastify": "^4.4.0",
-		"reactstrap": "^6.4.0",
-		"remove": "^0.1.5",
-		"vcs-widgets": "github:uv-cdat/vcs-widgets"
+		"reactstrap": "^6.5.0",
+		"remove": "^0.1.5"
 	},
 	"devDependencies": {
 		"node-sass": "^4.9.3",

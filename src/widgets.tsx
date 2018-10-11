@@ -50,29 +50,29 @@ print(list_all())
 */
 
 const GET_VARS_CMD =
-    'import __main__\n\
+'import __main__\n\
 import json\n\
 import cdms2\n\
 import vcs\n\
 def variables():\n\
-\tout = []\n\
-\tfor nm, obj in __main__.__dict__.items():\n\
-\t\tif isinstance(obj, cdms2.MV2.TransientVariable):\n\
-\t\t\tout+=[nm]\n\
-\treturn out\n\
+    out = []\n\
+    for nm, obj in __main__.__dict__.items():\n\
+        if isinstance(obj, cdms2.MV2.TransientVariable):\n\
+            out+=[nm]\n\
+    return out\n\
 def graphic_methods():\n\
-\tout = {}\n\
-\tfor typ in vcs.graphicsmethodlist():\n\
-\t\tout[typ] = vcs.listelements(typ)\n\
-\treturn out\n\
+    out = {}\n\
+    for typ in vcs.graphicsmethodlist():\n\
+        out[typ] = vcs.listelements(typ)\n\
+    return out\n\
 def templates():\n\
-\treturn vcs.listelements("template")\n\
+    return vcs.listelements("template")\n\
 def list_all():\n\
-\tout = {}\n\
-\tout["variables"] = variables()\n\
-\tout["gm"] = graphic_methods()\n\
-\tout["template"] = templates()\n\
-\treturn out\n\
+    out = {}\n\
+    out["variables"] = variables()\n\
+    out["gm"] = graphic_methods()\n\
+    out["template"] = templates()\n\
+    return out\n\
 print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
 
 export class LeftSideBarWidget extends Widget {

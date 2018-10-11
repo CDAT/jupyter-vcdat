@@ -124,7 +124,7 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
     }
     render() {
         return (
-            <div id="vcdat-left-side-bar">
+            <div className="jupyter-vcdat-ext">
                 <div id="app-container">
                     <div id='main-container'>
                         <div id='left-side-bar'>
