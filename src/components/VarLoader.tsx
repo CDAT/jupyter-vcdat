@@ -101,7 +101,7 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
     render() {
         return (
             <div>
-                <Modal className="jupyter-vcdat-ext" id="var-loader-modal" isOpen={this.state.show} toggle={this.toggle} size="lg">
+                <Modal id="var-loader-modal" isOpen={this.state.show} toggle={this.toggle} size="lg">
                     <ModalHeader toggle={this.toggle}>
                         Load Variable
                     </ModalHeader>

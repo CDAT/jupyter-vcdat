@@ -10,9 +10,9 @@ import List from './List';
  */
 
 const setStyle = {
-    margin: '2px 5px',
+    margin: '1px 5px',
     fontWeight: 'bold' as 'bold', // Typescript needs this to be cast to 'bold' type or it will complain
-    testDecoration: 'none'
+    textDecoration: 'none'
 }
 
 class ListSet extends React.Component <any,any> {
@@ -22,21 +22,21 @@ class ListSet extends React.Component <any,any> {
         this.state = {
             activeList: null,
             activeItem: null, // Get first item and set as active by default
-            show: false
+            show: null
         }
         this.listClickHandler = this.listClickHandler.bind(this);
         this.clickItemHandler = this.clickItemHandler.bind(this);
     }
     
     listClickHandler(event: any, listName: string, itemName: string) {
-
-        if(listName===this.state.activeList){
-            this.setState({show: !this.state.show});
-        }
         this.setState({
             activeList: listName, 
             activeItem: itemName,
+            show: null
         });
+        if(this.state.show===null){
+            this.setState({show: listName})
+        }
     }
 
     clickItemHandler(activeList: string, listItem: string){
@@ -61,7 +61,7 @@ class ListSet extends React.Component <any,any> {
                                                      this.state.activeItem)}}>
                                {listName}
                         </a>
-                        { this.state.show ?
+                        { this.state.show===listName ?
                         <List
                             activeList={this.state.activeList}
                             activeItem={this.state.activeItem}

@@ -210,7 +210,6 @@ export class LeftSideBarWidget extends Widget {
             }
             else {//A value/key pair
                 var pair = str.split('], ');
-                console.log(pair);
                 dict.graphicsMethods[prevKey] = pair[0].slice(2).split(',');
                 prevKey = pair[1];
             }

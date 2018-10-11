@@ -11,7 +11,7 @@
         url(MaterialIcons-Regular.ttf) format('truetype');
     }
 
-#vcdat-left-side-bar {
+.jupyter-vcdat-ext {
       .material-icons {
         font-family: 'Material Icons';
         font-weight: normal;
@@ -413,10 +413,6 @@
     
     .colormap-apply-menu.dropdown-menu {
         background-color: #fff /* Reset the background color set by another rule */
-    }
-    
-    .variable-tabs {
-        
     }
     
     .canvas-spinner-hidden {

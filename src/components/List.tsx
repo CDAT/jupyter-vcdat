@@ -10,7 +10,7 @@ import * as React from 'react';
  */
 
 const itemStyle = {
-    margin: '2px 12px',
+    margin: '3px 15px',
     testDecoration: 'none'
 }
 
