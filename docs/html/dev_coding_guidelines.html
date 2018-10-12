@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Coding Guidelines &mdash; vCDAT2 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Developer Installation" href="dev_install.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> vCDAT2
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Developers:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dev_install.html">Developer Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Coding Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#style-guidelines">Style guidelines:</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">vCDAT2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Coding Guidelines</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/dev_coding_guidelines.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="coding-guidelines">
+<h1>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">¶</a></h1>
+<p>The following is a set of coding guidelines that all code submitted to this project must follow. The overall goal of these guidelines is to increase code readability, maintainability, and consistency, as well as ensure that the code written is testable without excessive workarounds.</p>
+<ul class="simple">
+<li>Naming conventions:<ul>
+<li>newfolder</li>
+<li>NewFile</li>
+<li>NewClass</li>
+<li>newFunction</li>
+<li>new_variable</li>
+</ul>
+</li>
+<li>Filenames should correspond to the class exported by default.<ul>
+<li>Example: <cite>import CoolClass from ‘./cool/CoolClass.js’</cite></li>
+</ul>
+</li>
+<li>Components that need css should create a folder of the same name<ul>
+<li>Example: <cite>src/js/components/CoolClass/Coolclass.js</cite> and <cite>src/js/components/CoolClass/Coolclass.scss</cite></li>
+</ul>
+</li>
+<li>No console.log()<ul>
+<li>Generally console.log should be for debugging only. Use console.warn or console.error when errors or unexpected states are encountered.</li>
+</ul>
+</li>
+<li>Component testing suggestions:<ul>
+<li>New components: &gt;80%</li>
+<li>Legacy components 50%</li>
+</ul>
+</li>
+</ul>
+<div class="section" id="style-guidelines">
+<h2>Style guidelines:<a class="headerlink" href="#style-guidelines" title="Permalink to this headline">¶</a></h2>
+<p>Avoid conditional element selecting such as described here: <a class="reference external" href="https://reactjs.org/docs/conditional-rendering.html#inline-if-with-logical--operator/">Conditional Rendering - React</a></p>
+<p>Avoid declaring components or classes with the generic ‘any’ type in order to make the props and state requirements of the component more clear:</p>
+<p>Rather than using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="k">class</span> <span class="nc">MyComp</span> <span class="n">extends</span> <span class="n">React</span><span class="o">.</span><span class="n">Component</span><span class="o">&lt;</span><span class="nb">any</span><span class="p">,</span> <span class="nb">any</span><span class="o">&gt;</span> <span class="p">{</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>You should use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span> <span class="n">MyCompProps</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">compName</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span>
+<span class="n">compTitle</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span>
+<span class="n">compID</span><span class="p">:</span> <span class="n">number</span><span class="p">,</span>
+<span class="p">};</span>
+<span class="nb">type</span> <span class="n">MyCompState</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">file_path</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span>
+<span class="n">templates</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
+<span class="n">showMyComp</span><span class="p">:</span> <span class="n">boolean</span><span class="p">,</span>
+<span class="n">activeVariable</span><span class="p">:</span> <span class="n">string</span>
+<span class="p">};</span>
+
+<span class="n">export</span> <span class="k">class</span> <span class="nc">MyComp</span> <span class="n">extends</span> <span class="n">React</span><span class="o">.</span><span class="n">Component</span><span class="o">&lt;</span><span class="n">MyCompProps</span><span class="p">,</span> <span class="n">MyCompState</span><span class="o">&gt;</span> <span class="p">{</span> <span class="o">...</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Avoid creating difficult to understand React markup like this:</li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;div className={&#39;plot-var second-var &#39; + (this.isVector()
+    ? &#39;colored-second-var&#39;
+        : &#39;&#39;)}&gt;
+            {(this.props.plot.variables.length &gt; 1 &amp;&amp; this.props.plot.variables[1]
+    ? this.props.plot.variables[1]
+        : &#39;&#39;)}
+&lt;/div&gt;
+</pre></div>
+</div>
+<p>Instead of something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>let dimensions = this.state.dimension &amp;&amp; this.state.dimension.length &gt; 0 ? this.state.dimension : [];
+</pre></div>
+</div>
+<p>Make it easier to eard like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dimension</span> <span class="o">&amp;&amp;</span> <span class="n">this</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dimension</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+    <span class="n">let</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="n">this</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dimensions</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">let</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Every React component should be well documented with a comment block showing expected props, like in this example:</li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/**
+* A component that contains a modal that allows the user to select axis`
+*  and subset data from the axis
+*
+* props:
+*  variable: string, the name of the selected variable
+*  file_path: string, the path to the file containing the variable
+*
+|*/
+
+.
+.
+.
+
+class MyComp extends React.Component&lt;MyCompProps, MyCompState&gt; {
+        constructor(props) {
+    super(props);
+}
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="dev_install.html" class="btn btn-neutral" title="Developer Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, AIMS Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
