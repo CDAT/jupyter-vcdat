@@ -40,13 +40,31 @@ Within the project directory do the following:
     npm install
     jupyter labextension install .
 
+Extra installation steps (to be removed in future) if you don't have vcdat nightly installed,
+
+::
+
+    #In 2nd terminal window create a vcdat 'nightly' conda environment for the vcs-server to run from:
+    cd .. #Go back to main project directory
+    source deactivate
+    conda config --set ssl_verify false
+    git clone git@github.com:USERNAME/vcdat.git
+    cd vcdat
+    ./scripts/setup.sh #Creates the conda environment 'nightly'
+
 Running vCDAT
 -----------------------------
 
-* Start the development server::
+# Note these instructions are temporary for running the demo.
 
+* Start the vcs-server on port 5000
+
+    cd ~/project/path/jupyter-vcdat/ #Make sure you are in the jupyter-vcdat repository from installation steps
+    source activate nightly
+    vcs-server -p 5000 &
     source activate jupyter-vcdat
     jupyter lab 
 
 * A browser window will open.
-* Right click on a '.nc' file and select 'vcs' to open the file.
+* Right click on a '.nc' file and select 'vcs' to open the file. Or double-click on the '.nc' file.
+* To test opening a file, click on the green plus sign. A modal should open allowing you to load a variable.
