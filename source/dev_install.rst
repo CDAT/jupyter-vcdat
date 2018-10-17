@@ -66,5 +66,5 @@ Running vCDAT
     jupyter lab 
 
 * A browser window will open.
-* Right click on a '.nc' file and select 'vcs' to open the file. Or double-click on the '.nc' file.
+* Right click on a '.nc' file and select 'vcs' to open the file. Or double-click on the '.nc' file. If the kernel selection window opens, choose the 'jupyter-vcdat' kernel.
 * To test opening a file, click on the green plus sign. A modal should open allowing you to load a variable.
