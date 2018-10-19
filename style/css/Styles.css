@@ -1,0 +1,324 @@
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(MaterialIcons-Regular.eot);
+  /* For IE6-8 */
+  src: local("Material Icons"), local("MaterialIcons-Regular"), url(MaterialIcons-Regular.woff2) format("woff2"), url(MaterialIcons-Regular.woff) format("woff"), url(MaterialIcons-Regular.ttf) format("truetype"); }
+
+.jupyter-vcdat-ext {
+  /*makes stuff work in firefox*/
+  /* .dropdown-menu {
+        background-color: #31b0d5;
+        position: absolute;
+        top: 100%;
+        right: 0;
+    } */
+  /* Responsive styling for the template editor*/ }
+  .jupyter-vcdat-ext .material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+    /* Support for IE. */
+    font-feature-settings: 'liga'; }
+  .jupyter-vcdat-ext * {
+    min-height: 0;
+    min-width: 0; }
+  .jupyter-vcdat-ext button:focus {
+    outline: 0 !important; }
+  .jupyter-vcdat-ext .btn-default:focus {
+    /* Fixes issue where buttons appear to stay pressed when clicked */
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+    outline: 0; }
+  .jupyter-vcdat-ext .no-bullets {
+    list-style-type: none; }
+  .jupyter-vcdat-ext .black {
+    color: black; }
+  .jupyter-vcdat-ext .toolbar {
+    margin: 2px; }
+  .jupyter-vcdat-ext .undo-redo-button:disabled {
+    color: #ACADAD; }
+  .jupyter-vcdat-ext .ui-selected .border {
+    width: 100%;
+    box-sizing: border-box;
+    border: 10px solid blue; }
+  .jupyter-vcdat-ext .ui-selecting .border {
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px solid blue; }
+  .jupyter-vcdat-ext .border {
+    width: 100%;
+    position: absolute;
+    top: 0; }
+  .jupyter-vcdat-ext #spin-row, .jupyter-vcdat-ext #spin-column {
+    width: 40px; }
+  .jupyter-vcdat-ext .sheet-list-item {
+    cursor: pointer; }
+  .jupyter-vcdat-ext .sheet-list-item > a > button {
+    display: inline-block; }
+  .jupyter-vcdat-ext .sheet-list-item > a > span {
+    display: inline-block; }
+  .jupyter-vcdat-ext #left-side-bar {
+    width: 100%;
+    background-color: white;
+    height: 100%;
+    vertical-align: top;
+    padding: 0; }
+  .jupyter-vcdat-ext .spreadsheet-container {
+    flex: 1;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    padding-left: 2px; }
+  .jupyter-vcdat-ext #right-side-bar {
+    width: 200px;
+    background-color: white;
+    margin-left: 2px; }
+  .jupyter-vcdat-ext #var-ulist {
+    width: 115px; }
+  .jupyter-vcdat-ext #var-ulist li a {
+    padding: 0 4px; }
+  .jupyter-vcdat-ext #app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; }
+  .jupyter-vcdat-ext #main-container {
+    flex-grow: 1;
+    height: 100%;
+    margin: 2px;
+    display: flex; }
+  .jupyter-vcdat-ext #add-sheet-button {
+    vertical-align: top;
+    margin: 0 2px 0 2px;
+    height: 100%; }
+  .jupyter-vcdat-ext .icon-flipped {
+    transform: scaleX(-1);
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    -ms-transform: scaleX(-1); }
+  .jupyter-vcdat-ext .side-nav-header, .jupyter-vcdat-ext .top-nav-header {
+    margin-top: 10px;
+    margin-left: -8px; }
+  .jupyter-vcdat-ext .left-side-list {
+    height: 33.33%;
+    background: #fafafa; }
+  .jupyter-vcdat-ext .right-side-list {
+    /*height:50%;*/ }
+  .jupyter-vcdat-ext #inspector {
+    height: 75%; }
+  .jupyter-vcdat-ext .scroll-area-list-parent {
+    display: flex;
+    flex-flow: column; }
+  .jupyter-vcdat-ext .scroll-area {
+    overflow-y: auto;
+    flex: 1; }
+  .jupyter-vcdat-ext #animation {
+    height: 25%; }
+  .jupyter-vcdat-ext .navbar {
+    border-radius: 0;
+    margin-bottom: 0; }
+  .jupyter-vcdat-ext .main-left-list-item a {
+    display: block;
+    color: black;
+    cursor: pointer;
+    width: 100%;
+    padding-left: 10px;
+    text-decoration: none; }
+  .jupyter-vcdat-ext .main-left-list-item a:hover {
+    background-color: #6D7F91;
+    color: white; }
+  .jupyter-vcdat-ext .sub-left-list-item a {
+    display: block;
+    color: black;
+    width: 100%;
+    padding-left: 10px;
+    text-decoration: none;
+    cursor: pointer; }
+  .jupyter-vcdat-ext .left-list {
+    padding-left: 0; }
+  .jupyter-vcdat-ext .dropdown-button {
+    width: 100%;
+    text-align: right; }
+  .jupyter-vcdat-ext .edit-button {
+    width: 60.55px; }
+  .jupyter-vcdat-ext .dropdown-container {
+    position: relative; }
+  .jupyter-vcdat-ext .inspector-selector td {
+    vertical-align: top;
+    padding: 0;
+    margin: 0; }
+  .jupyter-vcdat-ext .inspector-selector table {
+    border-collapse: collapse; }
+  .jupyter-vcdat-ext .nav-tabs > li .close {
+    margin: 1px 0 0 10px;
+    font-size: 18px; }
+  .jupyter-vcdat-ext .cell {
+    border: 1px solid #cecece; }
+  .jupyter-vcdat-ext .cell:hover {
+    border: 1px solid #afafff; }
+  .jupyter-vcdat-ext .cell.cell-selected {
+    border: 1px solid blue; }
+  .jupyter-vcdat-ext .canvas-container {
+    overflow: hidden;
+    position: absolute;
+    background-color: #fbfbfb;
+    height: 100%;
+    width: 100%; }
+  .jupyter-vcdat-ext .plotter {
+    display: flex;
+    color: black; }
+  .jupyter-vcdat-ext .plotter-plots {
+    width: 100%;
+    display: flex; }
+  .jupyter-vcdat-ext .plotter-plots > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%; }
+  .jupyter-vcdat-ext .plotter-plots > div > div {
+    flex: 1; }
+  .jupyter-vcdat-ext .plotter-add-plot {
+    flex: 1;
+    max-width: 350px; }
+  .jupyter-vcdat-ext .plot {
+    box-sizing: border-box;
+    padding: 0 10px 0 10px; }
+  .jupyter-vcdat-ext .plotter-add-plot > svg:hover circle {
+    stroke: lime; }
+  .jupyter-vcdat-ext .plotter-add-plot > svg:hover path {
+    fill: lime; }
+  .jupyter-vcdat-ext .plot-var {
+    display: inline-block;
+    width: 50%;
+    height: 20px;
+    vertical-align: top; }
+  .jupyter-vcdat-ext .plot-hover {
+    opacity: 0.7;
+    background-color: #A3E2F7; }
+  .jupyter-vcdat-ext .colored-second-var {
+    background-color: gray; }
+  .jupyter-vcdat-ext .second-var-highlight {
+    background-color: yellow; }
+  .jupyter-vcdat-ext .plot-var {
+    padding-left: 5px; }
+  .jupyter-vcdat-ext .first-var {
+    background-color: gray;
+    width: 40%;
+    margin-right: 5px; }
+  .jupyter-vcdat-ext .ui-sortable-placeholder {
+    display: inline-block;
+    height: 1px; }
+  .jupyter-vcdat-ext #file {
+    display: none; }
+  .jupyter-vcdat-ext .tree {
+    color: black;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    padding-left: 1em; }
+  .jupyter-vcdat-ext li.tree-node:before {
+    content: "\e080";
+    font-family: 'Glyphicons Halflings';
+    font-size: 9px;
+    float: left;
+    margin-top: 4px;
+    margin-left: -17px;
+    color: #CCCCCC; }
+  .jupyter-vcdat-ext li.tree-node.disclosed:before {
+    content: "\e114"; }
+  .jupyter-vcdat-ext #temp-list > li, .jupyter-vcdat-ext #var-list > li {
+    cursor: pointer; }
+  .jupyter-vcdat-ext .tree li.tree-leaf.active, .jupyter-vcdat-ext #temp-list > li.active, .jupyter-vcdat-ext #var-list > li.active {
+    background-color: #df691a; }
+  .jupyter-vcdat-ext .tree li.tree-leaf.active a, .jupyter-vcdat-ext #temp-list > li.active a, .jupyter-vcdat-ext #var-list > li.active a {
+    color: white; }
+  .jupyter-vcdat-ext .tree li {
+    display: block;
+    padding: .1em .25em; }
+  .jupyter-vcdat-ext li.tree-leaf {
+    list-style-type: none;
+    cursor: pointer; }
+  .jupyter-vcdat-ext .tree-view {
+    max-height: 80vh;
+    overflow: auto; }
+  .jupyter-vcdat-ext .tree-view a {
+    text-decoration: none;
+    display: inline-block;
+    width: 100%;
+    cursor: pointer; }
+  .jupyter-vcdat-ext .tree-view a > i {
+    padding-right: 5px; }
+  .jupyter-vcdat-ext .tree-view .directory {
+    color: #EDC566; }
+  .jupyter-vcdat-ext .tree-view a.active {
+    padding: 0 5px 0 5px;
+    background-color: white; }
+  .jupyter-vcdat-ext .template-editor-tab-content {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 200px; }
+  @media screen and (min-height: 920px) {
+    .jupyter-vcdat-ext .template-editor-tab-content {
+      height: 250px; } }
+  @media screen and (min-height: 970px) {
+    .jupyter-vcdat-ext .template-editor-tab-content {
+      height: 300px; } }
+  @media screen and (min-height: 1020px) {
+    .jupyter-vcdat-ext .template-editor-tab-content {
+      height: 350px; } }
+  @media screen and (min-height: 1070px) {
+    .jupyter-vcdat-ext .template-editor-tab-content {
+      height: 400px; } }
+  @media screen and (min-height: 1120px) {
+    .jupyter-vcdat-ext .template-editor-tab-content {
+      height: 450px; } }
+  .jupyter-vcdat-ext .colormap-apply-menu.dropdown-menu {
+    background-color: #fff; }
+  .jupyter-vcdat-ext .canvas-spinner-hidden {
+    display: none; }
+  .jupyter-vcdat-ext .canvas-spinner-show {
+    z-index: 1;
+    background-color: rgba(250, 250, 250, 0.6);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center; }
+  .jupyter-vcdat-ext .canvas-spinner-show span {
+    margin-left: 5px; }
+  .jupyter-vcdat-ext .loading-spinner {
+    border: 3px solid #f3f3f3;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
+    border-top: 3px solid #555;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px; }
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg); }
+  100% {
+    transform: rotate(360deg); } }
+  .jupyter-vcdat-ext div.contact-us-link {
+    margin-top: 10px; }

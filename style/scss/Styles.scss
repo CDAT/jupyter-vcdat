@@ -1,0 +1,456 @@
+
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(MaterialIcons-Regular.eot); /* For IE6-8 */
+    src: local('Material Icons'),
+        local('MaterialIcons-Regular'),
+        url(MaterialIcons-Regular.woff2) format('woff2'),
+        url(MaterialIcons-Regular.woff) format('woff'),
+        url(MaterialIcons-Regular.ttf) format('truetype');
+    }
+
+.jupyter-vcdat-ext {
+      .material-icons {
+        font-family: 'Material Icons';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;  /* Preferred icon size */
+        display: inline-block;
+        line-height: 1;
+        text-transform: none;
+        letter-spacing: normal;
+        word-wrap: normal;
+        white-space: nowrap;
+        direction: ltr;
+      
+        /* Support for all WebKit browsers. */
+        -webkit-font-smoothing: antialiased;
+        /* Support for Safari and Chrome. */
+        text-rendering: optimizeLegibility;
+      
+        /* Support for Firefox. */
+        -moz-osx-font-smoothing: grayscale;
+      
+        /* Support for IE. */
+        font-feature-settings: 'liga';
+      }
+    
+    /*makes stuff work in firefox*/
+    
+    * {
+        min-height: 0;
+        min-width: 0;
+    }
+    button:focus {
+        outline: 0 !important;
+    }
+    
+    .btn-default:focus {
+        /* Fixes issue where buttons appear to stay pressed when clicked */
+        color: #333;
+        background-color: #fff;
+        border-color: #ccc;
+        outline: 0;
+    }
+    
+    .no-bullets {
+        list-style-type: none;
+    }
+    
+    .black {
+        color: black;
+    }
+    .toolbar {
+        margin: 2px;
+    }
+    .undo-redo-button:disabled {
+        color: #ACADAD;
+    }
+    .ui-selected .border {
+        width: 100%;
+        box-sizing: border-box;
+        border: 10px solid blue;
+    }
+    .ui-selecting .border {
+        width: 100%;
+        box-sizing: border-box;
+        border: 2px solid blue;
+    }
+    .border {
+        width: 100%;
+        position: absolute;
+        top: 0;
+    }
+    #spin-row, #spin-column {
+        width: 40px;
+    }
+    
+    .sheet-list-item {
+        cursor: pointer;
+    }
+    .sheet-list-item > a > button{
+        display:inline-block
+    }
+    .sheet-list-item > a > span{
+        display:inline-block
+    }
+    #left-side-bar {
+        width: 100%;
+        background-color: white;
+        height: 100%;
+        vertical-align: top;
+        padding: 0;
+    }
+    .spreadsheet-container {
+        flex: 1;
+        display: flex;
+        flex-flow: column;
+        height: 100%;
+        padding-left: 2px;
+    }
+    #right-side-bar {
+        width: 200px;
+        background-color: white;
+        margin-left: 2px;
+    }
+    #var-ulist {
+        width: 115px;
+    }
+    #var-ulist li a {
+        padding: 0 4px;
+    }
+    #app-container{
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    #main-container {
+        flex-grow: 1;
+        height: 100%;
+        margin: 2px;
+        display: flex;
+    }
+    #add-sheet-button {
+        vertical-align: top;
+        margin: 0 2px 0 2px;
+        height: 100%;
+    }
+    .icon-flipped {
+        transform: scaleX(-1);
+        -moz-transform: scaleX(-1);
+        -webkit-transform: scaleX(-1);
+        -ms-transform: scaleX(-1);
+    }
+    .side-nav-header, .top-nav-header {
+        margin-top: 10px;
+        margin-left: -8px;
+    }
+    .left-side-list {
+        height: 33.33%;
+        background: #fafafa;
+    }
+    .right-side-list {
+        /*height:50%;*/
+    }
+    #inspector {
+        height: 75%;
+    }
+    .scroll-area-list-parent {
+        display: flex;
+        flex-flow: column;
+    }
+    .scroll-area {
+        overflow-y: auto;
+        flex: 1;
+    }
+    #animation {
+        height: 25%;
+    }
+    .navbar {
+        border-radius: 0;
+        margin-bottom: 0;
+    }
+    .main-left-list-item a {
+        display: block;
+        color: black;
+        cursor: pointer;
+        width: 100%;
+        padding-left: 10px;
+        text-decoration: none;
+    }
+    .main-left-list-item a:hover {
+        background-color: #6D7F91;
+        color: white;
+    }
+    .sub-left-list-item a {
+        display: block;
+        color: black;
+        width: 100%;
+        padding-left: 10px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .left-list {
+        padding-left: 0;
+    }
+    .dropdown-button {
+        width: 100%;
+        text-align: right;
+    }
+    .edit-button {
+        width: 60.55px;
+    }
+    /* .dropdown-menu {
+        background-color: #31b0d5;
+        position: absolute;
+        top: 100%;
+        right: 0;
+    } */
+    .dropdown-container {
+        position: relative;
+    }
+    .inspector-selector td {
+        vertical-align: top;
+        padding: 0;
+        margin: 0;
+    }
+    .inspector-selector table {
+        border-collapse: collapse;
+    }
+    .nav-tabs> li .close {
+        margin: 1px 0 0 10px;
+        font-size: 18px;
+    }
+    .cell{
+        border: 1px solid #cecece;
+    }
+    .cell:hover{
+        border: 1px solid rgb(175, 175, 255);
+    }
+    .cell.cell-selected{
+        border: 1px solid blue;
+    }
+    .canvas-container{
+        overflow: hidden;
+        position: absolute;
+        background-color: #fbfbfb;
+        height: 100%;
+        width: 100%;
+    }
+    .plotter {
+        display:flex;
+        color: black;
+    }
+    .plotter-plots {
+        width: 100%;
+        display: flex;
+    }
+    .plotter-plots> div {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+    }
+    .plotter-plots> div> div {
+        flex: 1;
+    }
+    .plotter-add-plot {
+        flex: 1;
+        max-width: 350px;
+    }
+    .plot {
+        box-sizing: border-box;
+        padding: 0 10px 0 10px;
+    }
+    
+    .plotter-add-plot > svg:hover circle{
+        stroke: lime;
+    }
+    
+    .plotter-add-plot > svg:hover path{
+        fill: lime;
+    }
+    
+    .plot-var {
+        display: inline-block;
+        width: 50%;
+        height: 20px;
+        vertical-align: top;
+    }
+    .plot-hover {
+        opacity: 0.7;
+        background-color: #A3E2F7;
+    }
+    .colored-second-var {
+        background-color: gray;
+    }
+    .second-var-highlight {
+        background-color: yellow;
+    }
+    .plot-var {
+        padding-left: 5px;
+    }
+    .first-var {
+        background-color: gray;
+        width: 40%;
+        margin-right: 5px;
+    }
+    
+    .ui-sortable-placeholder {
+        display: inline-block;
+        height: 1px;
+    }
+    
+    #file{
+        display: none;
+    }
+    
+    .tree {
+        color: black;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        padding-left: 1em;
+    }
+    
+    li.tree-node:before{
+        content: "\e080";
+        font-family: 'Glyphicons Halflings';
+        font-size: 9px;
+        float: left;
+        margin-top: 4px;
+        margin-left: -17px;
+        color: #CCCCCC;
+    }
+    
+    li.tree-node.disclosed:before{
+        content: "\e114";
+    }
+    
+    #temp-list>li, #var-list>li{
+        cursor: pointer;
+    }
+    
+    .tree li.tree-leaf.active, #temp-list>li.active, #var-list>li.active {
+        background-color: #df691a;
+    }
+    
+    .tree li.tree-leaf.active a, #temp-list>li.active a, #var-list>li.active a{
+        color: white;
+    }
+    
+    .tree li {
+        display: block;
+        padding: .1em .25em;
+    }
+    
+    li.tree-leaf {
+        list-style-type: none;
+        cursor: pointer;
+    }
+    
+    .tree-view {
+        max-height:80vh;
+        overflow:auto;
+    }
+    .tree-view a{
+        text-decoration: none;
+        display:inline-block;
+        width:100%;
+        cursor: pointer;
+    }
+    .tree-view a>i{
+        padding-right: 5px;
+    }
+    .tree-view .directory{
+        color: #EDC566;
+    }
+    
+    .tree-view a.active{
+        padding: 0 5px 0 5px;
+        background-color: white;
+    }
+    
+    /* Responsive styling for the template editor*/
+    .template-editor-tab-content {
+        overflow-x: hidden;
+        overflow-y: scroll;
+        height: 200px;
+    }
+    
+    @media screen and (min-height: 920px) {
+        .template-editor-tab-content {
+            height: 250px;
+        }
+    }
+    
+    @media screen and (min-height: 970px) {
+        .template-editor-tab-content {
+            height: 300px;
+        }
+    }
+    
+    @media screen and (min-height: 1020px) {
+        .template-editor-tab-content {
+            height: 350px;
+        }
+    }
+    
+    @media screen and (min-height: 1070px) {
+        .template-editor-tab-content {
+            height: 400px;
+        }
+    }
+    
+    @media screen and (min-height: 1120px) {
+        .template-editor-tab-content {
+            height: 450px;
+        }
+    }
+    
+    .colormap-apply-menu.dropdown-menu {
+        background-color: #fff /* Reset the background color set by another rule */
+    }
+    
+    .canvas-spinner-hidden {
+        display: none;
+    }
+    
+    .canvas-spinner-show {
+        z-index: 1;
+        background-color: rgba(250, 250, 250, .6);
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+    }
+    
+    .canvas-spinner-show span{
+        margin-left: 5px;
+    }
+    
+    .loading-spinner {
+        border: 3px solid #f3f3f3;
+        -webkit-animation: spin 1s linear infinite;
+        animation: spin 1s linear infinite;
+        border-top: 3px solid #555;
+        border-radius: 50%;
+        width: 15px;
+        height: 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    div.contact-us-link {
+        margin-top: 10px;
+    }
+}

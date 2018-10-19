@@ -1,0 +1,5449 @@
+/*!
+ * Bootstrap v3.3.7 (http://getbootstrap.com)
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
+.jupyter-vcdat-ext html {
+  font-family: sans-serif;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%; }
+
+.jupyter-vcdat-ext body {
+  margin: 0; }
+
+.jupyter-vcdat-ext article, .jupyter-vcdat-ext aside, .jupyter-vcdat-ext details, .jupyter-vcdat-ext figcaption, .jupyter-vcdat-ext figure, .jupyter-vcdat-ext footer, .jupyter-vcdat-ext header, .jupyter-vcdat-ext hgroup, .jupyter-vcdat-ext main, .jupyter-vcdat-ext menu, .jupyter-vcdat-ext nav, .jupyter-vcdat-ext section, .jupyter-vcdat-ext summary {
+  display: block; }
+
+.jupyter-vcdat-ext audio, .jupyter-vcdat-ext canvas, .jupyter-vcdat-ext progress, .jupyter-vcdat-ext video {
+  display: inline-block;
+  vertical-align: baseline; }
+
+.jupyter-vcdat-ext audio:not([controls]) {
+  display: none;
+  height: 0; }
+
+.jupyter-vcdat-ext [hidden], .jupyter-vcdat-ext template {
+  display: none; }
+
+.jupyter-vcdat-ext a {
+  background-color: transparent; }
+
+.jupyter-vcdat-ext a:active, .jupyter-vcdat-ext a:hover {
+  outline: 0; }
+
+.jupyter-vcdat-ext abbr[title] {
+  border-bottom: 1px dotted; }
+
+.jupyter-vcdat-ext b, .jupyter-vcdat-ext strong {
+  font-weight: 700; }
+
+.jupyter-vcdat-ext dfn {
+  font-style: italic; }
+
+.jupyter-vcdat-ext h1 {
+  margin: .67em 0;
+  font-size: 2em; }
+
+.jupyter-vcdat-ext mark {
+  color: #000;
+  background: #ff0; }
+
+.jupyter-vcdat-ext small {
+  font-size: 80%; }
+
+.jupyter-vcdat-ext sub, .jupyter-vcdat-ext sup {
+  position: relative;
+  font-size: 75%;
+  line-height: 0;
+  vertical-align: baseline; }
+
+.jupyter-vcdat-ext sup {
+  top: -.5em; }
+
+.jupyter-vcdat-ext sub {
+  bottom: -.25em; }
+
+.jupyter-vcdat-ext img {
+  border: 0; }
+
+.jupyter-vcdat-ext svg:not(:root) {
+  overflow: hidden; }
+
+.jupyter-vcdat-ext figure {
+  margin: 1em 40px; }
+
+.jupyter-vcdat-ext hr {
+  height: 0;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box; }
+
+.jupyter-vcdat-ext pre {
+  overflow: auto; }
+
+.jupyter-vcdat-ext code, .jupyter-vcdat-ext kbd, .jupyter-vcdat-ext pre, .jupyter-vcdat-ext samp {
+  font-family: monospace,monospace;
+  font-size: 1em; }
+
+.jupyter-vcdat-ext button, .jupyter-vcdat-ext input, .jupyter-vcdat-ext optgroup, .jupyter-vcdat-ext select, .jupyter-vcdat-ext textarea {
+  margin: 0;
+  font: inherit;
+  color: inherit; }
+
+.jupyter-vcdat-ext button {
+  overflow: visible; }
+
+.jupyter-vcdat-ext button, .jupyter-vcdat-ext select {
+  text-transform: none; }
+
+.jupyter-vcdat-ext button, .jupyter-vcdat-ext html input[type=button], .jupyter-vcdat-ext input[type=reset], .jupyter-vcdat-ext input[type=submit] {
+  -webkit-appearance: button;
+  cursor: pointer; }
+
+.jupyter-vcdat-ext button[disabled], .jupyter-vcdat-ext html input[disabled] {
+  cursor: default; }
+
+.jupyter-vcdat-ext button::-moz-focus-inner, .jupyter-vcdat-ext input::-moz-focus-inner {
+  padding: 0;
+  border: 0; }
+
+.jupyter-vcdat-ext input {
+  line-height: normal; }
+
+.jupyter-vcdat-ext input[type=checkbox], .jupyter-vcdat-ext input[type=radio] {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0; }
+
+.jupyter-vcdat-ext input[type=number]::-webkit-inner-spin-button, .jupyter-vcdat-ext input[type=number]::-webkit-outer-spin-button {
+  height: auto; }
+
+.jupyter-vcdat-ext input[type=search] {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  -webkit-appearance: textfield; }
+
+.jupyter-vcdat-ext input[type=search]::-webkit-search-cancel-button, .jupyter-vcdat-ext input[type=search]::-webkit-search-decoration {
+  -webkit-appearance: none; }
+
+.jupyter-vcdat-ext fieldset {
+  padding: .35em .625em .75em;
+  margin: 0 2px;
+  border: 1px solid silver; }
+
+.jupyter-vcdat-ext legend {
+  padding: 0;
+  border: 0; }
+
+.jupyter-vcdat-ext textarea {
+  overflow: auto; }
+
+.jupyter-vcdat-ext optgroup {
+  font-weight: 700; }
+
+.jupyter-vcdat-ext table {
+  border-spacing: 0;
+  border-collapse: collapse; }
+
+.jupyter-vcdat-ext td, .jupyter-vcdat-ext th {
+  padding: 0; }
+
+/*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
+@media print {
+  .jupyter-vcdat-ext *, .jupyter-vcdat-ext :after, .jupyter-vcdat-ext :before {
+    color: #000 !important;
+    text-shadow: none !important;
+    background: 0 0 !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important; }
+  .jupyter-vcdat-ext a, .jupyter-vcdat-ext a:visited {
+    text-decoration: underline; }
+  .jupyter-vcdat-ext a[href]:after {
+    content: " (" attr(href) ")"; }
+  .jupyter-vcdat-ext abbr[title]:after {
+    content: " (" attr(title) ")"; }
+  .jupyter-vcdat-ext a[href^="javascript:"]:after, .jupyter-vcdat-ext a[href^="#"]:after {
+    content: ""; }
+  .jupyter-vcdat-ext blockquote, .jupyter-vcdat-ext pre {
+    border: 1px solid #999;
+    page-break-inside: avoid; }
+  .jupyter-vcdat-ext thead {
+    display: table-header-group; }
+  .jupyter-vcdat-ext img, .jupyter-vcdat-ext tr {
+    page-break-inside: avoid; }
+  .jupyter-vcdat-ext img {
+    max-width: 100% !important; }
+  .jupyter-vcdat-ext h2, .jupyter-vcdat-ext h3, .jupyter-vcdat-ext p {
+    orphans: 3;
+    widows: 3; }
+  .jupyter-vcdat-ext h2, .jupyter-vcdat-ext h3 {
+    page-break-after: avoid; }
+  .jupyter-vcdat-ext .navbar {
+    display: none; }
+  .jupyter-vcdat-ext .btn > .caret, .jupyter-vcdat-ext .dropup > .btn > .caret {
+    border-top-color: #000 !important; }
+  .jupyter-vcdat-ext .label {
+    border: 1px solid #000; }
+  .jupyter-vcdat-ext .table {
+    border-collapse: collapse !important; }
+  .jupyter-vcdat-ext .table td, .jupyter-vcdat-ext .table th {
+    background-color: #fff !important; }
+  .jupyter-vcdat-ext .table-bordered td, .jupyter-vcdat-ext .table-bordered th {
+    border: 1px solid #ddd !important; } }
+
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: url(glyphicons-halflings-regular.eot);
+  src: url(glyphicons-halflings-regular.eot?#iefix) format("embedded-opentype"), url(glyphicons-halflings-regular.woff2) format("woff2"), url(glyphicons-halflings-regular.woff) format("woff"), url(glyphicons-halflings-regular.ttf) format("truetype"), url(glyphicons-halflings-regular.svg#glyphicons_halflingsregular) format("svg"); }
+
+.jupyter-vcdat-ext .glyphicon {
+  position: relative;
+  top: 1px;
+  display: inline-block;
+  font-family: 'Glyphicons Halflings';
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+.jupyter-vcdat-ext .glyphicon-asterisk:before {
+  content: "\002a"; }
+
+.jupyter-vcdat-ext .glyphicon-plus:before {
+  content: "\002b"; }
+
+.jupyter-vcdat-ext .glyphicon-eur:before, .jupyter-vcdat-ext .glyphicon-euro:before {
+  content: "\20ac"; }
+
+.jupyter-vcdat-ext .glyphicon-minus:before {
+  content: "\2212"; }
+
+.jupyter-vcdat-ext .glyphicon-cloud:before {
+  content: "\2601"; }
+
+.jupyter-vcdat-ext .glyphicon-envelope:before {
+  content: "\2709"; }
+
+.jupyter-vcdat-ext .glyphicon-pencil:before {
+  content: "\270f"; }
+
+.jupyter-vcdat-ext .glyphicon-glass:before {
+  content: "\e001"; }
+
+.jupyter-vcdat-ext .glyphicon-music:before {
+  content: "\e002"; }
+
+.jupyter-vcdat-ext .glyphicon-search:before {
+  content: "\e003"; }
+
+.jupyter-vcdat-ext .glyphicon-heart:before {
+  content: "\e005"; }
+
+.jupyter-vcdat-ext .glyphicon-star:before {
+  content: "\e006"; }
+
+.jupyter-vcdat-ext .glyphicon-star-empty:before {
+  content: "\e007"; }
+
+.jupyter-vcdat-ext .glyphicon-user:before {
+  content: "\e008"; }
+
+.jupyter-vcdat-ext .glyphicon-film:before {
+  content: "\e009"; }
+
+.jupyter-vcdat-ext .glyphicon-th-large:before {
+  content: "\e010"; }
+
+.jupyter-vcdat-ext .glyphicon-th:before {
+  content: "\e011"; }
+
+.jupyter-vcdat-ext .glyphicon-th-list:before {
+  content: "\e012"; }
+
+.jupyter-vcdat-ext .glyphicon-ok:before {
+  content: "\e013"; }
+
+.jupyter-vcdat-ext .glyphicon-remove:before {
+  content: "\e014"; }
+
+.jupyter-vcdat-ext .glyphicon-zoom-in:before {
+  content: "\e015"; }
+
+.jupyter-vcdat-ext .glyphicon-zoom-out:before {
+  content: "\e016"; }
+
+.jupyter-vcdat-ext .glyphicon-off:before {
+  content: "\e017"; }
+
+.jupyter-vcdat-ext .glyphicon-signal:before {
+  content: "\e018"; }
+
+.jupyter-vcdat-ext .glyphicon-cog:before {
+  content: "\e019"; }
+
+.jupyter-vcdat-ext .glyphicon-trash:before {
+  content: "\e020"; }
+
+.jupyter-vcdat-ext .glyphicon-home:before {
+  content: "\e021"; }
+
+.jupyter-vcdat-ext .glyphicon-file:before {
+  content: "\e022"; }
+
+.jupyter-vcdat-ext .glyphicon-time:before {
+  content: "\e023"; }
+
+.jupyter-vcdat-ext .glyphicon-road:before {
+  content: "\e024"; }
+
+.jupyter-vcdat-ext .glyphicon-download-alt:before {
+  content: "\e025"; }
+
+.jupyter-vcdat-ext .glyphicon-download:before {
+  content: "\e026"; }
+
+.jupyter-vcdat-ext .glyphicon-upload:before {
+  content: "\e027"; }
+
+.jupyter-vcdat-ext .glyphicon-inbox:before {
+  content: "\e028"; }
+
+.jupyter-vcdat-ext .glyphicon-play-circle:before {
+  content: "\e029"; }
+
+.jupyter-vcdat-ext .glyphicon-repeat:before {
+  content: "\e030"; }
+
+.jupyter-vcdat-ext .glyphicon-refresh:before {
+  content: "\e031"; }
+
+.jupyter-vcdat-ext .glyphicon-list-alt:before {
+  content: "\e032"; }
+
+.jupyter-vcdat-ext .glyphicon-lock:before {
+  content: "\e033"; }
+
+.jupyter-vcdat-ext .glyphicon-flag:before {
+  content: "\e034"; }
+
+.jupyter-vcdat-ext .glyphicon-headphones:before {
+  content: "\e035"; }
+
+.jupyter-vcdat-ext .glyphicon-volume-off:before {
+  content: "\e036"; }
+
+.jupyter-vcdat-ext .glyphicon-volume-down:before {
+  content: "\e037"; }
+
+.jupyter-vcdat-ext .glyphicon-volume-up:before {
+  content: "\e038"; }
+
+.jupyter-vcdat-ext .glyphicon-qrcode:before {
+  content: "\e039"; }
+
+.jupyter-vcdat-ext .glyphicon-barcode:before {
+  content: "\e040"; }
+
+.jupyter-vcdat-ext .glyphicon-tag:before {
+  content: "\e041"; }
+
+.jupyter-vcdat-ext .glyphicon-tags:before {
+  content: "\e042"; }
+
+.jupyter-vcdat-ext .glyphicon-book:before {
+  content: "\e043"; }
+
+.jupyter-vcdat-ext .glyphicon-bookmark:before {
+  content: "\e044"; }
+
+.jupyter-vcdat-ext .glyphicon-print:before {
+  content: "\e045"; }
+
+.jupyter-vcdat-ext .glyphicon-camera:before {
+  content: "\e046"; }
+
+.jupyter-vcdat-ext .glyphicon-font:before {
+  content: "\e047"; }
+
+.jupyter-vcdat-ext .glyphicon-bold:before {
+  content: "\e048"; }
+
+.jupyter-vcdat-ext .glyphicon-italic:before {
+  content: "\e049"; }
+
+.jupyter-vcdat-ext .glyphicon-text-height:before {
+  content: "\e050"; }
+
+.jupyter-vcdat-ext .glyphicon-text-width:before {
+  content: "\e051"; }
+
+.jupyter-vcdat-ext .glyphicon-align-left:before {
+  content: "\e052"; }
+
+.jupyter-vcdat-ext .glyphicon-align-center:before {
+  content: "\e053"; }
+
+.jupyter-vcdat-ext .glyphicon-align-right:before {
+  content: "\e054"; }
+
+.jupyter-vcdat-ext .glyphicon-align-justify:before {
+  content: "\e055"; }
+
+.jupyter-vcdat-ext .glyphicon-list:before {
+  content: "\e056"; }
+
+.jupyter-vcdat-ext .glyphicon-indent-left:before {
+  content: "\e057"; }
+
+.jupyter-vcdat-ext .glyphicon-indent-right:before {
+  content: "\e058"; }
+
+.jupyter-vcdat-ext .glyphicon-facetime-video:before {
+  content: "\e059"; }
+
+.jupyter-vcdat-ext .glyphicon-picture:before {
+  content: "\e060"; }
+
+.jupyter-vcdat-ext .glyphicon-map-marker:before {
+  content: "\e062"; }
+
+.jupyter-vcdat-ext .glyphicon-adjust:before {
+  content: "\e063"; }
+
+.jupyter-vcdat-ext .glyphicon-tint:before {
+  content: "\e064"; }
+
+.jupyter-vcdat-ext .glyphicon-edit:before {
+  content: "\e065"; }
+
+.jupyter-vcdat-ext .glyphicon-share:before {
+  content: "\e066"; }
+
+.jupyter-vcdat-ext .glyphicon-check:before {
+  content: "\e067"; }
+
+.jupyter-vcdat-ext .glyphicon-move:before {
+  content: "\e068"; }
+
+.jupyter-vcdat-ext .glyphicon-step-backward:before {
+  content: "\e069"; }
+
+.jupyter-vcdat-ext .glyphicon-fast-backward:before {
+  content: "\e070"; }
+
+.jupyter-vcdat-ext .glyphicon-backward:before {
+  content: "\e071"; }
+
+.jupyter-vcdat-ext .glyphicon-play:before {
+  content: "\e072"; }
+
+.jupyter-vcdat-ext .glyphicon-pause:before {
+  content: "\e073"; }
+
+.jupyter-vcdat-ext .glyphicon-stop:before {
+  content: "\e074"; }
+
+.jupyter-vcdat-ext .glyphicon-forward:before {
+  content: "\e075"; }
+
+.jupyter-vcdat-ext .glyphicon-fast-forward:before {
+  content: "\e076"; }
+
+.jupyter-vcdat-ext .glyphicon-step-forward:before {
+  content: "\e077"; }
+
+.jupyter-vcdat-ext .glyphicon-eject:before {
+  content: "\e078"; }
+
+.jupyter-vcdat-ext .glyphicon-chevron-left:before {
+  content: "\e079"; }
+
+.jupyter-vcdat-ext .glyphicon-chevron-right:before {
+  content: "\e080"; }
+
+.jupyter-vcdat-ext .glyphicon-plus-sign:before {
+  content: "\e081"; }
+
+.jupyter-vcdat-ext .glyphicon-minus-sign:before {
+  content: "\e082"; }
+
+.jupyter-vcdat-ext .glyphicon-remove-sign:before {
+  content: "\e083"; }
+
+.jupyter-vcdat-ext .glyphicon-ok-sign:before {
+  content: "\e084"; }
+
+.jupyter-vcdat-ext .glyphicon-question-sign:before {
+  content: "\e085"; }
+
+.jupyter-vcdat-ext .glyphicon-info-sign:before {
+  content: "\e086"; }
+
+.jupyter-vcdat-ext .glyphicon-screenshot:before {
+  content: "\e087"; }
+
+.jupyter-vcdat-ext .glyphicon-remove-circle:before {
+  content: "\e088"; }
+
+.jupyter-vcdat-ext .glyphicon-ok-circle:before {
+  content: "\e089"; }
+
+.jupyter-vcdat-ext .glyphicon-ban-circle:before {
+  content: "\e090"; }
+
+.jupyter-vcdat-ext .glyphicon-arrow-left:before {
+  content: "\e091"; }
+
+.jupyter-vcdat-ext .glyphicon-arrow-right:before {
+  content: "\e092"; }
+
+.jupyter-vcdat-ext .glyphicon-arrow-up:before {
+  content: "\e093"; }
+
+.jupyter-vcdat-ext .glyphicon-arrow-down:before {
+  content: "\e094"; }
+
+.jupyter-vcdat-ext .glyphicon-share-alt:before {
+  content: "\e095"; }
+
+.jupyter-vcdat-ext .glyphicon-resize-full:before {
+  content: "\e096"; }
+
+.jupyter-vcdat-ext .glyphicon-resize-small:before {
+  content: "\e097"; }
+
+.jupyter-vcdat-ext .glyphicon-exclamation-sign:before {
+  content: "\e101"; }
+
+.jupyter-vcdat-ext .glyphicon-gift:before {
+  content: "\e102"; }
+
+.jupyter-vcdat-ext .glyphicon-leaf:before {
+  content: "\e103"; }
+
+.jupyter-vcdat-ext .glyphicon-fire:before {
+  content: "\e104"; }
+
+.jupyter-vcdat-ext .glyphicon-eye-open:before {
+  content: "\e105"; }
+
+.jupyter-vcdat-ext .glyphicon-eye-close:before {
+  content: "\e106"; }
+
+.jupyter-vcdat-ext .glyphicon-warning-sign:before {
+  content: "\e107"; }
+
+.jupyter-vcdat-ext .glyphicon-plane:before {
+  content: "\e108"; }
+
+.jupyter-vcdat-ext .glyphicon-calendar:before {
+  content: "\e109"; }
+
+.jupyter-vcdat-ext .glyphicon-random:before {
+  content: "\e110"; }
+
+.jupyter-vcdat-ext .glyphicon-comment:before {
+  content: "\e111"; }
+
+.jupyter-vcdat-ext .glyphicon-magnet:before {
+  content: "\e112"; }
+
+.jupyter-vcdat-ext .glyphicon-chevron-up:before {
+  content: "\e113"; }
+
+.jupyter-vcdat-ext .glyphicon-chevron-down:before {
+  content: "\e114"; }
+
+.jupyter-vcdat-ext .glyphicon-retweet:before {
+  content: "\e115"; }
+
+.jupyter-vcdat-ext .glyphicon-shopping-cart:before {
+  content: "\e116"; }
+
+.jupyter-vcdat-ext .glyphicon-folder-close:before {
+  content: "\e117"; }
+
+.jupyter-vcdat-ext .glyphicon-folder-open:before {
+  content: "\e118"; }
+
+.jupyter-vcdat-ext .glyphicon-resize-vertical:before {
+  content: "\e119"; }
+
+.jupyter-vcdat-ext .glyphicon-resize-horizontal:before {
+  content: "\e120"; }
+
+.jupyter-vcdat-ext .glyphicon-hdd:before {
+  content: "\e121"; }
+
+.jupyter-vcdat-ext .glyphicon-bullhorn:before {
+  content: "\e122"; }
+
+.jupyter-vcdat-ext .glyphicon-bell:before {
+  content: "\e123"; }
+
+.jupyter-vcdat-ext .glyphicon-certificate:before {
+  content: "\e124"; }
+
+.jupyter-vcdat-ext .glyphicon-thumbs-up:before {
+  content: "\e125"; }
+
+.jupyter-vcdat-ext .glyphicon-thumbs-down:before {
+  content: "\e126"; }
+
+.jupyter-vcdat-ext .glyphicon-hand-right:before {
+  content: "\e127"; }
+
+.jupyter-vcdat-ext .glyphicon-hand-left:before {
+  content: "\e128"; }
+
+.jupyter-vcdat-ext .glyphicon-hand-up:before {
+  content: "\e129"; }
+
+.jupyter-vcdat-ext .glyphicon-hand-down:before {
+  content: "\e130"; }
+
+.jupyter-vcdat-ext .glyphicon-circle-arrow-right:before {
+  content: "\e131"; }
+
+.jupyter-vcdat-ext .glyphicon-circle-arrow-left:before {
+  content: "\e132"; }
+
+.jupyter-vcdat-ext .glyphicon-circle-arrow-up:before {
+  content: "\e133"; }
+
+.jupyter-vcdat-ext .glyphicon-circle-arrow-down:before {
+  content: "\e134"; }
+
+.jupyter-vcdat-ext .glyphicon-globe:before {
+  content: "\e135"; }
+
+.jupyter-vcdat-ext .glyphicon-wrench:before {
+  content: "\e136"; }
+
+.jupyter-vcdat-ext .glyphicon-tasks:before {
+  content: "\e137"; }
+
+.jupyter-vcdat-ext .glyphicon-filter:before {
+  content: "\e138"; }
+
+.jupyter-vcdat-ext .glyphicon-briefcase:before {
+  content: "\e139"; }
+
+.jupyter-vcdat-ext .glyphicon-fullscreen:before {
+  content: "\e140"; }
+
+.jupyter-vcdat-ext .glyphicon-dashboard:before {
+  content: "\e141"; }
+
+.jupyter-vcdat-ext .glyphicon-paperclip:before {
+  content: "\e142"; }
+
+.jupyter-vcdat-ext .glyphicon-heart-empty:before {
+  content: "\e143"; }
+
+.jupyter-vcdat-ext .glyphicon-link:before {
+  content: "\e144"; }
+
+.jupyter-vcdat-ext .glyphicon-phone:before {
+  content: "\e145"; }
+
+.jupyter-vcdat-ext .glyphicon-pushpin:before {
+  content: "\e146"; }
+
+.jupyter-vcdat-ext .glyphicon-usd:before {
+  content: "\e148"; }
+
+.jupyter-vcdat-ext .glyphicon-gbp:before {
+  content: "\e149"; }
+
+.jupyter-vcdat-ext .glyphicon-sort:before {
+  content: "\e150"; }
+
+.jupyter-vcdat-ext .glyphicon-sort-by-alphabet:before {
+  content: "\e151"; }
+
+.jupyter-vcdat-ext .glyphicon-sort-by-alphabet-alt:before {
+  content: "\e152"; }
+
+.jupyter-vcdat-ext .glyphicon-sort-by-order:before {
+  content: "\e153"; }
+
+.jupyter-vcdat-ext .glyphicon-sort-by-order-alt:before {
+  content: "\e154"; }
+
+.jupyter-vcdat-ext .glyphicon-sort-by-attributes:before {
+  content: "\e155"; }
+
+.jupyter-vcdat-ext .glyphicon-sort-by-attributes-alt:before {
+  content: "\e156"; }
+
+.jupyter-vcdat-ext .glyphicon-unchecked:before {
+  content: "\e157"; }
+
+.jupyter-vcdat-ext .glyphicon-expand:before {
+  content: "\e158"; }
+
+.jupyter-vcdat-ext .glyphicon-collapse-down:before {
+  content: "\e159"; }
+
+.jupyter-vcdat-ext .glyphicon-collapse-up:before {
+  content: "\e160"; }
+
+.jupyter-vcdat-ext .glyphicon-log-in:before {
+  content: "\e161"; }
+
+.jupyter-vcdat-ext .glyphicon-flash:before {
+  content: "\e162"; }
+
+.jupyter-vcdat-ext .glyphicon-log-out:before {
+  content: "\e163"; }
+
+.jupyter-vcdat-ext .glyphicon-new-window:before {
+  content: "\e164"; }
+
+.jupyter-vcdat-ext .glyphicon-record:before {
+  content: "\e165"; }
+
+.jupyter-vcdat-ext .glyphicon-save:before {
+  content: "\e166"; }
+
+.jupyter-vcdat-ext .glyphicon-open:before {
+  content: "\e167"; }
+
+.jupyter-vcdat-ext .glyphicon-saved:before {
+  content: "\e168"; }
+
+.jupyter-vcdat-ext .glyphicon-import:before {
+  content: "\e169"; }
+
+.jupyter-vcdat-ext .glyphicon-export:before {
+  content: "\e170"; }
+
+.jupyter-vcdat-ext .glyphicon-send:before {
+  content: "\e171"; }
+
+.jupyter-vcdat-ext .glyphicon-floppy-disk:before {
+  content: "\e172"; }
+
+.jupyter-vcdat-ext .glyphicon-floppy-saved:before {
+  content: "\e173"; }
+
+.jupyter-vcdat-ext .glyphicon-floppy-remove:before {
+  content: "\e174"; }
+
+.jupyter-vcdat-ext .glyphicon-floppy-save:before {
+  content: "\e175"; }
+
+.jupyter-vcdat-ext .glyphicon-floppy-open:before {
+  content: "\e176"; }
+
+.jupyter-vcdat-ext .glyphicon-credit-card:before {
+  content: "\e177"; }
+
+.jupyter-vcdat-ext .glyphicon-transfer:before {
+  content: "\e178"; }
+
+.jupyter-vcdat-ext .glyphicon-cutlery:before {
+  content: "\e179"; }
+
+.jupyter-vcdat-ext .glyphicon-header:before {
+  content: "\e180"; }
+
+.jupyter-vcdat-ext .glyphicon-compressed:before {
+  content: "\e181"; }
+
+.jupyter-vcdat-ext .glyphicon-earphone:before {
+  content: "\e182"; }
+
+.jupyter-vcdat-ext .glyphicon-phone-alt:before {
+  content: "\e183"; }
+
+.jupyter-vcdat-ext .glyphicon-tower:before {
+  content: "\e184"; }
+
+.jupyter-vcdat-ext .glyphicon-stats:before {
+  content: "\e185"; }
+
+.jupyter-vcdat-ext .glyphicon-sd-video:before {
+  content: "\e186"; }
+
+.jupyter-vcdat-ext .glyphicon-hd-video:before {
+  content: "\e187"; }
+
+.jupyter-vcdat-ext .glyphicon-subtitles:before {
+  content: "\e188"; }
+
+.jupyter-vcdat-ext .glyphicon-sound-stereo:before {
+  content: "\e189"; }
+
+.jupyter-vcdat-ext .glyphicon-sound-dolby:before {
+  content: "\e190"; }
+
+.jupyter-vcdat-ext .glyphicon-sound-5-1:before {
+  content: "\e191"; }
+
+.jupyter-vcdat-ext .glyphicon-sound-6-1:before {
+  content: "\e192"; }
+
+.jupyter-vcdat-ext .glyphicon-sound-7-1:before {
+  content: "\e193"; }
+
+.jupyter-vcdat-ext .glyphicon-copyright-mark:before {
+  content: "\e194"; }
+
+.jupyter-vcdat-ext .glyphicon-registration-mark:before {
+  content: "\e195"; }
+
+.jupyter-vcdat-ext .glyphicon-cloud-download:before {
+  content: "\e197"; }
+
+.jupyter-vcdat-ext .glyphicon-cloud-upload:before {
+  content: "\e198"; }
+
+.jupyter-vcdat-ext .glyphicon-tree-conifer:before {
+  content: "\e199"; }
+
+.jupyter-vcdat-ext .glyphicon-tree-deciduous:before {
+  content: "\e200"; }
+
+.jupyter-vcdat-ext .glyphicon-cd:before {
+  content: "\e201"; }
+
+.jupyter-vcdat-ext .glyphicon-save-file:before {
+  content: "\e202"; }
+
+.jupyter-vcdat-ext .glyphicon-open-file:before {
+  content: "\e203"; }
+
+.jupyter-vcdat-ext .glyphicon-level-up:before {
+  content: "\e204"; }
+
+.jupyter-vcdat-ext .glyphicon-copy:before {
+  content: "\e205"; }
+
+.jupyter-vcdat-ext .glyphicon-paste:before {
+  content: "\e206"; }
+
+.jupyter-vcdat-ext .glyphicon-alert:before {
+  content: "\e209"; }
+
+.jupyter-vcdat-ext .glyphicon-equalizer:before {
+  content: "\e210"; }
+
+.jupyter-vcdat-ext .glyphicon-king:before {
+  content: "\e211"; }
+
+.jupyter-vcdat-ext .glyphicon-queen:before {
+  content: "\e212"; }
+
+.jupyter-vcdat-ext .glyphicon-pawn:before {
+  content: "\e213"; }
+
+.jupyter-vcdat-ext .glyphicon-bishop:before {
+  content: "\e214"; }
+
+.jupyter-vcdat-ext .glyphicon-knight:before {
+  content: "\e215"; }
+
+.jupyter-vcdat-ext .glyphicon-baby-formula:before {
+  content: "\e216"; }
+
+.jupyter-vcdat-ext .glyphicon-tent:before {
+  content: "\26fa"; }
+
+.jupyter-vcdat-ext .glyphicon-blackboard:before {
+  content: "\e218"; }
+
+.jupyter-vcdat-ext .glyphicon-bed:before {
+  content: "\e219"; }
+
+.jupyter-vcdat-ext .glyphicon-apple:before {
+  content: "\f8ff"; }
+
+.jupyter-vcdat-ext .glyphicon-erase:before {
+  content: "\e221"; }
+
+.jupyter-vcdat-ext .glyphicon-hourglass:before {
+  content: "\231b"; }
+
+.jupyter-vcdat-ext .glyphicon-lamp:before {
+  content: "\e223"; }
+
+.jupyter-vcdat-ext .glyphicon-duplicate:before {
+  content: "\e224"; }
+
+.jupyter-vcdat-ext .glyphicon-piggy-bank:before {
+  content: "\e225"; }
+
+.jupyter-vcdat-ext .glyphicon-scissors:before {
+  content: "\e226"; }
+
+.jupyter-vcdat-ext .glyphicon-bitcoin:before {
+  content: "\e227"; }
+
+.jupyter-vcdat-ext .glyphicon-btc:before {
+  content: "\e227"; }
+
+.jupyter-vcdat-ext .glyphicon-xbt:before {
+  content: "\e227"; }
+
+.jupyter-vcdat-ext .glyphicon-yen:before {
+  content: "\00a5"; }
+
+.jupyter-vcdat-ext .glyphicon-jpy:before {
+  content: "\00a5"; }
+
+.jupyter-vcdat-ext .glyphicon-ruble:before {
+  content: "\20bd"; }
+
+.jupyter-vcdat-ext .glyphicon-rub:before {
+  content: "\20bd"; }
+
+.jupyter-vcdat-ext .glyphicon-scale:before {
+  content: "\e230"; }
+
+.jupyter-vcdat-ext .glyphicon-ice-lolly:before {
+  content: "\e231"; }
+
+.jupyter-vcdat-ext .glyphicon-ice-lolly-tasted:before {
+  content: "\e232"; }
+
+.jupyter-vcdat-ext .glyphicon-education:before {
+  content: "\e233"; }
+
+.jupyter-vcdat-ext .glyphicon-option-horizontal:before {
+  content: "\e234"; }
+
+.jupyter-vcdat-ext .glyphicon-option-vertical:before {
+  content: "\e235"; }
+
+.jupyter-vcdat-ext .glyphicon-menu-hamburger:before {
+  content: "\e236"; }
+
+.jupyter-vcdat-ext .glyphicon-modal-window:before {
+  content: "\e237"; }
+
+.jupyter-vcdat-ext .glyphicon-oil:before {
+  content: "\e238"; }
+
+.jupyter-vcdat-ext .glyphicon-grain:before {
+  content: "\e239"; }
+
+.jupyter-vcdat-ext .glyphicon-sunglasses:before {
+  content: "\e240"; }
+
+.jupyter-vcdat-ext .glyphicon-text-size:before {
+  content: "\e241"; }
+
+.jupyter-vcdat-ext .glyphicon-text-color:before {
+  content: "\e242"; }
+
+.jupyter-vcdat-ext .glyphicon-text-background:before {
+  content: "\e243"; }
+
+.jupyter-vcdat-ext .glyphicon-object-align-top:before {
+  content: "\e244"; }
+
+.jupyter-vcdat-ext .glyphicon-object-align-bottom:before {
+  content: "\e245"; }
+
+.jupyter-vcdat-ext .glyphicon-object-align-horizontal:before {
+  content: "\e246"; }
+
+.jupyter-vcdat-ext .glyphicon-object-align-left:before {
+  content: "\e247"; }
+
+.jupyter-vcdat-ext .glyphicon-object-align-vertical:before {
+  content: "\e248"; }
+
+.jupyter-vcdat-ext .glyphicon-object-align-right:before {
+  content: "\e249"; }
+
+.jupyter-vcdat-ext .glyphicon-triangle-right:before {
+  content: "\e250"; }
+
+.jupyter-vcdat-ext .glyphicon-triangle-left:before {
+  content: "\e251"; }
+
+.jupyter-vcdat-ext .glyphicon-triangle-bottom:before {
+  content: "\e252"; }
+
+.jupyter-vcdat-ext .glyphicon-triangle-top:before {
+  content: "\e253"; }
+
+.jupyter-vcdat-ext .glyphicon-console:before {
+  content: "\e254"; }
+
+.jupyter-vcdat-ext .glyphicon-superscript:before {
+  content: "\e255"; }
+
+.jupyter-vcdat-ext .glyphicon-subscript:before {
+  content: "\e256"; }
+
+.jupyter-vcdat-ext .glyphicon-menu-left:before {
+  content: "\e257"; }
+
+.jupyter-vcdat-ext .glyphicon-menu-right:before {
+  content: "\e258"; }
+
+.jupyter-vcdat-ext .glyphicon-menu-down:before {
+  content: "\e259"; }
+
+.jupyter-vcdat-ext .glyphicon-menu-up:before {
+  content: "\e260"; }
+
+.jupyter-vcdat-ext * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
+
+.jupyter-vcdat-ext :after, .jupyter-vcdat-ext :before {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
+
+.jupyter-vcdat-ext html {
+  font-size: 10px;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
+
+.jupyter-vcdat-ext body {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext button, .jupyter-vcdat-ext input, .jupyter-vcdat-ext select, .jupyter-vcdat-ext textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit; }
+
+.jupyter-vcdat-ext a {
+  color: #337ab7;
+  text-decoration: none; }
+
+.jupyter-vcdat-ext a:focus, .jupyter-vcdat-ext a:hover {
+  color: #23527c;
+  text-decoration: underline; }
+
+.jupyter-vcdat-ext a:focus {
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px; }
+
+.jupyter-vcdat-ext figure {
+  margin: 0; }
+
+.jupyter-vcdat-ext img {
+  vertical-align: middle; }
+
+.jupyter-vcdat-ext .carousel-inner > .item > a > img, .jupyter-vcdat-ext .carousel-inner > .item > img, .jupyter-vcdat-ext .img-responsive, .jupyter-vcdat-ext .thumbnail a > img, .jupyter-vcdat-ext .thumbnail > img {
+  display: block;
+  max-width: 100%;
+  height: auto; }
+
+.jupyter-vcdat-ext .img-rounded {
+  border-radius: 6px; }
+
+.jupyter-vcdat-ext .img-thumbnail {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  padding: 4px;
+  line-height: 1.42857143;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  -webkit-transition: all .2s ease-in-out;
+  -o-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out; }
+
+.jupyter-vcdat-ext .img-circle {
+  border-radius: 50%; }
+
+.jupyter-vcdat-ext hr {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 0;
+  border-top: 1px solid #eee; }
+
+.jupyter-vcdat-ext .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0; }
+
+.jupyter-vcdat-ext .sr-only-focusable:active, .jupyter-vcdat-ext .sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto; }
+
+.jupyter-vcdat-ext [role=button] {
+  cursor: pointer; }
+
+.jupyter-vcdat-ext .h1, .jupyter-vcdat-ext .h2, .jupyter-vcdat-ext .h3, .jupyter-vcdat-ext .h4, .jupyter-vcdat-ext .h5, .jupyter-vcdat-ext .h6, .jupyter-vcdat-ext h1, .jupyter-vcdat-ext h2, .jupyter-vcdat-ext h3, .jupyter-vcdat-ext h4, .jupyter-vcdat-ext h5, .jupyter-vcdat-ext h6 {
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.1;
+  color: inherit; }
+
+.jupyter-vcdat-ext .h1 .small, .jupyter-vcdat-ext .h1 small, .jupyter-vcdat-ext .h2 .small, .jupyter-vcdat-ext .h2 small, .jupyter-vcdat-ext .h3 .small, .jupyter-vcdat-ext .h3 small, .jupyter-vcdat-ext .h4 .small, .jupyter-vcdat-ext .h4 small, .jupyter-vcdat-ext .h5 .small, .jupyter-vcdat-ext .h5 small, .jupyter-vcdat-ext .h6 .small, .jupyter-vcdat-ext .h6 small, .jupyter-vcdat-ext h1 .small, .jupyter-vcdat-ext h1 small, .jupyter-vcdat-ext h2 .small, .jupyter-vcdat-ext h2 small, .jupyter-vcdat-ext h3 .small, .jupyter-vcdat-ext h3 small, .jupyter-vcdat-ext h4 .small, .jupyter-vcdat-ext h4 small, .jupyter-vcdat-ext h5 .small, .jupyter-vcdat-ext h5 small, .jupyter-vcdat-ext h6 .small, .jupyter-vcdat-ext h6 small {
+  font-weight: 400;
+  line-height: 1;
+  color: #777; }
+
+.jupyter-vcdat-ext .h1, .jupyter-vcdat-ext .h2, .jupyter-vcdat-ext .h3, .jupyter-vcdat-ext h1, .jupyter-vcdat-ext h2, .jupyter-vcdat-ext h3 {
+  margin-top: 20px;
+  margin-bottom: 10px; }
+
+.jupyter-vcdat-ext .h1 .small, .jupyter-vcdat-ext .h1 small, .jupyter-vcdat-ext .h2 .small, .jupyter-vcdat-ext .h2 small, .jupyter-vcdat-ext .h3 .small, .jupyter-vcdat-ext .h3 small, .jupyter-vcdat-ext h1 .small, .jupyter-vcdat-ext h1 small, .jupyter-vcdat-ext h2 .small, .jupyter-vcdat-ext h2 small, .jupyter-vcdat-ext h3 .small, .jupyter-vcdat-ext h3 small {
+  font-size: 65%; }
+
+.jupyter-vcdat-ext .h4, .jupyter-vcdat-ext .h5, .jupyter-vcdat-ext .h6, .jupyter-vcdat-ext h4, .jupyter-vcdat-ext h5, .jupyter-vcdat-ext h6 {
+  margin-top: 10px;
+  margin-bottom: 10px; }
+
+.jupyter-vcdat-ext .h4 .small, .jupyter-vcdat-ext .h4 small, .jupyter-vcdat-ext .h5 .small, .jupyter-vcdat-ext .h5 small, .jupyter-vcdat-ext .h6 .small, .jupyter-vcdat-ext .h6 small, .jupyter-vcdat-ext h4 .small, .jupyter-vcdat-ext h4 small, .jupyter-vcdat-ext h5 .small, .jupyter-vcdat-ext h5 small, .jupyter-vcdat-ext h6 .small, .jupyter-vcdat-ext h6 small {
+  font-size: 75%; }
+
+.jupyter-vcdat-ext .h1, .jupyter-vcdat-ext h1 {
+  font-size: 36px; }
+
+.jupyter-vcdat-ext .h2, .jupyter-vcdat-ext h2 {
+  font-size: 30px; }
+
+.jupyter-vcdat-ext .h3, .jupyter-vcdat-ext h3 {
+  font-size: 24px; }
+
+.jupyter-vcdat-ext .h4, .jupyter-vcdat-ext h4 {
+  font-size: 18px; }
+
+.jupyter-vcdat-ext .h5, .jupyter-vcdat-ext h5 {
+  font-size: 14px; }
+
+.jupyter-vcdat-ext .h6, .jupyter-vcdat-ext h6 {
+  font-size: 12px; }
+
+.jupyter-vcdat-ext p {
+  margin: 0 0 10px; }
+
+.jupyter-vcdat-ext .lead {
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.4; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .lead {
+    font-size: 21px; } }
+
+.jupyter-vcdat-ext .small, .jupyter-vcdat-ext small {
+  font-size: 85%; }
+
+.jupyter-vcdat-ext .mark, .jupyter-vcdat-ext mark {
+  padding: .2em;
+  background-color: #fcf8e3; }
+
+.jupyter-vcdat-ext .text-left {
+  text-align: left; }
+
+.jupyter-vcdat-ext .text-right {
+  text-align: right; }
+
+.jupyter-vcdat-ext .text-center {
+  text-align: center; }
+
+.jupyter-vcdat-ext .text-justify {
+  text-align: justify; }
+
+.jupyter-vcdat-ext .text-nowrap {
+  white-space: nowrap; }
+
+.jupyter-vcdat-ext .text-lowercase {
+  text-transform: lowercase; }
+
+.jupyter-vcdat-ext .text-uppercase {
+  text-transform: uppercase; }
+
+.jupyter-vcdat-ext .text-capitalize {
+  text-transform: capitalize; }
+
+.jupyter-vcdat-ext .text-muted {
+  color: #777; }
+
+.jupyter-vcdat-ext .text-primary {
+  color: #337ab7; }
+
+.jupyter-vcdat-ext a.text-primary:focus, .jupyter-vcdat-ext a.text-primary:hover {
+  color: #286090; }
+
+.jupyter-vcdat-ext .text-success {
+  color: #3c763d; }
+
+.jupyter-vcdat-ext a.text-success:focus, .jupyter-vcdat-ext a.text-success:hover {
+  color: #2b542c; }
+
+.jupyter-vcdat-ext .text-info {
+  color: #31708f; }
+
+.jupyter-vcdat-ext a.text-info:focus, .jupyter-vcdat-ext a.text-info:hover {
+  color: #245269; }
+
+.jupyter-vcdat-ext .text-warning {
+  color: #8a6d3b; }
+
+.jupyter-vcdat-ext a.text-warning:focus, .jupyter-vcdat-ext a.text-warning:hover {
+  color: #66512c; }
+
+.jupyter-vcdat-ext .text-danger {
+  color: #a94442; }
+
+.jupyter-vcdat-ext a.text-danger:focus, .jupyter-vcdat-ext a.text-danger:hover {
+  color: #843534; }
+
+.jupyter-vcdat-ext .bg-primary {
+  color: #fff;
+  background-color: #337ab7; }
+
+.jupyter-vcdat-ext a.bg-primary:focus, .jupyter-vcdat-ext a.bg-primary:hover {
+  background-color: #286090; }
+
+.jupyter-vcdat-ext .bg-success {
+  background-color: #dff0d8; }
+
+.jupyter-vcdat-ext a.bg-success:focus, .jupyter-vcdat-ext a.bg-success:hover {
+  background-color: #c1e2b3; }
+
+.jupyter-vcdat-ext .bg-info {
+  background-color: #d9edf7; }
+
+.jupyter-vcdat-ext a.bg-info:focus, .jupyter-vcdat-ext a.bg-info:hover {
+  background-color: #afd9ee; }
+
+.jupyter-vcdat-ext .bg-warning {
+  background-color: #fcf8e3; }
+
+.jupyter-vcdat-ext a.bg-warning:focus, .jupyter-vcdat-ext a.bg-warning:hover {
+  background-color: #f7ecb5; }
+
+.jupyter-vcdat-ext .bg-danger {
+  background-color: #f2dede; }
+
+.jupyter-vcdat-ext a.bg-danger:focus, .jupyter-vcdat-ext a.bg-danger:hover {
+  background-color: #e4b9b9; }
+
+.jupyter-vcdat-ext .page-header {
+  padding-bottom: 9px;
+  margin: 40px 0 20px;
+  border-bottom: 1px solid #eee; }
+
+.jupyter-vcdat-ext ol, .jupyter-vcdat-ext ul {
+  margin-top: 0;
+  margin-bottom: 10px; }
+
+.jupyter-vcdat-ext ol ol, .jupyter-vcdat-ext ol ul, .jupyter-vcdat-ext ul ol, .jupyter-vcdat-ext ul ul {
+  margin-bottom: 0; }
+
+.jupyter-vcdat-ext .list-unstyled {
+  padding-left: 0;
+  list-style: none; }
+
+.jupyter-vcdat-ext .list-inline {
+  padding-left: 0;
+  margin-left: -5px;
+  list-style: none; }
+
+.jupyter-vcdat-ext .list-inline > li {
+  display: inline-block;
+  padding-right: 5px;
+  padding-left: 5px; }
+
+.jupyter-vcdat-ext dl {
+  margin-top: 0;
+  margin-bottom: 20px; }
+
+.jupyter-vcdat-ext dd, .jupyter-vcdat-ext dt {
+  line-height: 1.42857143; }
+
+.jupyter-vcdat-ext dt {
+  font-weight: 700; }
+
+.jupyter-vcdat-ext dd {
+  margin-left: 0; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .dl-horizontal dt {
+    float: left;
+    width: 160px;
+    overflow: hidden;
+    clear: left;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap; }
+  .jupyter-vcdat-ext .dl-horizontal dd {
+    margin-left: 180px; } }
+
+.jupyter-vcdat-ext abbr[data-original-title], .jupyter-vcdat-ext abbr[title] {
+  cursor: help;
+  border-bottom: 1px dotted #777; }
+
+.jupyter-vcdat-ext .initialism {
+  font-size: 90%;
+  text-transform: uppercase; }
+
+.jupyter-vcdat-ext blockquote {
+  padding: 10px 20px;
+  margin: 0 0 20px;
+  font-size: 17.5px;
+  border-left: 5px solid #eee; }
+
+.jupyter-vcdat-ext blockquote ol:last-child, .jupyter-vcdat-ext blockquote p:last-child, .jupyter-vcdat-ext blockquote ul:last-child {
+  margin-bottom: 0; }
+
+.jupyter-vcdat-ext blockquote .small, .jupyter-vcdat-ext blockquote footer, .jupyter-vcdat-ext blockquote small {
+  display: block;
+  font-size: 80%;
+  line-height: 1.42857143;
+  color: #777; }
+
+.jupyter-vcdat-ext blockquote .small:before, .jupyter-vcdat-ext blockquote footer:before, .jupyter-vcdat-ext blockquote small:before {
+  content: '\2014 \00A0'; }
+
+.jupyter-vcdat-ext .blockquote-reverse, .jupyter-vcdat-ext blockquote.pull-right {
+  padding-right: 15px;
+  padding-left: 0;
+  text-align: right;
+  border-right: 5px solid #eee;
+  border-left: 0; }
+
+.jupyter-vcdat-ext .blockquote-reverse .small:before, .jupyter-vcdat-ext .blockquote-reverse footer:before, .jupyter-vcdat-ext .blockquote-reverse small:before, .jupyter-vcdat-ext blockquote.pull-right .small:before, .jupyter-vcdat-ext blockquote.pull-right footer:before, .jupyter-vcdat-ext blockquote.pull-right small:before {
+  content: ''; }
+
+.jupyter-vcdat-ext .blockquote-reverse .small:after, .jupyter-vcdat-ext .blockquote-reverse footer:after, .jupyter-vcdat-ext .blockquote-reverse small:after, .jupyter-vcdat-ext blockquote.pull-right .small:after, .jupyter-vcdat-ext blockquote.pull-right footer:after, .jupyter-vcdat-ext blockquote.pull-right small:after {
+  content: '\00A0 \2014'; }
+
+.jupyter-vcdat-ext address {
+  margin-bottom: 20px;
+  font-style: normal;
+  line-height: 1.42857143; }
+
+.jupyter-vcdat-ext code, .jupyter-vcdat-ext kbd, .jupyter-vcdat-ext pre, .jupyter-vcdat-ext samp {
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace; }
+
+.jupyter-vcdat-ext code {
+  padding: 2px 4px;
+  font-size: 90%;
+  color: #c7254e;
+  background-color: #f9f2f4;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext kbd {
+  padding: 2px 4px;
+  font-size: 90%;
+  color: #fff;
+  background-color: #333;
+  border-radius: 3px;
+  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.25); }
+
+.jupyter-vcdat-ext kbd kbd {
+  padding: 0;
+  font-size: 100%;
+  font-weight: 700;
+  -webkit-box-shadow: none;
+  box-shadow: none; }
+
+.jupyter-vcdat-ext pre {
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  color: #333;
+  word-break: break-all;
+  word-wrap: break-word;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext pre code {
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+  white-space: pre-wrap;
+  background-color: transparent;
+  border-radius: 0; }
+
+.jupyter-vcdat-ext .pre-scrollable {
+  max-height: 340px;
+  overflow-y: scroll; }
+
+.jupyter-vcdat-ext .container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .container {
+    width: 750px; } }
+
+@media (min-width: 992px) {
+  .jupyter-vcdat-ext .container {
+    width: 970px; } }
+
+@media (min-width: 1200px) {
+  .jupyter-vcdat-ext .container {
+    width: 1170px; } }
+
+.jupyter-vcdat-ext .container-fluid {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto; }
+
+.jupyter-vcdat-ext .row {
+  margin-right: -15px;
+  margin-left: -15px; }
+
+.jupyter-vcdat-ext .col-lg-1, .jupyter-vcdat-ext .col-lg-10, .jupyter-vcdat-ext .col-lg-11, .jupyter-vcdat-ext .col-lg-12, .jupyter-vcdat-ext .col-lg-2, .jupyter-vcdat-ext .col-lg-3, .jupyter-vcdat-ext .col-lg-4, .jupyter-vcdat-ext .col-lg-5, .jupyter-vcdat-ext .col-lg-6, .jupyter-vcdat-ext .col-lg-7, .jupyter-vcdat-ext .col-lg-8, .jupyter-vcdat-ext .col-lg-9, .jupyter-vcdat-ext .col-md-1, .jupyter-vcdat-ext .col-md-10, .jupyter-vcdat-ext .col-md-11, .jupyter-vcdat-ext .col-md-12, .jupyter-vcdat-ext .col-md-2, .jupyter-vcdat-ext .col-md-3, .jupyter-vcdat-ext .col-md-4, .jupyter-vcdat-ext .col-md-5, .jupyter-vcdat-ext .col-md-6, .jupyter-vcdat-ext .col-md-7, .jupyter-vcdat-ext .col-md-8, .jupyter-vcdat-ext .col-md-9, .jupyter-vcdat-ext .col-sm-1, .jupyter-vcdat-ext .col-sm-10, .jupyter-vcdat-ext .col-sm-11, .jupyter-vcdat-ext .col-sm-12, .jupyter-vcdat-ext .col-sm-2, .jupyter-vcdat-ext .col-sm-3, .jupyter-vcdat-ext .col-sm-4, .jupyter-vcdat-ext .col-sm-5, .jupyter-vcdat-ext .col-sm-6, .jupyter-vcdat-ext .col-sm-7, .jupyter-vcdat-ext .col-sm-8, .jupyter-vcdat-ext .col-sm-9, .jupyter-vcdat-ext .col-xs-1, .jupyter-vcdat-ext .col-xs-10, .jupyter-vcdat-ext .col-xs-11, .jupyter-vcdat-ext .col-xs-12, .jupyter-vcdat-ext .col-xs-2, .jupyter-vcdat-ext .col-xs-3, .jupyter-vcdat-ext .col-xs-4, .jupyter-vcdat-ext .col-xs-5, .jupyter-vcdat-ext .col-xs-6, .jupyter-vcdat-ext .col-xs-7, .jupyter-vcdat-ext .col-xs-8, .jupyter-vcdat-ext .col-xs-9 {
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px; }
+
+.jupyter-vcdat-ext .col-xs-1, .jupyter-vcdat-ext .col-xs-10, .jupyter-vcdat-ext .col-xs-11, .jupyter-vcdat-ext .col-xs-12, .jupyter-vcdat-ext .col-xs-2, .jupyter-vcdat-ext .col-xs-3, .jupyter-vcdat-ext .col-xs-4, .jupyter-vcdat-ext .col-xs-5, .jupyter-vcdat-ext .col-xs-6, .jupyter-vcdat-ext .col-xs-7, .jupyter-vcdat-ext .col-xs-8, .jupyter-vcdat-ext .col-xs-9 {
+  float: left; }
+
+.jupyter-vcdat-ext .col-xs-12 {
+  width: 100%; }
+
+.jupyter-vcdat-ext .col-xs-11 {
+  width: 91.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-10 {
+  width: 83.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-9 {
+  width: 75%; }
+
+.jupyter-vcdat-ext .col-xs-8 {
+  width: 66.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-7 {
+  width: 58.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-6 {
+  width: 50%; }
+
+.jupyter-vcdat-ext .col-xs-5 {
+  width: 41.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-4 {
+  width: 33.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-3 {
+  width: 25%; }
+
+.jupyter-vcdat-ext .col-xs-2 {
+  width: 16.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-1 {
+  width: 8.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-pull-12 {
+  right: 100%; }
+
+.jupyter-vcdat-ext .col-xs-pull-11 {
+  right: 91.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-pull-10 {
+  right: 83.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-pull-9 {
+  right: 75%; }
+
+.jupyter-vcdat-ext .col-xs-pull-8 {
+  right: 66.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-pull-7 {
+  right: 58.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-pull-6 {
+  right: 50%; }
+
+.jupyter-vcdat-ext .col-xs-pull-5 {
+  right: 41.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-pull-4 {
+  right: 33.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-pull-3 {
+  right: 25%; }
+
+.jupyter-vcdat-ext .col-xs-pull-2 {
+  right: 16.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-pull-1 {
+  right: 8.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-pull-0 {
+  right: auto; }
+
+.jupyter-vcdat-ext .col-xs-push-12 {
+  left: 100%; }
+
+.jupyter-vcdat-ext .col-xs-push-11 {
+  left: 91.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-push-10 {
+  left: 83.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-push-9 {
+  left: 75%; }
+
+.jupyter-vcdat-ext .col-xs-push-8 {
+  left: 66.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-push-7 {
+  left: 58.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-push-6 {
+  left: 50%; }
+
+.jupyter-vcdat-ext .col-xs-push-5 {
+  left: 41.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-push-4 {
+  left: 33.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-push-3 {
+  left: 25%; }
+
+.jupyter-vcdat-ext .col-xs-push-2 {
+  left: 16.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-push-1 {
+  left: 8.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-push-0 {
+  left: auto; }
+
+.jupyter-vcdat-ext .col-xs-offset-12 {
+  margin-left: 100%; }
+
+.jupyter-vcdat-ext .col-xs-offset-11 {
+  margin-left: 91.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-offset-10 {
+  margin-left: 83.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-offset-9 {
+  margin-left: 75%; }
+
+.jupyter-vcdat-ext .col-xs-offset-8 {
+  margin-left: 66.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-offset-7 {
+  margin-left: 58.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-offset-6 {
+  margin-left: 50%; }
+
+.jupyter-vcdat-ext .col-xs-offset-5 {
+  margin-left: 41.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-offset-4 {
+  margin-left: 33.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-offset-3 {
+  margin-left: 25%; }
+
+.jupyter-vcdat-ext .col-xs-offset-2 {
+  margin-left: 16.66666667%; }
+
+.jupyter-vcdat-ext .col-xs-offset-1 {
+  margin-left: 8.33333333%; }
+
+.jupyter-vcdat-ext .col-xs-offset-0 {
+  margin-left: 0; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .col-sm-1, .jupyter-vcdat-ext .col-sm-10, .jupyter-vcdat-ext .col-sm-11, .jupyter-vcdat-ext .col-sm-12, .jupyter-vcdat-ext .col-sm-2, .jupyter-vcdat-ext .col-sm-3, .jupyter-vcdat-ext .col-sm-4, .jupyter-vcdat-ext .col-sm-5, .jupyter-vcdat-ext .col-sm-6, .jupyter-vcdat-ext .col-sm-7, .jupyter-vcdat-ext .col-sm-8, .jupyter-vcdat-ext .col-sm-9 {
+    float: left; }
+  .jupyter-vcdat-ext .col-sm-12 {
+    width: 100%; }
+  .jupyter-vcdat-ext .col-sm-11 {
+    width: 91.66666667%; }
+  .jupyter-vcdat-ext .col-sm-10 {
+    width: 83.33333333%; }
+  .jupyter-vcdat-ext .col-sm-9 {
+    width: 75%; }
+  .jupyter-vcdat-ext .col-sm-8 {
+    width: 66.66666667%; }
+  .jupyter-vcdat-ext .col-sm-7 {
+    width: 58.33333333%; }
+  .jupyter-vcdat-ext .col-sm-6 {
+    width: 50%; }
+  .jupyter-vcdat-ext .col-sm-5 {
+    width: 41.66666667%; }
+  .jupyter-vcdat-ext .col-sm-4 {
+    width: 33.33333333%; }
+  .jupyter-vcdat-ext .col-sm-3 {
+    width: 25%; }
+  .jupyter-vcdat-ext .col-sm-2 {
+    width: 16.66666667%; }
+  .jupyter-vcdat-ext .col-sm-1 {
+    width: 8.33333333%; }
+  .jupyter-vcdat-ext .col-sm-pull-12 {
+    right: 100%; }
+  .jupyter-vcdat-ext .col-sm-pull-11 {
+    right: 91.66666667%; }
+  .jupyter-vcdat-ext .col-sm-pull-10 {
+    right: 83.33333333%; }
+  .jupyter-vcdat-ext .col-sm-pull-9 {
+    right: 75%; }
+  .jupyter-vcdat-ext .col-sm-pull-8 {
+    right: 66.66666667%; }
+  .jupyter-vcdat-ext .col-sm-pull-7 {
+    right: 58.33333333%; }
+  .jupyter-vcdat-ext .col-sm-pull-6 {
+    right: 50%; }
+  .jupyter-vcdat-ext .col-sm-pull-5 {
+    right: 41.66666667%; }
+  .jupyter-vcdat-ext .col-sm-pull-4 {
+    right: 33.33333333%; }
+  .jupyter-vcdat-ext .col-sm-pull-3 {
+    right: 25%; }
+  .jupyter-vcdat-ext .col-sm-pull-2 {
+    right: 16.66666667%; }
+  .jupyter-vcdat-ext .col-sm-pull-1 {
+    right: 8.33333333%; }
+  .jupyter-vcdat-ext .col-sm-pull-0 {
+    right: auto; }
+  .jupyter-vcdat-ext .col-sm-push-12 {
+    left: 100%; }
+  .jupyter-vcdat-ext .col-sm-push-11 {
+    left: 91.66666667%; }
+  .jupyter-vcdat-ext .col-sm-push-10 {
+    left: 83.33333333%; }
+  .jupyter-vcdat-ext .col-sm-push-9 {
+    left: 75%; }
+  .jupyter-vcdat-ext .col-sm-push-8 {
+    left: 66.66666667%; }
+  .jupyter-vcdat-ext .col-sm-push-7 {
+    left: 58.33333333%; }
+  .jupyter-vcdat-ext .col-sm-push-6 {
+    left: 50%; }
+  .jupyter-vcdat-ext .col-sm-push-5 {
+    left: 41.66666667%; }
+  .jupyter-vcdat-ext .col-sm-push-4 {
+    left: 33.33333333%; }
+  .jupyter-vcdat-ext .col-sm-push-3 {
+    left: 25%; }
+  .jupyter-vcdat-ext .col-sm-push-2 {
+    left: 16.66666667%; }
+  .jupyter-vcdat-ext .col-sm-push-1 {
+    left: 8.33333333%; }
+  .jupyter-vcdat-ext .col-sm-push-0 {
+    left: auto; }
+  .jupyter-vcdat-ext .col-sm-offset-12 {
+    margin-left: 100%; }
+  .jupyter-vcdat-ext .col-sm-offset-11 {
+    margin-left: 91.66666667%; }
+  .jupyter-vcdat-ext .col-sm-offset-10 {
+    margin-left: 83.33333333%; }
+  .jupyter-vcdat-ext .col-sm-offset-9 {
+    margin-left: 75%; }
+  .jupyter-vcdat-ext .col-sm-offset-8 {
+    margin-left: 66.66666667%; }
+  .jupyter-vcdat-ext .col-sm-offset-7 {
+    margin-left: 58.33333333%; }
+  .jupyter-vcdat-ext .col-sm-offset-6 {
+    margin-left: 50%; }
+  .jupyter-vcdat-ext .col-sm-offset-5 {
+    margin-left: 41.66666667%; }
+  .jupyter-vcdat-ext .col-sm-offset-4 {
+    margin-left: 33.33333333%; }
+  .jupyter-vcdat-ext .col-sm-offset-3 {
+    margin-left: 25%; }
+  .jupyter-vcdat-ext .col-sm-offset-2 {
+    margin-left: 16.66666667%; }
+  .jupyter-vcdat-ext .col-sm-offset-1 {
+    margin-left: 8.33333333%; }
+  .jupyter-vcdat-ext .col-sm-offset-0 {
+    margin-left: 0; } }
+
+@media (min-width: 992px) {
+  .jupyter-vcdat-ext .col-md-1, .jupyter-vcdat-ext .col-md-10, .jupyter-vcdat-ext .col-md-11, .jupyter-vcdat-ext .col-md-12, .jupyter-vcdat-ext .col-md-2, .jupyter-vcdat-ext .col-md-3, .jupyter-vcdat-ext .col-md-4, .jupyter-vcdat-ext .col-md-5, .jupyter-vcdat-ext .col-md-6, .jupyter-vcdat-ext .col-md-7, .jupyter-vcdat-ext .col-md-8, .jupyter-vcdat-ext .col-md-9 {
+    float: left; }
+  .jupyter-vcdat-ext .col-md-12 {
+    width: 100%; }
+  .jupyter-vcdat-ext .col-md-11 {
+    width: 91.66666667%; }
+  .jupyter-vcdat-ext .col-md-10 {
+    width: 83.33333333%; }
+  .jupyter-vcdat-ext .col-md-9 {
+    width: 75%; }
+  .jupyter-vcdat-ext .col-md-8 {
+    width: 66.66666667%; }
+  .jupyter-vcdat-ext .col-md-7 {
+    width: 58.33333333%; }
+  .jupyter-vcdat-ext .col-md-6 {
+    width: 50%; }
+  .jupyter-vcdat-ext .col-md-5 {
+    width: 41.66666667%; }
+  .jupyter-vcdat-ext .col-md-4 {
+    width: 33.33333333%; }
+  .jupyter-vcdat-ext .col-md-3 {
+    width: 25%; }
+  .jupyter-vcdat-ext .col-md-2 {
+    width: 16.66666667%; }
+  .jupyter-vcdat-ext .col-md-1 {
+    width: 8.33333333%; }
+  .jupyter-vcdat-ext .col-md-pull-12 {
+    right: 100%; }
+  .jupyter-vcdat-ext .col-md-pull-11 {
+    right: 91.66666667%; }
+  .jupyter-vcdat-ext .col-md-pull-10 {
+    right: 83.33333333%; }
+  .jupyter-vcdat-ext .col-md-pull-9 {
+    right: 75%; }
+  .jupyter-vcdat-ext .col-md-pull-8 {
+    right: 66.66666667%; }
+  .jupyter-vcdat-ext .col-md-pull-7 {
+    right: 58.33333333%; }
+  .jupyter-vcdat-ext .col-md-pull-6 {
+    right: 50%; }
+  .jupyter-vcdat-ext .col-md-pull-5 {
+    right: 41.66666667%; }
+  .jupyter-vcdat-ext .col-md-pull-4 {
+    right: 33.33333333%; }
+  .jupyter-vcdat-ext .col-md-pull-3 {
+    right: 25%; }
+  .jupyter-vcdat-ext .col-md-pull-2 {
+    right: 16.66666667%; }
+  .jupyter-vcdat-ext .col-md-pull-1 {
+    right: 8.33333333%; }
+  .jupyter-vcdat-ext .col-md-pull-0 {
+    right: auto; }
+  .jupyter-vcdat-ext .col-md-push-12 {
+    left: 100%; }
+  .jupyter-vcdat-ext .col-md-push-11 {
+    left: 91.66666667%; }
+  .jupyter-vcdat-ext .col-md-push-10 {
+    left: 83.33333333%; }
+  .jupyter-vcdat-ext .col-md-push-9 {
+    left: 75%; }
+  .jupyter-vcdat-ext .col-md-push-8 {
+    left: 66.66666667%; }
+  .jupyter-vcdat-ext .col-md-push-7 {
+    left: 58.33333333%; }
+  .jupyter-vcdat-ext .col-md-push-6 {
+    left: 50%; }
+  .jupyter-vcdat-ext .col-md-push-5 {
+    left: 41.66666667%; }
+  .jupyter-vcdat-ext .col-md-push-4 {
+    left: 33.33333333%; }
+  .jupyter-vcdat-ext .col-md-push-3 {
+    left: 25%; }
+  .jupyter-vcdat-ext .col-md-push-2 {
+    left: 16.66666667%; }
+  .jupyter-vcdat-ext .col-md-push-1 {
+    left: 8.33333333%; }
+  .jupyter-vcdat-ext .col-md-push-0 {
+    left: auto; }
+  .jupyter-vcdat-ext .col-md-offset-12 {
+    margin-left: 100%; }
+  .jupyter-vcdat-ext .col-md-offset-11 {
+    margin-left: 91.66666667%; }
+  .jupyter-vcdat-ext .col-md-offset-10 {
+    margin-left: 83.33333333%; }
+  .jupyter-vcdat-ext .col-md-offset-9 {
+    margin-left: 75%; }
+  .jupyter-vcdat-ext .col-md-offset-8 {
+    margin-left: 66.66666667%; }
+  .jupyter-vcdat-ext .col-md-offset-7 {
+    margin-left: 58.33333333%; }
+  .jupyter-vcdat-ext .col-md-offset-6 {
+    margin-left: 50%; }
+  .jupyter-vcdat-ext .col-md-offset-5 {
+    margin-left: 41.66666667%; }
+  .jupyter-vcdat-ext .col-md-offset-4 {
+    margin-left: 33.33333333%; }
+  .jupyter-vcdat-ext .col-md-offset-3 {
+    margin-left: 25%; }
+  .jupyter-vcdat-ext .col-md-offset-2 {
+    margin-left: 16.66666667%; }
+  .jupyter-vcdat-ext .col-md-offset-1 {
+    margin-left: 8.33333333%; }
+  .jupyter-vcdat-ext .col-md-offset-0 {
+    margin-left: 0; } }
+
+@media (min-width: 1200px) {
+  .jupyter-vcdat-ext .col-lg-1, .jupyter-vcdat-ext .col-lg-10, .jupyter-vcdat-ext .col-lg-11, .jupyter-vcdat-ext .col-lg-12, .jupyter-vcdat-ext .col-lg-2, .jupyter-vcdat-ext .col-lg-3, .jupyter-vcdat-ext .col-lg-4, .jupyter-vcdat-ext .col-lg-5, .jupyter-vcdat-ext .col-lg-6, .jupyter-vcdat-ext .col-lg-7, .jupyter-vcdat-ext .col-lg-8, .jupyter-vcdat-ext .col-lg-9 {
+    float: left; }
+  .jupyter-vcdat-ext .col-lg-12 {
+    width: 100%; }
+  .jupyter-vcdat-ext .col-lg-11 {
+    width: 91.66666667%; }
+  .jupyter-vcdat-ext .col-lg-10 {
+    width: 83.33333333%; }
+  .jupyter-vcdat-ext .col-lg-9 {
+    width: 75%; }
+  .jupyter-vcdat-ext .col-lg-8 {
+    width: 66.66666667%; }
+  .jupyter-vcdat-ext .col-lg-7 {
+    width: 58.33333333%; }
+  .jupyter-vcdat-ext .col-lg-6 {
+    width: 50%; }
+  .jupyter-vcdat-ext .col-lg-5 {
+    width: 41.66666667%; }
+  .jupyter-vcdat-ext .col-lg-4 {
+    width: 33.33333333%; }
+  .jupyter-vcdat-ext .col-lg-3 {
+    width: 25%; }
+  .jupyter-vcdat-ext .col-lg-2 {
+    width: 16.66666667%; }
+  .jupyter-vcdat-ext .col-lg-1 {
+    width: 8.33333333%; }
+  .jupyter-vcdat-ext .col-lg-pull-12 {
+    right: 100%; }
+  .jupyter-vcdat-ext .col-lg-pull-11 {
+    right: 91.66666667%; }
+  .jupyter-vcdat-ext .col-lg-pull-10 {
+    right: 83.33333333%; }
+  .jupyter-vcdat-ext .col-lg-pull-9 {
+    right: 75%; }
+  .jupyter-vcdat-ext .col-lg-pull-8 {
+    right: 66.66666667%; }
+  .jupyter-vcdat-ext .col-lg-pull-7 {
+    right: 58.33333333%; }
+  .jupyter-vcdat-ext .col-lg-pull-6 {
+    right: 50%; }
+  .jupyter-vcdat-ext .col-lg-pull-5 {
+    right: 41.66666667%; }
+  .jupyter-vcdat-ext .col-lg-pull-4 {
+    right: 33.33333333%; }
+  .jupyter-vcdat-ext .col-lg-pull-3 {
+    right: 25%; }
+  .jupyter-vcdat-ext .col-lg-pull-2 {
+    right: 16.66666667%; }
+  .jupyter-vcdat-ext .col-lg-pull-1 {
+    right: 8.33333333%; }
+  .jupyter-vcdat-ext .col-lg-pull-0 {
+    right: auto; }
+  .jupyter-vcdat-ext .col-lg-push-12 {
+    left: 100%; }
+  .jupyter-vcdat-ext .col-lg-push-11 {
+    left: 91.66666667%; }
+  .jupyter-vcdat-ext .col-lg-push-10 {
+    left: 83.33333333%; }
+  .jupyter-vcdat-ext .col-lg-push-9 {
+    left: 75%; }
+  .jupyter-vcdat-ext .col-lg-push-8 {
+    left: 66.66666667%; }
+  .jupyter-vcdat-ext .col-lg-push-7 {
+    left: 58.33333333%; }
+  .jupyter-vcdat-ext .col-lg-push-6 {
+    left: 50%; }
+  .jupyter-vcdat-ext .col-lg-push-5 {
+    left: 41.66666667%; }
+  .jupyter-vcdat-ext .col-lg-push-4 {
+    left: 33.33333333%; }
+  .jupyter-vcdat-ext .col-lg-push-3 {
+    left: 25%; }
+  .jupyter-vcdat-ext .col-lg-push-2 {
+    left: 16.66666667%; }
+  .jupyter-vcdat-ext .col-lg-push-1 {
+    left: 8.33333333%; }
+  .jupyter-vcdat-ext .col-lg-push-0 {
+    left: auto; }
+  .jupyter-vcdat-ext .col-lg-offset-12 {
+    margin-left: 100%; }
+  .jupyter-vcdat-ext .col-lg-offset-11 {
+    margin-left: 91.66666667%; }
+  .jupyter-vcdat-ext .col-lg-offset-10 {
+    margin-left: 83.33333333%; }
+  .jupyter-vcdat-ext .col-lg-offset-9 {
+    margin-left: 75%; }
+  .jupyter-vcdat-ext .col-lg-offset-8 {
+    margin-left: 66.66666667%; }
+  .jupyter-vcdat-ext .col-lg-offset-7 {
+    margin-left: 58.33333333%; }
+  .jupyter-vcdat-ext .col-lg-offset-6 {
+    margin-left: 50%; }
+  .jupyter-vcdat-ext .col-lg-offset-5 {
+    margin-left: 41.66666667%; }
+  .jupyter-vcdat-ext .col-lg-offset-4 {
+    margin-left: 33.33333333%; }
+  .jupyter-vcdat-ext .col-lg-offset-3 {
+    margin-left: 25%; }
+  .jupyter-vcdat-ext .col-lg-offset-2 {
+    margin-left: 16.66666667%; }
+  .jupyter-vcdat-ext .col-lg-offset-1 {
+    margin-left: 8.33333333%; }
+  .jupyter-vcdat-ext .col-lg-offset-0 {
+    margin-left: 0; } }
+
+.jupyter-vcdat-ext table {
+  background-color: transparent; }
+
+.jupyter-vcdat-ext caption {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  color: #777;
+  text-align: left; }
+
+.jupyter-vcdat-ext th {
+  text-align: left; }
+
+.jupyter-vcdat-ext .table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px; }
+
+.jupyter-vcdat-ext .table > tbody > tr > td, .jupyter-vcdat-ext .table > tbody > tr > th, .jupyter-vcdat-ext .table > tfoot > tr > td, .jupyter-vcdat-ext .table > tfoot > tr > th, .jupyter-vcdat-ext .table > thead > tr > td, .jupyter-vcdat-ext .table > thead > tr > th {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd; }
+
+.jupyter-vcdat-ext .table > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #ddd; }
+
+.jupyter-vcdat-ext .table > caption + thead > tr:first-child > td, .jupyter-vcdat-ext .table > caption + thead > tr:first-child > th, .jupyter-vcdat-ext .table > colgroup + thead > tr:first-child > td, .jupyter-vcdat-ext .table > colgroup + thead > tr:first-child > th, .jupyter-vcdat-ext .table > thead:first-child > tr:first-child > td, .jupyter-vcdat-ext .table > thead:first-child > tr:first-child > th {
+  border-top: 0; }
+
+.jupyter-vcdat-ext .table > tbody + tbody {
+  border-top: 2px solid #ddd; }
+
+.jupyter-vcdat-ext .table .table {
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .table-condensed > tbody > tr > td, .jupyter-vcdat-ext .table-condensed > tbody > tr > th, .jupyter-vcdat-ext .table-condensed > tfoot > tr > td, .jupyter-vcdat-ext .table-condensed > tfoot > tr > th, .jupyter-vcdat-ext .table-condensed > thead > tr > td, .jupyter-vcdat-ext .table-condensed > thead > tr > th {
+  padding: 5px; }
+
+.jupyter-vcdat-ext .table-bordered {
+  border: 1px solid #ddd; }
+
+.jupyter-vcdat-ext .table-bordered > tbody > tr > td, .jupyter-vcdat-ext .table-bordered > tbody > tr > th, .jupyter-vcdat-ext .table-bordered > tfoot > tr > td, .jupyter-vcdat-ext .table-bordered > tfoot > tr > th, .jupyter-vcdat-ext .table-bordered > thead > tr > td, .jupyter-vcdat-ext .table-bordered > thead > tr > th {
+  border: 1px solid #ddd; }
+
+.jupyter-vcdat-ext .table-bordered > thead > tr > td, .jupyter-vcdat-ext .table-bordered > thead > tr > th {
+  border-bottom-width: 2px; }
+
+.jupyter-vcdat-ext .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f9f9f9; }
+
+.jupyter-vcdat-ext .table-hover > tbody > tr:hover {
+  background-color: #f5f5f5; }
+
+.jupyter-vcdat-ext table col[class*=col-] {
+  position: static;
+  display: table-column;
+  float: none; }
+
+.jupyter-vcdat-ext table td[class*=col-], .jupyter-vcdat-ext table th[class*=col-] {
+  position: static;
+  display: table-cell;
+  float: none; }
+
+.jupyter-vcdat-ext .table > tbody > tr.active > td, .jupyter-vcdat-ext .table > tbody > tr.active > th, .jupyter-vcdat-ext .table > tbody > tr > td.active, .jupyter-vcdat-ext .table > tbody > tr > th.active, .jupyter-vcdat-ext .table > tfoot > tr.active > td, .jupyter-vcdat-ext .table > tfoot > tr.active > th, .jupyter-vcdat-ext .table > tfoot > tr > td.active, .jupyter-vcdat-ext .table > tfoot > tr > th.active, .jupyter-vcdat-ext .table > thead > tr.active > td, .jupyter-vcdat-ext .table > thead > tr.active > th, .jupyter-vcdat-ext .table > thead > tr > td.active, .jupyter-vcdat-ext .table > thead > tr > th.active {
+  background-color: #f5f5f5; }
+
+.jupyter-vcdat-ext .table-hover > tbody > tr.active:hover > td, .jupyter-vcdat-ext .table-hover > tbody > tr.active:hover > th, .jupyter-vcdat-ext .table-hover > tbody > tr:hover > .active, .jupyter-vcdat-ext .table-hover > tbody > tr > td.active:hover, .jupyter-vcdat-ext .table-hover > tbody > tr > th.active:hover {
+  background-color: #e8e8e8; }
+
+.jupyter-vcdat-ext .table > tbody > tr.success > td, .jupyter-vcdat-ext .table > tbody > tr.success > th, .jupyter-vcdat-ext .table > tbody > tr > td.success, .jupyter-vcdat-ext .table > tbody > tr > th.success, .jupyter-vcdat-ext .table > tfoot > tr.success > td, .jupyter-vcdat-ext .table > tfoot > tr.success > th, .jupyter-vcdat-ext .table > tfoot > tr > td.success, .jupyter-vcdat-ext .table > tfoot > tr > th.success, .jupyter-vcdat-ext .table > thead > tr.success > td, .jupyter-vcdat-ext .table > thead > tr.success > th, .jupyter-vcdat-ext .table > thead > tr > td.success, .jupyter-vcdat-ext .table > thead > tr > th.success {
+  background-color: #dff0d8; }
+
+.jupyter-vcdat-ext .table-hover > tbody > tr.success:hover > td, .jupyter-vcdat-ext .table-hover > tbody > tr.success:hover > th, .jupyter-vcdat-ext .table-hover > tbody > tr:hover > .success, .jupyter-vcdat-ext .table-hover > tbody > tr > td.success:hover, .jupyter-vcdat-ext .table-hover > tbody > tr > th.success:hover {
+  background-color: #d0e9c6; }
+
+.jupyter-vcdat-ext .table > tbody > tr.info > td, .jupyter-vcdat-ext .table > tbody > tr.info > th, .jupyter-vcdat-ext .table > tbody > tr > td.info, .jupyter-vcdat-ext .table > tbody > tr > th.info, .jupyter-vcdat-ext .table > tfoot > tr.info > td, .jupyter-vcdat-ext .table > tfoot > tr.info > th, .jupyter-vcdat-ext .table > tfoot > tr > td.info, .jupyter-vcdat-ext .table > tfoot > tr > th.info, .jupyter-vcdat-ext .table > thead > tr.info > td, .jupyter-vcdat-ext .table > thead > tr.info > th, .jupyter-vcdat-ext .table > thead > tr > td.info, .jupyter-vcdat-ext .table > thead > tr > th.info {
+  background-color: #d9edf7; }
+
+.jupyter-vcdat-ext .table-hover > tbody > tr.info:hover > td, .jupyter-vcdat-ext .table-hover > tbody > tr.info:hover > th, .jupyter-vcdat-ext .table-hover > tbody > tr:hover > .info, .jupyter-vcdat-ext .table-hover > tbody > tr > td.info:hover, .jupyter-vcdat-ext .table-hover > tbody > tr > th.info:hover {
+  background-color: #c4e3f3; }
+
+.jupyter-vcdat-ext .table > tbody > tr.warning > td, .jupyter-vcdat-ext .table > tbody > tr.warning > th, .jupyter-vcdat-ext .table > tbody > tr > td.warning, .jupyter-vcdat-ext .table > tbody > tr > th.warning, .jupyter-vcdat-ext .table > tfoot > tr.warning > td, .jupyter-vcdat-ext .table > tfoot > tr.warning > th, .jupyter-vcdat-ext .table > tfoot > tr > td.warning, .jupyter-vcdat-ext .table > tfoot > tr > th.warning, .jupyter-vcdat-ext .table > thead > tr.warning > td, .jupyter-vcdat-ext .table > thead > tr.warning > th, .jupyter-vcdat-ext .table > thead > tr > td.warning, .jupyter-vcdat-ext .table > thead > tr > th.warning {
+  background-color: #fcf8e3; }
+
+.jupyter-vcdat-ext .table-hover > tbody > tr.warning:hover > td, .jupyter-vcdat-ext .table-hover > tbody > tr.warning:hover > th, .jupyter-vcdat-ext .table-hover > tbody > tr:hover > .warning, .jupyter-vcdat-ext .table-hover > tbody > tr > td.warning:hover, .jupyter-vcdat-ext .table-hover > tbody > tr > th.warning:hover {
+  background-color: #faf2cc; }
+
+.jupyter-vcdat-ext .table > tbody > tr.danger > td, .jupyter-vcdat-ext .table > tbody > tr.danger > th, .jupyter-vcdat-ext .table > tbody > tr > td.danger, .jupyter-vcdat-ext .table > tbody > tr > th.danger, .jupyter-vcdat-ext .table > tfoot > tr.danger > td, .jupyter-vcdat-ext .table > tfoot > tr.danger > th, .jupyter-vcdat-ext .table > tfoot > tr > td.danger, .jupyter-vcdat-ext .table > tfoot > tr > th.danger, .jupyter-vcdat-ext .table > thead > tr.danger > td, .jupyter-vcdat-ext .table > thead > tr.danger > th, .jupyter-vcdat-ext .table > thead > tr > td.danger, .jupyter-vcdat-ext .table > thead > tr > th.danger {
+  background-color: #f2dede; }
+
+.jupyter-vcdat-ext .table-hover > tbody > tr.danger:hover > td, .jupyter-vcdat-ext .table-hover > tbody > tr.danger:hover > th, .jupyter-vcdat-ext .table-hover > tbody > tr:hover > .danger, .jupyter-vcdat-ext .table-hover > tbody > tr > td.danger:hover, .jupyter-vcdat-ext .table-hover > tbody > tr > th.danger:hover {
+  background-color: #ebcccc; }
+
+.jupyter-vcdat-ext .table-responsive {
+  min-height: .01%;
+  overflow-x: auto; }
+
+@media screen and (max-width: 767px) {
+  .jupyter-vcdat-ext .table-responsive {
+    width: 100%;
+    margin-bottom: 15px;
+    overflow-y: hidden;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid #ddd; }
+  .jupyter-vcdat-ext .table-responsive > .table {
+    margin-bottom: 0; }
+  .jupyter-vcdat-ext .table-responsive > .table > tbody > tr > td, .jupyter-vcdat-ext .table-responsive > .table > tbody > tr > th, .jupyter-vcdat-ext .table-responsive > .table > tfoot > tr > td, .jupyter-vcdat-ext .table-responsive > .table > tfoot > tr > th, .jupyter-vcdat-ext .table-responsive > .table > thead > tr > td, .jupyter-vcdat-ext .table-responsive > .table > thead > tr > th {
+    white-space: nowrap; }
+  .jupyter-vcdat-ext .table-responsive > .table-bordered {
+    border: 0; }
+  .jupyter-vcdat-ext .table-responsive > .table-bordered > tbody > tr > td:first-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > tbody > tr > th:first-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > tfoot > tr > td:first-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > tfoot > tr > th:first-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > thead > tr > td:first-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > thead > tr > th:first-child {
+    border-left: 0; }
+  .jupyter-vcdat-ext .table-responsive > .table-bordered > tbody > tr > td:last-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > tbody > tr > th:last-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > tfoot > tr > td:last-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > tfoot > tr > th:last-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > thead > tr > td:last-child, .jupyter-vcdat-ext .table-responsive > .table-bordered > thead > tr > th:last-child {
+    border-right: 0; }
+  .jupyter-vcdat-ext .table-responsive > .table-bordered > tbody > tr:last-child > td, .jupyter-vcdat-ext .table-responsive > .table-bordered > tbody > tr:last-child > th, .jupyter-vcdat-ext .table-responsive > .table-bordered > tfoot > tr:last-child > td, .jupyter-vcdat-ext .table-responsive > .table-bordered > tfoot > tr:last-child > th {
+    border-bottom: 0; } }
+
+.jupyter-vcdat-ext fieldset {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0; }
+
+.jupyter-vcdat-ext legend {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 20px;
+  font-size: 21px;
+  line-height: inherit;
+  color: #333;
+  border: 0;
+  border-bottom: 1px solid #e5e5e5; }
+
+.jupyter-vcdat-ext label {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 5px;
+  font-weight: 700; }
+
+.jupyter-vcdat-ext input[type=search] {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
+
+.jupyter-vcdat-ext input[type=checkbox], .jupyter-vcdat-ext input[type=radio] {
+  margin: 4px 0 0;
+  margin-top: 1px\9;
+  line-height: normal; }
+
+.jupyter-vcdat-ext input[type=file] {
+  display: block; }
+
+.jupyter-vcdat-ext input[type=range] {
+  display: block;
+  width: 100%; }
+
+.jupyter-vcdat-ext select[multiple], .jupyter-vcdat-ext select[size] {
+  height: auto; }
+
+.jupyter-vcdat-ext input[type=file]:focus, .jupyter-vcdat-ext input[type=checkbox]:focus, .jupyter-vcdat-ext input[type=radio]:focus {
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px; }
+
+.jupyter-vcdat-ext output {
+  display: block;
+  padding-top: 7px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555; }
+
+.jupyter-vcdat-ext .form-control {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; }
+
+.jupyter-vcdat-ext .form-control:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }
+
+.jupyter-vcdat-ext .form-control::-moz-placeholder {
+  color: #999;
+  opacity: 1; }
+
+.jupyter-vcdat-ext .form-control:-ms-input-placeholder {
+  color: #999; }
+
+.jupyter-vcdat-ext .form-control::-webkit-input-placeholder {
+  color: #999; }
+
+.jupyter-vcdat-ext .form-control::-ms-expand {
+  background-color: transparent;
+  border: 0; }
+
+.jupyter-vcdat-ext .form-control[disabled], .jupyter-vcdat-ext .form-control[readonly], .jupyter-vcdat-ext fieldset[disabled] .form-control {
+  background-color: #eee;
+  opacity: 1; }
+
+.jupyter-vcdat-ext .form-control[disabled], .jupyter-vcdat-ext fieldset[disabled] .form-control {
+  cursor: not-allowed; }
+
+.jupyter-vcdat-ext textarea.form-control {
+  height: auto; }
+
+.jupyter-vcdat-ext input[type=search] {
+  -webkit-appearance: none; }
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .jupyter-vcdat-ext input[type=date].form-control, .jupyter-vcdat-ext input[type=time].form-control, .jupyter-vcdat-ext input[type=datetime-local].form-control, .jupyter-vcdat-ext input[type=month].form-control {
+    line-height: 34px; }
+  .jupyter-vcdat-ext .input-group-sm input[type=date], .jupyter-vcdat-ext .input-group-sm input[type=time], .jupyter-vcdat-ext .input-group-sm input[type=datetime-local], .jupyter-vcdat-ext .input-group-sm input[type=month], .jupyter-vcdat-ext input[type=date].input-sm, .jupyter-vcdat-ext input[type=time].input-sm, .jupyter-vcdat-ext input[type=datetime-local].input-sm, .jupyter-vcdat-ext input[type=month].input-sm {
+    line-height: 30px; }
+  .jupyter-vcdat-ext .input-group-lg input[type=date], .jupyter-vcdat-ext .input-group-lg input[type=time], .jupyter-vcdat-ext .input-group-lg input[type=datetime-local], .jupyter-vcdat-ext .input-group-lg input[type=month], .jupyter-vcdat-ext input[type=date].input-lg, .jupyter-vcdat-ext input[type=time].input-lg, .jupyter-vcdat-ext input[type=datetime-local].input-lg, .jupyter-vcdat-ext input[type=month].input-lg {
+    line-height: 46px; } }
+
+.jupyter-vcdat-ext .form-group {
+  margin-bottom: 15px; }
+
+.jupyter-vcdat-ext .checkbox, .jupyter-vcdat-ext .radio {
+  position: relative;
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 10px; }
+
+.jupyter-vcdat-ext .checkbox label, .jupyter-vcdat-ext .radio label {
+  min-height: 20px;
+  padding-left: 20px;
+  margin-bottom: 0;
+  font-weight: 400;
+  cursor: pointer; }
+
+.jupyter-vcdat-ext .checkbox input[type=checkbox], .jupyter-vcdat-ext .checkbox-inline input[type=checkbox], .jupyter-vcdat-ext .radio input[type=radio], .jupyter-vcdat-ext .radio-inline input[type=radio] {
+  position: absolute;
+  margin-top: 4px\9;
+  margin-left: -20px; }
+
+.jupyter-vcdat-ext .checkbox + .checkbox, .jupyter-vcdat-ext .radio + .radio {
+  margin-top: -5px; }
+
+.jupyter-vcdat-ext .checkbox-inline, .jupyter-vcdat-ext .radio-inline {
+  position: relative;
+  display: inline-block;
+  padding-left: 20px;
+  margin-bottom: 0;
+  font-weight: 400;
+  vertical-align: middle;
+  cursor: pointer; }
+
+.jupyter-vcdat-ext .checkbox-inline + .checkbox-inline, .jupyter-vcdat-ext .radio-inline + .radio-inline {
+  margin-top: 0;
+  margin-left: 10px; }
+
+.jupyter-vcdat-ext fieldset[disabled] input[type=checkbox], .jupyter-vcdat-ext fieldset[disabled] input[type=radio], .jupyter-vcdat-ext input[type=checkbox].disabled, .jupyter-vcdat-ext input[type=checkbox][disabled], .jupyter-vcdat-ext input[type=radio].disabled, .jupyter-vcdat-ext input[type=radio][disabled] {
+  cursor: not-allowed; }
+
+.jupyter-vcdat-ext .checkbox-inline.disabled, .jupyter-vcdat-ext .radio-inline.disabled, .jupyter-vcdat-ext fieldset[disabled] .checkbox-inline, .jupyter-vcdat-ext fieldset[disabled] .radio-inline {
+  cursor: not-allowed; }
+
+.jupyter-vcdat-ext .checkbox.disabled label, .jupyter-vcdat-ext .radio.disabled label, .jupyter-vcdat-ext fieldset[disabled] .checkbox label, .jupyter-vcdat-ext fieldset[disabled] .radio label {
+  cursor: not-allowed; }
+
+.jupyter-vcdat-ext .form-control-static {
+  min-height: 34px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  margin-bottom: 0; }
+
+.jupyter-vcdat-ext .form-control-static.input-lg, .jupyter-vcdat-ext .form-control-static.input-sm {
+  padding-right: 0;
+  padding-left: 0; }
+
+.jupyter-vcdat-ext .input-sm {
+  height: 30px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px; }
+
+.jupyter-vcdat-ext select.input-sm {
+  height: 30px;
+  line-height: 30px; }
+
+.jupyter-vcdat-ext select[multiple].input-sm, .jupyter-vcdat-ext textarea.input-sm {
+  height: auto; }
+
+.jupyter-vcdat-ext .form-group-sm .form-control {
+  height: 30px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px; }
+
+.jupyter-vcdat-ext .form-group-sm select.form-control {
+  height: 30px;
+  line-height: 30px; }
+
+.jupyter-vcdat-ext .form-group-sm select[multiple].form-control, .jupyter-vcdat-ext .form-group-sm textarea.form-control {
+  height: auto; }
+
+.jupyter-vcdat-ext .form-group-sm .form-control-static {
+  height: 30px;
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.5; }
+
+.jupyter-vcdat-ext .input-lg {
+  height: 46px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.3333333;
+  border-radius: 6px; }
+
+.jupyter-vcdat-ext select.input-lg {
+  height: 46px;
+  line-height: 46px; }
+
+.jupyter-vcdat-ext select[multiple].input-lg, .jupyter-vcdat-ext textarea.input-lg {
+  height: auto; }
+
+.jupyter-vcdat-ext .form-group-lg .form-control {
+  height: 46px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.3333333;
+  border-radius: 6px; }
+
+.jupyter-vcdat-ext .form-group-lg select.form-control {
+  height: 46px;
+  line-height: 46px; }
+
+.jupyter-vcdat-ext .form-group-lg select[multiple].form-control, .jupyter-vcdat-ext .form-group-lg textarea.form-control {
+  height: auto; }
+
+.jupyter-vcdat-ext .form-group-lg .form-control-static {
+  height: 46px;
+  min-height: 38px;
+  padding: 11px 16px;
+  font-size: 18px;
+  line-height: 1.3333333; }
+
+.jupyter-vcdat-ext .has-feedback {
+  position: relative; }
+
+.jupyter-vcdat-ext .has-feedback .form-control {
+  padding-right: 42.5px; }
+
+.jupyter-vcdat-ext .form-control-feedback {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  display: block;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  pointer-events: none; }
+
+.jupyter-vcdat-ext .form-group-lg .form-control + .form-control-feedback, .jupyter-vcdat-ext .input-group-lg + .form-control-feedback, .jupyter-vcdat-ext .input-lg + .form-control-feedback {
+  width: 46px;
+  height: 46px;
+  line-height: 46px; }
+
+.jupyter-vcdat-ext .form-group-sm .form-control + .form-control-feedback, .jupyter-vcdat-ext .input-group-sm + .form-control-feedback, .jupyter-vcdat-ext .input-sm + .form-control-feedback {
+  width: 30px;
+  height: 30px;
+  line-height: 30px; }
+
+.jupyter-vcdat-ext .has-success .checkbox, .jupyter-vcdat-ext .has-success .checkbox-inline, .jupyter-vcdat-ext .has-success .control-label, .jupyter-vcdat-ext .has-success .help-block, .jupyter-vcdat-ext .has-success .radio, .jupyter-vcdat-ext .has-success .radio-inline, .jupyter-vcdat-ext .has-success.checkbox label, .jupyter-vcdat-ext .has-success.checkbox-inline label, .jupyter-vcdat-ext .has-success.radio label, .jupyter-vcdat-ext .has-success.radio-inline label {
+  color: #3c763d; }
+
+.jupyter-vcdat-ext .has-success .form-control {
+  border-color: #3c763d;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+
+.jupyter-vcdat-ext .has-success .form-control:focus {
+  border-color: #2b542c;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168; }
+
+.jupyter-vcdat-ext .has-success .input-group-addon {
+  color: #3c763d;
+  background-color: #dff0d8;
+  border-color: #3c763d; }
+
+.jupyter-vcdat-ext .has-success .form-control-feedback {
+  color: #3c763d; }
+
+.jupyter-vcdat-ext .has-warning .checkbox, .jupyter-vcdat-ext .has-warning .checkbox-inline, .jupyter-vcdat-ext .has-warning .control-label, .jupyter-vcdat-ext .has-warning .help-block, .jupyter-vcdat-ext .has-warning .radio, .jupyter-vcdat-ext .has-warning .radio-inline, .jupyter-vcdat-ext .has-warning.checkbox label, .jupyter-vcdat-ext .has-warning.checkbox-inline label, .jupyter-vcdat-ext .has-warning.radio label, .jupyter-vcdat-ext .has-warning.radio-inline label {
+  color: #8a6d3b; }
+
+.jupyter-vcdat-ext .has-warning .form-control {
+  border-color: #8a6d3b;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+
+.jupyter-vcdat-ext .has-warning .form-control:focus {
+  border-color: #66512c;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b; }
+
+.jupyter-vcdat-ext .has-warning .input-group-addon {
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+  border-color: #8a6d3b; }
+
+.jupyter-vcdat-ext .has-warning .form-control-feedback {
+  color: #8a6d3b; }
+
+.jupyter-vcdat-ext .has-error .checkbox, .jupyter-vcdat-ext .has-error .checkbox-inline, .jupyter-vcdat-ext .has-error .control-label, .jupyter-vcdat-ext .has-error .help-block, .jupyter-vcdat-ext .has-error .radio, .jupyter-vcdat-ext .has-error .radio-inline, .jupyter-vcdat-ext .has-error.checkbox label, .jupyter-vcdat-ext .has-error.checkbox-inline label, .jupyter-vcdat-ext .has-error.radio label, .jupyter-vcdat-ext .has-error.radio-inline label {
+  color: #a94442; }
+
+.jupyter-vcdat-ext .has-error .form-control {
+  border-color: #a94442;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+
+.jupyter-vcdat-ext .has-error .form-control:focus {
+  border-color: #843534;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483; }
+
+.jupyter-vcdat-ext .has-error .input-group-addon {
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #a94442; }
+
+.jupyter-vcdat-ext .has-error .form-control-feedback {
+  color: #a94442; }
+
+.jupyter-vcdat-ext .has-feedback label ~ .form-control-feedback {
+  top: 25px; }
+
+.jupyter-vcdat-ext .has-feedback label.sr-only ~ .form-control-feedback {
+  top: 0; }
+
+.jupyter-vcdat-ext .help-block {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  color: #737373; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .form-inline .form-group {
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .form-inline .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .form-inline .form-control-static {
+    display: inline-block; }
+  .jupyter-vcdat-ext .form-inline .input-group {
+    display: inline-table;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .form-inline .input-group .form-control, .jupyter-vcdat-ext .form-inline .input-group .input-group-addon, .jupyter-vcdat-ext .form-inline .input-group .input-group-btn {
+    width: auto; }
+  .jupyter-vcdat-ext .form-inline .input-group > .form-control {
+    width: 100%; }
+  .jupyter-vcdat-ext .form-inline .control-label {
+    margin-bottom: 0;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .form-inline .checkbox, .jupyter-vcdat-ext .form-inline .radio {
+    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 0;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .form-inline .checkbox label, .jupyter-vcdat-ext .form-inline .radio label {
+    padding-left: 0; }
+  .jupyter-vcdat-ext .form-inline .checkbox input[type=checkbox], .jupyter-vcdat-ext .form-inline .radio input[type=radio] {
+    position: relative;
+    margin-left: 0; }
+  .jupyter-vcdat-ext .form-inline .has-feedback .form-control-feedback {
+    top: 0; } }
+
+.jupyter-vcdat-ext .form-horizontal .checkbox, .jupyter-vcdat-ext .form-horizontal .checkbox-inline, .jupyter-vcdat-ext .form-horizontal .radio, .jupyter-vcdat-ext .form-horizontal .radio-inline {
+  padding-top: 7px;
+  margin-top: 0;
+  margin-bottom: 0; }
+
+.jupyter-vcdat-ext .form-horizontal .checkbox, .jupyter-vcdat-ext .form-horizontal .radio {
+  min-height: 27px; }
+
+.jupyter-vcdat-ext .form-horizontal .form-group {
+  margin-right: -15px;
+  margin-left: -15px; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .form-horizontal .control-label {
+    padding-top: 7px;
+    margin-bottom: 0;
+    text-align: right; } }
+
+.jupyter-vcdat-ext .form-horizontal .has-feedback .form-control-feedback {
+  right: 15px; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .form-horizontal .form-group-lg .control-label {
+    padding-top: 11px;
+    font-size: 18px; } }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .form-horizontal .form-group-sm .control-label {
+    padding-top: 6px;
+    font-size: 12px; } }
+
+.jupyter-vcdat-ext .btn {
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .btn.active.focus, .jupyter-vcdat-ext .btn.active:focus, .jupyter-vcdat-ext .btn.focus, .jupyter-vcdat-ext .btn:active.focus, .jupyter-vcdat-ext .btn:active:focus, .jupyter-vcdat-ext .btn:focus {
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px; }
+
+.jupyter-vcdat-ext .btn.focus, .jupyter-vcdat-ext .btn:focus, .jupyter-vcdat-ext .btn:hover {
+  color: #333;
+  text-decoration: none; }
+
+.jupyter-vcdat-ext .btn.active, .jupyter-vcdat-ext .btn:active {
+  background-image: none;
+  outline: 0;
+  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); }
+
+.jupyter-vcdat-ext .btn.disabled, .jupyter-vcdat-ext .btn[disabled], .jupyter-vcdat-ext fieldset[disabled] .btn {
+  cursor: not-allowed;
+  filter: alpha(opacity=65);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  opacity: .65; }
+
+.jupyter-vcdat-ext a.btn.disabled, .jupyter-vcdat-ext fieldset[disabled] a.btn {
+  pointer-events: none; }
+
+.jupyter-vcdat-ext .btn-default {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc; }
+
+.jupyter-vcdat-ext .btn-default.focus, .jupyter-vcdat-ext .btn-default:focus {
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #8c8c8c; }
+
+.jupyter-vcdat-ext .btn-default:hover {
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #adadad; }
+
+.jupyter-vcdat-ext .btn-default.active, .jupyter-vcdat-ext .btn-default:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-default {
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #adadad; }
+
+.jupyter-vcdat-ext .btn-default.active.focus, .jupyter-vcdat-ext .btn-default.active:focus, .jupyter-vcdat-ext .btn-default.active:hover, .jupyter-vcdat-ext .btn-default:active.focus, .jupyter-vcdat-ext .btn-default:active:focus, .jupyter-vcdat-ext .btn-default:active:hover, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-default.focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-default:focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-default:hover {
+  color: #333;
+  background-color: #d4d4d4;
+  border-color: #8c8c8c; }
+
+.jupyter-vcdat-ext .btn-default.active, .jupyter-vcdat-ext .btn-default:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-default {
+  background-image: none; }
+
+.jupyter-vcdat-ext .btn-default.disabled.focus, .jupyter-vcdat-ext .btn-default.disabled:focus, .jupyter-vcdat-ext .btn-default.disabled:hover, .jupyter-vcdat-ext .btn-default[disabled].focus, .jupyter-vcdat-ext .btn-default[disabled]:focus, .jupyter-vcdat-ext .btn-default[disabled]:hover, .jupyter-vcdat-ext fieldset[disabled] .btn-default.focus, .jupyter-vcdat-ext fieldset[disabled] .btn-default:focus, .jupyter-vcdat-ext fieldset[disabled] .btn-default:hover {
+  background-color: #fff;
+  border-color: #ccc; }
+
+.jupyter-vcdat-ext .btn-default .badge {
+  color: #fff;
+  background-color: #333; }
+
+.jupyter-vcdat-ext .btn-primary {
+  color: #fff;
+  background-color: #337ab7;
+  border-color: #2e6da4; }
+
+.jupyter-vcdat-ext .btn-primary.focus, .jupyter-vcdat-ext .btn-primary:focus {
+  color: #fff;
+  background-color: #286090;
+  border-color: #122b40; }
+
+.jupyter-vcdat-ext .btn-primary:hover {
+  color: #fff;
+  background-color: #286090;
+  border-color: #204d74; }
+
+.jupyter-vcdat-ext .btn-primary.active, .jupyter-vcdat-ext .btn-primary:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-primary {
+  color: #fff;
+  background-color: #286090;
+  border-color: #204d74; }
+
+.jupyter-vcdat-ext .btn-primary.active.focus, .jupyter-vcdat-ext .btn-primary.active:focus, .jupyter-vcdat-ext .btn-primary.active:hover, .jupyter-vcdat-ext .btn-primary:active.focus, .jupyter-vcdat-ext .btn-primary:active:focus, .jupyter-vcdat-ext .btn-primary:active:hover, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-primary.focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-primary:focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-primary:hover {
+  color: #fff;
+  background-color: #204d74;
+  border-color: #122b40; }
+
+.jupyter-vcdat-ext .btn-primary.active, .jupyter-vcdat-ext .btn-primary:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-primary {
+  background-image: none; }
+
+.jupyter-vcdat-ext .btn-primary.disabled.focus, .jupyter-vcdat-ext .btn-primary.disabled:focus, .jupyter-vcdat-ext .btn-primary.disabled:hover, .jupyter-vcdat-ext .btn-primary[disabled].focus, .jupyter-vcdat-ext .btn-primary[disabled]:focus, .jupyter-vcdat-ext .btn-primary[disabled]:hover, .jupyter-vcdat-ext fieldset[disabled] .btn-primary.focus, .jupyter-vcdat-ext fieldset[disabled] .btn-primary:focus, .jupyter-vcdat-ext fieldset[disabled] .btn-primary:hover {
+  background-color: #337ab7;
+  border-color: #2e6da4; }
+
+.jupyter-vcdat-ext .btn-primary .badge {
+  color: #337ab7;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .btn-success {
+  color: #fff;
+  background-color: #5cb85c;
+  border-color: #4cae4c; }
+
+.jupyter-vcdat-ext .btn-success.focus, .jupyter-vcdat-ext .btn-success:focus {
+  color: #fff;
+  background-color: #449d44;
+  border-color: #255625; }
+
+.jupyter-vcdat-ext .btn-success:hover {
+  color: #fff;
+  background-color: #449d44;
+  border-color: #398439; }
+
+.jupyter-vcdat-ext .btn-success.active, .jupyter-vcdat-ext .btn-success:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-success {
+  color: #fff;
+  background-color: #449d44;
+  border-color: #398439; }
+
+.jupyter-vcdat-ext .btn-success.active.focus, .jupyter-vcdat-ext .btn-success.active:focus, .jupyter-vcdat-ext .btn-success.active:hover, .jupyter-vcdat-ext .btn-success:active.focus, .jupyter-vcdat-ext .btn-success:active:focus, .jupyter-vcdat-ext .btn-success:active:hover, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-success.focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-success:focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-success:hover {
+  color: #fff;
+  background-color: #398439;
+  border-color: #255625; }
+
+.jupyter-vcdat-ext .btn-success.active, .jupyter-vcdat-ext .btn-success:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-success {
+  background-image: none; }
+
+.jupyter-vcdat-ext .btn-success.disabled.focus, .jupyter-vcdat-ext .btn-success.disabled:focus, .jupyter-vcdat-ext .btn-success.disabled:hover, .jupyter-vcdat-ext .btn-success[disabled].focus, .jupyter-vcdat-ext .btn-success[disabled]:focus, .jupyter-vcdat-ext .btn-success[disabled]:hover, .jupyter-vcdat-ext fieldset[disabled] .btn-success.focus, .jupyter-vcdat-ext fieldset[disabled] .btn-success:focus, .jupyter-vcdat-ext fieldset[disabled] .btn-success:hover {
+  background-color: #5cb85c;
+  border-color: #4cae4c; }
+
+.jupyter-vcdat-ext .btn-success .badge {
+  color: #5cb85c;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .btn-info {
+  color: #fff;
+  background-color: #5bc0de;
+  border-color: #46b8da; }
+
+.jupyter-vcdat-ext .btn-info.focus, .jupyter-vcdat-ext .btn-info:focus {
+  color: #fff;
+  background-color: #31b0d5;
+  border-color: #1b6d85; }
+
+.jupyter-vcdat-ext .btn-info:hover {
+  color: #fff;
+  background-color: #31b0d5;
+  border-color: #269abc; }
+
+.jupyter-vcdat-ext .btn-info.active, .jupyter-vcdat-ext .btn-info:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-info {
+  color: #fff;
+  background-color: #31b0d5;
+  border-color: #269abc; }
+
+.jupyter-vcdat-ext .btn-info.active.focus, .jupyter-vcdat-ext .btn-info.active:focus, .jupyter-vcdat-ext .btn-info.active:hover, .jupyter-vcdat-ext .btn-info:active.focus, .jupyter-vcdat-ext .btn-info:active:focus, .jupyter-vcdat-ext .btn-info:active:hover, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-info.focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-info:focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-info:hover {
+  color: #fff;
+  background-color: #269abc;
+  border-color: #1b6d85; }
+
+.jupyter-vcdat-ext .btn-info.active, .jupyter-vcdat-ext .btn-info:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-info {
+  background-image: none; }
+
+.jupyter-vcdat-ext .btn-info.disabled.focus, .jupyter-vcdat-ext .btn-info.disabled:focus, .jupyter-vcdat-ext .btn-info.disabled:hover, .jupyter-vcdat-ext .btn-info[disabled].focus, .jupyter-vcdat-ext .btn-info[disabled]:focus, .jupyter-vcdat-ext .btn-info[disabled]:hover, .jupyter-vcdat-ext fieldset[disabled] .btn-info.focus, .jupyter-vcdat-ext fieldset[disabled] .btn-info:focus, .jupyter-vcdat-ext fieldset[disabled] .btn-info:hover {
+  background-color: #5bc0de;
+  border-color: #46b8da; }
+
+.jupyter-vcdat-ext .btn-info .badge {
+  color: #5bc0de;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .btn-warning {
+  color: #fff;
+  background-color: #f0ad4e;
+  border-color: #eea236; }
+
+.jupyter-vcdat-ext .btn-warning.focus, .jupyter-vcdat-ext .btn-warning:focus {
+  color: #fff;
+  background-color: #ec971f;
+  border-color: #985f0d; }
+
+.jupyter-vcdat-ext .btn-warning:hover {
+  color: #fff;
+  background-color: #ec971f;
+  border-color: #d58512; }
+
+.jupyter-vcdat-ext .btn-warning.active, .jupyter-vcdat-ext .btn-warning:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-warning {
+  color: #fff;
+  background-color: #ec971f;
+  border-color: #d58512; }
+
+.jupyter-vcdat-ext .btn-warning.active.focus, .jupyter-vcdat-ext .btn-warning.active:focus, .jupyter-vcdat-ext .btn-warning.active:hover, .jupyter-vcdat-ext .btn-warning:active.focus, .jupyter-vcdat-ext .btn-warning:active:focus, .jupyter-vcdat-ext .btn-warning:active:hover, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-warning.focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-warning:focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-warning:hover {
+  color: #fff;
+  background-color: #d58512;
+  border-color: #985f0d; }
+
+.jupyter-vcdat-ext .btn-warning.active, .jupyter-vcdat-ext .btn-warning:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-warning {
+  background-image: none; }
+
+.jupyter-vcdat-ext .btn-warning.disabled.focus, .jupyter-vcdat-ext .btn-warning.disabled:focus, .jupyter-vcdat-ext .btn-warning.disabled:hover, .jupyter-vcdat-ext .btn-warning[disabled].focus, .jupyter-vcdat-ext .btn-warning[disabled]:focus, .jupyter-vcdat-ext .btn-warning[disabled]:hover, .jupyter-vcdat-ext fieldset[disabled] .btn-warning.focus, .jupyter-vcdat-ext fieldset[disabled] .btn-warning:focus, .jupyter-vcdat-ext fieldset[disabled] .btn-warning:hover {
+  background-color: #f0ad4e;
+  border-color: #eea236; }
+
+.jupyter-vcdat-ext .btn-warning .badge {
+  color: #f0ad4e;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .btn-danger {
+  color: #fff;
+  background-color: #d9534f;
+  border-color: #d43f3a; }
+
+.jupyter-vcdat-ext .btn-danger.focus, .jupyter-vcdat-ext .btn-danger:focus {
+  color: #fff;
+  background-color: #c9302c;
+  border-color: #761c19; }
+
+.jupyter-vcdat-ext .btn-danger:hover {
+  color: #fff;
+  background-color: #c9302c;
+  border-color: #ac2925; }
+
+.jupyter-vcdat-ext .btn-danger.active, .jupyter-vcdat-ext .btn-danger:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-danger {
+  color: #fff;
+  background-color: #c9302c;
+  border-color: #ac2925; }
+
+.jupyter-vcdat-ext .btn-danger.active.focus, .jupyter-vcdat-ext .btn-danger.active:focus, .jupyter-vcdat-ext .btn-danger.active:hover, .jupyter-vcdat-ext .btn-danger:active.focus, .jupyter-vcdat-ext .btn-danger:active:focus, .jupyter-vcdat-ext .btn-danger:active:hover, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-danger.focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-danger:focus, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-danger:hover {
+  color: #fff;
+  background-color: #ac2925;
+  border-color: #761c19; }
+
+.jupyter-vcdat-ext .btn-danger.active, .jupyter-vcdat-ext .btn-danger:active, .jupyter-vcdat-ext .open > .dropdown-toggle.btn-danger {
+  background-image: none; }
+
+.jupyter-vcdat-ext .btn-danger.disabled.focus, .jupyter-vcdat-ext .btn-danger.disabled:focus, .jupyter-vcdat-ext .btn-danger.disabled:hover, .jupyter-vcdat-ext .btn-danger[disabled].focus, .jupyter-vcdat-ext .btn-danger[disabled]:focus, .jupyter-vcdat-ext .btn-danger[disabled]:hover, .jupyter-vcdat-ext fieldset[disabled] .btn-danger.focus, .jupyter-vcdat-ext fieldset[disabled] .btn-danger:focus, .jupyter-vcdat-ext fieldset[disabled] .btn-danger:hover {
+  background-color: #d9534f;
+  border-color: #d43f3a; }
+
+.jupyter-vcdat-ext .btn-danger .badge {
+  color: #d9534f;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .btn-link {
+  font-weight: 400;
+  color: #337ab7;
+  border-radius: 0; }
+
+.jupyter-vcdat-ext .btn-link, .jupyter-vcdat-ext .btn-link.active, .jupyter-vcdat-ext .btn-link:active, .jupyter-vcdat-ext .btn-link[disabled], .jupyter-vcdat-ext fieldset[disabled] .btn-link {
+  background-color: transparent;
+  -webkit-box-shadow: none;
+  box-shadow: none; }
+
+.jupyter-vcdat-ext .btn-link, .jupyter-vcdat-ext .btn-link:active, .jupyter-vcdat-ext .btn-link:focus, .jupyter-vcdat-ext .btn-link:hover {
+  border-color: transparent; }
+
+.jupyter-vcdat-ext .btn-link:focus, .jupyter-vcdat-ext .btn-link:hover {
+  color: #23527c;
+  text-decoration: underline;
+  background-color: transparent; }
+
+.jupyter-vcdat-ext .btn-link[disabled]:focus, .jupyter-vcdat-ext .btn-link[disabled]:hover, .jupyter-vcdat-ext fieldset[disabled] .btn-link:focus, .jupyter-vcdat-ext fieldset[disabled] .btn-link:hover {
+  color: #777;
+  text-decoration: none; }
+
+.jupyter-vcdat-ext .btn-group-lg > .btn, .jupyter-vcdat-ext .btn-lg {
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.3333333;
+  border-radius: 6px; }
+
+.jupyter-vcdat-ext .btn-group-sm > .btn, .jupyter-vcdat-ext .btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px; }
+
+.jupyter-vcdat-ext .btn-group-xs > .btn, .jupyter-vcdat-ext .btn-xs {
+  padding: 1px 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px; }
+
+.jupyter-vcdat-ext .btn-block {
+  display: block;
+  width: 100%; }
+
+.jupyter-vcdat-ext .btn-block + .btn-block {
+  margin-top: 5px; }
+
+.jupyter-vcdat-ext input[type=button].btn-block, .jupyter-vcdat-ext input[type=reset].btn-block, .jupyter-vcdat-ext input[type=submit].btn-block {
+  width: 100%; }
+
+.jupyter-vcdat-ext .fade {
+  opacity: 0;
+  -webkit-transition: opacity .15s linear;
+  -o-transition: opacity .15s linear;
+  transition: opacity .15s linear; }
+
+.jupyter-vcdat-ext .fade.in {
+  opacity: 1; }
+
+.jupyter-vcdat-ext .collapse {
+  display: none; }
+
+.jupyter-vcdat-ext .collapse.in {
+  display: block; }
+
+.jupyter-vcdat-ext tr.collapse.in {
+  display: table-row; }
+
+.jupyter-vcdat-ext tbody.collapse.in {
+  display: table-row-group; }
+
+.jupyter-vcdat-ext .collapsing {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  -webkit-transition-timing-function: ease;
+  -o-transition-timing-function: ease;
+  transition-timing-function: ease;
+  -webkit-transition-duration: .35s;
+  -o-transition-duration: .35s;
+  transition-duration: .35s;
+  -webkit-transition-property: height,visibility;
+  -o-transition-property: height,visibility;
+  transition-property: height,visibility; }
+
+.jupyter-vcdat-ext .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+  border-top: 4px dashed;
+  border-top: 4px solid\9;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent; }
+
+.jupyter-vcdat-ext .dropdown, .jupyter-vcdat-ext .dropup {
+  position: relative; }
+
+.jupyter-vcdat-ext .dropdown-toggle:focus {
+  outline: 0; }
+
+.jupyter-vcdat-ext .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  font-size: 14px;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); }
+
+.jupyter-vcdat-ext .dropdown-menu.pull-right {
+  right: 0;
+  left: auto; }
+
+.jupyter-vcdat-ext .dropdown-menu .divider {
+  height: 1px;
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: #e5e5e5; }
+
+.jupyter-vcdat-ext .dropdown-menu > li > a {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: 400;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap; }
+
+.jupyter-vcdat-ext .dropdown-menu > li > a:focus, .jupyter-vcdat-ext .dropdown-menu > li > a:hover {
+  color: #262626;
+  text-decoration: none;
+  background-color: #f5f5f5; }
+
+.jupyter-vcdat-ext .dropdown-menu > .active > a, .jupyter-vcdat-ext .dropdown-menu > .active > a:focus, .jupyter-vcdat-ext .dropdown-menu > .active > a:hover {
+  color: #fff;
+  text-decoration: none;
+  background-color: #337ab7;
+  outline: 0; }
+
+.jupyter-vcdat-ext .dropdown-menu > .disabled > a, .jupyter-vcdat-ext .dropdown-menu > .disabled > a:focus, .jupyter-vcdat-ext .dropdown-menu > .disabled > a:hover {
+  color: #777; }
+
+.jupyter-vcdat-ext .dropdown-menu > .disabled > a:focus, .jupyter-vcdat-ext .dropdown-menu > .disabled > a:hover {
+  text-decoration: none;
+  cursor: not-allowed;
+  background-color: transparent;
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); }
+
+.jupyter-vcdat-ext .open > .dropdown-menu {
+  display: block; }
+
+.jupyter-vcdat-ext .open > a {
+  outline: 0; }
+
+.jupyter-vcdat-ext .dropdown-menu-right {
+  right: 0;
+  left: auto; }
+
+.jupyter-vcdat-ext .dropdown-menu-left {
+  right: auto;
+  left: 0; }
+
+.jupyter-vcdat-ext .dropdown-header {
+  display: block;
+  padding: 3px 20px;
+  font-size: 12px;
+  line-height: 1.42857143;
+  color: #777;
+  white-space: nowrap; }
+
+.jupyter-vcdat-ext .dropdown-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 990; }
+
+.jupyter-vcdat-ext .pull-right > .dropdown-menu {
+  right: 0;
+  left: auto; }
+
+.jupyter-vcdat-ext .dropup .caret, .jupyter-vcdat-ext .navbar-fixed-bottom .dropdown .caret {
+  content: "";
+  border-top: 0;
+  border-bottom: 4px dashed;
+  border-bottom: 4px solid\9; }
+
+.jupyter-vcdat-ext .dropup .dropdown-menu, .jupyter-vcdat-ext .navbar-fixed-bottom .dropdown .dropdown-menu {
+  top: auto;
+  bottom: 100%;
+  margin-bottom: 2px; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-right .dropdown-menu {
+    right: 0;
+    left: auto; }
+  .jupyter-vcdat-ext .navbar-right .dropdown-menu-left {
+    right: auto;
+    left: 0; } }
+
+.jupyter-vcdat-ext .btn-group, .jupyter-vcdat-ext .btn-group-vertical {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn, .jupyter-vcdat-ext .btn-group > .btn {
+  position: relative;
+  float: left; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn.active, .jupyter-vcdat-ext .btn-group-vertical > .btn:active, .jupyter-vcdat-ext .btn-group-vertical > .btn:focus, .jupyter-vcdat-ext .btn-group-vertical > .btn:hover, .jupyter-vcdat-ext .btn-group > .btn.active, .jupyter-vcdat-ext .btn-group > .btn:active, .jupyter-vcdat-ext .btn-group > .btn:focus, .jupyter-vcdat-ext .btn-group > .btn:hover {
+  z-index: 2; }
+
+.jupyter-vcdat-ext .btn-group .btn + .btn, .jupyter-vcdat-ext .btn-group .btn + .btn-group, .jupyter-vcdat-ext .btn-group .btn-group + .btn, .jupyter-vcdat-ext .btn-group .btn-group + .btn-group {
+  margin-left: -1px; }
+
+.jupyter-vcdat-ext .btn-toolbar {
+  margin-left: -5px; }
+
+.jupyter-vcdat-ext .btn-toolbar .btn, .jupyter-vcdat-ext .btn-toolbar .btn-group, .jupyter-vcdat-ext .btn-toolbar .input-group {
+  float: left; }
+
+.jupyter-vcdat-ext .btn-toolbar > .btn, .jupyter-vcdat-ext .btn-toolbar > .btn-group, .jupyter-vcdat-ext .btn-toolbar > .input-group {
+  margin-left: 5px; }
+
+.jupyter-vcdat-ext .btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+  border-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group > .btn:first-child {
+  margin-left: 0; }
+
+.jupyter-vcdat-ext .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group > .btn:last-child:not(:first-child), .jupyter-vcdat-ext .btn-group > .dropdown-toggle:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group > .btn-group {
+  float: left; }
+
+.jupyter-vcdat-ext .btn-group > .btn-group:not(:first-child):not(:last-child) > .btn {
+  border-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group > .btn-group:first-child:not(:last-child) > .btn:last-child, .jupyter-vcdat-ext .btn-group > .btn-group:first-child:not(:last-child) > .dropdown-toggle {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group > .btn-group:last-child:not(:first-child) > .btn:first-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group .dropdown-toggle:active, .jupyter-vcdat-ext .btn-group.open .dropdown-toggle {
+  outline: 0; }
+
+.jupyter-vcdat-ext .btn-group > .btn + .dropdown-toggle {
+  padding-right: 8px;
+  padding-left: 8px; }
+
+.jupyter-vcdat-ext .btn-group > .btn-lg + .dropdown-toggle {
+  padding-right: 12px;
+  padding-left: 12px; }
+
+.jupyter-vcdat-ext .btn-group.open .dropdown-toggle {
+  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); }
+
+.jupyter-vcdat-ext .btn-group.open .dropdown-toggle.btn-link {
+  -webkit-box-shadow: none;
+  box-shadow: none; }
+
+.jupyter-vcdat-ext .btn .caret {
+  margin-left: 0; }
+
+.jupyter-vcdat-ext .btn-lg .caret {
+  border-width: 5px 5px 0;
+  border-bottom-width: 0; }
+
+.jupyter-vcdat-ext .dropup .btn-lg .caret {
+  border-width: 0 5px 5px; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn, .jupyter-vcdat-ext .btn-group-vertical > .btn-group, .jupyter-vcdat-ext .btn-group-vertical > .btn-group > .btn {
+  display: block;
+  float: none;
+  width: 100%;
+  max-width: 100%; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn-group > .btn {
+  float: none; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn + .btn, .jupyter-vcdat-ext .btn-group-vertical > .btn + .btn-group, .jupyter-vcdat-ext .btn-group-vertical > .btn-group + .btn, .jupyter-vcdat-ext .btn-group-vertical > .btn-group + .btn-group {
+  margin-top: -1px;
+  margin-left: 0; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn:not(:first-child):not(:last-child) {
+  border-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn:first-child:not(:last-child) {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn:last-child:not(:first-child) {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .btn {
+  border-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn-group:first-child:not(:last-child) > .btn:last-child, .jupyter-vcdat-ext .btn-group-vertical > .btn-group:first-child:not(:last-child) > .dropdown-toggle {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn-group:last-child:not(:first-child) > .btn:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+
+.jupyter-vcdat-ext .btn-group-justified {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate; }
+
+.jupyter-vcdat-ext .btn-group-justified > .btn, .jupyter-vcdat-ext .btn-group-justified > .btn-group {
+  display: table-cell;
+  float: none;
+  width: 1%; }
+
+.jupyter-vcdat-ext .btn-group-justified > .btn-group .btn {
+  width: 100%; }
+
+.jupyter-vcdat-ext .btn-group-justified > .btn-group .dropdown-menu {
+  left: auto; }
+
+.jupyter-vcdat-ext [data-toggle=buttons] > .btn input[type=checkbox], .jupyter-vcdat-ext [data-toggle=buttons] > .btn input[type=radio], .jupyter-vcdat-ext [data-toggle=buttons] > .btn-group > .btn input[type=checkbox], .jupyter-vcdat-ext [data-toggle=buttons] > .btn-group > .btn input[type=radio] {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  pointer-events: none; }
+
+.jupyter-vcdat-ext .input-group {
+  position: relative;
+  display: table;
+  border-collapse: separate; }
+
+.jupyter-vcdat-ext .input-group[class*=col-] {
+  float: none;
+  padding-right: 0;
+  padding-left: 0; }
+
+.jupyter-vcdat-ext .input-group .form-control {
+  position: relative;
+  z-index: 2;
+  float: left;
+  width: 100%;
+  margin-bottom: 0; }
+
+.jupyter-vcdat-ext .input-group .form-control:focus {
+  z-index: 3; }
+
+.jupyter-vcdat-ext .input-group-lg > .form-control, .jupyter-vcdat-ext .input-group-lg > .input-group-addon, .jupyter-vcdat-ext .input-group-lg > .input-group-btn > .btn {
+  height: 46px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.3333333;
+  border-radius: 6px; }
+
+.jupyter-vcdat-ext select.input-group-lg > .form-control, .jupyter-vcdat-ext select.input-group-lg > .input-group-addon, .jupyter-vcdat-ext select.input-group-lg > .input-group-btn > .btn {
+  height: 46px;
+  line-height: 46px; }
+
+.jupyter-vcdat-ext select[multiple].input-group-lg > .form-control, .jupyter-vcdat-ext select[multiple].input-group-lg > .input-group-addon, .jupyter-vcdat-ext select[multiple].input-group-lg > .input-group-btn > .btn, .jupyter-vcdat-ext textarea.input-group-lg > .form-control, .jupyter-vcdat-ext textarea.input-group-lg > .input-group-addon, .jupyter-vcdat-ext textarea.input-group-lg > .input-group-btn > .btn {
+  height: auto; }
+
+.jupyter-vcdat-ext .input-group-sm > .form-control, .jupyter-vcdat-ext .input-group-sm > .input-group-addon, .jupyter-vcdat-ext .input-group-sm > .input-group-btn > .btn {
+  height: 30px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px; }
+
+.jupyter-vcdat-ext select.input-group-sm > .form-control, .jupyter-vcdat-ext select.input-group-sm > .input-group-addon, .jupyter-vcdat-ext select.input-group-sm > .input-group-btn > .btn {
+  height: 30px;
+  line-height: 30px; }
+
+.jupyter-vcdat-ext select[multiple].input-group-sm > .form-control, .jupyter-vcdat-ext select[multiple].input-group-sm > .input-group-addon, .jupyter-vcdat-ext select[multiple].input-group-sm > .input-group-btn > .btn, .jupyter-vcdat-ext textarea.input-group-sm > .form-control, .jupyter-vcdat-ext textarea.input-group-sm > .input-group-addon, .jupyter-vcdat-ext textarea.input-group-sm > .input-group-btn > .btn {
+  height: auto; }
+
+.jupyter-vcdat-ext .input-group .form-control, .jupyter-vcdat-ext .input-group-addon, .jupyter-vcdat-ext .input-group-btn {
+  display: table-cell; }
+
+.jupyter-vcdat-ext .input-group .form-control:not(:first-child):not(:last-child), .jupyter-vcdat-ext .input-group-addon:not(:first-child):not(:last-child), .jupyter-vcdat-ext .input-group-btn:not(:first-child):not(:last-child) {
+  border-radius: 0; }
+
+.jupyter-vcdat-ext .input-group-addon, .jupyter-vcdat-ext .input-group-btn {
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: middle; }
+
+.jupyter-vcdat-ext .input-group-addon {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+  color: #555;
+  text-align: center;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .input-group-addon.input-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 3px; }
+
+.jupyter-vcdat-ext .input-group-addon.input-lg {
+  padding: 10px 16px;
+  font-size: 18px;
+  border-radius: 6px; }
+
+.jupyter-vcdat-ext .input-group-addon input[type=checkbox], .jupyter-vcdat-ext .input-group-addon input[type=radio] {
+  margin-top: 0; }
+
+.jupyter-vcdat-ext .input-group .form-control:first-child, .jupyter-vcdat-ext .input-group-addon:first-child, .jupyter-vcdat-ext .input-group-btn:first-child > .btn, .jupyter-vcdat-ext .input-group-btn:first-child > .btn-group > .btn, .jupyter-vcdat-ext .input-group-btn:first-child > .dropdown-toggle, .jupyter-vcdat-ext .input-group-btn:last-child > .btn-group:not(:last-child) > .btn, .jupyter-vcdat-ext .input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0; }
+
+.jupyter-vcdat-ext .input-group-addon:first-child {
+  border-right: 0; }
+
+.jupyter-vcdat-ext .input-group .form-control:last-child, .jupyter-vcdat-ext .input-group-addon:last-child, .jupyter-vcdat-ext .input-group-btn:first-child > .btn-group:not(:first-child) > .btn, .jupyter-vcdat-ext .input-group-btn:first-child > .btn:not(:first-child), .jupyter-vcdat-ext .input-group-btn:last-child > .btn, .jupyter-vcdat-ext .input-group-btn:last-child > .btn-group > .btn, .jupyter-vcdat-ext .input-group-btn:last-child > .dropdown-toggle {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0; }
+
+.jupyter-vcdat-ext .input-group-addon:last-child {
+  border-left: 0; }
+
+.jupyter-vcdat-ext .input-group-btn {
+  position: relative;
+  font-size: 0;
+  white-space: nowrap; }
+
+.jupyter-vcdat-ext .input-group-btn > .btn {
+  position: relative; }
+
+.jupyter-vcdat-ext .input-group-btn > .btn + .btn {
+  margin-left: -1px; }
+
+.jupyter-vcdat-ext .input-group-btn > .btn:active, .jupyter-vcdat-ext .input-group-btn > .btn:focus, .jupyter-vcdat-ext .input-group-btn > .btn:hover {
+  z-index: 2; }
+
+.jupyter-vcdat-ext .input-group-btn:first-child > .btn, .jupyter-vcdat-ext .input-group-btn:first-child > .btn-group {
+  margin-right: -1px; }
+
+.jupyter-vcdat-ext .input-group-btn:last-child > .btn, .jupyter-vcdat-ext .input-group-btn:last-child > .btn-group {
+  z-index: 2;
+  margin-left: -1px; }
+
+.jupyter-vcdat-ext .nav {
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none; }
+
+.jupyter-vcdat-ext .nav > li {
+  position: relative;
+  display: block; }
+
+.jupyter-vcdat-ext .nav > li > a {
+  position: relative;
+  display: block;
+  padding: 10px 15px; }
+
+.jupyter-vcdat-ext .nav > li > a:focus, .jupyter-vcdat-ext .nav > li > a:hover {
+  text-decoration: none;
+  background-color: #eee; }
+
+.jupyter-vcdat-ext .nav > li.disabled > a {
+  color: #777; }
+
+.jupyter-vcdat-ext .nav > li.disabled > a:focus, .jupyter-vcdat-ext .nav > li.disabled > a:hover {
+  color: #777;
+  text-decoration: none;
+  cursor: not-allowed;
+  background-color: transparent; }
+
+.jupyter-vcdat-ext .nav .open > a, .jupyter-vcdat-ext .nav .open > a:focus, .jupyter-vcdat-ext .nav .open > a:hover {
+  background-color: #eee;
+  border-color: #337ab7; }
+
+.jupyter-vcdat-ext .nav .nav-divider {
+  height: 1px;
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: #e5e5e5; }
+
+.jupyter-vcdat-ext .nav > li > a > img {
+  max-width: none; }
+
+.jupyter-vcdat-ext .nav-tabs {
+  border-bottom: 1px solid #ddd; }
+
+.jupyter-vcdat-ext .nav-tabs > li {
+  float: left;
+  margin-bottom: -1px; }
+
+.jupyter-vcdat-ext .nav-tabs > li > a {
+  margin-right: 2px;
+  line-height: 1.42857143;
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0; }
+
+.jupyter-vcdat-ext .nav-tabs > li > a:hover {
+  border-color: #eee #eee #ddd; }
+
+.jupyter-vcdat-ext .nav-tabs > li.active > a, .jupyter-vcdat-ext .nav-tabs > li.active > a:focus, .jupyter-vcdat-ext .nav-tabs > li.active > a:hover {
+  color: #555;
+  cursor: default;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-bottom-color: transparent; }
+
+.jupyter-vcdat-ext .nav-tabs.nav-justified {
+  width: 100%;
+  border-bottom: 0; }
+
+.jupyter-vcdat-ext .nav-tabs.nav-justified > li {
+  float: none; }
+
+.jupyter-vcdat-ext .nav-tabs.nav-justified > li > a {
+  margin-bottom: 5px;
+  text-align: center; }
+
+.jupyter-vcdat-ext .nav-tabs.nav-justified > .dropdown .dropdown-menu {
+  top: auto;
+  left: auto; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .nav-tabs.nav-justified > li {
+    display: table-cell;
+    width: 1%; }
+  .jupyter-vcdat-ext .nav-tabs.nav-justified > li > a {
+    margin-bottom: 0; } }
+
+.jupyter-vcdat-ext .nav-tabs.nav-justified > li > a {
+  margin-right: 0;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .nav-tabs.nav-justified > .active > a, .jupyter-vcdat-ext .nav-tabs.nav-justified > .active > a:focus, .jupyter-vcdat-ext .nav-tabs.nav-justified > .active > a:hover {
+  border: 1px solid #ddd; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .nav-tabs.nav-justified > li > a {
+    border-bottom: 1px solid #ddd;
+    border-radius: 4px 4px 0 0; }
+  .jupyter-vcdat-ext .nav-tabs.nav-justified > .active > a, .jupyter-vcdat-ext .nav-tabs.nav-justified > .active > a:focus, .jupyter-vcdat-ext .nav-tabs.nav-justified > .active > a:hover {
+    border-bottom-color: #fff; } }
+
+.jupyter-vcdat-ext .nav-pills > li {
+  float: left; }
+
+.jupyter-vcdat-ext .nav-pills > li > a {
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .nav-pills > li + li {
+  margin-left: 2px; }
+
+.jupyter-vcdat-ext .nav-pills > li.active > a, .jupyter-vcdat-ext .nav-pills > li.active > a:focus, .jupyter-vcdat-ext .nav-pills > li.active > a:hover {
+  color: #fff;
+  background-color: #337ab7; }
+
+.jupyter-vcdat-ext .nav-stacked > li {
+  float: none; }
+
+.jupyter-vcdat-ext .nav-stacked > li + li {
+  margin-top: 2px;
+  margin-left: 0; }
+
+.jupyter-vcdat-ext .nav-justified {
+  width: 100%; }
+
+.jupyter-vcdat-ext .nav-justified > li {
+  float: none; }
+
+.jupyter-vcdat-ext .nav-justified > li > a {
+  margin-bottom: 5px;
+  text-align: center; }
+
+.jupyter-vcdat-ext .nav-justified > .dropdown .dropdown-menu {
+  top: auto;
+  left: auto; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .nav-justified > li {
+    display: table-cell;
+    width: 1%; }
+  .jupyter-vcdat-ext .nav-justified > li > a {
+    margin-bottom: 0; } }
+
+.jupyter-vcdat-ext .nav-tabs-justified {
+  border-bottom: 0; }
+
+.jupyter-vcdat-ext .nav-tabs-justified > li > a {
+  margin-right: 0;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .nav-tabs-justified > .active > a, .jupyter-vcdat-ext .nav-tabs-justified > .active > a:focus, .jupyter-vcdat-ext .nav-tabs-justified > .active > a:hover {
+  border: 1px solid #ddd; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .nav-tabs-justified > li > a {
+    border-bottom: 1px solid #ddd;
+    border-radius: 4px 4px 0 0; }
+  .jupyter-vcdat-ext .nav-tabs-justified > .active > a, .jupyter-vcdat-ext .nav-tabs-justified > .active > a:focus, .jupyter-vcdat-ext .nav-tabs-justified > .active > a:hover {
+    border-bottom-color: #fff; } }
+
+.jupyter-vcdat-ext .tab-content > .tab-pane {
+  display: none; }
+
+.jupyter-vcdat-ext .tab-content > .active {
+  display: block; }
+
+.jupyter-vcdat-ext .nav-tabs .dropdown-menu {
+  margin-top: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+
+.jupyter-vcdat-ext .navbar {
+  position: relative;
+  min-height: 50px;
+  margin-bottom: 20px;
+  border: 1px solid transparent; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar {
+    border-radius: 4px; } }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-header {
+    float: left; } }
+
+.jupyter-vcdat-ext .navbar-collapse {
+  padding-right: 15px;
+  padding-left: 15px;
+  overflow-x: visible;
+  -webkit-overflow-scrolling: touch;
+  border-top: 1px solid transparent;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+
+.jupyter-vcdat-ext .navbar-collapse.in {
+  overflow-y: auto; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-collapse {
+    width: auto;
+    border-top: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none; }
+  .jupyter-vcdat-ext .navbar-collapse.collapse {
+    display: block !important;
+    height: auto !important;
+    padding-bottom: 0;
+    overflow: visible !important; }
+  .jupyter-vcdat-ext .navbar-collapse.in {
+    overflow-y: visible; }
+  .jupyter-vcdat-ext .navbar-fixed-bottom .navbar-collapse, .jupyter-vcdat-ext .navbar-fixed-top .navbar-collapse, .jupyter-vcdat-ext .navbar-static-top .navbar-collapse {
+    padding-right: 0;
+    padding-left: 0; } }
+
+.jupyter-vcdat-ext .navbar-fixed-bottom .navbar-collapse, .jupyter-vcdat-ext .navbar-fixed-top .navbar-collapse {
+  max-height: 340px; }
+
+@media (max-device-width: 480px) and (orientation: landscape) {
+  .jupyter-vcdat-ext .navbar-fixed-bottom .navbar-collapse, .jupyter-vcdat-ext .navbar-fixed-top .navbar-collapse {
+    max-height: 200px; } }
+
+.jupyter-vcdat-ext .container-fluid > .navbar-collapse, .jupyter-vcdat-ext .container-fluid > .navbar-header, .jupyter-vcdat-ext .container > .navbar-collapse, .jupyter-vcdat-ext .container > .navbar-header {
+  margin-right: -15px;
+  margin-left: -15px; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .container-fluid > .navbar-collapse, .jupyter-vcdat-ext .container-fluid > .navbar-header, .jupyter-vcdat-ext .container > .navbar-collapse, .jupyter-vcdat-ext .container > .navbar-header {
+    margin-right: 0;
+    margin-left: 0; } }
+
+.jupyter-vcdat-ext .navbar-static-top {
+  z-index: 1000;
+  border-width: 0 0 1px; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-static-top {
+    border-radius: 0; } }
+
+.jupyter-vcdat-ext .navbar-fixed-bottom, .jupyter-vcdat-ext .navbar-fixed-top {
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 1030; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-fixed-bottom, .jupyter-vcdat-ext .navbar-fixed-top {
+    border-radius: 0; } }
+
+.jupyter-vcdat-ext .navbar-fixed-top {
+  top: 0;
+  border-width: 0 0 1px; }
+
+.jupyter-vcdat-ext .navbar-fixed-bottom {
+  bottom: 0;
+  margin-bottom: 0;
+  border-width: 1px 0 0; }
+
+.jupyter-vcdat-ext .navbar-brand {
+  float: left;
+  height: 50px;
+  padding: 15px 15px;
+  font-size: 18px;
+  line-height: 20px; }
+
+.jupyter-vcdat-ext .navbar-brand:focus, .jupyter-vcdat-ext .navbar-brand:hover {
+  text-decoration: none; }
+
+.jupyter-vcdat-ext .navbar-brand > img {
+  display: block; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar > .container .navbar-brand, .jupyter-vcdat-ext .navbar > .container-fluid .navbar-brand {
+    margin-left: -15px; } }
+
+.jupyter-vcdat-ext .navbar-toggle {
+  position: relative;
+  float: right;
+  padding: 9px 10px;
+  margin-top: 8px;
+  margin-right: 15px;
+  margin-bottom: 8px;
+  background-color: transparent;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .navbar-toggle:focus {
+  outline: 0; }
+
+.jupyter-vcdat-ext .navbar-toggle .icon-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 1px; }
+
+.jupyter-vcdat-ext .navbar-toggle .icon-bar + .icon-bar {
+  margin-top: 4px; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-toggle {
+    display: none; } }
+
+.jupyter-vcdat-ext .navbar-nav {
+  margin: 7.5px -15px; }
+
+.jupyter-vcdat-ext .navbar-nav > li > a {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  line-height: 20px; }
+
+@media (max-width: 767px) {
+  .jupyter-vcdat-ext .navbar-nav .open .dropdown-menu {
+    position: static;
+    float: none;
+    width: auto;
+    margin-top: 0;
+    background-color: transparent;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none; }
+  .jupyter-vcdat-ext .navbar-nav .open .dropdown-menu .dropdown-header, .jupyter-vcdat-ext .navbar-nav .open .dropdown-menu > li > a {
+    padding: 5px 15px 5px 25px; }
+  .jupyter-vcdat-ext .navbar-nav .open .dropdown-menu > li > a {
+    line-height: 20px; }
+  .jupyter-vcdat-ext .navbar-nav .open .dropdown-menu > li > a:focus, .jupyter-vcdat-ext .navbar-nav .open .dropdown-menu > li > a:hover {
+    background-image: none; } }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-nav {
+    float: left;
+    margin: 0; }
+  .jupyter-vcdat-ext .navbar-nav > li {
+    float: left; }
+  .jupyter-vcdat-ext .navbar-nav > li > a {
+    padding-top: 15px;
+    padding-bottom: 15px; } }
+
+.jupyter-vcdat-ext .navbar-form {
+  padding: 10px 15px;
+  margin-top: 8px;
+  margin-right: -15px;
+  margin-bottom: 8px;
+  margin-left: -15px;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1); }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-form .form-group {
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .navbar-form .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .navbar-form .form-control-static {
+    display: inline-block; }
+  .jupyter-vcdat-ext .navbar-form .input-group {
+    display: inline-table;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .navbar-form .input-group .form-control, .jupyter-vcdat-ext .navbar-form .input-group .input-group-addon, .jupyter-vcdat-ext .navbar-form .input-group .input-group-btn {
+    width: auto; }
+  .jupyter-vcdat-ext .navbar-form .input-group > .form-control {
+    width: 100%; }
+  .jupyter-vcdat-ext .navbar-form .control-label {
+    margin-bottom: 0;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .navbar-form .checkbox, .jupyter-vcdat-ext .navbar-form .radio {
+    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 0;
+    vertical-align: middle; }
+  .jupyter-vcdat-ext .navbar-form .checkbox label, .jupyter-vcdat-ext .navbar-form .radio label {
+    padding-left: 0; }
+  .jupyter-vcdat-ext .navbar-form .checkbox input[type=checkbox], .jupyter-vcdat-ext .navbar-form .radio input[type=radio] {
+    position: relative;
+    margin-left: 0; }
+  .jupyter-vcdat-ext .navbar-form .has-feedback .form-control-feedback {
+    top: 0; } }
+
+@media (max-width: 767px) {
+  .jupyter-vcdat-ext .navbar-form .form-group {
+    margin-bottom: 5px; }
+  .jupyter-vcdat-ext .navbar-form .form-group:last-child {
+    margin-bottom: 0; } }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-form {
+    width: auto;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-right: 0;
+    margin-left: 0;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none; } }
+
+.jupyter-vcdat-ext .navbar-nav > li > .dropdown-menu {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+
+.jupyter-vcdat-ext .navbar-fixed-bottom .navbar-nav > li > .dropdown-menu {
+  margin-bottom: 0;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0; }
+
+.jupyter-vcdat-ext .navbar-btn {
+  margin-top: 8px;
+  margin-bottom: 8px; }
+
+.jupyter-vcdat-ext .navbar-btn.btn-sm {
+  margin-top: 10px;
+  margin-bottom: 10px; }
+
+.jupyter-vcdat-ext .navbar-btn.btn-xs {
+  margin-top: 14px;
+  margin-bottom: 14px; }
+
+.jupyter-vcdat-ext .navbar-text {
+  margin-top: 15px;
+  margin-bottom: 15px; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-text {
+    float: left;
+    margin-right: 15px;
+    margin-left: 15px; } }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .navbar-left {
+    float: left !important; }
+  .jupyter-vcdat-ext .navbar-right {
+    float: right !important;
+    margin-right: -15px; }
+  .jupyter-vcdat-ext .navbar-right ~ .navbar-right {
+    margin-right: 0; } }
+
+.jupyter-vcdat-ext .navbar-default {
+  background-color: #f8f8f8;
+  border-color: #e7e7e7; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-brand {
+  color: #777; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-brand:focus, .jupyter-vcdat-ext .navbar-default .navbar-brand:hover {
+  color: #5e5e5e;
+  background-color: transparent; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-text {
+  color: #777; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-nav > li > a {
+  color: #777; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-nav > li > a:focus, .jupyter-vcdat-ext .navbar-default .navbar-nav > li > a:hover {
+  color: #333;
+  background-color: transparent; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-nav > .active > a, .jupyter-vcdat-ext .navbar-default .navbar-nav > .active > a:focus, .jupyter-vcdat-ext .navbar-default .navbar-nav > .active > a:hover {
+  color: #555;
+  background-color: #e7e7e7; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-nav > .disabled > a, .jupyter-vcdat-ext .navbar-default .navbar-nav > .disabled > a:focus, .jupyter-vcdat-ext .navbar-default .navbar-nav > .disabled > a:hover {
+  color: #ccc;
+  background-color: transparent; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-toggle {
+  border-color: #ddd; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-toggle:focus, .jupyter-vcdat-ext .navbar-default .navbar-toggle:hover {
+  background-color: #ddd; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-toggle .icon-bar {
+  background-color: #888; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-collapse, .jupyter-vcdat-ext .navbar-default .navbar-form {
+  border-color: #e7e7e7; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-nav > .open > a, .jupyter-vcdat-ext .navbar-default .navbar-nav > .open > a:focus, .jupyter-vcdat-ext .navbar-default .navbar-nav > .open > a:hover {
+  color: #555;
+  background-color: #e7e7e7; }
+
+@media (max-width: 767px) {
+  .jupyter-vcdat-ext .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #777; }
+  .jupyter-vcdat-ext .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus, .jupyter-vcdat-ext .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover {
+    color: #333;
+    background-color: transparent; }
+  .jupyter-vcdat-ext .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .jupyter-vcdat-ext .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus, .jupyter-vcdat-ext .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover {
+    color: #555;
+    background-color: #e7e7e7; }
+  .jupyter-vcdat-ext .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a, .jupyter-vcdat-ext .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a:focus, .jupyter-vcdat-ext .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a:hover {
+    color: #ccc;
+    background-color: transparent; } }
+
+.jupyter-vcdat-ext .navbar-default .navbar-link {
+  color: #777; }
+
+.jupyter-vcdat-ext .navbar-default .navbar-link:hover {
+  color: #333; }
+
+.jupyter-vcdat-ext .navbar-default .btn-link {
+  color: #777; }
+
+.jupyter-vcdat-ext .navbar-default .btn-link:focus, .jupyter-vcdat-ext .navbar-default .btn-link:hover {
+  color: #333; }
+
+.jupyter-vcdat-ext .navbar-default .btn-link[disabled]:focus, .jupyter-vcdat-ext .navbar-default .btn-link[disabled]:hover, .jupyter-vcdat-ext fieldset[disabled] .navbar-default .btn-link:focus, .jupyter-vcdat-ext fieldset[disabled] .navbar-default .btn-link:hover {
+  color: #ccc; }
+
+.jupyter-vcdat-ext .navbar-inverse {
+  background-color: #222;
+  border-color: #080808; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-brand {
+  color: #9d9d9d; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-brand:focus, .jupyter-vcdat-ext .navbar-inverse .navbar-brand:hover {
+  color: #fff;
+  background-color: transparent; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-text {
+  color: #9d9d9d; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-nav > li > a {
+  color: #9d9d9d; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-nav > li > a:focus, .jupyter-vcdat-ext .navbar-inverse .navbar-nav > li > a:hover {
+  color: #fff;
+  background-color: transparent; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-nav > .active > a, .jupyter-vcdat-ext .navbar-inverse .navbar-nav > .active > a:focus, .jupyter-vcdat-ext .navbar-inverse .navbar-nav > .active > a:hover {
+  color: #fff;
+  background-color: #080808; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-nav > .disabled > a, .jupyter-vcdat-ext .navbar-inverse .navbar-nav > .disabled > a:focus, .jupyter-vcdat-ext .navbar-inverse .navbar-nav > .disabled > a:hover {
+  color: #444;
+  background-color: transparent; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-toggle {
+  border-color: #333; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-toggle:focus, .jupyter-vcdat-ext .navbar-inverse .navbar-toggle:hover {
+  background-color: #333; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-toggle .icon-bar {
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-collapse, .jupyter-vcdat-ext .navbar-inverse .navbar-form {
+  border-color: #101010; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-nav > .open > a, .jupyter-vcdat-ext .navbar-inverse .navbar-nav > .open > a:focus, .jupyter-vcdat-ext .navbar-inverse .navbar-nav > .open > a:hover {
+  color: #fff;
+  background-color: #080808; }
+
+@media (max-width: 767px) {
+  .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > .dropdown-header {
+    border-color: #080808; }
+  .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu .divider {
+    background-color: #080808; }
+  .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > li > a {
+    color: #9d9d9d; }
+  .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > li > a:focus, .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > li > a:hover {
+    color: #fff;
+    background-color: transparent; }
+  .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > .active > a, .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > .active > a:focus, .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > .active > a:hover {
+    color: #fff;
+    background-color: #080808; }
+  .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > .disabled > a, .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > .disabled > a:focus, .jupyter-vcdat-ext .navbar-inverse .navbar-nav .open .dropdown-menu > .disabled > a:hover {
+    color: #444;
+    background-color: transparent; } }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-link {
+  color: #9d9d9d; }
+
+.jupyter-vcdat-ext .navbar-inverse .navbar-link:hover {
+  color: #fff; }
+
+.jupyter-vcdat-ext .navbar-inverse .btn-link {
+  color: #9d9d9d; }
+
+.jupyter-vcdat-ext .navbar-inverse .btn-link:focus, .jupyter-vcdat-ext .navbar-inverse .btn-link:hover {
+  color: #fff; }
+
+.jupyter-vcdat-ext .navbar-inverse .btn-link[disabled]:focus, .jupyter-vcdat-ext .navbar-inverse .btn-link[disabled]:hover, .jupyter-vcdat-ext fieldset[disabled] .navbar-inverse .btn-link:focus, .jupyter-vcdat-ext fieldset[disabled] .navbar-inverse .btn-link:hover {
+  color: #444; }
+
+.jupyter-vcdat-ext .breadcrumb {
+  padding: 8px 15px;
+  margin-bottom: 20px;
+  list-style: none;
+  background-color: #f5f5f5;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .breadcrumb > li {
+  display: inline-block; }
+
+.jupyter-vcdat-ext .breadcrumb > li + li:before {
+  padding: 0 5px;
+  color: #ccc;
+  content: "/\00a0"; }
+
+.jupyter-vcdat-ext .breadcrumb > .active {
+  color: #777; }
+
+.jupyter-vcdat-ext .pagination {
+  display: inline-block;
+  padding-left: 0;
+  margin: 20px 0;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .pagination > li {
+  display: inline; }
+
+.jupyter-vcdat-ext .pagination > li > a, .jupyter-vcdat-ext .pagination > li > span {
+  position: relative;
+  float: left;
+  padding: 6px 12px;
+  margin-left: -1px;
+  line-height: 1.42857143;
+  color: #337ab7;
+  text-decoration: none;
+  background-color: #fff;
+  border: 1px solid #ddd; }
+
+.jupyter-vcdat-ext .pagination > li:first-child > a, .jupyter-vcdat-ext .pagination > li:first-child > span {
+  margin-left: 0;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px; }
+
+.jupyter-vcdat-ext .pagination > li:last-child > a, .jupyter-vcdat-ext .pagination > li:last-child > span {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px; }
+
+.jupyter-vcdat-ext .pagination > li > a:focus, .jupyter-vcdat-ext .pagination > li > a:hover, .jupyter-vcdat-ext .pagination > li > span:focus, .jupyter-vcdat-ext .pagination > li > span:hover {
+  z-index: 2;
+  color: #23527c;
+  background-color: #eee;
+  border-color: #ddd; }
+
+.jupyter-vcdat-ext .pagination > .active > a, .jupyter-vcdat-ext .pagination > .active > a:focus, .jupyter-vcdat-ext .pagination > .active > a:hover, .jupyter-vcdat-ext .pagination > .active > span, .jupyter-vcdat-ext .pagination > .active > span:focus, .jupyter-vcdat-ext .pagination > .active > span:hover {
+  z-index: 3;
+  color: #fff;
+  cursor: default;
+  background-color: #337ab7;
+  border-color: #337ab7; }
+
+.jupyter-vcdat-ext .pagination > .disabled > a, .jupyter-vcdat-ext .pagination > .disabled > a:focus, .jupyter-vcdat-ext .pagination > .disabled > a:hover, .jupyter-vcdat-ext .pagination > .disabled > span, .jupyter-vcdat-ext .pagination > .disabled > span:focus, .jupyter-vcdat-ext .pagination > .disabled > span:hover {
+  color: #777;
+  cursor: not-allowed;
+  background-color: #fff;
+  border-color: #ddd; }
+
+.jupyter-vcdat-ext .pagination-lg > li > a, .jupyter-vcdat-ext .pagination-lg > li > span {
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.3333333; }
+
+.jupyter-vcdat-ext .pagination-lg > li:first-child > a, .jupyter-vcdat-ext .pagination-lg > li:first-child > span {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px; }
+
+.jupyter-vcdat-ext .pagination-lg > li:last-child > a, .jupyter-vcdat-ext .pagination-lg > li:last-child > span {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px; }
+
+.jupyter-vcdat-ext .pagination-sm > li > a, .jupyter-vcdat-ext .pagination-sm > li > span {
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5; }
+
+.jupyter-vcdat-ext .pagination-sm > li:first-child > a, .jupyter-vcdat-ext .pagination-sm > li:first-child > span {
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px; }
+
+.jupyter-vcdat-ext .pagination-sm > li:last-child > a, .jupyter-vcdat-ext .pagination-sm > li:last-child > span {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px; }
+
+.jupyter-vcdat-ext .pager {
+  padding-left: 0;
+  margin: 20px 0;
+  text-align: center;
+  list-style: none; }
+
+.jupyter-vcdat-ext .pager li {
+  display: inline; }
+
+.jupyter-vcdat-ext .pager li > a, .jupyter-vcdat-ext .pager li > span {
+  display: inline-block;
+  padding: 5px 14px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 15px; }
+
+.jupyter-vcdat-ext .pager li > a:focus, .jupyter-vcdat-ext .pager li > a:hover {
+  text-decoration: none;
+  background-color: #eee; }
+
+.jupyter-vcdat-ext .pager .next > a, .jupyter-vcdat-ext .pager .next > span {
+  float: right; }
+
+.jupyter-vcdat-ext .pager .previous > a, .jupyter-vcdat-ext .pager .previous > span {
+  float: left; }
+
+.jupyter-vcdat-ext .pager .disabled > a, .jupyter-vcdat-ext .pager .disabled > a:focus, .jupyter-vcdat-ext .pager .disabled > a:hover, .jupyter-vcdat-ext .pager .disabled > span {
+  color: #777;
+  cursor: not-allowed;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .label {
+  display: inline;
+  padding: .2em .6em .3em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em; }
+
+.jupyter-vcdat-ext a.label:focus, .jupyter-vcdat-ext a.label:hover {
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer; }
+
+.jupyter-vcdat-ext .label:empty {
+  display: none; }
+
+.jupyter-vcdat-ext .btn .label {
+  position: relative;
+  top: -1px; }
+
+.jupyter-vcdat-ext .label-default {
+  background-color: #777; }
+
+.jupyter-vcdat-ext .label-default[href]:focus, .jupyter-vcdat-ext .label-default[href]:hover {
+  background-color: #5e5e5e; }
+
+.jupyter-vcdat-ext .label-primary {
+  background-color: #337ab7; }
+
+.jupyter-vcdat-ext .label-primary[href]:focus, .jupyter-vcdat-ext .label-primary[href]:hover {
+  background-color: #286090; }
+
+.jupyter-vcdat-ext .label-success {
+  background-color: #5cb85c; }
+
+.jupyter-vcdat-ext .label-success[href]:focus, .jupyter-vcdat-ext .label-success[href]:hover {
+  background-color: #449d44; }
+
+.jupyter-vcdat-ext .label-info {
+  background-color: #5bc0de; }
+
+.jupyter-vcdat-ext .label-info[href]:focus, .jupyter-vcdat-ext .label-info[href]:hover {
+  background-color: #31b0d5; }
+
+.jupyter-vcdat-ext .label-warning {
+  background-color: #f0ad4e; }
+
+.jupyter-vcdat-ext .label-warning[href]:focus, .jupyter-vcdat-ext .label-warning[href]:hover {
+  background-color: #ec971f; }
+
+.jupyter-vcdat-ext .label-danger {
+  background-color: #d9534f; }
+
+.jupyter-vcdat-ext .label-danger[href]:focus, .jupyter-vcdat-ext .label-danger[href]:hover {
+  background-color: #c9302c; }
+
+.jupyter-vcdat-ext .badge {
+  display: inline-block;
+  min-width: 10px;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  background-color: #777;
+  border-radius: 10px; }
+
+.jupyter-vcdat-ext .badge:empty {
+  display: none; }
+
+.jupyter-vcdat-ext .btn .badge {
+  position: relative;
+  top: -1px; }
+
+.jupyter-vcdat-ext .btn-group-xs > .btn .badge, .jupyter-vcdat-ext .btn-xs .badge {
+  top: 0;
+  padding: 1px 5px; }
+
+.jupyter-vcdat-ext a.badge:focus, .jupyter-vcdat-ext a.badge:hover {
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer; }
+
+.jupyter-vcdat-ext .list-group-item.active > .badge, .jupyter-vcdat-ext .nav-pills > .active > a > .badge {
+  color: #337ab7;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .list-group-item > .badge {
+  float: right; }
+
+.jupyter-vcdat-ext .list-group-item > .badge + .badge {
+  margin-right: 5px; }
+
+.jupyter-vcdat-ext .nav-pills > li > a > .badge {
+  margin-left: 3px; }
+
+.jupyter-vcdat-ext .jumbotron {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  margin-bottom: 30px;
+  color: inherit;
+  background-color: #eee; }
+
+.jupyter-vcdat-ext .jumbotron .h1, .jupyter-vcdat-ext .jumbotron h1 {
+  color: inherit; }
+
+.jupyter-vcdat-ext .jumbotron p {
+  margin-bottom: 15px;
+  font-size: 21px;
+  font-weight: 200; }
+
+.jupyter-vcdat-ext .jumbotron > hr {
+  border-top-color: #d5d5d5; }
+
+.jupyter-vcdat-ext .container .jumbotron, .jupyter-vcdat-ext .container-fluid .jumbotron {
+  padding-right: 15px;
+  padding-left: 15px;
+  border-radius: 6px; }
+
+.jupyter-vcdat-ext .jumbotron .container {
+  max-width: 100%; }
+
+@media screen and (min-width: 768px) {
+  .jupyter-vcdat-ext .jumbotron {
+    padding-top: 48px;
+    padding-bottom: 48px; }
+  .jupyter-vcdat-ext .container .jumbotron, .jupyter-vcdat-ext .container-fluid .jumbotron {
+    padding-right: 60px;
+    padding-left: 60px; }
+  .jupyter-vcdat-ext .jumbotron .h1, .jupyter-vcdat-ext .jumbotron h1 {
+    font-size: 63px; } }
+
+.jupyter-vcdat-ext .thumbnail {
+  display: block;
+  padding: 4px;
+  margin-bottom: 20px;
+  line-height: 1.42857143;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  -webkit-transition: border .2s ease-in-out;
+  -o-transition: border .2s ease-in-out;
+  transition: border .2s ease-in-out; }
+
+.jupyter-vcdat-ext .thumbnail a > img, .jupyter-vcdat-ext .thumbnail > img {
+  margin-right: auto;
+  margin-left: auto; }
+
+.jupyter-vcdat-ext a.thumbnail.active, .jupyter-vcdat-ext a.thumbnail:focus, .jupyter-vcdat-ext a.thumbnail:hover {
+  border-color: #337ab7; }
+
+.jupyter-vcdat-ext .thumbnail .caption {
+  padding: 9px;
+  color: #333; }
+
+.jupyter-vcdat-ext .alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .alert h4 {
+  margin-top: 0;
+  color: inherit; }
+
+.jupyter-vcdat-ext .alert .alert-link {
+  font-weight: 700; }
+
+.jupyter-vcdat-ext .alert > p, .jupyter-vcdat-ext .alert > ul {
+  margin-bottom: 0; }
+
+.jupyter-vcdat-ext .alert > p + p {
+  margin-top: 5px; }
+
+.jupyter-vcdat-ext .alert-dismissable, .jupyter-vcdat-ext .alert-dismissible {
+  padding-right: 35px; }
+
+.jupyter-vcdat-ext .alert-dismissable .close, .jupyter-vcdat-ext .alert-dismissible .close {
+  position: relative;
+  top: -2px;
+  right: -21px;
+  color: inherit; }
+
+.jupyter-vcdat-ext .alert-success {
+  color: #3c763d;
+  background-color: #dff0d8;
+  border-color: #d6e9c6; }
+
+.jupyter-vcdat-ext .alert-success hr {
+  border-top-color: #c9e2b3; }
+
+.jupyter-vcdat-ext .alert-success .alert-link {
+  color: #2b542c; }
+
+.jupyter-vcdat-ext .alert-info {
+  color: #31708f;
+  background-color: #d9edf7;
+  border-color: #bce8f1; }
+
+.jupyter-vcdat-ext .alert-info hr {
+  border-top-color: #a6e1ec; }
+
+.jupyter-vcdat-ext .alert-info .alert-link {
+  color: #245269; }
+
+.jupyter-vcdat-ext .alert-warning {
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+  border-color: #faebcc; }
+
+.jupyter-vcdat-ext .alert-warning hr {
+  border-top-color: #f7e1b5; }
+
+.jupyter-vcdat-ext .alert-warning .alert-link {
+  color: #66512c; }
+
+.jupyter-vcdat-ext .alert-danger {
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #ebccd1; }
+
+.jupyter-vcdat-ext .alert-danger hr {
+  border-top-color: #e4b9c0; }
+
+.jupyter-vcdat-ext .alert-danger .alert-link {
+  color: #843534; }
+
+@-webkit-keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0; }
+  to {
+    background-position: 0 0; } }
+
+@-o-keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0; }
+  to {
+    background-position: 0 0; } }
+
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0; }
+  to {
+    background-position: 0 0; } }
+
+.jupyter-vcdat-ext .progress {
+  height: 20px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); }
+
+.jupyter-vcdat-ext .progress-bar {
+  float: left;
+  width: 0;
+  height: 100%;
+  font-size: 12px;
+  line-height: 20px;
+  color: #fff;
+  text-align: center;
+  background-color: #337ab7;
+  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  -webkit-transition: width .6s ease;
+  -o-transition: width .6s ease;
+  transition: width .6s ease; }
+
+.jupyter-vcdat-ext .progress-bar-striped, .jupyter-vcdat-ext .progress-striped .progress-bar {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  -webkit-background-size: 40px 40px;
+  background-size: 40px 40px; }
+
+.jupyter-vcdat-ext .progress-bar.active, .jupyter-vcdat-ext .progress.active .progress-bar {
+  -webkit-animation: progress-bar-stripes 2s linear infinite;
+  -o-animation: progress-bar-stripes 2s linear infinite;
+  animation: progress-bar-stripes 2s linear infinite; }
+
+.jupyter-vcdat-ext .progress-bar-success {
+  background-color: #5cb85c; }
+
+.jupyter-vcdat-ext .progress-striped .progress-bar-success {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); }
+
+.jupyter-vcdat-ext .progress-bar-info {
+  background-color: #5bc0de; }
+
+.jupyter-vcdat-ext .progress-striped .progress-bar-info {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); }
+
+.jupyter-vcdat-ext .progress-bar-warning {
+  background-color: #f0ad4e; }
+
+.jupyter-vcdat-ext .progress-striped .progress-bar-warning {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); }
+
+.jupyter-vcdat-ext .progress-bar-danger {
+  background-color: #d9534f; }
+
+.jupyter-vcdat-ext .progress-striped .progress-bar-danger {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); }
+
+.jupyter-vcdat-ext .media {
+  margin-top: 15px; }
+
+.jupyter-vcdat-ext .media:first-child {
+  margin-top: 0; }
+
+.jupyter-vcdat-ext .media, .jupyter-vcdat-ext .media-body {
+  overflow: hidden;
+  zoom: 1; }
+
+.jupyter-vcdat-ext .media-body {
+  width: 10000px; }
+
+.jupyter-vcdat-ext .media-object {
+  display: block; }
+
+.jupyter-vcdat-ext .media-object.img-thumbnail {
+  max-width: none; }
+
+.jupyter-vcdat-ext .media-right, .jupyter-vcdat-ext .media > .pull-right {
+  padding-left: 10px; }
+
+.jupyter-vcdat-ext .media-left, .jupyter-vcdat-ext .media > .pull-left {
+  padding-right: 10px; }
+
+.jupyter-vcdat-ext .media-body, .jupyter-vcdat-ext .media-left, .jupyter-vcdat-ext .media-right {
+  display: table-cell;
+  vertical-align: top; }
+
+.jupyter-vcdat-ext .media-middle {
+  vertical-align: middle; }
+
+.jupyter-vcdat-ext .media-bottom {
+  vertical-align: bottom; }
+
+.jupyter-vcdat-ext .media-heading {
+  margin-top: 0;
+  margin-bottom: 5px; }
+
+.jupyter-vcdat-ext .media-list {
+  padding-left: 0;
+  list-style: none; }
+
+.jupyter-vcdat-ext .list-group {
+  padding-left: 0;
+  margin-bottom: 20px; }
+
+.jupyter-vcdat-ext .list-group-item {
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+  margin-bottom: -1px;
+  background-color: #fff;
+  border: 1px solid #ddd; }
+
+.jupyter-vcdat-ext .list-group-item:first-child {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px; }
+
+.jupyter-vcdat-ext .list-group-item:last-child {
+  margin-bottom: 0;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px; }
+
+.jupyter-vcdat-ext a.list-group-item, .jupyter-vcdat-ext button.list-group-item {
+  color: #555; }
+
+.jupyter-vcdat-ext a.list-group-item .list-group-item-heading, .jupyter-vcdat-ext button.list-group-item .list-group-item-heading {
+  color: #333; }
+
+.jupyter-vcdat-ext a.list-group-item:focus, .jupyter-vcdat-ext a.list-group-item:hover, .jupyter-vcdat-ext button.list-group-item:focus, .jupyter-vcdat-ext button.list-group-item:hover {
+  color: #555;
+  text-decoration: none;
+  background-color: #f5f5f5; }
+
+.jupyter-vcdat-ext button.list-group-item {
+  width: 100%;
+  text-align: left; }
+
+.jupyter-vcdat-ext .list-group-item.disabled, .jupyter-vcdat-ext .list-group-item.disabled:focus, .jupyter-vcdat-ext .list-group-item.disabled:hover {
+  color: #777;
+  cursor: not-allowed;
+  background-color: #eee; }
+
+.jupyter-vcdat-ext .list-group-item.disabled .list-group-item-heading, .jupyter-vcdat-ext .list-group-item.disabled:focus .list-group-item-heading, .jupyter-vcdat-ext .list-group-item.disabled:hover .list-group-item-heading {
+  color: inherit; }
+
+.jupyter-vcdat-ext .list-group-item.disabled .list-group-item-text, .jupyter-vcdat-ext .list-group-item.disabled:focus .list-group-item-text, .jupyter-vcdat-ext .list-group-item.disabled:hover .list-group-item-text {
+  color: #777; }
+
+.jupyter-vcdat-ext .list-group-item.active, .jupyter-vcdat-ext .list-group-item.active:focus, .jupyter-vcdat-ext .list-group-item.active:hover {
+  z-index: 2;
+  color: #fff;
+  background-color: #337ab7;
+  border-color: #337ab7; }
+
+.jupyter-vcdat-ext .list-group-item.active .list-group-item-heading, .jupyter-vcdat-ext .list-group-item.active .list-group-item-heading > .small, .jupyter-vcdat-ext .list-group-item.active .list-group-item-heading > small, .jupyter-vcdat-ext .list-group-item.active:focus .list-group-item-heading, .jupyter-vcdat-ext .list-group-item.active:focus .list-group-item-heading > .small, .jupyter-vcdat-ext .list-group-item.active:focus .list-group-item-heading > small, .jupyter-vcdat-ext .list-group-item.active:hover .list-group-item-heading, .jupyter-vcdat-ext .list-group-item.active:hover .list-group-item-heading > .small, .jupyter-vcdat-ext .list-group-item.active:hover .list-group-item-heading > small {
+  color: inherit; }
+
+.jupyter-vcdat-ext .list-group-item.active .list-group-item-text, .jupyter-vcdat-ext .list-group-item.active:focus .list-group-item-text, .jupyter-vcdat-ext .list-group-item.active:hover .list-group-item-text {
+  color: #c7ddef; }
+
+.jupyter-vcdat-ext .list-group-item-success {
+  color: #3c763d;
+  background-color: #dff0d8; }
+
+.jupyter-vcdat-ext a.list-group-item-success, .jupyter-vcdat-ext button.list-group-item-success {
+  color: #3c763d; }
+
+.jupyter-vcdat-ext a.list-group-item-success .list-group-item-heading, .jupyter-vcdat-ext button.list-group-item-success .list-group-item-heading {
+  color: inherit; }
+
+.jupyter-vcdat-ext a.list-group-item-success:focus, .jupyter-vcdat-ext a.list-group-item-success:hover, .jupyter-vcdat-ext button.list-group-item-success:focus, .jupyter-vcdat-ext button.list-group-item-success:hover {
+  color: #3c763d;
+  background-color: #d0e9c6; }
+
+.jupyter-vcdat-ext a.list-group-item-success.active, .jupyter-vcdat-ext a.list-group-item-success.active:focus, .jupyter-vcdat-ext a.list-group-item-success.active:hover, .jupyter-vcdat-ext button.list-group-item-success.active, .jupyter-vcdat-ext button.list-group-item-success.active:focus, .jupyter-vcdat-ext button.list-group-item-success.active:hover {
+  color: #fff;
+  background-color: #3c763d;
+  border-color: #3c763d; }
+
+.jupyter-vcdat-ext .list-group-item-info {
+  color: #31708f;
+  background-color: #d9edf7; }
+
+.jupyter-vcdat-ext a.list-group-item-info, .jupyter-vcdat-ext button.list-group-item-info {
+  color: #31708f; }
+
+.jupyter-vcdat-ext a.list-group-item-info .list-group-item-heading, .jupyter-vcdat-ext button.list-group-item-info .list-group-item-heading {
+  color: inherit; }
+
+.jupyter-vcdat-ext a.list-group-item-info:focus, .jupyter-vcdat-ext a.list-group-item-info:hover, .jupyter-vcdat-ext button.list-group-item-info:focus, .jupyter-vcdat-ext button.list-group-item-info:hover {
+  color: #31708f;
+  background-color: #c4e3f3; }
+
+.jupyter-vcdat-ext a.list-group-item-info.active, .jupyter-vcdat-ext a.list-group-item-info.active:focus, .jupyter-vcdat-ext a.list-group-item-info.active:hover, .jupyter-vcdat-ext button.list-group-item-info.active, .jupyter-vcdat-ext button.list-group-item-info.active:focus, .jupyter-vcdat-ext button.list-group-item-info.active:hover {
+  color: #fff;
+  background-color: #31708f;
+  border-color: #31708f; }
+
+.jupyter-vcdat-ext .list-group-item-warning {
+  color: #8a6d3b;
+  background-color: #fcf8e3; }
+
+.jupyter-vcdat-ext a.list-group-item-warning, .jupyter-vcdat-ext button.list-group-item-warning {
+  color: #8a6d3b; }
+
+.jupyter-vcdat-ext a.list-group-item-warning .list-group-item-heading, .jupyter-vcdat-ext button.list-group-item-warning .list-group-item-heading {
+  color: inherit; }
+
+.jupyter-vcdat-ext a.list-group-item-warning:focus, .jupyter-vcdat-ext a.list-group-item-warning:hover, .jupyter-vcdat-ext button.list-group-item-warning:focus, .jupyter-vcdat-ext button.list-group-item-warning:hover {
+  color: #8a6d3b;
+  background-color: #faf2cc; }
+
+.jupyter-vcdat-ext a.list-group-item-warning.active, .jupyter-vcdat-ext a.list-group-item-warning.active:focus, .jupyter-vcdat-ext a.list-group-item-warning.active:hover, .jupyter-vcdat-ext button.list-group-item-warning.active, .jupyter-vcdat-ext button.list-group-item-warning.active:focus, .jupyter-vcdat-ext button.list-group-item-warning.active:hover {
+  color: #fff;
+  background-color: #8a6d3b;
+  border-color: #8a6d3b; }
+
+.jupyter-vcdat-ext .list-group-item-danger {
+  color: #a94442;
+  background-color: #f2dede; }
+
+.jupyter-vcdat-ext a.list-group-item-danger, .jupyter-vcdat-ext button.list-group-item-danger {
+  color: #a94442; }
+
+.jupyter-vcdat-ext a.list-group-item-danger .list-group-item-heading, .jupyter-vcdat-ext button.list-group-item-danger .list-group-item-heading {
+  color: inherit; }
+
+.jupyter-vcdat-ext a.list-group-item-danger:focus, .jupyter-vcdat-ext a.list-group-item-danger:hover, .jupyter-vcdat-ext button.list-group-item-danger:focus, .jupyter-vcdat-ext button.list-group-item-danger:hover {
+  color: #a94442;
+  background-color: #ebcccc; }
+
+.jupyter-vcdat-ext a.list-group-item-danger.active, .jupyter-vcdat-ext a.list-group-item-danger.active:focus, .jupyter-vcdat-ext a.list-group-item-danger.active:hover, .jupyter-vcdat-ext button.list-group-item-danger.active, .jupyter-vcdat-ext button.list-group-item-danger.active:focus, .jupyter-vcdat-ext button.list-group-item-danger.active:hover {
+  color: #fff;
+  background-color: #a94442;
+  border-color: #a94442; }
+
+.jupyter-vcdat-ext .list-group-item-heading {
+  margin-top: 0;
+  margin-bottom: 5px; }
+
+.jupyter-vcdat-ext .list-group-item-text {
+  margin-bottom: 0;
+  line-height: 1.3; }
+
+.jupyter-vcdat-ext .panel {
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05); }
+
+.jupyter-vcdat-ext .panel-body {
+  padding: 15px; }
+
+.jupyter-vcdat-ext .panel-heading {
+  padding: 10px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px; }
+
+.jupyter-vcdat-ext .panel-heading > .dropdown .dropdown-toggle {
+  color: inherit; }
+
+.jupyter-vcdat-ext .panel-title {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 16px;
+  color: inherit; }
+
+.jupyter-vcdat-ext .panel-title > .small, .jupyter-vcdat-ext .panel-title > .small > a, .jupyter-vcdat-ext .panel-title > a, .jupyter-vcdat-ext .panel-title > small, .jupyter-vcdat-ext .panel-title > small > a {
+  color: inherit; }
+
+.jupyter-vcdat-ext .panel-footer {
+  padding: 10px 15px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .list-group, .jupyter-vcdat-ext .panel > .panel-collapse > .list-group {
+  margin-bottom: 0; }
+
+.jupyter-vcdat-ext .panel > .list-group .list-group-item, .jupyter-vcdat-ext .panel > .panel-collapse > .list-group .list-group-item {
+  border-width: 1px 0;
+  border-radius: 0; }
+
+.jupyter-vcdat-ext .panel > .list-group:first-child .list-group-item:first-child, .jupyter-vcdat-ext .panel > .panel-collapse > .list-group:first-child .list-group-item:first-child {
+  border-top: 0;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .list-group:last-child .list-group-item:last-child, .jupyter-vcdat-ext .panel > .panel-collapse > .list-group:last-child .list-group-item:last-child {
+  border-bottom: 0;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .panel-heading + .panel-collapse > .list-group .list-group-item:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+
+.jupyter-vcdat-ext .panel-heading + .list-group .list-group-item:first-child {
+  border-top-width: 0; }
+
+.jupyter-vcdat-ext .list-group + .panel-footer {
+  border-top-width: 0; }
+
+.jupyter-vcdat-ext .panel > .panel-collapse > .table, .jupyter-vcdat-ext .panel > .table, .jupyter-vcdat-ext .panel > .table-responsive > .table {
+  margin-bottom: 0; }
+
+.jupyter-vcdat-ext .panel > .panel-collapse > .table caption, .jupyter-vcdat-ext .panel > .table caption, .jupyter-vcdat-ext .panel > .table-responsive > .table caption {
+  padding-right: 15px;
+  padding-left: 15px; }
+
+.jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child, .jupyter-vcdat-ext .panel > .table:first-child {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child, .jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child, .jupyter-vcdat-ext .panel > .table:first-child > tbody:first-child > tr:first-child, .jupyter-vcdat-ext .panel > .table:first-child > thead:first-child > tr:first-child {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child td:first-child, .jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:first-child, .jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:first-child, .jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:first-child, .jupyter-vcdat-ext .panel > .table:first-child > tbody:first-child > tr:first-child td:first-child, .jupyter-vcdat-ext .panel > .table:first-child > tbody:first-child > tr:first-child th:first-child, .jupyter-vcdat-ext .panel > .table:first-child > thead:first-child > tr:first-child td:first-child, .jupyter-vcdat-ext .panel > .table:first-child > thead:first-child > tr:first-child th:first-child {
+  border-top-left-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child td:last-child, .jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:last-child, .jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:last-child, .jupyter-vcdat-ext .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:last-child, .jupyter-vcdat-ext .panel > .table:first-child > tbody:first-child > tr:first-child td:last-child, .jupyter-vcdat-ext .panel > .table:first-child > tbody:first-child > tr:first-child th:last-child, .jupyter-vcdat-ext .panel > .table:first-child > thead:first-child > tr:first-child td:last-child, .jupyter-vcdat-ext .panel > .table:first-child > thead:first-child > tr:first-child th:last-child {
+  border-top-right-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child, .jupyter-vcdat-ext .panel > .table:last-child {
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child, .jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child, .jupyter-vcdat-ext .panel > .table:last-child > tbody:last-child > tr:last-child, .jupyter-vcdat-ext .panel > .table:last-child > tfoot:last-child > tr:last-child {
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:first-child, .jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:first-child, .jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:first-child, .jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:first-child, .jupyter-vcdat-ext .panel > .table:last-child > tbody:last-child > tr:last-child td:first-child, .jupyter-vcdat-ext .panel > .table:last-child > tbody:last-child > tr:last-child th:first-child, .jupyter-vcdat-ext .panel > .table:last-child > tfoot:last-child > tr:last-child td:first-child, .jupyter-vcdat-ext .panel > .table:last-child > tfoot:last-child > tr:last-child th:first-child {
+  border-bottom-left-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:last-child, .jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:last-child, .jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:last-child, .jupyter-vcdat-ext .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:last-child, .jupyter-vcdat-ext .panel > .table:last-child > tbody:last-child > tr:last-child td:last-child, .jupyter-vcdat-ext .panel > .table:last-child > tbody:last-child > tr:last-child th:last-child, .jupyter-vcdat-ext .panel > .table:last-child > tfoot:last-child > tr:last-child td:last-child, .jupyter-vcdat-ext .panel > .table:last-child > tfoot:last-child > tr:last-child th:last-child {
+  border-bottom-right-radius: 3px; }
+
+.jupyter-vcdat-ext .panel > .panel-body + .table, .jupyter-vcdat-ext .panel > .panel-body + .table-responsive, .jupyter-vcdat-ext .panel > .table + .panel-body, .jupyter-vcdat-ext .panel > .table-responsive + .panel-body {
+  border-top: 1px solid #ddd; }
+
+.jupyter-vcdat-ext .panel > .table > tbody:first-child > tr:first-child td, .jupyter-vcdat-ext .panel > .table > tbody:first-child > tr:first-child th {
+  border-top: 0; }
+
+.jupyter-vcdat-ext .panel > .table-bordered, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered {
+  border: 0; }
+
+.jupyter-vcdat-ext .panel > .table-bordered > tbody > tr > td:first-child, .jupyter-vcdat-ext .panel > .table-bordered > tbody > tr > th:first-child, .jupyter-vcdat-ext .panel > .table-bordered > tfoot > tr > td:first-child, .jupyter-vcdat-ext .panel > .table-bordered > tfoot > tr > th:first-child, .jupyter-vcdat-ext .panel > .table-bordered > thead > tr > td:first-child, .jupyter-vcdat-ext .panel > .table-bordered > thead > tr > th:first-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tbody > tr > td:first-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tbody > tr > th:first-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tfoot > tr > td:first-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tfoot > tr > th:first-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > thead > tr > td:first-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > thead > tr > th:first-child {
+  border-left: 0; }
+
+.jupyter-vcdat-ext .panel > .table-bordered > tbody > tr > td:last-child, .jupyter-vcdat-ext .panel > .table-bordered > tbody > tr > th:last-child, .jupyter-vcdat-ext .panel > .table-bordered > tfoot > tr > td:last-child, .jupyter-vcdat-ext .panel > .table-bordered > tfoot > tr > th:last-child, .jupyter-vcdat-ext .panel > .table-bordered > thead > tr > td:last-child, .jupyter-vcdat-ext .panel > .table-bordered > thead > tr > th:last-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tbody > tr > td:last-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tbody > tr > th:last-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tfoot > tr > td:last-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tfoot > tr > th:last-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > thead > tr > td:last-child, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > thead > tr > th:last-child {
+  border-right: 0; }
+
+.jupyter-vcdat-ext .panel > .table-bordered > tbody > tr:first-child > td, .jupyter-vcdat-ext .panel > .table-bordered > tbody > tr:first-child > th, .jupyter-vcdat-ext .panel > .table-bordered > thead > tr:first-child > td, .jupyter-vcdat-ext .panel > .table-bordered > thead > tr:first-child > th, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tbody > tr:first-child > td, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tbody > tr:first-child > th, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > thead > tr:first-child > td, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > thead > tr:first-child > th {
+  border-bottom: 0; }
+
+.jupyter-vcdat-ext .panel > .table-bordered > tbody > tr:last-child > td, .jupyter-vcdat-ext .panel > .table-bordered > tbody > tr:last-child > th, .jupyter-vcdat-ext .panel > .table-bordered > tfoot > tr:last-child > td, .jupyter-vcdat-ext .panel > .table-bordered > tfoot > tr:last-child > th, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tbody > tr:last-child > td, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tbody > tr:last-child > th, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tfoot > tr:last-child > td, .jupyter-vcdat-ext .panel > .table-responsive > .table-bordered > tfoot > tr:last-child > th {
+  border-bottom: 0; }
+
+.jupyter-vcdat-ext .panel > .table-responsive {
+  margin-bottom: 0;
+  border: 0; }
+
+.jupyter-vcdat-ext .panel-group {
+  margin-bottom: 20px; }
+
+.jupyter-vcdat-ext .panel-group .panel {
+  margin-bottom: 0;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .panel-group .panel + .panel {
+  margin-top: 5px; }
+
+.jupyter-vcdat-ext .panel-group .panel-heading {
+  border-bottom: 0; }
+
+.jupyter-vcdat-ext .panel-group .panel-heading + .panel-collapse > .list-group, .jupyter-vcdat-ext .panel-group .panel-heading + .panel-collapse > .panel-body {
+  border-top: 1px solid #ddd; }
+
+.jupyter-vcdat-ext .panel-group .panel-footer {
+  border-top: 0; }
+
+.jupyter-vcdat-ext .panel-group .panel-footer + .panel-collapse .panel-body {
+  border-bottom: 1px solid #ddd; }
+
+.jupyter-vcdat-ext .panel-default {
+  border-color: #ddd; }
+
+.jupyter-vcdat-ext .panel-default > .panel-heading {
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: #ddd; }
+
+.jupyter-vcdat-ext .panel-default > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #ddd; }
+
+.jupyter-vcdat-ext .panel-default > .panel-heading .badge {
+  color: #f5f5f5;
+  background-color: #333; }
+
+.jupyter-vcdat-ext .panel-default > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #ddd; }
+
+.jupyter-vcdat-ext .panel-primary {
+  border-color: #337ab7; }
+
+.jupyter-vcdat-ext .panel-primary > .panel-heading {
+  color: #fff;
+  background-color: #337ab7;
+  border-color: #337ab7; }
+
+.jupyter-vcdat-ext .panel-primary > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #337ab7; }
+
+.jupyter-vcdat-ext .panel-primary > .panel-heading .badge {
+  color: #337ab7;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .panel-primary > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #337ab7; }
+
+.jupyter-vcdat-ext .panel-success {
+  border-color: #d6e9c6; }
+
+.jupyter-vcdat-ext .panel-success > .panel-heading {
+  color: #3c763d;
+  background-color: #dff0d8;
+  border-color: #d6e9c6; }
+
+.jupyter-vcdat-ext .panel-success > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #d6e9c6; }
+
+.jupyter-vcdat-ext .panel-success > .panel-heading .badge {
+  color: #dff0d8;
+  background-color: #3c763d; }
+
+.jupyter-vcdat-ext .panel-success > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #d6e9c6; }
+
+.jupyter-vcdat-ext .panel-info {
+  border-color: #bce8f1; }
+
+.jupyter-vcdat-ext .panel-info > .panel-heading {
+  color: #31708f;
+  background-color: #d9edf7;
+  border-color: #bce8f1; }
+
+.jupyter-vcdat-ext .panel-info > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #bce8f1; }
+
+.jupyter-vcdat-ext .panel-info > .panel-heading .badge {
+  color: #d9edf7;
+  background-color: #31708f; }
+
+.jupyter-vcdat-ext .panel-info > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #bce8f1; }
+
+.jupyter-vcdat-ext .panel-warning {
+  border-color: #faebcc; }
+
+.jupyter-vcdat-ext .panel-warning > .panel-heading {
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+  border-color: #faebcc; }
+
+.jupyter-vcdat-ext .panel-warning > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #faebcc; }
+
+.jupyter-vcdat-ext .panel-warning > .panel-heading .badge {
+  color: #fcf8e3;
+  background-color: #8a6d3b; }
+
+.jupyter-vcdat-ext .panel-warning > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #faebcc; }
+
+.jupyter-vcdat-ext .panel-danger {
+  border-color: #ebccd1; }
+
+.jupyter-vcdat-ext .panel-danger > .panel-heading {
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #ebccd1; }
+
+.jupyter-vcdat-ext .panel-danger > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #ebccd1; }
+
+.jupyter-vcdat-ext .panel-danger > .panel-heading .badge {
+  color: #f2dede;
+  background-color: #a94442; }
+
+.jupyter-vcdat-ext .panel-danger > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #ebccd1; }
+
+.jupyter-vcdat-ext .embed-responsive {
+  position: relative;
+  display: block;
+  height: 0;
+  padding: 0;
+  overflow: hidden; }
+
+.jupyter-vcdat-ext .embed-responsive .embed-responsive-item, .jupyter-vcdat-ext .embed-responsive embed, .jupyter-vcdat-ext .embed-responsive iframe, .jupyter-vcdat-ext .embed-responsive object, .jupyter-vcdat-ext .embed-responsive video {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0; }
+
+.jupyter-vcdat-ext .embed-responsive-16by9 {
+  padding-bottom: 56.25%; }
+
+.jupyter-vcdat-ext .embed-responsive-4by3 {
+  padding-bottom: 75%; }
+
+.jupyter-vcdat-ext .well {
+  min-height: 20px;
+  padding: 19px;
+  margin-bottom: 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05); }
+
+.jupyter-vcdat-ext .well blockquote {
+  border-color: #ddd;
+  border-color: rgba(0, 0, 0, 0.15); }
+
+.jupyter-vcdat-ext .well-lg {
+  padding: 24px;
+  border-radius: 6px; }
+
+.jupyter-vcdat-ext .well-sm {
+  padding: 9px;
+  border-radius: 3px; }
+
+.jupyter-vcdat-ext .close {
+  float: right;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  filter: alpha(opacity=20);
+  opacity: .2; }
+
+.jupyter-vcdat-ext .close:focus, .jupyter-vcdat-ext .close:hover {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+  filter: alpha(opacity=50);
+  opacity: .5; }
+
+.jupyter-vcdat-ext button.close {
+  -webkit-appearance: none;
+  padding: 0;
+  cursor: pointer;
+  background: 0 0;
+  border: 0; }
+
+.jupyter-vcdat-ext .modal-open {
+  overflow: hidden; }
+
+.jupyter-vcdat-ext .modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  display: none;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  outline: 0; }
+
+.jupyter-vcdat-ext .modal.fade .modal-dialog {
+  -webkit-transition: -webkit-transform .3s ease-out;
+  -o-transition: -o-transform .3s ease-out;
+  transition: transform .3s ease-out;
+  -webkit-transform: translate(0, -25%);
+  -ms-transform: translate(0, -25%);
+  -o-transform: translate(0, -25%);
+  transform: translate(0, -25%); }
+
+.jupyter-vcdat-ext .modal.in .modal-dialog {
+  -webkit-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  -o-transform: translate(0, 0);
+  transform: translate(0, 0); }
+
+.jupyter-vcdat-ext .modal-open .modal {
+  overflow-x: hidden;
+  overflow-y: auto; }
+
+.jupyter-vcdat-ext .modal-dialog {
+  position: relative;
+  width: auto;
+  margin: 10px; }
+
+.jupyter-vcdat-ext .modal-content {
+  position: relative;
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  border: 1px solid #999;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  outline: 0;
+  -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5); }
+
+.jupyter-vcdat-ext .modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  background-color: #000; }
+
+.jupyter-vcdat-ext .modal-backdrop.fade {
+  filter: alpha(opacity=0);
+  opacity: 0; }
+
+.jupyter-vcdat-ext .modal-backdrop.in {
+  filter: alpha(opacity=50);
+  opacity: .5; }
+
+.jupyter-vcdat-ext .modal-header {
+  padding: 15px;
+  border-bottom: 1px solid #e5e5e5; }
+
+.jupyter-vcdat-ext .modal-header .close {
+  margin-top: -2px; }
+
+.jupyter-vcdat-ext .modal-title {
+  margin: 0;
+  line-height: 1.42857143; }
+
+.jupyter-vcdat-ext .modal-body {
+  position: relative;
+  padding: 15px; }
+
+.jupyter-vcdat-ext .modal-footer {
+  padding: 15px;
+  text-align: right;
+  border-top: 1px solid #e5e5e5; }
+
+.jupyter-vcdat-ext .modal-footer .btn + .btn {
+  margin-bottom: 0;
+  margin-left: 5px; }
+
+.jupyter-vcdat-ext .modal-footer .btn-group .btn + .btn {
+  margin-left: -1px; }
+
+.jupyter-vcdat-ext .modal-footer .btn-block + .btn-block {
+  margin-left: 0; }
+
+.jupyter-vcdat-ext .modal-scrollbar-measure {
+  position: absolute;
+  top: -9999px;
+  width: 50px;
+  height: 50px;
+  overflow: scroll; }
+
+@media (min-width: 768px) {
+  .jupyter-vcdat-ext .modal-dialog {
+    width: 600px;
+    margin: 30px auto; }
+  .jupyter-vcdat-ext .modal-content {
+    -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); }
+  .jupyter-vcdat-ext .modal-sm {
+    width: 300px; } }
+
+@media (min-width: 992px) {
+  .jupyter-vcdat-ext .modal-lg {
+    width: 900px; } }
+
+.jupyter-vcdat-ext .tooltip {
+  position: absolute;
+  z-index: 1070;
+  display: block;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.42857143;
+  text-align: left;
+  text-align: start;
+  text-decoration: none;
+  text-shadow: none;
+  text-transform: none;
+  letter-spacing: normal;
+  word-break: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: normal;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  line-break: auto; }
+
+.jupyter-vcdat-ext .tooltip.in {
+  filter: alpha(opacity=90);
+  opacity: .9; }
+
+.jupyter-vcdat-ext .tooltip.top {
+  padding: 5px 0;
+  margin-top: -3px; }
+
+.jupyter-vcdat-ext .tooltip.right {
+  padding: 0 5px;
+  margin-left: 3px; }
+
+.jupyter-vcdat-ext .tooltip.bottom {
+  padding: 5px 0;
+  margin-top: 3px; }
+
+.jupyter-vcdat-ext .tooltip.left {
+  padding: 0 5px;
+  margin-left: -3px; }
+
+.jupyter-vcdat-ext .tooltip-inner {
+  max-width: 200px;
+  padding: 3px 8px;
+  color: #fff;
+  text-align: center;
+  background-color: #000;
+  border-radius: 4px; }
+
+.jupyter-vcdat-ext .tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid; }
+
+.jupyter-vcdat-ext .tooltip.top .tooltip-arrow {
+  bottom: 0;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px 5px 0;
+  border-top-color: #000; }
+
+.jupyter-vcdat-ext .tooltip.top-left .tooltip-arrow {
+  right: 5px;
+  bottom: 0;
+  margin-bottom: -5px;
+  border-width: 5px 5px 0;
+  border-top-color: #000; }
+
+.jupyter-vcdat-ext .tooltip.top-right .tooltip-arrow {
+  bottom: 0;
+  left: 5px;
+  margin-bottom: -5px;
+  border-width: 5px 5px 0;
+  border-top-color: #000; }
+
+.jupyter-vcdat-ext .tooltip.right .tooltip-arrow {
+  top: 50%;
+  left: 0;
+  margin-top: -5px;
+  border-width: 5px 5px 5px 0;
+  border-right-color: #000; }
+
+.jupyter-vcdat-ext .tooltip.left .tooltip-arrow {
+  top: 50%;
+  right: 0;
+  margin-top: -5px;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #000; }
+
+.jupyter-vcdat-ext .tooltip.bottom .tooltip-arrow {
+  top: 0;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 0 5px 5px;
+  border-bottom-color: #000; }
+
+.jupyter-vcdat-ext .tooltip.bottom-left .tooltip-arrow {
+  top: 0;
+  right: 5px;
+  margin-top: -5px;
+  border-width: 0 5px 5px;
+  border-bottom-color: #000; }
+
+.jupyter-vcdat-ext .tooltip.bottom-right .tooltip-arrow {
+  top: 0;
+  left: 5px;
+  margin-top: -5px;
+  border-width: 0 5px 5px;
+  border-bottom-color: #000; }
+
+.jupyter-vcdat-ext .popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1060;
+  display: none;
+  max-width: 276px;
+  padding: 1px;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.42857143;
+  text-align: left;
+  text-align: start;
+  text-decoration: none;
+  text-shadow: none;
+  text-transform: none;
+  letter-spacing: normal;
+  word-break: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: normal;
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  line-break: auto; }
+
+.jupyter-vcdat-ext .popover.top {
+  margin-top: -10px; }
+
+.jupyter-vcdat-ext .popover.right {
+  margin-left: 10px; }
+
+.jupyter-vcdat-ext .popover.bottom {
+  margin-top: 10px; }
+
+.jupyter-vcdat-ext .popover.left {
+  margin-left: -10px; }
+
+.jupyter-vcdat-ext .popover-title {
+  padding: 8px 14px;
+  margin: 0;
+  font-size: 14px;
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #ebebeb;
+  border-radius: 5px 5px 0 0; }
+
+.jupyter-vcdat-ext .popover-content {
+  padding: 9px 14px; }
+
+.jupyter-vcdat-ext .popover > .arrow, .jupyter-vcdat-ext .popover > .arrow:after {
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid; }
+
+.jupyter-vcdat-ext .popover > .arrow {
+  border-width: 11px; }
+
+.jupyter-vcdat-ext .popover > .arrow:after {
+  content: "";
+  border-width: 10px; }
+
+.jupyter-vcdat-ext .popover.top > .arrow {
+  bottom: -11px;
+  left: 50%;
+  margin-left: -11px;
+  border-top-color: #999;
+  border-top-color: rgba(0, 0, 0, 0.25);
+  border-bottom-width: 0; }
+
+.jupyter-vcdat-ext .popover.top > .arrow:after {
+  bottom: 1px;
+  margin-left: -10px;
+  content: " ";
+  border-top-color: #fff;
+  border-bottom-width: 0; }
+
+.jupyter-vcdat-ext .popover.right > .arrow {
+  top: 50%;
+  left: -11px;
+  margin-top: -11px;
+  border-right-color: #999;
+  border-right-color: rgba(0, 0, 0, 0.25);
+  border-left-width: 0; }
+
+.jupyter-vcdat-ext .popover.right > .arrow:after {
+  bottom: -10px;
+  left: 1px;
+  content: " ";
+  border-right-color: #fff;
+  border-left-width: 0; }
+
+.jupyter-vcdat-ext .popover.bottom > .arrow {
+  top: -11px;
+  left: 50%;
+  margin-left: -11px;
+  border-top-width: 0;
+  border-bottom-color: #999;
+  border-bottom-color: rgba(0, 0, 0, 0.25); }
+
+.jupyter-vcdat-ext .popover.bottom > .arrow:after {
+  top: 1px;
+  margin-left: -10px;
+  content: " ";
+  border-top-width: 0;
+  border-bottom-color: #fff; }
+
+.jupyter-vcdat-ext .popover.left > .arrow {
+  top: 50%;
+  right: -11px;
+  margin-top: -11px;
+  border-right-width: 0;
+  border-left-color: #999;
+  border-left-color: rgba(0, 0, 0, 0.25); }
+
+.jupyter-vcdat-ext .popover.left > .arrow:after {
+  right: 1px;
+  bottom: -10px;
+  content: " ";
+  border-right-width: 0;
+  border-left-color: #fff; }
+
+.jupyter-vcdat-ext .carousel {
+  position: relative; }
+
+.jupyter-vcdat-ext .carousel-inner {
+  position: relative;
+  width: 100%;
+  overflow: hidden; }
+
+.jupyter-vcdat-ext .carousel-inner > .item {
+  position: relative;
+  display: none;
+  -webkit-transition: .6s ease-in-out left;
+  -o-transition: .6s ease-in-out left;
+  transition: .6s ease-in-out left; }
+
+.jupyter-vcdat-ext .carousel-inner > .item > a > img, .jupyter-vcdat-ext .carousel-inner > .item > img {
+  line-height: 1; }
+
+@media all and (transform-3d), (-webkit-transform-3d) {
+  .jupyter-vcdat-ext .carousel-inner > .item {
+    -webkit-transition: -webkit-transform .6s ease-in-out;
+    -o-transition: -o-transform .6s ease-in-out;
+    transition: transform .6s ease-in-out;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000px;
+    perspective: 1000px; }
+  .jupyter-vcdat-ext .carousel-inner > .item.active.right, .jupyter-vcdat-ext .carousel-inner > .item.next {
+    left: 0;
+    -webkit-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0); }
+  .jupyter-vcdat-ext .carousel-inner > .item.active.left, .jupyter-vcdat-ext .carousel-inner > .item.prev {
+    left: 0;
+    -webkit-transform: translate3d(-100%, 0, 0);
+    transform: translate3d(-100%, 0, 0); }
+  .jupyter-vcdat-ext .carousel-inner > .item.active, .jupyter-vcdat-ext .carousel-inner > .item.next.left, .jupyter-vcdat-ext .carousel-inner > .item.prev.right {
+    left: 0;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0); } }
+
+.jupyter-vcdat-ext .carousel-inner > .active, .jupyter-vcdat-ext .carousel-inner > .next, .jupyter-vcdat-ext .carousel-inner > .prev {
+  display: block; }
+
+.jupyter-vcdat-ext .carousel-inner > .active {
+  left: 0; }
+
+.jupyter-vcdat-ext .carousel-inner > .next, .jupyter-vcdat-ext .carousel-inner > .prev {
+  position: absolute;
+  top: 0;
+  width: 100%; }
+
+.jupyter-vcdat-ext .carousel-inner > .next {
+  left: 100%; }
+
+.jupyter-vcdat-ext .carousel-inner > .prev {
+  left: -100%; }
+
+.jupyter-vcdat-ext .carousel-inner > .next.left, .jupyter-vcdat-ext .carousel-inner > .prev.right {
+  left: 0; }
+
+.jupyter-vcdat-ext .carousel-inner > .active.left {
+  left: -100%; }
+
+.jupyter-vcdat-ext .carousel-inner > .active.right {
+  left: 100%; }
+
+.jupyter-vcdat-ext .carousel-control {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 15%;
+  font-size: 20px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0);
+  filter: alpha(opacity=50);
+  opacity: .5; }
+
+.jupyter-vcdat-ext .carousel-control.left {
+  background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0.5) 0, rgba(0, 0, 0, 0.0001) 100%);
+  background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0.5) 0, rgba(0, 0, 0, 0.0001) 100%);
+  background-image: -webkit-gradient(linear, left top, right top, from(rgba(0, 0, 0, 0.5)), to(rgba(0, 0, 0, 0.0001)));
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0, rgba(0, 0, 0, 0.0001) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#80000000', endColorstr='#00000000', GradientType=1);
+  background-repeat: repeat-x; }
+
+.jupyter-vcdat-ext .carousel-control.right {
+  right: 0;
+  left: auto;
+  background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0.0001) 0, rgba(0, 0, 0, 0.5) 100%);
+  background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0.0001) 0, rgba(0, 0, 0, 0.5) 100%);
+  background-image: -webkit-gradient(linear, left top, right top, from(rgba(0, 0, 0, 0.0001)), to(rgba(0, 0, 0, 0.5)));
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.0001) 0, rgba(0, 0, 0, 0.5) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#80000000', GradientType=1);
+  background-repeat: repeat-x; }
+
+.jupyter-vcdat-ext .carousel-control:focus, .jupyter-vcdat-ext .carousel-control:hover {
+  color: #fff;
+  text-decoration: none;
+  filter: alpha(opacity=90);
+  outline: 0;
+  opacity: .9; }
+
+.jupyter-vcdat-ext .carousel-control .glyphicon-chevron-left, .jupyter-vcdat-ext .carousel-control .glyphicon-chevron-right, .jupyter-vcdat-ext .carousel-control .icon-next, .jupyter-vcdat-ext .carousel-control .icon-prev {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  display: inline-block;
+  margin-top: -10px; }
+
+.jupyter-vcdat-ext .carousel-control .glyphicon-chevron-left, .jupyter-vcdat-ext .carousel-control .icon-prev {
+  left: 50%;
+  margin-left: -10px; }
+
+.jupyter-vcdat-ext .carousel-control .glyphicon-chevron-right, .jupyter-vcdat-ext .carousel-control .icon-next {
+  right: 50%;
+  margin-right: -10px; }
+
+.jupyter-vcdat-ext .carousel-control .icon-next, .jupyter-vcdat-ext .carousel-control .icon-prev {
+  width: 20px;
+  height: 20px;
+  font-family: serif;
+  line-height: 1; }
+
+.jupyter-vcdat-ext .carousel-control .icon-prev:before {
+  content: '\2039'; }
+
+.jupyter-vcdat-ext .carousel-control .icon-next:before {
+  content: '\203a'; }
+
+.jupyter-vcdat-ext .carousel-indicators {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  z-index: 15;
+  width: 60%;
+  padding-left: 0;
+  margin-left: -30%;
+  text-align: center;
+  list-style: none; }
+
+.jupyter-vcdat-ext .carousel-indicators li {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 1px;
+  text-indent: -999px;
+  cursor: pointer;
+  background-color: #000\9;
+  background-color: rgba(0, 0, 0, 0);
+  border: 1px solid #fff;
+  border-radius: 10px; }
+
+.jupyter-vcdat-ext .carousel-indicators .active {
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  background-color: #fff; }
+
+.jupyter-vcdat-ext .carousel-caption {
+  position: absolute;
+  right: 15%;
+  bottom: 20px;
+  left: 15%;
+  z-index: 10;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); }
+
+.jupyter-vcdat-ext .carousel-caption .btn {
+  text-shadow: none; }
+
+@media screen and (min-width: 768px) {
+  .jupyter-vcdat-ext .carousel-control .glyphicon-chevron-left, .jupyter-vcdat-ext .carousel-control .glyphicon-chevron-right, .jupyter-vcdat-ext .carousel-control .icon-next, .jupyter-vcdat-ext .carousel-control .icon-prev {
+    width: 30px;
+    height: 30px;
+    margin-top: -10px;
+    font-size: 30px; }
+  .jupyter-vcdat-ext .carousel-control .glyphicon-chevron-left, .jupyter-vcdat-ext .carousel-control .icon-prev {
+    margin-left: -10px; }
+  .jupyter-vcdat-ext .carousel-control .glyphicon-chevron-right, .jupyter-vcdat-ext .carousel-control .icon-next {
+    margin-right: -10px; }
+  .jupyter-vcdat-ext .carousel-caption {
+    right: 20%;
+    left: 20%;
+    padding-bottom: 30px; }
+  .jupyter-vcdat-ext .carousel-indicators {
+    bottom: 20px; } }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn-group:after, .jupyter-vcdat-ext .btn-group-vertical > .btn-group:before, .jupyter-vcdat-ext .btn-toolbar:after, .jupyter-vcdat-ext .btn-toolbar:before, .jupyter-vcdat-ext .clearfix:after, .jupyter-vcdat-ext .clearfix:before, .jupyter-vcdat-ext .container-fluid:after, .jupyter-vcdat-ext .container-fluid:before, .jupyter-vcdat-ext .container:after, .jupyter-vcdat-ext .container:before, .jupyter-vcdat-ext .dl-horizontal dd:after, .jupyter-vcdat-ext .dl-horizontal dd:before, .jupyter-vcdat-ext .form-horizontal .form-group:after, .jupyter-vcdat-ext .form-horizontal .form-group:before, .jupyter-vcdat-ext .modal-footer:after, .jupyter-vcdat-ext .modal-footer:before, .jupyter-vcdat-ext .modal-header:after, .jupyter-vcdat-ext .modal-header:before, .jupyter-vcdat-ext .nav:after, .jupyter-vcdat-ext .nav:before, .jupyter-vcdat-ext .navbar-collapse:after, .jupyter-vcdat-ext .navbar-collapse:before, .jupyter-vcdat-ext .navbar-header:after, .jupyter-vcdat-ext .navbar-header:before, .jupyter-vcdat-ext .navbar:after, .jupyter-vcdat-ext .navbar:before, .jupyter-vcdat-ext .pager:after, .jupyter-vcdat-ext .pager:before, .jupyter-vcdat-ext .panel-body:after, .jupyter-vcdat-ext .panel-body:before, .jupyter-vcdat-ext .row:after, .jupyter-vcdat-ext .row:before {
+  display: table;
+  content: " "; }
+
+.jupyter-vcdat-ext .btn-group-vertical > .btn-group:after, .jupyter-vcdat-ext .btn-toolbar:after, .jupyter-vcdat-ext .clearfix:after, .jupyter-vcdat-ext .container-fluid:after, .jupyter-vcdat-ext .container:after, .jupyter-vcdat-ext .dl-horizontal dd:after, .jupyter-vcdat-ext .form-horizontal .form-group:after, .jupyter-vcdat-ext .modal-footer:after, .jupyter-vcdat-ext .modal-header:after, .jupyter-vcdat-ext .nav:after, .jupyter-vcdat-ext .navbar-collapse:after, .jupyter-vcdat-ext .navbar-header:after, .jupyter-vcdat-ext .navbar:after, .jupyter-vcdat-ext .pager:after, .jupyter-vcdat-ext .panel-body:after, .jupyter-vcdat-ext .row:after {
+  clear: both; }
+
+.jupyter-vcdat-ext .center-block {
+  display: block;
+  margin-right: auto;
+  margin-left: auto; }
+
+.jupyter-vcdat-ext .pull-right {
+  float: right !important; }
+
+.jupyter-vcdat-ext .pull-left {
+  float: left !important; }
+
+.jupyter-vcdat-ext .hide {
+  display: none !important; }
+
+.jupyter-vcdat-ext .show {
+  display: block !important; }
+
+.jupyter-vcdat-ext .invisible {
+  visibility: hidden; }
+
+.jupyter-vcdat-ext .text-hide {
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0; }
+
+.jupyter-vcdat-ext .hidden {
+  display: none !important; }
+
+.jupyter-vcdat-ext .affix {
+  position: fixed; }
+
+@-ms-viewport {
+  width: device-width; }
+
+.visible-lg, .visible-md, .visible-sm, .visible-xs {
+  display: none !important; }
+
+.visible-lg-block, .visible-lg-inline, .visible-lg-inline-block, .visible-md-block, .visible-md-inline, .visible-md-inline-block, .visible-sm-block, .visible-sm-inline, .visible-sm-inline-block, .visible-xs-block, .visible-xs-inline, .visible-xs-inline-block {
+  display: none !important; }
+
+@media (max-width: 767px) {
+  .visible-xs {
+    display: block !important; }
+  table.visible-xs {
+    display: table !important; }
+  tr.visible-xs {
+    display: table-row !important; }
+  td.visible-xs, th.visible-xs {
+    display: table-cell !important; } }
+
+@media (max-width: 767px) {
+  .visible-xs-block {
+    display: block !important; } }
+
+@media (max-width: 767px) {
+  .visible-xs-inline {
+    display: inline !important; } }
+
+@media (max-width: 767px) {
+  .visible-xs-inline-block {
+    display: inline-block !important; } }
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .visible-sm {
+    display: block !important; }
+  table.visible-sm {
+    display: table !important; }
+  tr.visible-sm {
+    display: table-row !important; }
+  td.visible-sm, th.visible-sm {
+    display: table-cell !important; } }
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .visible-sm-block {
+    display: block !important; } }
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .visible-sm-inline {
+    display: inline !important; } }
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .visible-sm-inline-block {
+    display: inline-block !important; } }
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .visible-md {
+    display: block !important; }
+  table.visible-md {
+    display: table !important; }
+  tr.visible-md {
+    display: table-row !important; }
+  td.visible-md, th.visible-md {
+    display: table-cell !important; } }
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .visible-md-block {
+    display: block !important; } }
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .visible-md-inline {
+    display: inline !important; } }
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .visible-md-inline-block {
+    display: inline-block !important; } }
+
+@media (min-width: 1200px) {
+  .visible-lg {
+    display: block !important; }
+  table.visible-lg {
+    display: table !important; }
+  tr.visible-lg {
+    display: table-row !important; }
+  td.visible-lg, th.visible-lg {
+    display: table-cell !important; } }
+
+@media (min-width: 1200px) {
+  .visible-lg-block {
+    display: block !important; } }
+
+@media (min-width: 1200px) {
+  .visible-lg-inline {
+    display: inline !important; } }
+
+@media (min-width: 1200px) {
+  .visible-lg-inline-block {
+    display: inline-block !important; } }
+
+@media (max-width: 767px) {
+  .hidden-xs {
+    display: none !important; } }
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .hidden-sm {
+    display: none !important; } }
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .hidden-md {
+    display: none !important; } }
+
+@media (min-width: 1200px) {
+  .hidden-lg {
+    display: none !important; } }
+
+.visible-print {
+  display: none !important; }
+
+@media print {
+  .visible-print {
+    display: block !important; }
+  table.visible-print {
+    display: table !important; }
+  tr.visible-print {
+    display: table-row !important; }
+  td.visible-print, th.visible-print {
+    display: table-cell !important; } }
+
+.visible-print-block {
+  display: none !important; }
+
+@media print {
+  .visible-print-block {
+    display: block !important; } }
+
+.visible-print-inline {
+  display: none !important; }
+
+@media print {
+  .visible-print-inline {
+    display: inline !important; } }
+
+.visible-print-inline-block {
+  display: none !important; }
+
+@media print {
+  .visible-print-inline-block {
+    display: inline-block !important; } }
+
+@media print {
+  .hidden-print {
+    display: none !important; } }
+
+/*# sourceMappingURL=bootstrap.min.css.map */
