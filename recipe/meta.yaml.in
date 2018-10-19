@@ -8,20 +8,20 @@ source:
 
 build:
     number: 0
-    noarch: python
     script: python -m pip install --no-deps --ignore-installed .
 
 requirements:
   build:
-    - python
+    - python >3
     - setuptools
     - nodejs
     - pip
+    - jupyterhub
   run:
-    - python
+    - python >3
     - vcs
-    - tornado
     - vcs-js
+    - jupyterhub
 
 about:
     home:  http://github.com/cdat/jupyter-vcdat
