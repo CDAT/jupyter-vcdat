@@ -14,7 +14,7 @@ For a development install:
 ```bash
 
     #Create the environment
-    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda jupyter-vcdat
+    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda jupyter-vcdat nodejs
     source activate jupyter-vcdat
 
     # Go to vcs repo to update vcs code
