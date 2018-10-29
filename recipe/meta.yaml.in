@@ -1,0 +1,28 @@
+package:
+    name: jupyter-vcdat
+    version: 1.0.@VERSION@
+
+source:
+    git_rev: @UVCDAT_BRANCH@
+    git_url: git://github.com/cdat/jupyter-vcdat.git
+
+build:
+    number: 0
+    script: python -m pip install --no-deps --ignore-installed .
+
+requirements:
+  build:
+    - python >3
+    - setuptools
+    - nodejs
+    - pip
+    - jupyterhub
+  run:
+    - python >3
+    - vcs
+    - vcs-js
+    - jupyterhub
+
+about:
+    home:  http://github.com/cdat/jupyter-vcdat
+
