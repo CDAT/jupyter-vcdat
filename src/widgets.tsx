@@ -167,7 +167,6 @@ export class LeftSideBarWidget extends Widget {
     }
     //This is where the code injection occurs in the current console.
     updateVars() {
-        debugger;
         if (!this.currentPanel) {
             // Create Console and inject code
             this.commands.execute('console:create', {

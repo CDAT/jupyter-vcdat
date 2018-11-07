@@ -50,7 +50,6 @@ class VarList extends React.Component<VarListProps, VarEditState> {
         });
         let url = base_url + '/get_axis?' + params;
         this.callApi(url).then((variableAxes: any) => {
-            debugger;
             this.setState({
                 variables: variableAxes.vars,
                 axis: variableAxes.axes
