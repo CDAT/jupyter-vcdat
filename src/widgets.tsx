@@ -136,7 +136,16 @@ export class LeftSideBarWidget extends Widget {
             },
             // plot using the currently selected variable, gm, template
             plotAction: () => {
-                let plotString = `x.plot(${this.currentVariable}, ${this.currentGm}, ${this.currentTemplate})`;
+                this.currentPanel.console.inject('x.clear()');
+                let gm = this.currentGm;
+                let temp = this.currentTemplate;
+                if(!gm){
+                    gm = '"default"';
+                }
+                if(!temp){
+                    temp = '"default"';
+                }
+                let plotString = `x.plot(${this.currentVariable}, ${gm}, ${temp})`;
                 this.currentPanel.console.inject(plotString);
             },
             clearAction: () => {
@@ -158,6 +167,7 @@ export class LeftSideBarWidget extends Widget {
     }
     //This is where the code injection occurs in the current console.
     updateVars() {
+        debugger;
         if (!this.currentPanel) {
             // Create Console and inject code
             this.commands.execute('console:create', {
@@ -194,6 +204,11 @@ export class LeftSideBarWidget extends Widget {
         var dict: any = { variables: {}, templates: {}, graphicsMethods: {} };
         var outputElements = output.replace(/\'/g, "").split('|');
         dict.variables = outputElements[0].slice(1, -1).split(',');
+
+        let idx = dict.variables.indexOf(' selectedVariable')
+        if( idx != -1){
+            dict.variables.splice(idx, 1);
+        }
         dict.templates = outputElements[1].slice(1, -1).split(',');
 
         //var pattern = /?=\]\}\)/;
@@ -219,7 +234,10 @@ export class LeftSideBarWidget extends Widget {
     }
     handleGetVarsComplete() {
         //Once injection is done read output as string
-        var consoleOutputStr: string = document.getElementsByClassName("jp-OutputArea-output")[0].getElementsByTagName("pre")[0].innerHTML;
+        var consoleOutputStr: string;
+        var jpOutputAreas: HTMLCollectionOf<Element>;
+        jpOutputAreas = document.getElementsByClassName("jp-OutputArea-output");
+        consoleOutputStr = jpOutputAreas[jpOutputAreas.length - 1].getElementsByTagName("pre")[0].innerHTML;
         var outputObj = this.outputStrToDict(consoleOutputStr);
 
         this.component.updateListInfo(
