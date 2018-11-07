@@ -20,7 +20,6 @@ requirements:
   run:
     - python >3
     - vcs
-    - vcs-js
     - jupyterhub
 
 about:

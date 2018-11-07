@@ -21,7 +21,6 @@ type VarEditState = {
 
 class VarList extends React.Component<VarListProps, VarEditState> {
 
-    vcs: any;
     varLoader: VarLoader;
     constructor(props: VarListProps) {
         super(props);
@@ -35,13 +34,8 @@ class VarList extends React.Component<VarListProps, VarEditState> {
         this.addVariables = this.addVariables.bind(this);
         this.editVariable = this.editVariable.bind(this)
         this.removeVariable = this.removeVariable.bind(this)
-        this.setupVcs = this.setupVcs.bind(this);
         this.varClickHandler = this.varClickHandler.bind(this);
         this.callApi = this.callApi.bind(this);
-    }
-
-    setupVcs(vcs: any) {
-        this.vcs = vcs;
     }
 
     addVariables() {
