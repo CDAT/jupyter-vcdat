@@ -31,7 +31,6 @@ type LeftSideBarProps = {
     variables: string[]         // list of loaded variables
 };
 type LeftSideBarState = {
-    // file_path: string,          // path to the file in question
     variables: any,             // object of varnames: varinfo
     graphicsMethods: any,        // list of available graphicsmethods
     templates: any,             // list of availabe templates
