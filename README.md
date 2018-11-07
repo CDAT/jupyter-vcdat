@@ -14,7 +14,7 @@ For a development install:
 ```bash
 
     #Create the environment
-    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda jupyter-vcdat nodejs
+    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda nodejs "python>3" vcs jupyterlab
     source activate jupyter-vcdat
 
     # Go to vcs repo to update vcs code
@@ -27,10 +27,9 @@ For a development install:
     cd ..
     git clone https://github.com/CDAT/jupyter-vcdat.git
     cd jupyter-vcdat
-    git checkout [YOUR_DESIRED_BRANCH]
-    npm install
+    python setup.py install
     jupyter labextension install .
-
+    jupyter serverextension enable --py vcs_backend
 
     #To run, got to jupyter-vcdat repo
     jupyter lab
