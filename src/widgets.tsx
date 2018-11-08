@@ -136,17 +136,21 @@ export class LeftSideBarWidget extends Widget {
             },
             // plot using the currently selected variable, gm, template
             plotAction: () => {
-                this.currentPanel.console.inject('x.clear()');
-                let gm = this.currentGm;
-                let temp = this.currentTemplate;
-                if(!gm){
-                    gm = '"default"';
+                if(!this.currentVariable){
+                    this.currentPanel.console.inject('# Please select a variable from the left panel');
+                } else {
+                    this.currentPanel.console.inject('x.clear()');
+                    let gm = this.currentGm;
+                    let temp = this.currentTemplate;
+                    if(!gm){
+                        gm = '"default"';
+                    }
+                    if(!temp){
+                        temp = '"default"';
+                    }
+                    let plotString = `x.plot(${this.currentVariable}, ${gm}, ${temp})`;
+                    this.currentPanel.console.inject(plotString);
                 }
-                if(!temp){
-                    temp = '"default"';
-                }
-                let plotString = `x.plot(${this.currentVariable}, ${gm}, ${temp})`;
-                this.currentPanel.console.inject(plotString);
             },
             clearAction: () => {
                 this.currentPanel.console.clear();
