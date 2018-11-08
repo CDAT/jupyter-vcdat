@@ -7,8 +7,6 @@ import VarList from './VarList';
 import GMList from './GMList';
 import TemplateList from './TemplateList';
 
-declare var vcs: any;
-
 const leftBtnStyle: React.CSSProperties = {
     margin: '5px',
     // float: 'left'
@@ -31,7 +29,6 @@ type LeftSideBarProps = {
     variables: string[]         // list of loaded variables
 };
 type LeftSideBarState = {
-    // file_path: string,          // path to the file in question
     variables: any,             // object of varnames: varinfo
     graphicsMethods: any,        // list of available graphicsmethods
     templates: any,             // list of availabe templates
@@ -57,29 +54,7 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
 
         this.handleVarClick = this.handleVarClick.bind(this);
         this.handleLoadVariable = this.handleLoadVariable.bind(this);
-        this.handleVcsLoad = this.handleVcsLoad.bind(this);
         this.updateListInfo = this.updateListInfo.bind(this);
-    }
-    // pass the vcs object to the VarList
-    handleVcsLoad() {
-        let vcs_target = $('#vcs-target')[0];
-        this.canvas = vcs.init(vcs_target);
-        if(!this.varListEl.current){
-            setTimeout(() => {
-                this.varListEl.current.setupVcs(vcs);
-            }, 500)
-        } else {
-            this.varListEl.current.setupVcs(vcs);
-        }
-    }
-    // setup the global vcs.js object
-    componentDidMount() {
-        console.log('starting vcs.js load');
-        let script = document.createElement('script');
-        script.src = `http://localhost:5000/vcs.js`;
-        script.async = true;
-        script.addEventListener('load', this.handleVcsLoad);
-        document.body.appendChild(script);
     }
     // handle click on a variable by opening dimension select modal
     handleVarClick(e: any) {

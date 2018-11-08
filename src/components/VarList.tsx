@@ -1,8 +1,11 @@
 import * as React from 'react';
+import * as $ from 'jquery';
 import { toast } from 'react-toastify';
 import AddEditRemoveNav from './AddEditRemoveNav';
 import { VarLoader } from './VarLoader';
 import List from "./List";
+
+const base_url = '/vcs';
 
 type VarListProps = {
     file_path: string,  // path to the file we're loading variables from
@@ -18,7 +21,6 @@ type VarEditState = {
 
 class VarList extends React.Component<VarListProps, VarEditState> {
 
-    vcs: any;
     varLoader: VarLoader;
     constructor(props: VarListProps) {
         super(props);
@@ -32,25 +34,32 @@ class VarList extends React.Component<VarListProps, VarEditState> {
         this.addVariables = this.addVariables.bind(this);
         this.editVariable = this.editVariable.bind(this)
         this.removeVariable = this.removeVariable.bind(this)
-        this.setupVcs = this.setupVcs.bind(this);
         this.varClickHandler = this.varClickHandler.bind(this);
-    }
-
-    setupVcs(vcs: any) {
-        this.vcs = vcs;
+        this.callApi = this.callApi.bind(this);
     }
 
     addVariables() {
-        this.vcs.allvariables(this.props.file_path).then((variableAxes: any) => {
+        let params = $.param({
+            file_path: this.props.file_path,
+        });
+        let url = base_url + '/get_axis?' + params;
+        this.callApi(url).then((variableAxes: any) => {
             this.setState({
-                variables: variableAxes[0],
-                axis: variableAxes[1]
-            })
+                variables: variableAxes.vars,
+                axis: variableAxes.axes
+            });
             this.varLoader.toggle();
             this.varLoader.setVariables(
-                variableAxes[0],
-                variableAxes[1]);
+                variableAxes.vars,
+                variableAxes.axes);
         })
+    }
+    
+    callApi = async (url: string) => {
+        const response = await fetch(url);
+        const body = await response.json();
+        if (response.status !== 200) throw Error(body.message);
+        return body;
     }
 
     editVariable() {
