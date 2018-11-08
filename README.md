@@ -14,7 +14,7 @@ For a development install:
 ```bash
 
     #Create the environment
-    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda nodejs "python>3" vcs jupyterlab
+    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda nodejs "python>3" vcs jupyterlab nb_conda_kernels
     source activate jupyter-vcdat
 
     # Go to vcs repo to update vcs code
@@ -45,7 +45,7 @@ jupyter lab build
 
 ## Possible issues:
 
+If you get an FFMPEG import error, run the following command:
 ```bash
-    #IF YOU GET FFMPEG IMPORT ERROR DO COMMAND:
     conda install -c conda-forge "ffmpeg>4"
 ```
