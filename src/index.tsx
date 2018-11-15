@@ -42,7 +42,7 @@ const extension: JupyterLabPlugin<void> = {
 export default extension;
 
 /**
- * Activate the xckd widget extension.
+ * Activate the vcs widget extension.
  */
 function activate(app: JupyterLab) {
 
@@ -85,7 +85,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
 		const content = new NCViewerWidget(context);
 		const ncWidget = new DocumentWidget({ content, context });
 
-		//Create and show LeftSideBar
+		// Create and show LeftSideBar
 		if(!sidebar){
 			sidebar = new LeftSideBarWidget(commands, context);
 			sidebar.id = 'vcs-left-side-bar';

@@ -4,8 +4,6 @@ import { Widget } from '@phosphor/widgets';
 import { LeftSideBar } from './components/LeftSideBar';
 import { CommandRegistry } from '@phosphor/commands';
 import { DocumentRegistry } from '@jupyterlab/docregistry';
-import { ConsolePanel } from '@jupyterlab/console';
-
 
 /*Test python script
 import cdms2
@@ -52,8 +50,6 @@ print(list_all())
 const GET_VARS_CMD =
 'import __main__\n\
 import json\n\
-import cdms2\n\
-import vcs\n\
 def variables():\n\
     out = []\n\
     for nm, obj in __main__.__dict__.items():\n\
@@ -80,7 +76,7 @@ export class LeftSideBarWidget extends Widget {
     div: HTMLDivElement;                // The div container for this widget
     commands: CommandRegistry;          // Jupyter app CommandRegistry
     context: DocumentRegistry.Context;  // Jupyter app DocumentRegistry.Context
-    currentPanel: ConsolePanel;         // The console panel this widget is interacting with
+    notebook: any;                      // The notebook this widget is interacting with
     variables: string;
     props: any;                         // An object that stores the props to pass down to LeftSideBar
     component: any;                     // the LeftSidebar component
@@ -92,13 +88,13 @@ export class LeftSideBarWidget extends Widget {
         this.div = document.createElement('div');
         this.div.id = 'left-sidebar';
         this.node.appendChild(this.div);
-        console.log('firing LeftSideBar constructor');
         this.commands = commands;
         this.context = context;
-        this.currentPanel = null;
+        this.notebook = null;
         this.currentGm = '';
         this.currentVariable = '';
         this.currentTemplate = '';
+        this.inject = this.inject.bind(this);
         this.props = {
             variables: [],
             graphicsMethods: {},
@@ -110,7 +106,7 @@ export class LeftSideBarWidget extends Widget {
                 if (this.currentVariable != varName) {
                     this.currentVariable = varName;
                     let varString = `selectedVariable = ${varName}`;
-                    this.currentPanel.console.inject(varString);
+                    this.inject(varString);
                 }
             },
             templateClickHandler: (listName: string, tmplName: string) => {
@@ -118,7 +114,7 @@ export class LeftSideBarWidget extends Widget {
                 if (this.currentTemplate != tmplName) {
                     this.currentTemplate = tmplName;
                     let tmplString = `${tmplName} = x.gettemplate('${tmplName}')`;
-                    this.currentPanel.console.inject(tmplString);
+                    this.inject(tmplString);
                 }
             },
             graphClickHandler: (graphicType: string, graphicName: string) => {
@@ -127,7 +123,7 @@ export class LeftSideBarWidget extends Widget {
                 if (this.currentGm != graphicName) {
                     this.currentGm = graphicName;
                     let gmLoadString = `${graphicName} = vcs.get${graphicType}('${graphicName}')`;
-                    this.currentPanel.console.inject(gmLoadString);
+                    this.inject(gmLoadString);
                 }
             },
             //These are the refresh and plot handlers.
@@ -137,9 +133,9 @@ export class LeftSideBarWidget extends Widget {
             // plot using the currently selected variable, gm, template
             plotAction: () => {
                 if(!this.currentVariable){
-                    this.currentPanel.console.inject('# Please select a variable from the left panel');
+                    this.inject('# Please select a variable from the left panel');
                 } else {
-                    this.currentPanel.console.inject('x.clear()');
+                    this.inject('x.clear()');
                     let gm = this.currentGm;
                     let temp = this.currentTemplate;
                     if(!gm){
@@ -149,13 +145,14 @@ export class LeftSideBarWidget extends Widget {
                         temp = '"default"';
                     }
                     let plotString = `x.plot(${this.currentVariable}, ${gm}, ${temp})`;
-                    this.currentPanel.console.inject(plotString);
+                    this.inject(plotString);
                 }
             },
             clearAction: () => {
-                this.currentPanel.console.clear();
+                // this.currentPanel.console.clear();
             },
-            file_path: this.context.session.path
+            file_path: this.context.session.name,
+            inject: this.inject
         };
         this.component = ReactDOM.render(
             <LeftSideBar {...this.props} />,
@@ -169,40 +166,45 @@ export class LeftSideBarWidget extends Widget {
             file_path: file_path
         });
     }
+    inject(code: string){
+        this.notebook.content.activeCell.model.value.text = code;
+        var prom = this.commands.execute('notebook:run-cell');
+        this.commands.execute('notebook:insert-cell-below');
+        return prom;
+    }
     //This is where the code injection occurs in the current console.
     updateVars() {
-        if (!this.currentPanel) {
+        if (!this.notebook) {
             // Create Console and inject code
-            this.commands.execute('console:create', {
+            this.commands.execute('notebook:create-new', {
                 activate: true,
                 path: this.context.path,
                 preferredLanguage: this.context.model.defaultKernelLanguage
-            }).then(consolePanel => {
-                consolePanel.session.ready.then(() => {
-                    this.currentPanel = consolePanel;
-                    this.component.console = consolePanel.console;
-                    //Temp cmd for testing
-                    var injectCmd = `import cdms2\nimport vcs\nx = vcs.init()\ndata = cdms2.open('${this.context.session.path}')`
-                    this.currentPanel.console.inject(injectCmd);
-                    //Command to put variables
-                    this.currentPanel.console.inject(GET_VARS_CMD).then(() => {
-                        this.handleGetVarsComplete();
+            }).then(notebook => {
+                notebook.session.ready.then(() => {
+                    this.notebook = notebook;
+                    var injectCmd = `import cdms2\nimport vcs\nx = vcs.init()\ndata = cdms2.open('${this.props.file_path}')`
+                    let p = this.inject(injectCmd).then(() => {
+                        this.notebook.content.activeCell.model.value.text = GET_VARS_CMD;
+                        this.commands.execute('notebook:run-cell').then(() => {
+                            this.handleGetVarsComplete();
+                            this.commands.execute('notebook:insert-cell-below');
+                        });
+                    }).catch((err) => {
+                        console.log(err);
                     });
                 })
-            })
+            });
         }
         else {
-            // Just inject code, console exists
-            console.log('Executing command console: inject');
-            this.currentPanel.session.ready.then(() => {
-                //Command to put variables
-                this.currentPanel.console.inject(GET_VARS_CMD).then(() => {
-                    this.handleGetVarsComplete();
-                });
+            this.notebook.content.activeCell.model.value.text = GET_VARS_CMD;
+            this.commands.execute('notebook:run-cell').then(() => {
+                this.handleGetVarsComplete();
+                this.commands.execute('notebook:insert-cell-below');
             });
         }
     }
-    //Helper function to convert console output string to an object/dictionary
+    //Helper function to convert output string to an object/dictionary
     outputStrToDict(output: string) {
         var dict: any = { variables: {}, templates: {}, graphicsMethods: {} };
         var outputElements = output.replace(/\'/g, "").split('|');
@@ -248,9 +250,7 @@ export class LeftSideBarWidget extends Widget {
             outputObj["graphicsMethods"],
             outputObj["templates"])
 
-        //Calc the number of cells in console and remove last cell once props are updated
-        var cellCount = this.currentPanel.console.cells.length;
-        this.currentPanel.console.cells.get(cellCount - 1).close();
+        this.commands.execute('notebook:delete-cell');
     }
 }
 

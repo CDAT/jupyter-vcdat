@@ -27,6 +27,7 @@ type LeftSideBarProps = {
     templateClickHandler: any   // a handler for when the user clicks a template
     file_path: string,
     variables: string[]         // list of loaded variables
+    inject: any
 };
 type LeftSideBarState = {
     variables: any,             // object of varnames: varinfo
@@ -39,7 +40,7 @@ type LeftSideBarState = {
 export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarState> {
 
     canvas: any;
-    console: any;
+    notebook: any;
     varListEl: any;
     constructor(props: LeftSideBarProps) {
         super(props);
@@ -60,27 +61,6 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
     handleVarClick(e: any) {
         debugger;
     }
-    // updateFilePath(file_path: string){
-    //     this.setState({
-    //         file_path: file_path
-    //     })
-    //     this.varListEl.setState({
-    //         file_path: file_path
-    //     })
-    // }
-    // handleSetupConsole(console: any) {
-    //     this.console = console;
-    //     let script = [
-    //         'import cdms2',
-    //         'import vcs',
-    //         'x = vcs.init()'];
-    //     script.forEach((item, idx) => {
-    //         this.console.inject(item);
-    //     });
-    // }
-    // handleLoadFile() {
-    //     this.console.inject(`data = cdms2.open('${this.props.file_path}')`)
-    // }
     updateListInfo(variables: string[], graphicsMethods: any, templates: any){
         this.setState({
             variables: variables,
@@ -94,7 +74,7 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
             dimInfoString += `, ${item}=(${dimInfo[item].min}, ${dimInfo[item].max})`;
         })
         dimInfoString += ')';
-        this.console.inject(`${name} = ${dimInfoString}`);
+        this.props.inject(`${name} = ${dimInfoString}`);
         this.props.refreshAction();
     }
     render() {
