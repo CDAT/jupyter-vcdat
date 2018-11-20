@@ -1,3 +1,9 @@
+// Load custom bootstrap and jquery css
+import './../style/css/bootstrap.min.css';
+import './../style/css/jquery-ui.min.css';
+import './../style/css/Styles.css';
+import './../style/css/index.css';
+
 import {
 	ABCWidgetFactory,
 	DocumentRegistry,
