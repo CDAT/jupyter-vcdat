@@ -79,16 +79,10 @@ export class LeftSideBar extends React.Component<LeftSideBarProps, LeftSideBarSt
     }
     render() {
         return (
-            <div className="jupyter-vcdat-ext">
+            <div className="jp-vcdat-leftSideBar">
                 <div id="app-container">
                     <div id='main-container'>
                         <div id='left-side-bar'>
-                            <Button type="button" color="primary" style={leftBtnStyle} onClick={this.props.refreshAction}>
-                                Refresh
-                            </Button>
-                            <Button type="button" color="primary" style={leftBtnStyle} onClick={this.props.clearAction}>
-                                Clear
-                            </Button>
                             <Button type="button" color="primary" style={rightBtnStyle} onClick={this.props.plotAction}>
                                 Plot
                             </Button>

@@ -1,9 +1,3 @@
-
-import './../style/css/bootstrap.min.css';
-import './../style/css/jquery-ui.min.css';
-import './../style/css/Styles.css';
-import './../style/css/index.css';
-
 import {
 	ABCWidgetFactory,
 	DocumentRegistry,
@@ -30,10 +24,10 @@ let sidebar: LeftSideBarWidget;
 let shell: ApplicationShell;
 
 /**
- * Initialization data for the jupyter-react-ext extension.
+ * Initialization data for the jupyter-vcdat extension.
  */
 const extension: JupyterLabPlugin<void> = {
-	id: 'jupyter-react-ext',
+	id: 'jupyter-vcdat',
 	autoStart: true,
 	requires: [ILayoutRestorer],
 	activate: activate

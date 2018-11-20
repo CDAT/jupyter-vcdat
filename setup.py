@@ -11,10 +11,11 @@ def runme(cmd):
     return o,e
 
 
-runme("pip install sidecar")
+# runme("pip install sidecar")
 runme("npm install")
 runme("npm run build")
-runme("jupyter labextension install jupyter-vcdat")
+runme("jupyter labextension install .")
+runme("jupyter serverextension enable --py vcs_backend")
 
 Version = "2.0"
 p = Popen(

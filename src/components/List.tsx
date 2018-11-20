@@ -22,19 +22,21 @@ type ListProps = {
     activeList: string      // the name of the active list
 }
 
-class List extends React.Component<ListProps, any> {
+type ListState = {
+    listName: string        // the name of the list
+    activeList: string      // the name of the active list
+    activeItem: string      // the name of the active item in the list
+}
 
-    itemList: Array<string>;
-    clickAction: Function;
-    listName: string;
-    activeList: string;
-    activeItem: string;
+class List extends React.Component<ListProps, ListState> {
 
     constructor(props: any) {
         super(props)
 
         this.state = {
-            listName: this.props.listName
+            listName: this.props.listName,
+            activeItem: null,
+            activeList: null
         }
         this.clickHandler = this.clickHandler.bind(this);
     };
@@ -62,7 +64,8 @@ class List extends React.Component<ListProps, any> {
                             <a href="#"
                                 style={itemStyle}
                                 onClick={(event: any) => {
-                                    this.clickHandler(event,
+                                    this.clickHandler(
+                                        event,
                                         this.state.listName,
                                         itemName)
                                 }}>

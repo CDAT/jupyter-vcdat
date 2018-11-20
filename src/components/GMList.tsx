@@ -43,12 +43,10 @@ class GMList extends React.Component <any, any> {
                     editAction={this.clickedEdit}
                     editText="Edit a selected graphics method"
                     removeAction={this.confirmRemove}
-                    removeText="Removing a graphics method is not supported yet"
-                />
+                    removeText="Removing a graphics method is not supported yet" />
                 <ListSet 
                     listSet={this.props.graphicsMethods}
-                    clickAction={this.graphClickHandler}
-                />
+                    clickAction={this.graphClickHandler} />
             </div>
         )
     }

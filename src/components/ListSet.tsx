@@ -15,7 +15,18 @@ const setStyle = {
     textDecoration: 'none'
 }
 
-class ListSet extends React.Component <any,any> {
+type ListSetProps = {
+    listSet: any        // an object containing a mapping of catagory names to an array of string items
+    clickAction: any    // the function to call when an item has been clicked
+}
+
+type ListSetState = {
+    activeList: string, // the name of the active list
+    activeItem: string, // the name of the active item
+    show: string        // the name of the list to show
+}
+
+class ListSet extends React.Component <ListSetProps, ListSetState> {
 
     constructor(props: any){
         super(props)
@@ -32,11 +43,8 @@ class ListSet extends React.Component <any,any> {
         this.setState({
             activeList: listName, 
             activeItem: itemName,
-            show: null
+            show: listName
         });
-        if(this.state.show===null){
-            this.setState({show: listName})
-        }
     }
 
     clickItemHandler(activeList: string, listItem: string){
@@ -49,30 +57,36 @@ class ListSet extends React.Component <any,any> {
 
     render() {
         let listNames: Array<string> = Object.keys(this.props.listSet);
-        return (<div className='scroll-area'>
-            {listNames.map((listName: string, index: number) => {
-                return (
-                    <ul key={index} className='no-bullets left-list active'>
-                        <a href="#" 
-                           style={setStyle} 
-                           onClick={(event: any) => {
-                               this.listClickHandler(event,
-                                                     listName,
-                                                     this.state.activeItem)}}>
-                               {listName}
-                        </a>
-                        { this.state.show===listName ?
-                        <List
+        return (
+            <div className='scroll-area'>
+                {listNames.map((listName: string, index: number) => {
+                    let setItem: JSX.Element = <div></div>;
+                    if(this.state.show===listName){
+                        setItem = <List
                             activeList={this.state.activeList}
                             activeItem={this.state.activeItem}
                             listName={listName}
                             itemList={this.props.listSet[listName]}
-                            clickAction={this.clickItemHandler}/>
-                        : "" }
-                    </ul>
-                )
-            })}
-        </div>);
+                            clickAction={this.clickItemHandler} />
+                    }
+                    return (
+                        <ul key={index} className='no-bullets left-list active'>
+                            <a  href="#" 
+                                style={setStyle} 
+                                onClick={(event: any) => {
+                                    this.listClickHandler(
+                                        event,
+                                        listName,
+                                        this.state.activeItem)
+                                    }}>
+                                {listName}
+                            </a>
+                            { setItem }
+                        </ul>
+                    )
+                })}
+            </div>
+        );
     }
 }
 
