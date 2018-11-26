@@ -3,7 +3,7 @@ import AddEditRemoveNav from './AddEditRemoveNav';
 import ListSet from './ListSet';
 import { toast } from "react-toastify";
 
-class GMList extends React.Component <any, any> {
+class GMMenu extends React.Component <any, any> {
     constructor(props: any){
         super(props)
         this.state = {

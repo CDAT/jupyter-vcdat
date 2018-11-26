@@ -105,8 +105,6 @@ export class LeftSideBarWidget extends Widget {
                 varName = varName.replace(/\s/g, '');
                 if (this.currentVariable != varName) {
                     this.currentVariable = varName;
-                    let varString = `selectedVariable = ${varName}`;
-                    this.inject(varString);
                 }
             },
             templateClickHandler: (listName: string, tmplName: string) => {

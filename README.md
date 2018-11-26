@@ -13,7 +13,7 @@ For a development install:
 
 ```bash
 
-    #Create the environment
+    # Create the environment
     conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels
     source activate jupyter-vcdat
 
@@ -23,15 +23,13 @@ For a development install:
     git checkout boxfill_widgets_jupyter
     python setup.py install
 
-    #install the extension
+    # Install the extension
     cd ..
     git clone https://github.com/CDAT/jupyter-vcdat.git
     cd jupyter-vcdat
     python setup.py install
-    jupyter labextension install .
-    jupyter serverextension enable --py vcs_backend
 
-    #To run, got to jupyter-vcdat repo
+    # Start jupyter lab
     jupyter lab
 
 ```
