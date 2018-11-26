@@ -33,8 +33,6 @@ For a development install:
     git clone https://github.com/CDAT/jupyter-vcdat.git
     cd jupyter-vcdat
     python setup.py install
-    jupyter labextension install .
-    jupyter serverextension enable --py vcs_backend
 
     #To run, got to jupyter-vcdat repo
     jupyter lab
