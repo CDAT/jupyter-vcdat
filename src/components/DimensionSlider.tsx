@@ -97,15 +97,14 @@ export class DimensionSlider extends React.Component<DimensionSliderProps, Dimen
             min: pValues[0],
             max: pValues[pValues.length - 1],
             values: [
-                pValues[0],
-                pValues[pValues.length - 1]
+                props.data[0],
+                props.data[props.data.length - 1]
             ],
         };
-
         this.props.updateDimInfo({
             name: this.props.name,
-            min: this.state.min,
-            max: this.state.max
+            min: this.state.values[0],
+            max: this.state.values[1]
         });
     }
 
