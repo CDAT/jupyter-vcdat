@@ -17,6 +17,11 @@ For a development install:
     conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels
     source activate jupyter-vcdat
 
+    # Install sidecar
+    pip install sidecar
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
+
     # Go to vcs repo to update vcs code
     git clone https://github.com/CDAT/vcs.git
     cd vcs
