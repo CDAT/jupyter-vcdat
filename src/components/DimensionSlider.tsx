@@ -126,7 +126,7 @@ export class DimensionSlider extends React.Component<
         {!this.singleValue && (
           <div className="form-inline">
             <small className="units" style={unitsStyle}>
-              {this.state.values[0]}...{this.state.values[1]}: (
+              {this.props.name} [{this.state.values[0]}...{this.state.values[1]}]: (
               {this.props.units})
             </small>
             <Slider
@@ -135,7 +135,7 @@ export class DimensionSlider extends React.Component<
               domain={[this.state.min, this.state.max]}
               rootStyle={sliderStyle}
               onUpdate={this.handleSliderChange}
-              values={[this.state.min, this.state.max]}
+              values={[this.state.values[0], this.state.values[1]]}
             >
               <Rail>
                 {({ getRailProps }) => (
