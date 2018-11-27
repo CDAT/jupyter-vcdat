@@ -110,8 +110,8 @@ export class LeftSideBarWidget extends Widget {
             templateClickHandler: (listName: string, tmplName: string) => {
                 tmplName = tmplName.replace(/\s/g, '');
                 if (this.currentTemplate != tmplName) {
-                    this.currentTemplate = tmplName;
-                    let tmplString = `${tmplName} = x.gettemplate('${tmplName}')`;
+                    this.currentTemplate = 'template_' + tmplName;
+                    let tmplString = `${this.currentTemplate} = x.gettemplate('${tmplName}')`;
                     this.inject(tmplString);
                 }
             },
@@ -119,8 +119,8 @@ export class LeftSideBarWidget extends Widget {
                 graphicName = graphicName.replace(/\s/g, '');
                 graphicType = graphicType.replace(/\s/g, '');
                 if (this.currentGm != graphicName) {
-                    this.currentGm = graphicName;
-                    let gmLoadString = `${graphicName} = vcs.get${graphicType}('${graphicName}')`;
+                    this.currentGm = 'gm_' + graphicName;
+                    let gmLoadString = `${this.currentGm} = vcs.get${graphicType}('${graphicName}')`;
                     this.inject(gmLoadString);
                 }
             },
@@ -133,7 +133,6 @@ export class LeftSideBarWidget extends Widget {
                 if(!this.currentVariable){
                     this.inject('# Please select a variable from the left panel');
                 } else {
-                    this.inject('x.clear()');
                     let gm = this.currentGm;
                     let temp = this.currentTemplate;
                     if(!gm){
@@ -142,7 +141,7 @@ export class LeftSideBarWidget extends Widget {
                     if(!temp){
                         temp = '"default"';
                     }
-                    let plotString = `x.plot(${this.currentVariable}, ${gm}, ${temp})`;
+                    let plotString = `x.clear()\nx.plot(${this.currentVariable}, ${gm}, ${temp})`;
                     this.inject(plotString);
                 }
             },

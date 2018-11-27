@@ -3,14 +3,27 @@ import * as $ from "jquery";
 
 import { ToastContainer } from "react-toastify";
 import { Button } from "reactstrap";
+<<<<<<< HEAD
 // import GMMenu from "./GMMenu";
 // import TemplateMenu from "./TemplateMenu";
 import PlotMenu from "./PlotMenu";
 import VarMenu from "./VarMenu";
+=======
+import VarList from "./VarList";
+import GMList from "./GMList";
+import TemplateList from "./TemplateList";
+>>>>>>> vcdat2.0-sterling
 
 const leftBtnStyle: React.CSSProperties = {
   margin: "5px"
   // float: 'left'
+<<<<<<< HEAD
+=======
+};
+const rightBtnStyle: React.CSSProperties = {
+  // float: "right",
+  margin: "5px"
+>>>>>>> vcdat2.0-sterling
 };
 
 type LeftSideBarProps = {
@@ -82,12 +95,36 @@ export class LeftSideBar extends React.Component<
         <div id="app-container">
           <div id="main-container">
             <div id="left-side-bar">
+<<<<<<< HEAD
               <PlotMenu plotAction={this.props.plotAction} />
               <VarMenu
+=======
+              <div id="plot-options">
+                <Button
+                  type="button"
+                  color="primary"
+                  style={rightBtnStyle}
+                  onClick={this.props.plotAction}
+                >
+                  Plot
+                </Button>
+                <Button
+                  type="button"
+                  color="primary"
+                  stype={leftBtnStyle}
+                  onClick={this.props.refreshAction}
+                >
+                  Refresh
+                </Button>
+              </div>
+              <VarList
+                ref={this.varListEl}
+>>>>>>> vcdat2.0-sterling
                 file_path={this.props.file_path}
                 variables={this.state.variables}
                 varClickHandler={this.props.varClickHandler}
                 loadVariable={this.handleLoadVariable}
+<<<<<<< HEAD
                 editVariable={this.handleLoadVariable}
               />
               {/* <GMMenu
@@ -96,6 +133,18 @@ export class LeftSideBar extends React.Component<
                             <TemplateMenu
                                 templates={this.state.templates}
                                 templateClickHandler={this.props.templateClickHandler} /> */}
+=======
+              />
+              <GMList
+                graphicsMethods={this.state.graphicsMethods}
+                graphClickHandler={this.props.graphClickHandler}
+              />
+              <TemplateList
+                templates={this.state.templates}
+                templateClickHandler={this.props.templateClickHandler}
+              />
+              <ToastContainer />
+>>>>>>> vcdat2.0-sterling
             </div>
           </div>
         </div>
