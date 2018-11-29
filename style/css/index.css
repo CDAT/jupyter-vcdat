@@ -1,18 +1,9 @@
-.jp-xkcdWidget {
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
+
+.jp-vcsWidget-Form {
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
 
-.jp-xkcdCartoon, .numberField {
-    margin: auto;
-    background-color: white;
-}
-
-.jp-cartoonImg {
-    margin: auto;
-}
-
-.jp-xkcdAttribution {
-    margin: 20px auto;
+.jp-vcsWidget-apply-buttons {
+    padding-top: 1em;
 }
