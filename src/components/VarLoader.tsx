@@ -13,16 +13,16 @@ import {
 } from "reactstrap";
 
 import { DimensionSlider } from "./DimensionSlider";
-
+import Variable from "./Variable";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 type VarLoaderProps = {
-  file_path: string; // path to input file
+  filePath: string; // path to input file
   loadVariable: any; // function to call when user hits load
 };
 type VarLoaderState = {
   show: boolean; // should the modal be shown
-  variables: any; // list of variable objects
+  variable: Variable; // selected variable
   axis: any; // variable axis information
   selectedVariableName: string; // cdms name of selected variable
   selectedVariableInfo: any; // axis objects for selected variab;le
@@ -37,16 +37,14 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
       selectedVariableName: "",
       selectedVariableInfo: {},
       axis: {},
-      variables: {},
+      variable: new Variable(),
       dimInfo: {}
     };
 
     this.toggle = this.toggle.bind(this);
-    this.setVariables = this.setVariables.bind(this);
-    this.selectVariable = this.selectVariable.bind(this);
+    this.setVariable = this.setVariable.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
-    this.dimSliders = this.dimSliders.bind(this);
   }
   // open and close the variable loader modal
   toggle() {
@@ -55,27 +53,16 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
     });
   }
   // set the variables and axis info
-  setVariables(variables: any, axis: any) {
+  setVariable(variable: Variable) {
     this.setState({
-      variables: variables,
-      axis: axis
-    });
-  }
-  // user has selected a variable from the drop down list
-  selectVariable(event: any) {
-    if (event.target.value == "select variable") return;
-
-    let vName = event.target.selectedOptions[0].title;
-    this.setState({
-      selectedVariableName: vName,
-      selectedVariableInfo: this.state.variables[vName]
+      variable: variable
     });
   }
   // user has clicked the load button
   loadVariable() {
     this.toggle();
     let dimInfo: any = {};
-    this.state.selectedVariableInfo.axisList.map((info: string) => {
+    this.state.variable.axisList.map((info: string) => {
       dimInfo[info] = {
         min: this.state.dimInfo[info].min,
         max: this.state.dimInfo[info].max
@@ -111,11 +98,11 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
                   File
                 </Col>
                 <Col sm={9}>
-                  <p>{this.props.file_path}</p>
+                  <p>{this.props.filePath}</p>
                 </Col>
               </Row>
             </div>
-            <Row>
+            {/* <Row>
               <Col className="text-right" sm={2}>
                 Variable(s)
               </Col>
@@ -133,18 +120,18 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
                   </Input>
                 </FormGroup>
               </Col>
-            </Row>
+            </Row> */}
           </ModalBody>
-          {/* Once the user selects a variable show the dimension sliders */}
-          {
-            <this.dimSliders
-              selectedVariableName={this.state.selectedVariableName}
-              selectedVariableInfo={this.state.selectedVariableInfo}
-              axis={this.state.axis}
-              variables={this.state.variables}
-              updateDimInfo={this.updateDimInfo}
-            />
-          }
+          {this.state.variable.axisInfo &&
+            this.state.variable.axisInfo.map((item: any) => {
+              item.updateDimInfo = this.updateDimInfo;
+              return (
+                <DimensionSlider
+                  key={item.name}
+                  {...item}
+                />
+              );
+            })}
           <ModalFooter>
             <Button color="primary" onClick={this.loadVariable}>
               Load
@@ -153,17 +140,5 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
         </Modal>
       </div>
     );
-  }
-  dimSliders(props: any) {
-    if (props.selectedVariableName) {
-      let axisNames = props.variables[props.selectedVariableName].axisList;
-      return axisNames.map((item: any) => {
-        let axisInfo = props.axis[item];
-        axisInfo.updateDimInfo = props.updateDimInfo;
-        return <DimensionSlider key={item} {...axisInfo} />;
-      });
-    } else {
-      return null;
-    }
   }
 }

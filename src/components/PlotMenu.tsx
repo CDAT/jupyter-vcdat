@@ -9,7 +9,6 @@ import {
   FormGroup,
   Label,
   Input,
-  FormFeedback,
   CardTitle,
   CardSubtitle,
   Button,
@@ -17,6 +16,7 @@ import {
   CardBody
 } from "reactstrap";
 import Variable from "./Variable";
+import { Dialog, showDialog } from "@jupyterlab/apputils";
 
 type PlotMenuProps = {
   updatePlotOptions: any; // the method to call when the users wants to update the plot options
@@ -28,8 +28,8 @@ type PlotMenuState = {
   dropdownOptions: Array<string>; // options to select for the plot mode
   selectedDropdownOption: string; // the currently selected plot mode
   plotOptions: any; // the currently selected plot options
-  valid_name: boolean; // is the given plot name valid
-  options_changed: boolean; // have the options been changed
+  validName: boolean; // is the given plot name valid
+  optionsChanged: boolean; // have the options been changed
 };
 
 export default class PlotMenu extends React.Component<
@@ -43,8 +43,8 @@ export default class PlotMenu extends React.Component<
       showDropdown: false,
       dropdownOptions: ["1D", "2D", "3D"],
       selectedDropdownOption: "2D",
-      valid_name: true,
-      options_changed: false,
+      validName: true,
+      optionsChanged: false,
       plotOptions: {
         animation: false,
         save_img: false,
@@ -94,10 +94,15 @@ export default class PlotMenu extends React.Component<
                   Plot Type: {this.state.selectedDropdownOption}
                 </DropdownToggle>
                 <DropdownMenu>
-                  {this.state.dropdownOptions.map(item => {
+                  {this.state.dropdownOptions.map((item: string) => {
                     return (
                       <DropdownItem
-                        onClick={() => this.setSelectedOption(item)}
+                        onClick={() =>
+                          this.setState({
+                            selectedDropdownOption: item,
+                            showMenu: true
+                          })
+                        }
                         key={item}
                       >
                         {item}
@@ -117,14 +122,21 @@ export default class PlotMenu extends React.Component<
   }
   selectTrue() {
     if (this.state.plotOptions.save_img && !this.state.plotOptions.plot_name) {
+      let msg =
+        "A filename is required when saving plots or creating animations";
+      showDialog({
+        title: "Filename Required",
+        body: msg,
+        buttons: [Dialog.okButton()]
+      });
       this.setState({
-        valid_name: false
+        validName: false
       });
     } else {
       this.props.updatePlotOptions(this.state.plotOptions);
       this.setState({
         showMenu: false,
-        options_changed: false
+        optionsChanged: false
       });
     }
   }
@@ -139,7 +151,7 @@ export default class PlotMenu extends React.Component<
     } else if (this.state.selectedDropdownOption == "2D") {
       return (
         <div>
-          <Form>
+          <Form className={"jp-vcsWidget-Form"}>
             <FormGroup check>
               <Label check>
                 <Input
@@ -152,7 +164,7 @@ export default class PlotMenu extends React.Component<
                       newPlotOptions.animation = false;
                       this.setState({
                         plotOptions: newPlotOptions,
-                        options_changed: true
+                        optionsChanged: true
                       });
                     }
                   }}
@@ -175,7 +187,7 @@ export default class PlotMenu extends React.Component<
                       newPlotOptions.save_img = true;
                       this.setState({
                         plotOptions: newPlotOptions,
-                        options_changed: true
+                        optionsChanged: true
                       });
                     }
                   }}
@@ -194,7 +206,7 @@ export default class PlotMenu extends React.Component<
                     newPlotOptions.save_img = !newPlotOptions.save_img;
                     this.setState({
                       plotOptions: newPlotOptions,
-                      options_changed: true
+                      optionsChanged: true
                     });
                   }}
                 />{" "}
@@ -212,22 +224,23 @@ export default class PlotMenu extends React.Component<
                     newPlotOptions.plot_name = event.target.value;
                     this.setState({
                       plotOptions: newPlotOptions,
-                      options_changed: true
+                      optionsChanged: true
                     });
                   }}
                 />
               </FormGroup>
             )}
-            {this.state.options_changed && (
-              <FormGroup>
+
+            <FormGroup className={"jp-vcsWidget-apply-buttons"}>
+              <Button onClick={this.selectFalse} color="danger">
+                cancel
+              </Button>
+              {this.state.optionsChanged && (
                 <Button onClick={this.selectTrue} color="primary">
                   apply
                 </Button>
-                <Button onClick={this.selectFalse} color="danger">
-                  cancel
-                </Button>
-              </FormGroup>
-            )}
+              )}
+            </FormGroup>
           </Form>
         </div>
       );

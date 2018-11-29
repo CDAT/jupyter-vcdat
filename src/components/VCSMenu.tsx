@@ -1,6 +1,6 @@
 // Dependencies
 import * as React from "react";
-import { Button } from "reactstrap";
+import { Button, Card, CardBody } from "reactstrap";
 // Project Components
 import PlotMenu from "./PlotMenu";
 import VarMenu from "./VarMenu";
@@ -11,6 +11,9 @@ import Variable from "./Variable";
 const btnStyle: React.CSSProperties = {
   margin: "5px"
 };
+const divStyle: React.CSSProperties = {
+    "overflow": "scroll",
+};
 
 type VCSMenuProps = {
   plotAction: any; // the method to call when the user hits the "Plot" button
@@ -18,42 +21,68 @@ type VCSMenuProps = {
   filePath: string; // the file path for the selected netCDF file
 };
 type VCSMenuState = {
-    plotReady: boolean // are we ready to plot
+  plotReady: boolean; // are we ready to plot
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   constructor(props: VCSMenuProps) {
     super(props);
     this.state = {
-        plotReady: false
-    }
+      plotReady: false
+    };
   }
   render() {
     let plotMenuProps = {
       updatePlotOptions: this.props.updatePlotOptions,
       varInfo: new Variable()
     };
-    let VarMenuProps = {};
-    let GraphicsMethodMenuProps = {};
-    let TemplateMenuProps = {};
+    let VarMenuProps = {
+      filePath: this.props.filePath
+    };
+    let GraphicsMethodMenuProps = {
+        updateGraphicsMethodOptions: () => {}
+    };
+    let TemplateMenuProps = {
+        updateTemplate: () => {}
+    };
 
     return (
       <div>
-        <PlotMenu {...plotMenuProps} />
         <VarMenu {...VarMenuProps} />
+        <PlotMenu {...plotMenuProps} />
         <GraphicsMethodMenu {...GraphicsMethodMenuProps} />
         <TemplateMenu {...TemplateMenuProps} />
-        <div>
-          <Button
-            type="button"
-            color="primary"
-            style={btnStyle}
-            onClick={this.props.plotAction}
-            disabled={this.state.plotReady}
-          >
-            Plot
-          </Button>
-        </div>
+        <Card>
+          <CardBody>
+            <Button
+              type="button"
+              color="primary"
+              style={btnStyle}
+              onClick={this.props.plotAction}
+              disabled={this.state.plotReady}
+            >
+              Plot
+            </Button>
+            <Button
+              type="button"
+              color="primary"
+              style={btnStyle}
+              onClick={this.props.plotAction}
+              disabled={this.state.plotReady}
+            >
+              Save Image
+            </Button>
+            <Button
+              type="button"
+              color="primary"
+              style={btnStyle}
+              onClick={this.props.plotAction}
+              disabled={this.state.plotReady}
+            >
+              Clear Plot
+            </Button>
+          </CardBody>
+        </Card>
       </div>
     );
   }
