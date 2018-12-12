@@ -105,7 +105,6 @@ jobs:
     steps:
       - checkout
       - run: *setup_miniconda
-      - run: *get_testdata
       - run: *create_conda_env
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
@@ -129,7 +128,6 @@ jobs:
     steps:
       - checkout
       - run: *setup_miniconda
-      - run: *get_testdata
       - run: *create_conda_env
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
