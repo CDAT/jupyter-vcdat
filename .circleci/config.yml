@@ -134,7 +134,7 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - macos_jupyter_vcdat_py3:
-      - linux_jupyter_vcdat_py3:
+      - macos_jupyter_vcdat_py3
+      - linux_jupyter_vcdat_py3
 
 
