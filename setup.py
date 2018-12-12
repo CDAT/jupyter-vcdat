@@ -12,8 +12,8 @@ def runme(cmd):
 
 
 runme("pip install sidecar")
-runme("npm install")
-runme("npm run build")
+runme("npm install --no-package-lock")
+runme("npm run build --no-package-lock")
 runme("jupyter labextension install jupyter-vcdat")
 
 Version = "2.0"
