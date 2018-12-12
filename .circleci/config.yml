@@ -16,7 +16,7 @@ aliases:
     name: create_conda_env
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
-       PKGS: "nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels"
+       PKGS: "nodejs 'python>3' vcs jupyterlab pip nb_conda nb_conda_kernels"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
