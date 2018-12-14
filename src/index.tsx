@@ -1,4 +1,4 @@
-
+// Load custom bootstrap and jquery css
 import './../style/css/bootstrap.min.css';
 import './../style/css/jquery-ui.min.css';
 import './../style/css/Styles.css';
@@ -30,10 +30,10 @@ let sidebar: LeftSideBarWidget;
 let shell: ApplicationShell;
 
 /**
- * Initialization data for the jupyter-react-ext extension.
+ * Initialization data for the jupyter-vcdat extension.
  */
 const extension: JupyterLabPlugin<void> = {
-	id: 'jupyter-react-ext',
+	id: 'jupyter-vcdat',
 	autoStart: true,
 	requires: [ILayoutRestorer],
 	activate: activate
@@ -42,7 +42,7 @@ const extension: JupyterLabPlugin<void> = {
 export default extension;
 
 /**
- * Activate the xckd widget extension.
+ * Activate the vcs widget extension.
  */
 function activate(app: JupyterLab) {
 
@@ -85,7 +85,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
 		const content = new NCViewerWidget(context);
 		const ncWidget = new DocumentWidget({ content, context });
 
-		//Create and show LeftSideBar
+		// Create and show LeftSideBar
 		if(!sidebar){
 			sidebar = new LeftSideBarWidget(commands, context);
 			sidebar.id = 'vcs-left-side-bar';
