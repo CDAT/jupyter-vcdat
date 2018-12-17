@@ -14,7 +14,8 @@ def runme(cmd):
 runme("pip install sidecar")
 runme("npm install --no-package-lock")
 runme("npm run build --no-package-lock")
-runme("jupyter labextension install jupyter-vcdat")
+runme("jupyter labextension install .")
+runme("jupyter serverextension enable --py vcs_backend")
 
 Version = "2.0"
 p = Popen(
