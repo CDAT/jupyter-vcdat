@@ -28,6 +28,8 @@ aliases:
     name: setup_jupyter_vcdat
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
+       export CDAT_ANONYMOUS_LOG=False
+       export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
        python setup.py install
        jupyter labextension install . 
