@@ -80,11 +80,11 @@ aliases:
        cd conda-recipes
        export PKG_NAME=jupyter-vcdat
        export USER=cdat
-       export VERSION=8.0
+       export VERSION=2.0.0
        export LABEL=nightly
        ln -s ../recipe $PKG_NAME
        python ./prep_for_build.py -l $VERSION
-       conda build $PKG_NAME $CHANNELS --python=3.6 -l 2.0.0
+       conda build $PKG_NAME $CHANNELS --python=3.6 
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
   - &run_coveralls
