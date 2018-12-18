@@ -69,7 +69,7 @@ aliases:
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
-       if [[ $CIRCLE_BRANCH == 'master' ]]; then
+       if [[ $CIRCLE_BRANCH != 'master' ]]; then
           exit 0
        fi
        export PATH=${HOME}/project/$WORKDIR/miniconda/bin:$PATH
