@@ -17,24 +17,25 @@ For a development install:
     conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels
     source activate jupyter-vcdat
 
+<<<<<<< HEAD
     # Install sidecar
-    pip install sidecar
+    python -m pip install --no-deps --ignore-installed sidecar
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
-    # Go to vcs repo to update vcs code
-    git clone https://github.com/CDAT/vcs.git
-    cd vcs
-    git checkout boxfill_widgets_jupyter
-    python setup.py install
+    # GITHUB EXTENSION
+    jupyter labextension install @jupyterlab/github
+    # maybe?
+    pip install jupyterlab_github
+    jupyter serverextension enable --sys-prefix jupyterlab_github
 
-    #install the extension
+    # Install the extension
     cd ..
     git clone https://github.com/CDAT/jupyter-vcdat.git
     cd jupyter-vcdat
     python setup.py install
 
-    #To run, got to jupyter-vcdat repo
+    # To run, got to jupyter-vcdat repo
     jupyter lab
 
 ```

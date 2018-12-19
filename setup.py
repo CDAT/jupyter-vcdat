@@ -11,9 +11,9 @@ def runme(cmd):
     return o,e
 
 
-# runme("pip install sidecar")
-runme("npm install")
-runme("npm run build")
+runme("pip install sidecar")
+runme("npm install --no-package-lock")
+runme("npm run build --no-package-lock")
 runme("jupyter labextension install .")
 runme("jupyter serverextension enable --py vcs_backend")
 
