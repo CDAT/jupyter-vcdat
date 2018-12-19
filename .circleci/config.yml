@@ -78,7 +78,7 @@ aliases:
        export PKG_NAME=jupyter-vcdat
        export USER=cdat
        export VERSION=2.0.0
-       if [[ $CIRCLE_BRANCH != 'master' ]]; then
+       if [[ $CIRCLE_BRANCH == 'master' ]]; then
         export LABEL=nightly
        else
         export LABEL=${CIRCLE_BRANCH}
