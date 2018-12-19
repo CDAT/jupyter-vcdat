@@ -69,9 +69,6 @@ aliases:
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
-       if [[ $CIRCLE_BRANCH != 'master' ]]; then
-          exit 0
-       fi
        export PATH=${HOME}/project/$WORKDIR/miniconda/bin:$PATH
        conda install conda-build anaconda-client
        conda config --set anaconda_upload no
@@ -81,10 +78,14 @@ aliases:
        export PKG_NAME=jupyter-vcdat
        export USER=cdat
        export VERSION=2.0.0
-       export LABEL=nightly
+       if [[ $CIRCLE_BRANCH != 'master' ]]; then
+        export LABEL=nightly
+       else
+        export LABEL=${CIRCLE_BRANCH}
+       fi
        ln -s ../recipe $PKG_NAME
-       python ./prep_for_build.py -l $VERSION
-       conda build $PKG_NAME $CHANNELS --python=3.6 
+       python ./prep_for_build.py -l $VERSION -b ${CIRCLE_BRANCH}
+       conda build $PKG_NAME $CHANNELS --python=3.6
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
   - &run_coveralls
