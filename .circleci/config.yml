@@ -23,8 +23,8 @@ aliases:
        conda config --set always_yes yes --set changeps1 no
        conda update -q conda
        conda config --set anaconda_upload no
-       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS $COVERAGE_PKGS
-       pip install $TEST_PKGS
+       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS $TEST_PKGS $COVERAGE_PKGS
+       pip install selenium pyvirtualdisplay
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
