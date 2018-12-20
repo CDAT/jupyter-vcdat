@@ -52,6 +52,17 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
+       source activate jupyter-vcdat
+       pwd
+       jupyter lab --ip='127.0.0.1'
+    background: true
+
+  - &run_jupyter_vcdat_tests
+    name: run_jupyter_vcdat_tests
+    command: |
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       export CDAT_ANONYMOUS_LOG=False
+       export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
        pip install selenium
        pip install pyvirtualdisplay
