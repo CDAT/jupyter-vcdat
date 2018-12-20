@@ -46,8 +46,8 @@ aliases:
        pip install jupyterlab_github
        jupyter serverextension enable --sys-prefix jupyterlab_github
 
-  - &run_jupyter_vcdat_tests
-    name: run_jupyter_vcdat_tests
+  - &run_jupyter_vcdat
+    name: run_jupyter_vcdat
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
@@ -163,6 +163,7 @@ jobs:
         - run: *setup_miniconda
         - run: *create_conda_env
         - run: *setup_jupyter_vcdat
+        - run: *run_jupyter_vcdat
         - run: *run_jupyter_vcdat_tests
         - store_artifacts:
             path: tests_html
