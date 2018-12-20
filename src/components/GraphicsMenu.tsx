@@ -41,7 +41,7 @@ export default class GraphicsMenu extends React.Component<
       showMenu: false,
       showDropdown: false,
       selectedMethod: "",
-      selectedGroup: "Select Graphics Method",
+      selectedGroup: "Select Plot Type",
       firstSelection: false,
       optionsChanged: false
     };
@@ -72,7 +72,7 @@ export default class GraphicsMenu extends React.Component<
           }}
         >
           <CardBody>
-            <CardTitle>Graphics Methods</CardTitle>
+            <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle>
               <Dropdown
                 isOpen={this.state.showDropdown}
@@ -147,14 +147,16 @@ export default class GraphicsMenu extends React.Component<
           );
         })}
         <FormGroup className={"jp-vcsWidget-apply-buttons"}>
+          <Button
+            onClick={this.selectTrue}
+            color="primary"
+            disabled={!this.state.optionsChanged}
+          >
+            apply
+          </Button>
           <Button onClick={this.selectFalse} color="danger">
             cancel
           </Button>
-          {this.state.optionsChanged && (
-            <Button onClick={this.selectTrue} color="primary">
-              apply
-            </Button>
-          )}
         </FormGroup>
       </Form>
     );

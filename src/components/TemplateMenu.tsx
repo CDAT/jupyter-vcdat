@@ -111,14 +111,16 @@ export default class TemplateMenu extends React.Component<
             <Collapse isOpen={this.state.showMenu}>
               <Form className={"jp-vcsWidget-Form"}>
                 <FormGroup className={"jp-vcsWidget-apply-buttons"}>
+                  <Button
+                    onClick={this.selectTrue}
+                    color="primary"
+                    disabled={!this.state.optionsChanged}
+                  >
+                    apply
+                  </Button>
                   <Button onClick={this.selectFalse} color="danger">
                     cancel
                   </Button>
-                  {this.state.optionsChanged && (
-                    <Button onClick={this.selectTrue} color="primary">
-                      apply
-                    </Button>
-                  )}
                 </FormGroup>
               </Form>
             </Collapse>

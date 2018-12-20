@@ -1,27 +1,26 @@
-
-import './../style/css/Styles.css';
-import './../style/css/index.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-import {
-	ABCWidgetFactory,
-	DocumentRegistry,
-	IDocumentWidget,
-	DocumentWidget
-} from '@jupyterlab/docregistry';
+import "./../style/css/Styles.css";
+import "./../style/css/index.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import {
-	JupyterLab,
-	JupyterLabPlugin,
-	ApplicationShell,
-	ILayoutRestorer
-} from '@jupyterlab/application';
+  ABCWidgetFactory,
+  DocumentRegistry,
+  IDocumentWidget,
+  DocumentWidget
+} from "@jupyterlab/docregistry";
 
-import { CommandRegistry } from '@phosphor/commands';
-import { NCViewerWidget, LeftSideBarWidget } from './widgets';
+import {
+  JupyterLab,
+  JupyterLabPlugin,
+  ApplicationShell,
+  ILayoutRestorer
+} from "@jupyterlab/application";
 
-const FILETYPE = 'NetCDF';
-const FACTORY_NAME = 'vcs';
+import { CommandRegistry } from "@phosphor/commands";
+import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
+
+const FILETYPE = "NetCDF";
+const FACTORY_NAME = "vcs";
 
 // Declare the widget variables
 let commands: CommandRegistry;
@@ -32,10 +31,10 @@ let shell: ApplicationShell;
  * Initialization data for the jupyter-vcdat extension.
  */
 const extension: JupyterLabPlugin<void> = {
-	id: 'jupyter-vcdat',
-	autoStart: true,
-	requires: [ILayoutRestorer],
-	activate: activate
+  id: "jupyter-vcdat",
+  autoStart: true,
+  requires: [ILayoutRestorer],
+  activate: activate
 };
 
 export default extension;
@@ -44,62 +43,62 @@ export default extension;
  * Activate the vcs widget extension.
  */
 function activate(app: JupyterLab) {
+  commands = app.commands;
+  shell = app.shell;
 
-	commands = app.commands;
-	shell = app.shell;
+  const factory = new NCViewerFactory({
+    name: FACTORY_NAME,
+    fileTypes: [FILETYPE],
+    defaultFor: [FILETYPE],
+    readOnly: true
+  });
 
-	const factory = new NCViewerFactory({
-		name: FACTORY_NAME,
-		fileTypes: [FILETYPE],
-		defaultFor: [FILETYPE],
-		readOnly: true
-	});
+  let ft: DocumentRegistry.IFileType = {
+    name: FILETYPE,
+    extensions: [".nc"],
+    mimeTypes: ["application/netcdf"],
+    contentType: "file",
+    fileFormat: "base64"
+  };
 
-	let ft: DocumentRegistry.IFileType = {
-		name: FILETYPE,
-		extensions: ['.nc'],
-		mimeTypes: ['application/netcdf'],
-		contentType: 'file',
-		fileFormat: 'base64'
-	}
+  let sidebar: any;
 
-	app.docRegistry.addFileType(ft);
-	app.docRegistry.addWidgetFactory(factory);
+  app.docRegistry.addFileType(ft);
+  app.docRegistry.addWidgetFactory(factory);
 
-	factory.widgetCreated.connect((sender, widget) => {
-		console.log('NCViewerWidget created from factory');
-	});
-
-};
+  factory.widgetCreated.connect((sender, widget) => {
+    console.log("NCViewerWidget created from factory");
+  });
+}
 
 /**
  * Create a new widget given a context.
  */
 export class NCViewerFactory extends ABCWidgetFactory<
-	IDocumentWidget<NCViewerWidget>
-	> {
-	protected createNewWidget(
-		context: DocumentRegistry.Context
-	): IDocumentWidget<NCViewerWidget> {
-		const content = new NCViewerWidget(context);
-		const ncWidget = new DocumentWidget({ content, context });
+  IDocumentWidget<NCViewerWidget>
+> {
+  protected createNewWidget(
+    context: DocumentRegistry.Context
+  ): IDocumentWidget<NCViewerWidget> {
+    const content = new NCViewerWidget(context);
+    const ncWidget = new DocumentWidget({ content, context });
 
-		// Create and show LeftSideBar
-		if(!sidebar){
-			sidebar = new LeftSideBarWidget(commands, context);
-			sidebar.id = 'vcs-left-side-bar';
-			sidebar.title.label = 'vcs';
-			sidebar.title.closable = true;
-		}
-		// Attach the widget to the left area if it's not there
-		if (!sidebar.isAttached) {
-			shell.addToLeftArea(sidebar);
-		} else {
-			sidebar.update();
-		}
-		// Activate the widget
-		shell.activateById(sidebar.id);
+    // Create and show LeftSideBar
+    if (!sidebar) {
+      sidebar = new LeftSideBarWidget(commands, context);
+      sidebar.id = "vcs-left-side-bar";
+      sidebar.title.label = "vcs";
+      sidebar.title.closable = true;
+    }
+    // Attach the widget to the left area if it's not there
+    if (!sidebar.isAttached) {
+      shell.addToLeftArea(sidebar);
+    } else {
+      sidebar.update();
+    }
+    // Activate the widget
+    shell.activateById(sidebar.id);
 
-		return ncWidget;
-	}
+    return ncWidget;
+  }
 }

@@ -50,7 +50,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   updateGraphicsOptions(group: string, name: string) {
     this.setState({
       selected_gm_group: group,
-      selected_gm: name
+      selected_gm: `${group}_${name}`
     });
     let gm_string = `${group}_${name} = vcs.get${group}('${name}')`;
     this.props.inject(gm_string);

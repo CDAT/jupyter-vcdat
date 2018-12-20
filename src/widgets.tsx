@@ -57,7 +57,7 @@ export class LeftSideBarWidget extends Widget {
     this.updateVars = this.updateVars.bind(this);
     this.getNotebook = this.getNotebook.bind(this);
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
-
+    this.updateNotebook = this.updateNotebook.bind(this);
     this.component = ReactDOM.render(
       <VCSMenu
         inject={this.inject}
@@ -66,6 +66,9 @@ export class LeftSideBarWidget extends Widget {
       this.div
     );
     this.updateVars();
+  }
+  updateNotebook(){
+
   }
   updatePath(file_path: string) {
     this.component.setState({
