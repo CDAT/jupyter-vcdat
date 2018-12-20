@@ -11,10 +11,14 @@ import {
 } from '@jupyterlab/docregistry';
 
 import {
+	DocumentManager, IDocumentManager
+} from '@jupyterlab/docmanager';
+
+import {
 	JupyterLab,
 	JupyterLabPlugin,
 	ApplicationShell,
-	ILayoutRestorer
+	//ILayoutRestorer
 } from '@jupyterlab/application';
 
 import { CommandRegistry } from '@phosphor/commands';
@@ -34,7 +38,7 @@ let shell: ApplicationShell;
 const extension: JupyterLabPlugin<void> = {
 	id: 'jupyter-vcdat',
 	autoStart: true,
-	requires: [ILayoutRestorer],
+	requires: [],
 	activate: activate
 };
 
@@ -70,6 +74,28 @@ function activate(app: JupyterLab) {
 		console.log('NCViewerWidget created from factory');
 	});
 
+	// Creates the left side bar widget when the app has started
+	app.started.then(()=>{
+		// Create the left side bar
+		sidebar = new LeftSideBarWidget(commands, null);
+		sidebar.id = 'vcs-left-side-bar';
+		sidebar.title.label = 'vcs';
+		sidebar.title.closable = true;
+
+		// Attach it to the left side of main area
+		shell.addToLeftArea(sidebar);
+
+		// Activate the widget
+		shell.activateById(sidebar.id);
+	});
+
+	// Whenever a panel is changed in the shell, this will trigger
+	app.shell.activeChanged.connect((sender,data)=>{
+		if(data.oldValue && data.newValue && data.newValue.hasClass("jp-NotebookPanel")){
+			console.log(data.newValue);
+			console.log(`User switched to notebook with label: ${data.newValue.title.label}`);
+		}
+	});
 };
 
 /**
@@ -91,6 +117,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
 			sidebar.title.label = 'vcs';
 			sidebar.title.closable = true;
 		}
+
 		// Attach the widget to the left area if it's not there
 		if (!sidebar.isAttached) {
 			shell.addToLeftArea(sidebar);
