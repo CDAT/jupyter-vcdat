@@ -41,6 +41,7 @@ export class LeftSideBarWidget extends Widget {
   currentGm: string; // name of the active graphics method
   currentVariable: string; // name of the activate variable
   currentTemplate: string; // name of the activate template
+  context_path: string; // The path for the context from which a variable is added, set when the file is double clicked
   constructor(commands: CommandRegistry, context: DocumentRegistry.Context) {
     super();
     this.div = document.createElement("div");
@@ -53,6 +54,11 @@ export class LeftSideBarWidget extends Widget {
     this.currentVariable = "";
     this.currentTemplate = "";
     this.inject = this.inject.bind(this);
+    this.context_path = "clt.nc";
+
+    if(this.context){
+      this.context_path = this.context.session.name;
+    }
 
     this.updateVars = this.updateVars.bind(this);
     this.getNotebook = this.getNotebook.bind(this);
@@ -106,9 +112,6 @@ export class LeftSideBarWidget extends Widget {
                   resolve(notebook);
                 });
               });
-              // this.inject(this.getPythonSetupStr()).then(() => {
-              //   resolve(notebook);
-              // });
             });
           })
           .catch(error => {
@@ -139,7 +142,6 @@ export class LeftSideBarWidget extends Widget {
     }
     dict.templates = outputElements[1].slice(1, -1).split(",");
     
-    //var pattern = /?=\]\}\)/;
     var first: boolean = true;
     var prevKey: string = "";
     outputElements[2]
