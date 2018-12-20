@@ -140,24 +140,24 @@ jobs:
       docker:
          - image: circleci/node:jessie-browsers
          - image: circleci/python:3.6.2-stretch-browsers
-    environment:
-      WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
-      PY_VER: "py3"
-      TEMP_PKGS: 'ffmpeg' 
-      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-      COVERAGE_PKGS: "coverage coveralls"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
-      - run: *setup_jupyter_vcdat
-      - run: *run_jupyter_vcdat_tests
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
-      - store_artifacts:
-          path: tests_png
-          destination: tests_png
+      environment:
+         WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
+         PY_VER: "py3"
+         TEMP_PKGS: 'ffmpeg' 
+         #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+         COVERAGE_PKGS: "coverage coveralls"
+      steps:
+        - checkout
+        - run: *setup_miniconda
+        - run: *create_conda_env
+        - run: *setup_jupyter_vcdat
+        - run: *run_jupyter_vcdat_tests
+        - store_artifacts:
+            path: tests_html
+            destination: tests_html
+        - store_artifacts:
+            path: tests_png
+            destination: tests_png
 
 workflows:
   version: 2
