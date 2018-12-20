@@ -16,13 +16,15 @@ aliases:
     name: create_conda_env
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
-       PKGS: "nodejs 'python>3' vcs jupyterlab pip nb_conda nb_conda_kernels"
+       PKGS: "nodejs 'python>3' vcs jupyterlab pip nb_conda nb_conda_kernels nbsphinx easydev"
+       TEST_PKGS: "testsrunner cdat_info"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -q conda
        conda config --set anaconda_upload no
-       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" nbsphinx easydev $COVERAGE_PKGS
+       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS $COVERAGE_PKGS
+       pip install $TEST_PKGS
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -52,16 +54,9 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
-       #python run_tests.py -H -v2 -n 2 --checkout-baseline --no-vtk-ui $COVERAGE
+       python run_tests.py -H -v2 -n 2 --checkout-baseline --no-vtk-ui $COVERAGE
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
-       #if [[ $PY_VER = 'py3' ]]; then
-       #   cd docs
-       #   make doctest
-       #   DOC_RESULT=$?
-       #   echo "*** $PY_VER doc test result: "${DOC_RESULT}
-       #   RESULT=$(( $RESULT + $DOC_RESULT ))
-       #fi
        exit $RESULT
 
   - &conda_upload

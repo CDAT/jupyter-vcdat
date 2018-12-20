@@ -1,0 +1,6 @@
+from Utils import TestUtils
+
+class JupyterUtils(TestUtils):
+    def get_token(self):
+        cmd = "jupyter notebook list"
+        ret_code, output = run_command(cmd)
