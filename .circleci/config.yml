@@ -52,7 +52,7 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
-       source activate jupyter-vcdat
+       source activate $PY_VER
        pwd
        jupyter lab --ip='127.0.0.1'
     background: true
