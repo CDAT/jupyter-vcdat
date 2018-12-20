@@ -25,6 +25,7 @@ const base_url = "/vcs";
 
 type VarMenuProps = {
   filePath: string; // the path to our file of interest
+  loadVariable: any; // a method to call when loading the variable
 };
 
 type VarMenuState = {
@@ -79,12 +80,6 @@ export default class VarMenu extends React.Component<
       this.setState({
         variables: newVars
       });
-      //   this.setState({
-      //     variables: variableAxes.vars,
-      //     axis: variableAxes.axes
-      //   });
-      //   this.varLoader.toggle();
-      //   this.varLoader.setVariables(variableAxes.vars, variableAxes.axes);
     });
   }
   // call an external API
@@ -156,9 +151,7 @@ export default class VarMenu extends React.Component<
         </Card>
         <VarLoader
           filePath={this.props.filePath}
-          loadVariable={() => {
-            debugger;
-          }}
+          loadVariable={this.props.loadVariable}
           ref={(loader: VarLoader) => (this.varLoader = loader)}
         />
       </div>

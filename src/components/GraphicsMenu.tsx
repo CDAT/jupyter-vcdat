@@ -19,10 +19,10 @@ const dropdownMenuStype: React.CSSProperties = {
   maxHeight: "250px",
   overflow: "auto"
 };
-type GraphicsMethodMenuProps = {
-  updateGraphicsMethodOptions: any; // a method to call when the user has selected their desired graphics method
+type GraphicsMenuProps = {
+  updateGraphicsOptions: any; // a method to call when the user has selected their desired graphics method
 };
-type GraphicsMethodMenuState = {
+type GraphicsMenuState = {
   showMenu: boolean;
   showDropdown: boolean;
   selectedMethod: string;
@@ -31,17 +31,17 @@ type GraphicsMethodMenuState = {
   optionsChanged: boolean;
 };
 
-export default class GraphicsMethodMenu extends React.Component<
-  GraphicsMethodMenuProps,
-  GraphicsMethodMenuState
+export default class GraphicsMenu extends React.Component<
+  GraphicsMenuProps,
+  GraphicsMenuState
 > {
-  constructor(props: GraphicsMethodMenuProps) {
+  constructor(props: GraphicsMenuProps) {
     super(props);
     this.state = {
       showMenu: false,
       showDropdown: false,
       selectedMethod: "",
-      selectedGroup: "Select Graphics Method",
+      selectedGroup: "Select Plot Type",
       firstSelection: false,
       optionsChanged: false
     };
@@ -72,7 +72,7 @@ export default class GraphicsMethodMenu extends React.Component<
           }}
         >
           <CardBody>
-            <CardTitle>Graphics Methods</CardTitle>
+            <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle>
               <Dropdown
                 isOpen={this.state.showDropdown}
@@ -114,7 +114,7 @@ export default class GraphicsMethodMenu extends React.Component<
     this.setState({
       showMenu: false
     });
-    this.props.updateGraphicsMethodOptions(
+    this.props.updateGraphicsOptions(
       this.state.selectedGroup,
       this.state.selectedMethod
     );
@@ -147,14 +147,16 @@ export default class GraphicsMethodMenu extends React.Component<
           );
         })}
         <FormGroup className={"jp-vcsWidget-apply-buttons"}>
+          <Button
+            onClick={this.selectTrue}
+            color="primary"
+            disabled={!this.state.optionsChanged}
+          >
+            apply
+          </Button>
           <Button onClick={this.selectFalse} color="danger">
             cancel
           </Button>
-          {this.state.optionsChanged && (
-            <Button onClick={this.selectTrue} color="primary">
-              apply
-            </Button>
-          )}
         </FormGroup>
       </Form>
     );

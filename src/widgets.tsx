@@ -1,8 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Widget } from "@phosphor/widgets";
-import { LeftSideBar } from "./components/LeftSideBar";
-import { VCSMenu } from "./components/VCSMenu";
+import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 
@@ -36,7 +35,8 @@ export class LeftSideBarWidget extends Widget {
   context: DocumentRegistry.Context; // Jupyter app DocumentRegistry.Context
   notebook: any; // The notebook this widget is interacting with
   variables: string;
-  props: any; // An object that stores the props to pass down to LeftSideBar
+
+  // component_props: VCSMenuProps; // An object that stores the props to pass down to LeftSideBar
   component: any; // the LeftSidebar component
   currentGm: string; // name of the active graphics method
   currentVariable: string; // name of the activate variable
@@ -59,83 +59,22 @@ export class LeftSideBarWidget extends Widget {
     if(this.context){
       this.context_path = this.context.session.name;
     }
-    this.props = {
-      variables: [],
-      graphicsMethods: {},
-      templates: [],
-      //The handlers below are run when a variable, template or graphicMethod link is clicked
-      varClickHandler: (listName: string, varName: string) => {
-        listName = listName.replace(/\s/g, "");
-        varName = varName.replace(/\s/g, "");
-        if (this.currentVariable != varName) {
-          this.currentVariable = varName;
-        }
-      },
-      templateClickHandler: (listName: string, tmplName: string) => {
-        tmplName = tmplName.replace(/\s/g, "");
-        if (this.currentTemplate != tmplName) {
-          this.currentTemplate = "template_" + tmplName;
-          let tmplString = `${
-            this.currentTemplate
-          } = x.gettemplate('${tmplName}')`;
-          this.inject(tmplString);
-        }
-      },
-      graphClickHandler: (graphicType: string, graphicName: string) => {
-        graphicName = graphicName.replace(/\s/g, "");
-        graphicType = graphicType.replace(/\s/g, "");
-        if (this.currentGm != graphicName) {
-          this.currentGm = "gm_" + graphicName;
-          let gmLoadString = `${
-            this.currentGm
-          } = vcs.get${graphicType}('${graphicName}')`;
-          this.inject(gmLoadString);
-        }
-      },
-      //These are the refresh and plot handlers.
-      refreshAction: () => {
-        this.updateVars();
-      },
-      // plot using the currently selected variable, gm, template
-      plotAction: () => {
-        if (!this.currentVariable) {
-          this.inject("# Please select a variable from the left panel");
-        } else {
-          let gm = this.currentGm;
-          let temp = this.currentTemplate;
-          if (!gm) {
-            gm = '"default"';
-          }
-          if (!temp) {
-            temp = '"default"';
-          }
-          let plotString = `x.clear()\nx.plot(${
-            this.currentVariable
-          }, ${gm}, ${temp})`;
-          this.inject(plotString);
-        }
-      },
-      clearAction: () => {
-        // this.currentPanel.console.clear();
-      },
-      file_path: this.context_path,
-      inject: this.inject
-    };
 
+    this.updateVars = this.updateVars.bind(this);
+    this.getNotebook = this.getNotebook.bind(this);
+    this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
+    this.updateNotebook = this.updateNotebook.bind(this);
     this.component = ReactDOM.render(
       <VCSMenu
-        plotAction={this.props.plotAction}
-        updatePlotOptions={(options: any) => {
-          console.log("update options called");
-          console.log(options);
-        }}
-        filePath={this.context_path}
+        inject={this.inject}
+        filePath={this.context.session.name}
       />,
       this.div
     );
-
-    this.updateVars = this.updateVars.bind(this);
     this.updateVars();
+  }
+  updateNotebook(){
+
   }
   updatePath(file_path: string) {
     this.component.setState({
@@ -148,46 +87,48 @@ export class LeftSideBarWidget extends Widget {
     this.commands.execute("notebook:insert-cell-below");
     return prom;
   }
+  // return a promise of a notebook
+  getNotebook() {
+    let nb = new Promise((resolve, reject) => {
+      if (this.notebook) {
+        resolve(this.notebook);
+      } else {
+        this.commands
+          .execute("notebook:create-new", {
+            activate: true,
+            path: this.context.path,
+            preferredLanguage: this.context.model.defaultKernelLanguage
+          })
+          .then(notebook => {
+            notebook.session.ready.then(() => {
+              this.notebook = notebook;
+              let cmd =
+                'import lazy_import\ncdms2 = lazy_import.lazy_module("cdms2")\nvcs = lazy_import.lazy_module("vcs")';
+              this.inject(cmd).then(() => {
+                let cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
+                  this.context.session.name
+                }\")`;
+                this.inject(cmd).then(() => {
+                  resolve(notebook);
+                });
+              });
+            });
+          })
+          .catch(error => {
+            reject(error);
+          });
+      }
+    });
+    return nb;
+  }
   //This is where the code injection occurs in the current console.
   updateVars() {
-    if (!this.notebook) {
-      //Update context path if context exists
-      if(this.context){
-        this.context_path = this.context.path;
-      }
-      // Create Console and inject code
-      this.commands
-        .execute("notebook:create-new", {
-          activate: true,
-          path: this.context_path,
-          preferredLanguage: ""//this.context.model.defaultKernelLanguage
-        })
-        .then(notebook => {
-          notebook.session.ready.then(() => {
-            this.notebook = notebook;
-            var injectCmd = `import cdms2\nimport vcs\nx = vcs.init()\ndata = cdms2.open('${
-              this.context_path
-            }')`;
-            let p = this.inject(injectCmd)
-              .then(() => {
-                this.notebook.content.activeCell.model.value.text = GET_VARS_CMD;
-                this.commands.execute("notebook:run-cell").then(() => {
-                  this.handleGetVarsComplete();
-                  this.commands.execute("notebook:insert-cell-below");
-                });
-              })
-              .catch(err => {
-                console.log(err);
-              });
-          });
-        });
-    } else {
-      this.notebook.content.activeCell.model.value.text = GET_VARS_CMD;
+    this.getNotebook().then((notebook:any) => {
+      notebook.content.activeCell.model.value.text = GET_VARS_CMD;
       this.commands.execute("notebook:run-cell").then(() => {
         this.handleGetVarsComplete();
-        this.commands.execute("notebook:insert-cell-below");
       });
-    }
+    });
   }
   //Helper function to convert output string to an object/dictionary
   outputStrToDict(output: string) {
@@ -200,15 +141,14 @@ export class LeftSideBarWidget extends Widget {
       dict.variables.splice(idx, 1);
     }
     dict.templates = outputElements[1].slice(1, -1).split(",");
-
-    //var pattern = /?=\]\}\)/;
+    
     var first: boolean = true;
     var prevKey: string = "";
     outputElements[2]
-      .slice(1, -1)
-      .split(":")
-      .forEach(str => {
-        if (first) {
+    .slice(1, -1)
+    .split(":")
+    .forEach(str => {
+      if (first) {
           //first element is only a key
           dict.graphicsMethods[str] = [];
           prevKey = str;
@@ -227,22 +167,17 @@ export class LeftSideBarWidget extends Widget {
     return dict;
   }
   handleGetVarsComplete() {
-    //Once injection is done read output as string
-    var consoleOutputStr: string;
-    var jpOutputAreas: HTMLCollectionOf<Element>;
-    jpOutputAreas = document.getElementsByClassName("jp-OutputArea-output");
-    consoleOutputStr = jpOutputAreas[
-      jpOutputAreas.length - 1
-    ].getElementsByTagName("pre")[0].innerHTML;
+    let consoleOutputStr: string = this.notebook.content.activeCell.outputArea
+      .model._lastStream;
     var outputObj = this.outputStrToDict(consoleOutputStr);
 
-    this.component.updateListInfo(
+    this.component.update(
       outputObj["variables"],
       outputObj["graphicsMethods"],
       outputObj["templates"]
     );
-
     this.commands.execute("notebook:delete-cell");
+    this.commands.execute("notebook:insert-cell-below");
   }
 }
 

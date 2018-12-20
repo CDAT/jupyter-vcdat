@@ -1,14 +1,13 @@
-
-import './../style/css/Styles.css';
-import './../style/css/index.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "./../style/css/Styles.css";
+import "./../style/css/index.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import {
-	ABCWidgetFactory,
-	DocumentRegistry,
-	IDocumentWidget,
-	DocumentWidget
-} from '@jupyterlab/docregistry';
+  ABCWidgetFactory,
+  DocumentRegistry,
+  IDocumentWidget,
+  DocumentWidget
+} from "@jupyterlab/docregistry";
 
 import {
 	DocumentManager, IDocumentManager
@@ -18,14 +17,13 @@ import {
 	JupyterLab,
 	JupyterLabPlugin,
 	ApplicationShell,
-	//ILayoutRestorer
 } from '@jupyterlab/application';
 
-import { CommandRegistry } from '@phosphor/commands';
-import { NCViewerWidget, LeftSideBarWidget } from './widgets';
+import { CommandRegistry } from "@phosphor/commands";
+import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
 
-const FILETYPE = 'NetCDF';
-const FACTORY_NAME = 'vcs';
+const FILETYPE = "NetCDF";
+const FACTORY_NAME = "vcs";
 
 // Declare the widget variables
 let commands: CommandRegistry;
@@ -48,7 +46,6 @@ export default extension;
  * Activate the vcs widget extension.
  */
 function activate(app: JupyterLab) {
-
 	commands = app.commands;
 	shell = app.shell;
 
@@ -97,6 +94,7 @@ function activate(app: JupyterLab) {
 		}
 	});
 };
+
 
 /**
  * Create a new widget given a context.

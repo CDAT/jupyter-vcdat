@@ -68,7 +68,7 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
         max: this.state.dimInfo[info].max
       };
     });
-    this.props.loadVariable(this.state.selectedVariableName, dimInfo);
+    this.props.loadVariable(this.state.variable.name, dimInfo);
   }
   // user has moved one of the dimension sliders
   updateDimInfo(dimInfo: any) {
