@@ -114,9 +114,6 @@ aliases:
        tar -xvf geckodriver-v0.23.0-linux64.tar
        sudo mv geckodriver /usr/local/bin
        export PATH=/usr/local/bin:$PATH
-       type geckodriver
-       type firefox
-
 
 jobs:
   macos_jupyter_vcdat_py3:
@@ -157,6 +154,8 @@ jobs:
       - run: which firefox
       - run: which geckodriver
       - run: *setup_jupyter_vcdat
+      - run: export $(dbus-launch)
+      - run: export NSS_USE_SHARED_DB=ENABLED
       - run: *run_jupyter_vcdat_tests
       #- run: *run_coveralls
       - run: *conda_upload
