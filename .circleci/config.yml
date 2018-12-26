@@ -103,6 +103,21 @@ aliases:
        coveralls
        source deactivate
 
+   - &prepare_firefox
+     name: prepare_firefox
+     command: |
+        sudo apt-get purge -y firefox
+        wget https://sourceforge.net/projects/ubuntuzilla/files/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_63.0.3-0ubuntu1_amd64.deb
+        sudo dpkg -i firefox-mozilla-build_63.0.3-0ubuntu1_amd64.deb
+        wget https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz
+        gunzip geckodriver-v0.23.0-linux64.tar.gz
+        tar -xvf geckodriver-v0.23.0-linux64.tar
+        sudo mv geckodriver /usr/local/bin
+        export PATH=/usr/local/bin:$PATH
+        type geckodriver
+        type firefox
+
+
 jobs:
   macos_jupyter_vcdat_py3:
     macos:
@@ -133,12 +148,16 @@ jobs:
       TEMP_PKGS: 'ffmpeg' 
       COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
+      BROWSER_TYPE: 'firefox'
     steps:
       - checkout
       - run: *setup_miniconda
       - run: *create_conda_env
+      - run: *prepare_firefox
+      - run: which firefox
+      - run: which geckodriver
       - run: *setup_jupyter_vcdat
-      #- run: *run_jupyter_vcdat_tests
+      - run: *run_jupyter_vcdat_tests
       #- run: *run_coveralls
       - run: *conda_upload
       #- store_artifacts:
@@ -177,7 +196,7 @@ workflows:
   jupyter_vcdat:
     jobs:
       #- macos_jupyter_vcdat_py3
-      #- linux_jupyter_vcdat_py3
+      - linux_jupyter_vcdat_py3
       - linux_docker_jupyter_vcdat_py3
 
 

@@ -28,7 +28,7 @@ class BaseTestCase(unittest.TestCase):
         options = Options()
 
         browser = os.getenv("BROWSER_TYPE", 'chrome')
-        mode = os.getenv("BROWSER_MODE", 'headless')
+        mode = os.getenv("BROWSER_MODE", '--headless')
 
         if mode == "--headless" and os.getenv("CIRCLECI") == True:
            print("xxx starting display since we are running in headless mode")
