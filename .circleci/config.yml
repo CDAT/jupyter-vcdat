@@ -148,6 +148,7 @@ jobs:
       BROWSER_TYPE: 'firefox'
     steps:
       - checkout
+      - run: which Xvfb
       - run: *setup_miniconda
       - run: *create_conda_env
       - run: *prepare_firefox
@@ -196,6 +197,6 @@ workflows:
     jobs:
       #- macos_jupyter_vcdat_py3
       - linux_jupyter_vcdat_py3
-      - linux_docker_jupyter_vcdat_py3
+      #- linux_docker_jupyter_vcdat_py3
 
 
