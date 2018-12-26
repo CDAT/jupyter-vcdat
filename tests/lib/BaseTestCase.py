@@ -26,13 +26,10 @@ class BaseTestCase(unittest.TestCase):
         self._download_dir = tempfile.mkdtemp()
         print("x...download_dir: {d}".format(d=self._download_dir))
         options = Options()
-        #options.add_argument("--headless")
-        #options.add_argument("--foreground")
-        # TEMPORARY
-        browser = 'chrome'
-        #browser = 'firefox'
-        mode = "--headless"
-        #mode = "--foreground"
+
+        browser = os.getenv("BROWSER_TYPE", 'chrome')
+        mode = os.getenv("BROWSER_MODE", 'headless')
+
         if mode == "--headless":
            print("xxx starting display since we are running in headless mode")
            display = Display(visible=0, size=(800, 600))
