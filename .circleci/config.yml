@@ -103,19 +103,19 @@ aliases:
        coveralls
        source deactivate
 
-   - &prepare_firefox
-     name: prepare_firefox
-     command: |
-        sudo apt-get purge -y firefox
-        wget https://sourceforge.net/projects/ubuntuzilla/files/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_63.0.3-0ubuntu1_amd64.deb
-        sudo dpkg -i firefox-mozilla-build_63.0.3-0ubuntu1_amd64.deb
-        wget https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz
-        gunzip geckodriver-v0.23.0-linux64.tar.gz
-        tar -xvf geckodriver-v0.23.0-linux64.tar
-        sudo mv geckodriver /usr/local/bin
-        export PATH=/usr/local/bin:$PATH
-        type geckodriver
-        type firefox
+  - &prepare_firefox
+    name: prepare_firefox
+    command: |
+       sudo apt-get purge -y firefox
+       wget https://sourceforge.net/projects/ubuntuzilla/files/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_63.0.3-0ubuntu1_amd64.deb
+       sudo dpkg -i firefox-mozilla-build_63.0.3-0ubuntu1_amd64.deb
+       wget https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz
+       gunzip geckodriver-v0.23.0-linux64.tar.gz
+       tar -xvf geckodriver-v0.23.0-linux64.tar
+       sudo mv geckodriver /usr/local/bin
+       export PATH=/usr/local/bin:$PATH
+       type geckodriver
+       type firefox
 
 
 jobs:
