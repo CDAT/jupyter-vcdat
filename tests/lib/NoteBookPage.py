@@ -16,6 +16,7 @@ from selenium.webdriver.common.keys import Keys
 class NoteBookPage(BasePage):
 
     _wait_timeout = 10
+    _delay = 3
     _nb_tab_locator = "//div[@class='p-TabBar-tabLabel' and contains(text(), 'Untitled.ipynb')]" 
     _nb_code_area_locator = "//div[@class='CodeMirror-code' and @role='presentation']//pre[@class=' CodeMirror-line ']//span[@role='presentation']//span[@cm-text='']"
     
@@ -41,6 +42,6 @@ class NoteBookPage(BasePage):
         a = ActionChains(self.driver)
         a.send_keys(code_text).key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
         a.perform()
-        time.sleep(10)
+        time.sleep(self._delay)
 
         print("xxx after entering: {c}".format(c=code_text))

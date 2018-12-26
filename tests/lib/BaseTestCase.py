@@ -30,10 +30,11 @@ class BaseTestCase(unittest.TestCase):
         browser = os.getenv("BROWSER_TYPE", 'chrome')
         mode = os.getenv("BROWSER_MODE", 'headless')
 
-        if mode == "--headless":
+        if mode == "--headless" and os.getenv("CIRCLECI") == True:
            print("xxx starting display since we are running in headless mode")
            display = Display(visible=0, size=(800, 600))
            display.start()
+
         if browser == 'chrome':
             chrome_options = webdriver.ChromeOptions()
             # temporary for MacOS -- need this for macos in circleCI
