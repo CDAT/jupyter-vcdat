@@ -115,6 +115,12 @@ aliases:
        sudo mv geckodriver /usr/local/bin
        export PATH=/usr/local/bin:$PATH
 
+  - &start_xvfb
+    name: start_xvfb
+    command: |
+       Xvfb -ac :99 -screen 0 1280x1024x16 +extension RANDR > /dev/null 2>&1
+    background: true
+
 jobs:
   macos_jupyter_vcdat_py3:
     macos:
@@ -148,7 +154,7 @@ jobs:
       BROWSER_TYPE: 'firefox'
     steps:
       - checkout
-      - run: which Xvfb
+      - run: *start_xvfb
       - run: *setup_miniconda
       - run: *create_conda_env
       - run: *prepare_firefox
