@@ -163,6 +163,7 @@ jobs:
       - run: *setup_jupyter_vcdat
       - run: export $(dbus-launch)
       - run: export NSS_USE_SHARED_DB=ENABLED
+      - run: *run_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
       #- run: *run_coveralls
       - run: *conda_upload
