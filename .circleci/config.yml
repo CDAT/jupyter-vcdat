@@ -118,7 +118,7 @@ aliases:
   - &start_xvfb
     name: start_xvfb
     command: |
-       Xvfb -ac :99 -screen 0 1280x1024x16 +extension RANDR > /dev/null 2>&1
+       Xvfb -ac :99 +extension RANDR
     background: true
 
 jobs:
