@@ -10,10 +10,6 @@ import {
 } from "@jupyterlab/docregistry";
 
 import {
-	DocumentManager, IDocumentManager
-} from '@jupyterlab/docmanager';
-
-import {
 	JupyterLab,
 	JupyterLabPlugin,
 	ApplicationShell,
@@ -81,16 +77,15 @@ function activate(app: JupyterLab) {
 
 		// Attach it to the left side of main area
 		shell.addToLeftArea(sidebar);
-
-		// Activate the widget
-		shell.activateById(sidebar.id);
 	});
 
 	// Whenever a panel is changed in the shell, this will trigger
 	app.shell.activeChanged.connect((sender,data)=>{
+		if(!data.oldValue && data.newValue && data.newValue.hasClass("jp-NotebookPanel") && !sidebar.notebook){
+			sidebar.updateNotebook(data.newValue);
+		}
 		if(data.oldValue && data.newValue && data.newValue.hasClass("jp-NotebookPanel")){
-			console.log(data.newValue);
-			console.log(`User switched to notebook with label: ${data.newValue.title.label}`);
+			sidebar.updateNotebook(data.newValue);
 		}
 	});
 };
@@ -108,20 +103,9 @@ export class NCViewerFactory extends ABCWidgetFactory<
 		const content = new NCViewerWidget(context);
 		const ncWidget = new DocumentWidget({ content, context });
 
-		// Create and show LeftSideBar
-		if(!sidebar){
-			sidebar = new LeftSideBarWidget(commands, context);
-			sidebar.id = 'vcs-left-side-bar';
-			sidebar.title.label = 'vcs';
-			sidebar.title.closable = true;
-		}
+		sidebar.updatePath(context);
+		sidebar.createNotebook(undefined, undefined);
 
-		// Attach the widget to the left area if it's not there
-		if (!sidebar.isAttached) {
-			shell.addToLeftArea(sidebar);
-		} else {
-			sidebar.update();
-		}
 		// Activate the widget
 		shell.activateById(sidebar.id);
 

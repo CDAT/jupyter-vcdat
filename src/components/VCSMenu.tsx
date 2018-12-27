@@ -19,13 +19,14 @@ const divStyle: React.CSSProperties = {
 // updatePlotOptions: any; // a method to cause the plot options to be updated
 export type VCSMenuProps = {
   inject: any; // a method to inject code into the controllers notebook
-  filePath: string; // the file path for the selected netCDF file
+  file_path: string; // the file path for the selected netCDF file
 };
 type VCSMenuState = {
+  file_path: string;
   plotReady: boolean; // are we ready to plot
   selected_variables: Array<string>;
   selected_gm: string;
-  selected_gm_group: string; 
+  selected_gm_group: string;
   selected_template: string;
 };
 
@@ -33,6 +34,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   constructor(props: VCSMenuProps) {
     super(props);
     this.state = {
+      file_path: props.file_path,
       plotReady: false,
       selected_variables: new Array<string>(),
       selected_gm: "",
@@ -46,7 +48,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updateVarOptions = this.updateVarOptions.bind(this);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
   }
-  update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {}
+  update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {
+    console.log(vars, gms, templates);
+  }
   updateGraphicsOptions(group: string, name: string) {
     this.setState({
       selected_gm_group: group,
@@ -58,12 +62,12 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   updateVarOptions(variable: string, dimInfo: any) {
     this.setState({
       selected_variables: this.state.selected_variables.concat([variable])
-    })
+    });
     let var_string = `${variable} = data("${variable}"`;
-    Object.keys(dimInfo).forEach((item) => {
-      var_string += `, ${item}=(${dimInfo[item].min}, ${dimInfo[item].max})`
-    })
-    var_string += ')'
+    Object.keys(dimInfo).forEach(item => {
+      var_string += `, ${item}=(${dimInfo[item].min}, ${dimInfo[item].max})`;
+    });
+    var_string += ")";
     this.props.inject(var_string);
   }
   updateTemplateOptions() {}
@@ -91,7 +95,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       varInfo: new Variable()
     };
     let VarMenuProps = {
-      filePath: this.props.filePath,
+      file_path: this.state.file_path,
       loadVariable: this.updateVarOptions
     };
     let TemplateMenuProps = {

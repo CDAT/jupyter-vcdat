@@ -4,30 +4,7 @@ import { Widget } from "@phosphor/widgets";
 import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
-
-const GET_VARS_CMD =
-  'import __main__\n\
-import json\n\
-def variables():\n\
-    out = []\n\
-    for nm, obj in __main__.__dict__.items():\n\
-        if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-            out+=[nm]\n\
-    return out\n\
-def graphic_methods():\n\
-    out = {}\n\
-    for typ in vcs.graphicsmethodlist():\n\
-        out[typ] = vcs.listelements(typ)\n\
-    return out\n\
-def templates():\n\
-    return vcs.listelements("template")\n\
-def list_all():\n\
-    out = {}\n\
-    out["variables"] = variables()\n\
-    out["gm"] = graphic_methods()\n\
-    out["template"] = templates()\n\
-    return out\n\
-print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
+import { GET_VARS_CMD, LOAD_DEPENDENCIES } from "./constants";
 
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
@@ -35,13 +12,8 @@ export class LeftSideBarWidget extends Widget {
   context: DocumentRegistry.Context; // Jupyter app DocumentRegistry.Context
   notebook: any; // The notebook this widget is interacting with
   variables: string;
-
-  // component_props: VCSMenuProps; // An object that stores the props to pass down to LeftSideBar
   component: any; // the LeftSidebar component
-  currentGm: string; // name of the active graphics method
-  currentVariable: string; // name of the activate variable
-  currentTemplate: string; // name of the activate template
-  context_path: string; // The path for the context from which a variable is added, set when the file is double clicked
+  context_path: string;
   constructor(commands: CommandRegistry, context: DocumentRegistry.Context) {
     super();
     this.div = document.createElement("div");
@@ -50,13 +22,9 @@ export class LeftSideBarWidget extends Widget {
     this.commands = commands;
     this.context = context;
     this.notebook = null;
-    this.currentGm = "";
-    this.currentVariable = "";
-    this.currentTemplate = "";
     this.inject = this.inject.bind(this);
-    this.context_path = "clt.nc";
 
-    if(this.context){
+    if (this.context) {
       this.context_path = this.context.session.name;
     }
 
@@ -65,20 +33,20 @@ export class LeftSideBarWidget extends Widget {
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
     this.updateNotebook = this.updateNotebook.bind(this);
     this.component = ReactDOM.render(
-      <VCSMenu
-        inject={this.inject}
-        filePath={this.context.session.name}
-      />,
+      <VCSMenu inject={this.inject} file_path={this.context_path} />,
       this.div
     );
-    this.updateVars();
   }
-  updateNotebook(){
-
+  updateNotebook(notebook: any) {
+    this.notebook = notebook;
+    this.prepNotebook(notebook, undefined).then(() => {
+      this.updateVars();
+    });
   }
-  updatePath(file_path: string) {
+  updatePath(context: any) {
+    this.context = context;
     this.component.setState({
-      file_path: file_path
+      file_path: this.context.session.name
     });
   }
   inject(code: string) {
@@ -87,43 +55,59 @@ export class LeftSideBarWidget extends Widget {
     this.commands.execute("notebook:insert-cell-below");
     return prom;
   }
+  prepNotebook(notebook: any, resolve: any) {
+    return new Promise((resolve, reject) => {
+      notebook.session.ready.then(() => {
+        this.notebook = notebook;
+        this.inject(LOAD_DEPENDENCIES).then(() => {
+          if (this.context) {
+            let cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
+              this.context.session.name
+            }\")`;
+            this.inject(cmd).then(() => {
+              if (resolve) {
+                resolve();
+              }
+            });
+          } else {
+            if (resolve) {
+              resolve();
+            }
+          }
+        });
+      });
+    });
+  }
+  createNotebook(resolve: any, reject: any) {
+    this.commands
+      .execute("notebook:create-new", {
+        activate: true,
+        path: this.context.path,
+        preferredLanguage: this.context.model.defaultKernelLanguage
+      })
+      .then(notebook => {
+        this.prepNotebook(notebook, resolve);
+      })
+      .catch(error => {
+        if (reject) {
+          reject(error);
+        }
+      });
+  }
   // return a promise of a notebook
   getNotebook() {
     let nb = new Promise((resolve, reject) => {
       if (this.notebook) {
         resolve(this.notebook);
       } else {
-        this.commands
-          .execute("notebook:create-new", {
-            activate: true,
-            path: this.context.path,
-            preferredLanguage: this.context.model.defaultKernelLanguage
-          })
-          .then(notebook => {
-            notebook.session.ready.then(() => {
-              this.notebook = notebook;
-              let cmd =
-                'import lazy_import\ncdms2 = lazy_import.lazy_module("cdms2")\nvcs = lazy_import.lazy_module("vcs")';
-              this.inject(cmd).then(() => {
-                let cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
-                  this.context.session.name
-                }\")`;
-                this.inject(cmd).then(() => {
-                  resolve(notebook);
-                });
-              });
-            });
-          })
-          .catch(error => {
-            reject(error);
-          });
+        this.createNotebook(resolve, reject);
       }
     });
     return nb;
   }
   //This is where the code injection occurs in the current console.
   updateVars() {
-    this.getNotebook().then((notebook:any) => {
+    this.getNotebook().then((notebook: any) => {
       notebook.content.activeCell.model.value.text = GET_VARS_CMD;
       this.commands.execute("notebook:run-cell").then(() => {
         this.handleGetVarsComplete();
@@ -141,14 +125,14 @@ export class LeftSideBarWidget extends Widget {
       dict.variables.splice(idx, 1);
     }
     dict.templates = outputElements[1].slice(1, -1).split(",");
-    
+
     var first: boolean = true;
     var prevKey: string = "";
     outputElements[2]
-    .slice(1, -1)
-    .split(":")
-    .forEach(str => {
-      if (first) {
+      .slice(1, -1)
+      .split(":")
+      .forEach(str => {
+        if (first) {
           //first element is only a key
           dict.graphicsMethods[str] = [];
           prevKey = str;

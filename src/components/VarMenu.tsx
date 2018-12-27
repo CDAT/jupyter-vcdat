@@ -24,7 +24,7 @@ import { VarLoader } from "./VarLoader";
 const base_url = "/vcs";
 
 type VarMenuProps = {
-  filePath: string; // the path to our file of interest
+  file_path: string; // the path to our file of interest
   loadVariable: any; // a method to call when loading the variable
 };
 
@@ -60,7 +60,7 @@ export default class VarMenu extends React.Component<
   }
   addVariables() {
     let params = $.param({
-      file_path: this.props.filePath
+      file_path: this.props.file_path
     });
     let url = base_url + "/get_vars?" + params;
     this.callApi(url).then((variableAxes: any) => {
@@ -150,7 +150,7 @@ export default class VarMenu extends React.Component<
           </CardBody>
         </Card>
         <VarLoader
-          filePath={this.props.filePath}
+          file_path={this.props.file_path}
           loadVariable={this.props.loadVariable}
           ref={(loader: VarLoader) => (this.varLoader = loader)}
         />
