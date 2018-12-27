@@ -25,4 +25,6 @@ print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
 const LOAD_DEPENDENCIES =
   'import lazy_import\ncdms2 = lazy_import.lazy_module("cdms2")\nvcs = lazy_import.lazy_module("vcs")';
 
-export { GET_VARS_CMD, LOAD_DEPENDENCIES };
+const BASE_URL = "/vcs";
+
+export { GET_VARS_CMD, LOAD_DEPENDENCIES, BASE_URL };

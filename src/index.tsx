@@ -104,7 +104,11 @@ export class NCViewerFactory extends ABCWidgetFactory<
 		const ncWidget = new DocumentWidget({ content, context });
 
 		sidebar.updatePath(context);
-		sidebar.createNotebook(undefined, undefined);
+		if(sidebar.loading_data && sidebar.notebook){
+			sidebar.loading_data = false;
+		} else {
+			sidebar.createNotebook(undefined, undefined);
+		}
 
 		// Activate the widget
 		shell.activateById(sidebar.id);

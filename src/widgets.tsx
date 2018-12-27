@@ -14,6 +14,8 @@ export class LeftSideBarWidget extends Widget {
   variables: string;
   component: any; // the LeftSidebar component
   context_path: string;
+  loading_data: boolean;
+
   constructor(commands: CommandRegistry, context: DocumentRegistry.Context) {
     super();
     this.div = document.createElement("div");
@@ -23,7 +25,8 @@ export class LeftSideBarWidget extends Widget {
     this.context = context;
     this.notebook = null;
     this.inject = this.inject.bind(this);
-
+    this.loading_data = false;
+  
     if (this.context) {
       this.context_path = this.context.session.name;
     }
@@ -33,9 +36,20 @@ export class LeftSideBarWidget extends Widget {
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
     this.updateNotebook = this.updateNotebook.bind(this);
     this.component = ReactDOM.render(
-      <VCSMenu inject={this.inject} file_path={this.context_path} />,
+      <VCSMenu
+        inject={this.inject}
+        file_path={this.context_path}
+        commands={this.commands}
+      />,
       this.div
     );
+
+    this.commands.addCommand("vcs:load-data", {
+      execute: (args) => {
+        this.loading_data = true;
+        this.commands.execute("filebrowser:activate");
+      }
+    });
   }
   updateNotebook(notebook: any) {
     this.notebook = notebook;
