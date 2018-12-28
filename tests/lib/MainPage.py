@@ -59,8 +59,9 @@ class MainPage(BasePage):
                 #locator2 = "//span[@class='jp-DirListing-itemText']"
                 #file_locator = "{l1}{l2}".format(l1=locator1, l2=locator2)
                 #file_element = self.driver.find_element_by_xpath(file_locator)
-                locator1 = "//li[@class='jp-DirListing-item'][@title='{f}']//span".format(f=fname)
-                file_element = self.driver.find_elements_by_xpath(locator1)[1]
+                #locator1 = "//li[@class='jp-DirListing-item'][@title='{f}']//span".format(f=fname)
+                locator1 = "//span[@class='jp-DirListing-itemText'][contains(text(), '{f}')]".format(f=fname)
+                file_element = self.driver.find_element_by_xpath(locator1)
 
                 print("...found the element...")
                 actionChains = ActionChains(self.driver)
