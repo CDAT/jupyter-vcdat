@@ -186,6 +186,8 @@ jobs:
          COVERAGE_PKGS: "coverage coveralls"
       steps:
         - checkout
+        - run: which firefox
+        - run: which geckodriver
         - run: *setup_miniconda
         - run: *create_conda_env
         - run: *setup_jupyter_vcdat
@@ -203,7 +205,7 @@ workflows:
   jupyter_vcdat:
     jobs:
       #- macos_jupyter_vcdat_py3
-      - linux_jupyter_vcdat_py3
-      #- linux_docker_jupyter_vcdat_py3
+      #- linux_jupyter_vcdat_py3
+      - linux_docker_jupyter_vcdat_py3
 
 
