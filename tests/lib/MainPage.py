@@ -54,10 +54,14 @@ class MainPage(BasePage):
 
                 print("... double clicking on file name")
                 #file_locator = "//li[@class='jp-DirListing-item'][@title='{f}']".format(f=fname)
-                locator1 = "//li[@class='jp-DirListing-item'][@title='{f}']".format(f=fname)
-                locator2 = "//span[@class='jp-DirListing-itemText']"
-                file_locator = "{l1}{l2}".format(l1=locator1, l2=locator2)
-                file_element = self.driver.find_element_by_xpath(file_locator)
+
+                #locator1 = "//li[@class='jp-DirListing-item'][@title='{f}']".format(f=fname)
+                #locator2 = "//span[@class='jp-DirListing-itemText']"
+                #file_locator = "{l1}{l2}".format(l1=locator1, l2=locator2)
+                #file_element = self.driver.find_element_by_xpath(file_locator)
+                locator1 = "//li[@class='jp-DirListing-item'][@title='{f}']//span".format(f=fname)
+                file_element = self.driver.find_elements_by_xpath(locator1)[1]
+
                 print("...found the element...")
                 actionChains = ActionChains(self.driver)
                 actionChains.move_to_element(file_element)
