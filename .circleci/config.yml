@@ -187,6 +187,7 @@ jobs:
          BROWSER_TYPE: "firefox"
       steps:
         - checkout
+        - run: *start_xvfb
         - run: *setup_miniconda
         - run: *create_conda_env
         - run: *setup_jupyter_vcdat
