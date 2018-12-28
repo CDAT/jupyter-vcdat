@@ -152,6 +152,7 @@ jobs:
       COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: 'firefox'
+      DISPLAY: ":99"
     steps:
       - checkout
       #- run: *start_xvfb
