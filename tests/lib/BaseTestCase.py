@@ -81,7 +81,7 @@ class BaseTestCase(unittest.TestCase):
 
             # TEMPORARY
             #firefox_binary = FirefoxBinary("/Applications/Firefox.app/Contents/MacOS/firefox")
-            firefox_binary = FirefoxBinary("/usr/bin/firefox")
+            firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
             #self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
             #                                firefox_binary=firefox_binary,
             #                                options=options,
