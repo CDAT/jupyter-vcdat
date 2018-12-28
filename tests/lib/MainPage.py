@@ -55,9 +55,13 @@ class MainPage(BasePage):
                 print("... double clicking on file name")
                 file_locator = "//li[@class='jp-DirListing-item'][@title='{f}']".format(f=fname)
                 file_element = self.driver.find_element_by_xpath(file_locator)
+                print("...found the element...")
                 actionChains = ActionChains(self.driver)
                 actionChains.move_to_element(file_element)
-                actionChains.double_click(file_element).perform()
+                print("...going to double click on the file name")
+                actionChains.double_click(file_element)
+                print("...going to perform...")
+                actionChains.perform()
  
                 print("...after double clicking on file name xxx")
                 # this may be TEMPORARY -- check if 'File Load Error for clt.nc' pop up is temporary
