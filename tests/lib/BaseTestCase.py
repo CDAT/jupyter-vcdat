@@ -29,6 +29,8 @@ class BaseTestCase(unittest.TestCase):
 
         browser = os.getenv("BROWSER_TYPE", 'chrome')
         mode = os.getenv("BROWSER_MODE", '--headless')
+        print("xxx browser: {b}".format(b=browser))
+        print("xxx mode: {m}".format(m=mode))
 
         if mode == "--headless" and os.getenv("CIRCLECI") == True:
            print("xxx starting display since we are running in headless mode")
@@ -70,7 +72,7 @@ class BaseTestCase(unittest.TestCase):
             firefox_profile.set_preference('browser.download.panel.shown', False)
             firefox_profile.set_preference('browser.download.manager.showWhenStarting', False)
             firefox_profile.set_preference('browser.download.manager.showAlertOnComplete', False)
-            firefox_profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/x-netcdf");
+#            firefox_profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/x-netcdf");
             
             firefox_capabilities = DesiredCapabilities().FIREFOX
             firefox_capabilities['marionette'] = True
