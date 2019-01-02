@@ -134,13 +134,6 @@ jobs:
       - run: *setup_miniconda
       - run: *create_conda_env
       - run: *setup_jupyter_vcdat
-      #- run: *run_jupyter_vcdat_tests
-      #- store_artifacts:
-      #    path: tests_html
-      #    destination: tests_html
-      #- store_artifacts:
-      #    path: tests_png
-      #    destination: tests_png
 
   linux_jupyter_vcdat_py3:
     machine:
@@ -153,83 +146,68 @@ jobs:
       COVERAGE_PKGS: "coverage coveralls"
     steps:
       - checkout
-      #- run: *start_xvfb
       - run: *setup_miniconda
       - run: *create_conda_env
-      - run: *prepare_firefox
-      - run: which firefox
-      - run: which geckodriver
       - run: *setup_jupyter_vcdat
-      - run: export $(dbus-launch)
-      - run: export NSS_USE_SHARED_DB=ENABLED
-      - run: *run_jupyter_vcdat
-      - run: *run_jupyter_vcdat_tests
-      #- run: *run_coveralls
       - run: *conda_upload
-      #- store_artifacts:
-      #    path: tests_html
-      #    destination: tests_html
-      #- store_artifacts:
-      #    path: tests_png
-      #    destination: tests_png
 
   linux_docker_firefox_jupyter_vcdat_py3:
-      docker:
-         - image: circleci/node:jessie-browsers
-         - image: circleci/python:3.6.2-stretch-browsers
-      environment:
-         WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
-         PY_VER: "py3"
-         TEMP_PKGS: 'ffmpeg' 
-         #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-         COVERAGE_PKGS: "coverage coveralls"
-         BROWSER_TYPE: "firefox"
-      steps:
-        - checkout
-        - run: *setup_miniconda
-        - run: *create_conda_env
-        - run: *setup_jupyter_vcdat
-        - run: *run_jupyter_vcdat
-        - run: *run_jupyter_vcdat_tests
-        - store_artifacts:
-            path: tests_html
-            destination: tests_html
-        - store_artifacts:
-            path: tests_png
-            destination: tests_png
+    docker:
+      - image: circleci/node:jessie-browsers
+      - image: circleci/python:3.6.2-stretch-browsers
+    environment:
+      WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
+      PY_VER: "py3"
+      TEMP_PKGS: 'ffmpeg' 
+      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      COVERAGE_PKGS: "coverage coveralls"
+      BROWSER_TYPE: "firefox"
+    steps:
+      - checkout
+      - run: *setup_miniconda
+      - run: *create_conda_env
+      - run: *setup_jupyter_vcdat
+      - run: *run_jupyter_vcdat
+      - run: *run_jupyter_vcdat_tests
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
+      - store_artifacts:
+          path: tests_png
+          destination: tests_png
 
   linux_docker_chrome_jupyter_vcdat_py3:
-      docker:
-         - image: circleci/node:jessie-browsers
-         - image: circleci/python:3.6.2-stretch-browsers
-      environment:
-         WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
-         PY_VER: "py3"
-         TEMP_PKGS: 'ffmpeg' 
-         #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-         COVERAGE_PKGS: "coverage coveralls"
-         BROWSER_TYPE: "chrome"
-      steps:
-        - checkout
-        - run: *setup_miniconda
-        - run: *create_conda_env
-        - run: *setup_jupyter_vcdat
-        - run: *run_jupyter_vcdat
-        - run: *run_jupyter_vcdat_tests
-        - store_artifacts:
-            path: tests_html
-            destination: tests_html
-        - store_artifacts:
-            path: tests_png
-            destination: tests_png
+    docker:
+      - image: circleci/node:jessie-browsers
+      - image: circleci/python:3.6.2-stretch-browsers
+    environment:
+      WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
+      PY_VER: "py3"
+      TEMP_PKGS: 'ffmpeg' 
+      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      COVERAGE_PKGS: "coverage coveralls"
+      BROWSER_TYPE: "chrome"
+    steps:
+      - checkout
+      - run: *setup_miniconda
+      - run: *create_conda_env
+      - run: *setup_jupyter_vcdat
+      - run: *run_jupyter_vcdat
+      - run: *run_jupyter_vcdat_tests
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
+      - store_artifacts:
+          path: tests_png
+          destination: tests_png
 
 workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      #- macos_jupyter_vcdat_py3
-      #- linux_jupyter_vcdat_py3
-      - linux_docker_firefox_jupyter_vcdat_py3
+      - macos_jupyter_vcdat_py3
+      - linux_jupyter_vcdat_py3
+      #- linux_docker_firefox_jupyter_vcdat_py3
       - linux_docker_chrome_jupyter_vcdat_py3
 
 
