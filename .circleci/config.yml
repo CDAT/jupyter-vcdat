@@ -149,7 +149,7 @@ jobs:
       - run: *setup_miniconda
       - run: *create_conda_env
       - run: *setup_jupyter_vcdat
-      - run: *conda_upload
+      #- run: *conda_upload
 
   linux_docker_firefox_jupyter_vcdat_py3:
     docker:
@@ -194,6 +194,8 @@ jobs:
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
+      - run: *run_coveralls
+      - run: *conda_upload
       - store_artifacts:
           path: tests_html
           destination: tests_html
