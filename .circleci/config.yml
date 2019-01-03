@@ -68,7 +68,7 @@ aliases:
        pip install pyvirtualdisplay
        python run_tests.py -H -v2 -n 2 $COVERAGE
        RESULT=$?
-       echo "*** $PY_VER test result: "${RESULT} 
+       echo "** $PY_VER test result: "${RESULT} 
        exit $RESULT
 
   - &conda_upload
