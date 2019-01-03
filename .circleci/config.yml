@@ -142,7 +142,7 @@ jobs:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
       TEMP_PKGS: 'ffmpeg' 
-      COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
     steps:
       - checkout
@@ -164,6 +164,8 @@ jobs:
       BROWSER_TYPE: "firefox"
     steps:
       - checkout
+      - run: which firefox
+      - run: which geckodriver
       - run: *setup_miniconda
       - run: *create_conda_env
       - run: *setup_jupyter_vcdat
@@ -210,5 +212,6 @@ workflows:
       #- macos_jupyter_vcdat_py3
       #- linux_jupyter_vcdat_py3
       - linux_docker_chrome_jupyter_vcdat_py3
+      - linux_docker_firefox_jupyter_vcdat_py3
 
 
