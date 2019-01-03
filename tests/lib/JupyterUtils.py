@@ -14,6 +14,5 @@ class JupyterUtils(TestUtils):
         server_line = output[1]
         match_obj = re.match(r'(.*)\s+::\s+', server_line)
         server = match_obj.group(1)
-        print("xxx xxx server: {s}".format(s=server))
         return server
 

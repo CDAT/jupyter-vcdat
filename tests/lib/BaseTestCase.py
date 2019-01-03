@@ -33,35 +33,18 @@ class BaseTestCase(unittest.TestCase):
         print("xxx mode: {m}".format(m=mode))
 
         if mode == "--headless" and os.getenv("CIRCLECI") == True:
-           print("xxx starting display since we are running in headless mode")
+           print("...starting display since we are running in headless mode")
            display = Display(visible=0, size=(800, 600))
            display.start()
 
         if browser == 'chrome':
             chrome_options = webdriver.ChromeOptions()
-            # temporary for MacOS -- need this for macos in circleCI
-            #binary_loc = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-            #chrome_options.binary_location = binary_loc
-            #chrome_options.add_argument("--disable-popup-blocking")
-            #chrome_options.add_argument("--start-maximized")
             chrome_options.add_argument(mode)
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("window-size=1200x600")
-
-            #preferences = {"download.default_directory": self._download_dir,
-            #               "directory_upgrade": True,
-            #               "safebrowsing.enabled": True,
-            #               "prompt_for_download": True}
-            #chrome_options.add_experimental_option("prefs", preferences)
             self.driver = webdriver.Chrome(executable_path="/usr/local/bin/chromedriver",
                                            chrome_options=chrome_options,
                                            service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
-
-            # FOLLOWING works
-            #self.driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
-            #                               desired_capabilities=DesiredCapabilities.CHROME,
-            #                               options=chrome_options)
-
         elif browser == 'firefox':
             firefox_profile = FirefoxProfile() # profile                                                                            
             firefox_profile.set_preference('extensions.logging.enabled', False)
@@ -72,23 +55,12 @@ class BaseTestCase(unittest.TestCase):
             firefox_profile.set_preference('browser.download.panel.shown', False)
             firefox_profile.set_preference('browser.download.manager.showWhenStarting', False)
             firefox_profile.set_preference('browser.download.manager.showAlertOnComplete', False)
-#            firefox_profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/x-netcdf");
-            
             firefox_capabilities = DesiredCapabilities().FIREFOX
             firefox_capabilities['marionette'] = True
             firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
-            #firefox_capabilities['moz:firefoxOptions'] = {'args': ['--foreground']}
-
             options.binary_location = "/usr/local/bin/geckodriver"
 
-            # TEMPORARY
-            #firefox_binary = FirefoxBinary("/Applications/Firefox.app/Contents/MacOS/firefox")
             firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
-            #self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
-            #                                firefox_binary=firefox_binary,
-            #                                options=options,
-            #                                capabilities = firefox_capabilities)
-
             self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
                                             firefox_binary=firefox_binary,
                                             executable_path="/usr/local/bin/geckodriver",
@@ -96,7 +68,6 @@ class BaseTestCase(unittest.TestCase):
                                             capabilities = firefox_capabilities)
 
         self.driver.implicitly_wait(20)
-        #self.driver.get("https://www.google.com")
         time.sleep(3)
 
     def tearDown(self):

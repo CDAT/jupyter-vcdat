@@ -25,9 +25,8 @@ class BasePage(object):
 
     def load_page(self, server, expected_element=(By.TAG_NAME, 'html'), 
                   timeout=_wait_timeout):
-        #url = "https://{s}".format(s=server)
         url = server
-        print("xxx load_page, url: {u}".format(u=url))
+        print("...load_page, url: {u}".format(u=url))
         try:
             r = requests.get(url, verify=False, timeout=timeout)
             err_msg = "fail to connect to '{0}' (code = {1})".format(url, r.status_code)
