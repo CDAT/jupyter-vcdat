@@ -186,7 +186,7 @@ jobs:
       WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
       TEMP_PKGS: 'ffmpeg' 
-      COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: "chrome"
     steps:
@@ -209,9 +209,9 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      #- macos_jupyter_vcdat_py3
-      #- linux_jupyter_vcdat_py3
+      - macos_jupyter_vcdat_py3
+      - linux_jupyter_vcdat_py3
       - linux_docker_chrome_jupyter_vcdat_py3
-      - linux_docker_firefox_jupyter_vcdat_py3
+      #- linux_docker_firefox_jupyter_vcdat_py3
 
 
