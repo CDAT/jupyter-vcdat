@@ -212,6 +212,6 @@ workflows:
       - macos_jupyter_vcdat_py3
       - linux_jupyter_vcdat_py3
       - linux_docker_chrome_jupyter_vcdat_py3
-      #- linux_docker_firefox_jupyter_vcdat_py3
+
 
 
