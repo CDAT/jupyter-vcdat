@@ -55,6 +55,7 @@
 		"bootstrap-slider": "^10.2.1",
 		"jquery": "^3.3.1",
 		"lodash": "^4.17.11",
+		"node": "^10.14.1",
 		"nodejs": "0.0.0",
 		"query-string": "^6.1.0",
 		"rc-slider": "^8.6.3",
@@ -68,8 +69,8 @@
 		"remove": "^0.1.5"
 	},
 	"devDependencies": {
-		"node-sass": "^4.9.3",
-		"nodemon": "^1.18.4",
+		"node-sass": "^4.11.0",
+		"nodemon": "^1.18.9",
 		"rimraf": "^2.6.1",
 		"typescript": "^2.9.2"
 	},
