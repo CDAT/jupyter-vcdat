@@ -1,17 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { vCDAT_UTILS } from "./vcdat_utils";
 import { Widget } from "@phosphor/widgets";
 import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 
 import {
-  /*CellTools,
-  ICellTools,
-  INotebookTracker,
-  NotebookActions,
-  NotebookModelFactory,
-  NotebookPanel,*/
   NotebookTracker,
   NotebookPanel,
   NotebookActions
@@ -43,7 +38,7 @@ print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
 
 const CHECK_MODULES_CMD =
   'import sys\n\
-all_modules = ["vcs","cdms"]\n\
+all_modules = ["vcs","cdms2"]\n\
 missed_modules = []\n\
 for module in all_modules:\n\
 	if module not in sys.modules:\n\
@@ -57,8 +52,7 @@ const REQUIRED_MODULES = ["cdms2", "vcs"];
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
   commands: CommandRegistry; // Jupyter app CommandRegistry
-  //context: DocumentRegistry.Context; // Jupyter app DocumentRegistry.Context
-  notebook: any; // The notebook this widget is interacting with
+  notebook: NotebookPanel; // The notebook this widget is interacting with
   notebook_tracker: NotebookTracker; // This is to track current notebooks
   notebook_vcs_ready: boolean; // Whether the notebook has vcs initialized and is ready for code injection
   variables: string;
@@ -69,16 +63,12 @@ export class LeftSideBarWidget extends Widget {
   currentVariable: string; // name of the activate variable
   currentTemplate: string; // name of the activate template
   current_file: string; // The path for the file from which a variable is added, set when the file is double clicked
-  constructor(
-    commands: CommandRegistry,
-    tracker: NotebookTracker /*, context: DocumentRegistry.Context*/
-  ) {
+  constructor(commands: CommandRegistry, tracker: NotebookTracker) {
     super();
     this.div = document.createElement("div");
     this.div.id = "left-sidebar";
     this.node.appendChild(this.div);
     this.commands = commands;
-    //this.context = context;
     this.notebook_tracker = tracker;
     this.notebook_vcs_ready = false;
     if (tracker.currentWidget instanceof NotebookPanel) {
@@ -115,23 +105,15 @@ export class LeftSideBarWidget extends Widget {
   // Returns the output string after command is run, or empty string if error.
   runThenDelete(code: string) {
     let consoleOutputStr: string;
-    //console.log(this.notebook_tracker);
     let output: Promise<String> = new Promise((resolve, reject) => {
       if (!this.notebook) {
-        //console.log(this.notebook_tracker.currentWidget.model.cells);
         reject("Notebook was null.");
       } else {
-        //console.log(this.notebook_tracker.currentWidget.content.activeCell);
         this.notebook.content.activeCell.model.value.text = code;
-        
         this.commands
           .execute("notebook:run-cell")
           .then(() => {
-            //console.log("Notebook: ");
-            //console.log(this.notebook);
-            consoleOutputStr = "Output!";
-            //console.log(this.notebook.content.activeCell.model);
-            //console.log(consoleOutputStr);
+            consoleOutputStr = "";
             resolve(consoleOutputStr);
           })
           .then(response => {
@@ -153,7 +135,7 @@ export class LeftSideBarWidget extends Widget {
 
     //var prom: Promise<String> = this.commands.execute("notebook:run-cell");
     //this.commands.execute("notebook:insert-cell-below");
-    return NotebookActions.run(this.notebook);
+    return NotebookActions.run(this.notebook.content);
   }
 
   // This will inject the required modules into the current notebook (if module not already imported)

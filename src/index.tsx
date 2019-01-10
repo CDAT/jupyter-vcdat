@@ -1,5 +1,5 @@
 import "../style/css/index.css";
-
+import vcdat_utils, { vCDAT_UTILS } from "./vcdat_utils";
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -22,15 +22,14 @@ import {
   Notebook
 } from "@jupyterlab/notebook";
 
-import { Cell, ICellModel, isCodeCellModel } from "@jupyterlab/cells";
-import { nbformat } from "@jupyterlab/coreutils";
+import { Cell } from "@jupyterlab/cells";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
 
 // Declare the widget variables
 let commands: CommandRegistry;
-let nb_current: NotebookPanel; // The current notebook panel target of the app
+let nb_current: NotebookPanel; // The current notebook panel targeted by the app
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
 let shell: ApplicationShell;
 
@@ -71,13 +70,12 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
   app.docRegistry.addFileType(ft);
   app.docRegistry.addWidgetFactory(factory);
 
-  factory.widgetCreated.connect((sender, widget) => {
+  /*factory.widgetCreated.connect((sender, widget) => {
     console.log("NCViewerWidget created from factory");
-  });
+  });*/
 
-  // Creates the left side bar widget when the app has started
+  // Creates the left side bar widget once the app has fully started
   app.started.then(() => {
-
     // Create the left side bar
     sidebar = new LeftSideBarWidget(commands, tracker);
     sidebar.id = "vcdat-left-side-bar";
@@ -91,128 +89,61 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
 
     // Activate the widget
     shell.activateById(sidebar.id);
+    console.log(shell.activeWidget);
+  });
 
-    console.log(tracker.currentChanged);
+  // Sets the current notebook once the application shell has been restored
+  // and all the widgets have been added to the notebooktracker
+  app.shell.restored.then(() => {
     if (tracker.currentWidget instanceof NotebookPanel) {
       nb_current = tracker.currentWidget;
-      console.log(nb_current.context.path);
+      if (nb_current.model.metadata.has("test-key")) {
+        console.log("Test key found!");
+      }
     } else {
       console.log("Created new notebook at start!");
       sidebar.createNewNotebook("");
     }
   });
 
-  let nb: Notebook;
-
-  // Returns a string value of the cell output given the notebook and cell index
-  // If the cell has no output, returns null
-  function readOutput(notebook: Notebook, cellIndex: number): any {
-    let msg: string = ""; // For error tracking
-    if (notebook) {
-      if (cellIndex >= 0 && cellIndex < notebook.model.cells.length) {
-        let cell: ICellModel = notebook.model.cells.get(cellIndex);
-        if (isCodeCellModel(cell)) {
-          let codeCell = cell;
-          if (codeCell.outputs.length < 1) {
-            return null;
-          } else {
-            let out = codeCell.outputs.toJSON().pop();
-            if (nbformat.isExecuteResult(out)) {
-              let exec_data: nbformat.IExecuteResult = out;
-              return exec_data.data["text/plain"];
-            } else {
-              msg = "The cell output is not expected format.";
-            }
-          }
-        } else {
-          msg = "cell is not a code cell.";
-        }
-      } else {
-        msg = "Cell index out of range.";
-      }
-    }
-
-    throw new Error(msg);
-  }
-
-  // Perform actions when user switches notebooks
-  function notebook_switched(
-    tracker: NotebookTracker,
-    notebook: NotebookPanel
-  ) {
-    if (nb && nb.model.metadata.has("test-key")) {
-      console.log(
-        `This notebook has been visited before! ${nb.model.metadata.get(
-          "test-key"
-        )}`
-      );
-    }
-    console.log(`Notebook changed to ${notebook.title.label}!`);
-    nb = notebook.content;
-    sidebar.notebook = nb;
-    nb.activeCellChanged.connect(cell_switched);
-    try {
-      console.log(readOutput(nb, 0));
-      nb.model.metadata.set("test-key", 1234);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  // Active cell trigger
-  function cell_switched(notebook: Notebook, cell: Cell) {
-    console.log(`Cells changed in ${notebook.title.label}!`);
-    try {
-      console.log(readOutput(notebook, notebook.activeCellIndex));
-    } catch (error) {
-      console.log(error);
-    }
-    /*if (cell instanceof CodeCell) {
-      let codeCell: CodeCell = cell;
-      let outputs: nbformat.IOutput[] = codeCell.outputArea.model.toJSON();
-      if (outputs.length < 1) {
-        console.log("No outputs!");
-        return;
-      }
-      let output: any = outputs.pop();
-      if (output.output_type == "execute_result") {
-        console.log(output);
-        let exec_data: nbformat.IExecuteResult = output;
-        console.log(exec_data.data);
-        console.log(exec_data.data["text/plain"]);
-      } else {
-        console.log("No execution result.");
-      }
-    }*/
-  }
-
   // Notebook tracker will signal when a notebook is changed
   tracker.currentChanged.connect(notebook_switched);
+}
 
-  // Whenever a panel is changed in the shell, this will trigger
-  /*app.shell.activeChanged.connect((sender, data) => {
-    let widget = shell.activeWidget;
-    if (widget) {
-      console.log(widget);
-      if (widget.hasClass("jp-NotebookPanel")) {
-        sidebar.notebook = widget;
+// Perform actions when user switches notebooks
+function notebook_switched(tracker: NotebookTracker, notebook: NotebookPanel) {
+  //console.log(`Notebook changed to ${notebook.title.label}!`);
+  nb_current = notebook; // Set the current notebook
+  sidebar.notebook = nb_current; // Update sidebar notebook
 
-        console.log(
-          `User switched to notebook with label: ${widget.title.label}`
-        );
-      }
-    }*/
-  /*if (
-      data.oldValue &&
-      data.newValue &&
-      data.newValue.hasClass("jp-NotebookPanel")
-    ) {
-      console.log(data.newValue);
-      console.log(
-        `User switched to notebook with label: ${data.newValue.title.label}`
-      );
-    }
-  });*/
+  //nb_current.content.activeCellChanged.connect(cell_switched);
+  try {
+    //console.log(vCDAT_UTILS.readOutput(nb_current.content, 0));
+    nb_current.content.model.metadata.set("test-key", 1234);
+  } catch (error) {
+    console.log(error);
+  }
+  try {
+    vCDAT_UTILS.codeInjectSelectCell(nb_current.content,"#This is the first cell\n3 + 2");
+    vCDAT_UTILS.selectCell(notebook.content,0);
+    vCDAT_UTILS.runSelectCell(commands, nb_current.content).then(output => {
+      console.log("1st injection done.");
+      console.log(output);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// Active cell trigger
+function cell_switched(notebook: Notebook, cell: Cell) {
+  console.log(`Cells changed in ${notebook.title.label}!`);
+  try {
+    console.log(cell.id);
+    console.log(vCDAT_UTILS.readOutput(notebook, notebook.activeCellIndex));
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 /**
