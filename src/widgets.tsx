@@ -104,9 +104,16 @@ export class LeftSideBarWidget extends Widget {
       cell_utils
         .runAndDelete(this.commands, this.notebook_panel, CHECK_MODULES_CMD)
         .then(output => {
-          let cmd = "import lazy_import";
-          REQUIRED_MODULES.forEach(module => {
+          let ModulesMissing: string[] = eval(output);
+          //Lazy import option below
+          /*let cmd = "import lazy_import";
+          ModulesMissing.forEach(module => {
             cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
+          });*/
+          //No lazy import
+          let cmd = "";
+          ModulesMissing.forEach(module => {
+            cmd += `import ${module}\n`;
           });
           cell_utils
             .insertAndRun(this.commands, this.notebook_panel, -1, cmd)
@@ -138,7 +145,7 @@ export class LeftSideBarWidget extends Widget {
 
   // Sets the current notebook as vcs ready
   setVCS_Ready(): void {
-    this.notebook_panel.content.model.metadata.set(READY_KEY,"true");
+    this.notebook_panel.content.model.metadata.set(READY_KEY, "true");
   }
 
   // returns promise of a vcs ready notebook, creating one if necessary
