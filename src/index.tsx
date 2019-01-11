@@ -102,11 +102,14 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
   });
 
   // Notebook tracker will signal when a notebook is changed
-  nb_tracker.currentChanged.connect(notebook_switched);
+  nb_tracker.currentChanged.connect(handleNotebooksChanged);
 }
 
 // Perform actions when user switches notebooks
-function notebook_switched(tracker: NotebookTracker, notebook: NotebookPanel) {
+function handleNotebooksChanged(
+  tracker: NotebookTracker,
+  notebook: NotebookPanel
+) {
   if (notebook) {
     console.log(`Notebook changed to ${notebook.title.label}`);
     nb_panel_current = notebook; // Set the current notebook
@@ -149,7 +152,9 @@ export class NCViewerFactory extends ABCWidgetFactory<
         }
       } else {
         //Create a notebook if none is currently open
-        console.log("Created new notebook because all other notebooks were closed.");
+        console.log(
+          "Created new notebook because all other notebooks were closed."
+        );
         notebook_utils
           .createNewNotebook(commands)
           .then(notebook_panel => {
