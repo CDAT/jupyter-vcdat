@@ -24,6 +24,15 @@ import {
 
 import { Cell } from "@jupyterlab/cells";
 
+const CHECK_MODULES_CMD =
+  'import sys\n\
+all_modules = ["vcs","cdms2"]\n\
+missed_modules = []\n\
+for module in all_modules:\n\
+	if module not in sys.modules:\n\
+		missed_modules.append(module)\n\
+missed_modules';
+
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
 
@@ -79,9 +88,7 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
     // Create the left side bar
     sidebar = new LeftSideBarWidget(commands, tracker);
     sidebar.id = "vcdat-left-side-bar";
-    //sidebar.title.label = "vcdat";
     sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";
-    //sidebar.title.iconLabel = "vcdat";
     sidebar.title.closable = true;
 
     // Attach it to the left side of main area
@@ -112,39 +119,17 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
 
 // Perform actions when user switches notebooks
 function notebook_switched(tracker: NotebookTracker, notebook: NotebookPanel) {
-  //console.log(`Notebook changed to ${notebook.title.label}!`);
+  console.log(`Notebook changed to ${notebook.title.label}`);
   nb_current = notebook; // Set the current notebook
   sidebar.notebook = nb_current; // Update sidebar notebook
-
-  //nb_current.content.activeCellChanged.connect(cell_switched);
-  try {
-    //console.log(vCDAT_UTILS.readOutput(nb_current.content, 0));
-    nb_current.content.model.metadata.set("test-key", 1234);
-  } catch (error) {
-    console.log(error);
-  }
-  try {
-    vCDAT_UTILS.codeInjectSelectCell(nb_current.content,"#This is the first cell\n3 + 2");
-    vCDAT_UTILS.selectCell(notebook.content,0);
-    vCDAT_UTILS.runSelectCell(commands, nb_current.content).then(output => {
-      console.log("1st injection done.");
-      console.log(output);
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  //nb_current.content.activeCellChanged.connect(testFunctions);
+  vCDAT_UTILS.runAndDelete(commands,nb_current.content,CHECK_MODULES_CMD).then(answer=>{
+    console.log(answer);
+  });
+  console.log(nb_current.content.widgets.length);
 }
 
-// Active cell trigger
-function cell_switched(notebook: Notebook, cell: Cell) {
-  console.log(`Cells changed in ${notebook.title.label}!`);
-  try {
-    console.log(cell.id);
-    console.log(vCDAT_UTILS.readOutput(notebook, notebook.activeCellIndex));
-  } catch (error) {
-    console.log(error);
-  }
-}
+function testFunctions(input: any) {}
 
 /**
  * Create a new widget given a context.

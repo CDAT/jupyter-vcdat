@@ -1,16 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { vCDAT_UTILS } from "./vcdat_utils";
 import { Widget } from "@phosphor/widgets";
 import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
-
-import {
-  NotebookTracker,
-  NotebookPanel,
-  NotebookActions
-} from "@jupyterlab/notebook";
 
 const GET_VARS_CMD =
   'import __main__\n\
@@ -38,7 +31,7 @@ print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
 
 const CHECK_MODULES_CMD =
   'import sys\n\
-all_modules = ["vcs","cdms2"]\n\
+all_modules = ["vcs","cdms"]\n\
 missed_modules = []\n\
 for module in all_modules:\n\
 	if module not in sys.modules:\n\
@@ -52,8 +45,8 @@ const REQUIRED_MODULES = ["cdms2", "vcs"];
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
   commands: CommandRegistry; // Jupyter app CommandRegistry
-  notebook: NotebookPanel; // The notebook this widget is interacting with
-  notebook_tracker: NotebookTracker; // This is to track current notebooks
+  //context: DocumentRegistry.Context; // Jupyter app DocumentRegistry.Context
+  notebook: any; // The notebook this widget is interacting with
   notebook_vcs_ready: boolean; // Whether the notebook has vcs initialized and is ready for code injection
   variables: string;
 
@@ -63,24 +56,21 @@ export class LeftSideBarWidget extends Widget {
   currentVariable: string; // name of the activate variable
   currentTemplate: string; // name of the activate template
   current_file: string; // The path for the file from which a variable is added, set when the file is double clicked
-  constructor(commands: CommandRegistry, tracker: NotebookTracker) {
+  constructor(commands: CommandRegistry, context: DocumentRegistry.Context) {
     super();
     this.div = document.createElement("div");
     this.div.id = "left-sidebar";
     this.node.appendChild(this.div);
     this.commands = commands;
-    this.notebook_tracker = tracker;
+    //this.context = context;
+    this.notebook = null;
     this.notebook_vcs_ready = false;
-    if (tracker.currentWidget instanceof NotebookPanel) {
-      this.notebook = tracker.currentWidget;
-    } else {
-      this.notebook = null;
-    }
     this.currentGm = "";
     this.currentVariable = "";
     this.currentTemplate = "";
     this.inject = this.inject.bind(this);
     this.current_file = "";
+
     this.updateVars = this.updateVars.bind(this);
     this.getNotebook = this.getNotebook.bind(this);
     this.injectRequiredModules = this.injectRequiredModules.bind(this);
@@ -105,20 +95,16 @@ export class LeftSideBarWidget extends Widget {
   // Returns the output string after command is run, or empty string if error.
   runThenDelete(code: string) {
     let consoleOutputStr: string;
-    let output: Promise<String> = new Promise((resolve, reject) => {
+    let output = new Promise((resolve, reject) => {
       if (!this.notebook) {
         reject("Notebook was null.");
       } else {
-        this.notebook.content.activeCell.model.value.text = code;
-        this.commands
-          .execute("notebook:run-cell")
+        this.inject(code)
           .then(() => {
-            consoleOutputStr = "";
+            consoleOutputStr = this.notebook.content.activeCell.outputArea.model
+              ._lastStream;
+            console.log(consoleOutputStr);
             resolve(consoleOutputStr);
-          })
-          .then(response => {
-            console.log("Done!");
-            console.log(response);
             //this.commands.execute("notebook:delete-cell");
           })
           .catch(error => {
@@ -129,29 +115,25 @@ export class LeftSideBarWidget extends Widget {
     return output;
   }
 
-  // Injects code into the current notebook (if it exists)
+  // Injects code into the current notebook
   inject(code: string) {
     this.notebook.content.activeCell.model.value.text = code;
-
-    //var prom: Promise<String> = this.commands.execute("notebook:run-cell");
-    //this.commands.execute("notebook:insert-cell-below");
-    return NotebookActions.run(this.notebook.content);
+    var prom = this.commands.execute("notebook:run-cell");
+    this.commands.execute("notebook:insert-cell-below");
+    return prom;
   }
 
-  // This will inject the required modules into the current notebook (if module not already imported)
+  // This will inject the required modules into the current notebook (if notebook exists and module not already imported)
   injectRequiredModules() {
-    // Check if required modules are imported in notebook
-    var prom: Promise<Boolean>;
-    prom = this.runThenDelete(CHECK_MODULES_CMD).then(output => {
-      console.log(output);
+    if (this.notebook) {
+      // Check if required modules are imported in notebook
+      this.runThenDelete(CHECK_MODULES_CMD).then(output => {});
       let cmd = "import lazy_import";
       REQUIRED_MODULES.forEach(module => {
         cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
       });
       return this.inject(cmd);
-    });
-
-    return prom;
+    }
   }
 
   // return a promise of a new notebook
@@ -217,7 +199,6 @@ export class LeftSideBarWidget extends Widget {
         resolve(this.notebook);
       } else {
         // Create new notebook one if one doesn't exist
-        console.log("New notebook created!");
         resolve(this.createNewNotebook(NEW_NOTEBOOK_PATH));
       }
     });
@@ -274,7 +255,7 @@ export class LeftSideBarWidget extends Widget {
     return dict;
   }
   handleGetVarsComplete() {
-    /*let consoleOutputStr: string = this.notebook.content.activeCell.outputArea
+    let consoleOutputStr: string = this.notebook.content.activeCell.outputArea
       .model._lastStream;
     var outputObj = this.outputStrToDict(consoleOutputStr);
 
@@ -284,7 +265,7 @@ export class LeftSideBarWidget extends Widget {
       outputObj["templates"]
     );
     this.commands.execute("notebook:delete-cell");
-    this.commands.execute("notebook:insert-cell-below");*/
+    this.commands.execute("notebook:insert-cell-below");
   }
 }
 
