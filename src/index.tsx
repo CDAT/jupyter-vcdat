@@ -1,5 +1,5 @@
 import "../style/css/index.css";
-import vcdat_utils, { vCDAT_UTILS } from "./vcdat_utils";
+import { cell_utils, notebook_utils } from "./vcdat_utils";
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -18,27 +18,15 @@ import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
 import {
   INotebookTracker,
   NotebookTracker,
-  NotebookPanel,
-  Notebook
+  NotebookPanel
 } from "@jupyterlab/notebook";
-
-import { Cell } from "@jupyterlab/cells";
-
-const CHECK_MODULES_CMD =
-  'import sys\n\
-all_modules = ["vcs","cdms2"]\n\
-missed_modules = []\n\
-for module in all_modules:\n\
-	if module not in sys.modules:\n\
-		missed_modules.append(module)\n\
-missed_modules';
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
 
 // Declare the widget variables
 let commands: CommandRegistry;
-let nb_current: NotebookPanel; // The current notebook panel targeted by the app
+let nb_panel_current: NotebookPanel; // The current notebook panel targeted by the app
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
 let shell: ApplicationShell;
 
@@ -103,13 +91,11 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
   // and all the widgets have been added to the notebooktracker
   app.shell.restored.then(() => {
     if (tracker.currentWidget instanceof NotebookPanel) {
-      nb_current = tracker.currentWidget;
-      if (nb_current.model.metadata.has("test-key")) {
-        console.log("Test key found!");
-      }
+      console.log("Currently open notebook selected.");
+      nb_panel_current = tracker.currentWidget;
     } else {
-      console.log("Created new notebook at start!");
-      sidebar.createNewNotebook("");
+      console.log("Created new notebook at start.");
+      notebook_utils.createNewNotebook(commands);
     }
   });
 
@@ -119,17 +105,12 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
 
 // Perform actions when user switches notebooks
 function notebook_switched(tracker: NotebookTracker, notebook: NotebookPanel) {
-  console.log(`Notebook changed to ${notebook.title.label}`);
-  nb_current = notebook; // Set the current notebook
-  sidebar.notebook = nb_current; // Update sidebar notebook
-  //nb_current.content.activeCellChanged.connect(testFunctions);
-  vCDAT_UTILS.runAndDelete(commands,nb_current.content,CHECK_MODULES_CMD).then(answer=>{
-    console.log(answer);
-  });
-  console.log(nb_current.content.widgets.length);
+  if (notebook) {
+    console.log(`Notebook changed to ${notebook.title.label}`);
+    nb_panel_current = notebook; // Set the current notebook
+    sidebar.notebook_panel = nb_panel_current; // Update sidebar notebook
+  }
 }
-
-function testFunctions(input: any) {}
 
 /**
  * Create a new widget given a context.
@@ -152,13 +133,13 @@ export class NCViewerFactory extends ABCWidgetFactory<
       console.log(sidebar.current_file);
 
       //Get the current active notebook if a notebook is opened
-      if (shell.activeWidget == nb_current) {
-        sidebar.notebook = nb_current;
+      if (shell.activeWidget == nb_panel_current) {
+        sidebar.notebook_panel = nb_panel_current;
 
-        sidebar.getReadyNotebook();
+        sidebar.getReadyNotebookPanel();
       } else {
-        shell.activateById(nb_current.id);
-        sidebar.getReadyNotebook();
+        shell.activateById(nb_panel_current.id);
+        sidebar.getReadyNotebookPanel();
       }
     }
 

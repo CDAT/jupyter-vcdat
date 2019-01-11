@@ -1,9 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { cell_utils, notebook_utils } from "./vcdat_utils";
 import { Widget } from "@phosphor/widgets";
 import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
+
+import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
 
 const GET_VARS_CMD =
   'import __main__\n\
@@ -31,23 +34,22 @@ print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
 
 const CHECK_MODULES_CMD =
   'import sys\n\
-all_modules = ["vcs","cdms"]\n\
+all_modules = ["vcs","cdms2"]\n\
 missed_modules = []\n\
 for module in all_modules:\n\
 	if module not in sys.modules:\n\
 		missed_modules.append(module)\n\
 missed_modules';
 
-const NEW_NOTEBOOK_PATH = "";
-
 const REQUIRED_MODULES = ["cdms2", "vcs"];
+
+const READY_KEY = "vcdat_ready";
 
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
   commands: CommandRegistry; // Jupyter app CommandRegistry
-  //context: DocumentRegistry.Context; // Jupyter app DocumentRegistry.Context
-  notebook: any; // The notebook this widget is interacting with
-  notebook_vcs_ready: boolean; // Whether the notebook has vcs initialized and is ready for code injection
+  notebook_panel: NotebookPanel; // The notebook this widget is interacting with
+  notebook_tracker: NotebookTracker; // This is to track current notebooks
   variables: string;
 
   // component_props: VCSMenuProps; // An object that stores the props to pass down to LeftSideBar
@@ -56,34 +58,29 @@ export class LeftSideBarWidget extends Widget {
   currentVariable: string; // name of the activate variable
   currentTemplate: string; // name of the activate template
   current_file: string; // The path for the file from which a variable is added, set when the file is double clicked
-  constructor(commands: CommandRegistry, context: DocumentRegistry.Context) {
+  constructor(commands: CommandRegistry, tracker: NotebookTracker) {
     super();
     this.div = document.createElement("div");
     this.div.id = "left-sidebar";
     this.node.appendChild(this.div);
     this.commands = commands;
-    //this.context = context;
-    this.notebook = null;
-    this.notebook_vcs_ready = false;
+    this.notebook_tracker = tracker;
+    this.notebook_panel = tracker.currentWidget;
     this.currentGm = "";
     this.currentVariable = "";
     this.currentTemplate = "";
     this.inject = this.inject.bind(this);
     this.current_file = "";
-
     this.updateVars = this.updateVars.bind(this);
-    this.getNotebook = this.getNotebook.bind(this);
+    this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.injectRequiredModules = this.injectRequiredModules.bind(this);
-    this.getReadyNotebook = this.getReadyNotebook.bind(this);
-    this.createNewNotebook = this.createNewNotebook.bind(this);
+    this.getReadyNotebookPanel = this.getReadyNotebookPanel.bind(this);
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
-    this.updateNotebook = this.updateNotebook.bind(this);
     this.component = ReactDOM.render(
       <VCSMenu inject={this.inject} filePath={this.current_file} />,
       this.div
     );
   }
-  updateNotebook() {}
 
   updatePath(file_path: string) {
     this.component.setState({
@@ -91,87 +88,73 @@ export class LeftSideBarWidget extends Widget {
     });
   }
 
-  // Injects code in the current notebook, runs it in active cell, then deletes the cell.
-  // Returns the output string after command is run, or empty string if error.
-  runThenDelete(code: string) {
-    let consoleOutputStr: string;
-    let output = new Promise((resolve, reject) => {
-      if (!this.notebook) {
-        reject("Notebook was null.");
-      } else {
-        this.inject(code)
-          .then(() => {
-            consoleOutputStr = this.notebook.content.activeCell.outputArea.model
-              ._lastStream;
-            console.log(consoleOutputStr);
-            resolve(consoleOutputStr);
-            //this.commands.execute("notebook:delete-cell");
-          })
-          .catch(error => {
-            reject(error);
-          });
-      }
-    });
-    return output;
+  inject(code: string): Promise<[number, string]> {
+    return cell_utils.insertAndRun(
+      this.commands,
+      this.notebook_panel,
+      this.notebook_panel.content.activeCellIndex,
+      code
+    );
   }
 
-  // Injects code into the current notebook
-  inject(code: string) {
-    this.notebook.content.activeCell.model.value.text = code;
-    var prom = this.commands.execute("notebook:run-cell");
-    this.commands.execute("notebook:insert-cell-below");
-    return prom;
-  }
-
-  // This will inject the required modules into the current notebook (if notebook exists and module not already imported)
+  // This will inject the required modules into the current notebook (if module not already imported)
   injectRequiredModules() {
-    if (this.notebook) {
-      // Check if required modules are imported in notebook
-      this.runThenDelete(CHECK_MODULES_CMD).then(output => {});
-      let cmd = "import lazy_import";
-      REQUIRED_MODULES.forEach(module => {
-        cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
-      });
-      return this.inject(cmd);
-    }
-  }
-
-  // return a promise of a new notebook
-  createNewNotebook(path: string) {
-    let nb = new Promise((resolve, reject) => {
-      this.commands
-        .execute("notebook:create-new", {
-          activate: true,
-          path: path,
-          preferredLanguage: ""
-        })
-        .then(notebook => {
-          notebook.session.ready.then(() => {
-            this.notebook = notebook;
-            this.notebook_vcs_ready = false;
-            resolve(notebook);
+    // Check if required modules are imported in notebook
+    var prom: Promise<void> = new Promise((resolve, reject) => {
+      cell_utils
+        .runAndDelete(this.commands, this.notebook_panel, CHECK_MODULES_CMD)
+        .then(output => {
+          let cmd = "import lazy_import";
+          REQUIRED_MODULES.forEach(module => {
+            cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
           });
+          cell_utils
+            .insertAndRun(this.commands, this.notebook_panel, -1, cmd)
+            .then(() => {
+              resolve();
+            })
+            .catch(error => {
+              reject(error);
+            });
         })
         .catch(error => {
           reject(error);
         });
     });
-    return nb;
+
+    return prom;
+  }
+
+  // Returns whether the current notebook is vcs ready (has required imports and vcs initialized)
+  isVCS_Ready(): boolean {
+    if (
+      this.notebook_panel.content.model.metadata.has(READY_KEY) &&
+      this.notebook_panel.content.model.metadata.get(READY_KEY) == "true"
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  // Sets the current notebook as vcs ready
+  setVCS_Ready(): void {
+    this.notebook_panel.content.model.metadata.set(READY_KEY,"true");
   }
 
   // returns promise of a vcs ready notebook, creating one if necessary
-  getReadyNotebook() {
-    let nb = new Promise((resolve, reject) => {
+  getReadyNotebookPanel() {
+    let nb: Promise<NotebookPanel> = new Promise((resolve, reject) => {
       // Reject initilization if no file has been selected
       if (this.current_file == "") {
         console.log("Rejection");
         reject("No file has been set for obtaining variables.");
-      } else if (this.notebook_vcs_ready) {
+      } else if (this.isVCS_Ready()) {
         // The notebook already has vcs initialized
-        resolve(this.notebook);
+        console.log("Notebook has vcs initialized!");
+        resolve(this.notebook_panel);
       } else {
-        this.getNotebook()
-          .then(notebook => {
+        this.getNotebookPanel()
+          .then(notebook_panel => {
             // This command prepares notebook by injecting needed import statements
             this.injectRequiredModules().then(() => {
               // This command initializes vcs and canvas
@@ -179,8 +162,8 @@ export class LeftSideBarWidget extends Widget {
                 this.current_file
               }\")`;
               this.inject(cmd).then(() => {
-                this.notebook_vcs_ready = true;
-                resolve(notebook);
+                this.setVCS_Ready();
+                resolve(notebook_panel);
               });
             });
           })
@@ -192,27 +175,31 @@ export class LeftSideBarWidget extends Widget {
     return nb;
   }
 
-  // return a promise of current notebook (may not be vcs ready)
-  getNotebook() {
-    let nb = new Promise((resolve, reject) => {
-      if (this.notebook) {
-        resolve(this.notebook);
+  // return a promise of current notebook panel (may not be vcs ready)
+  getNotebookPanel() {
+    let nb: Promise<NotebookPanel> = new Promise((resolve, reject) => {
+      if (this.notebook_panel) {
+        resolve(this.notebook_panel);
       } else {
-        // Create new notebook one if one doesn't exist
-        resolve(this.createNewNotebook(NEW_NOTEBOOK_PATH));
+        // Create new notebook if one doesn't exist
+        resolve(notebook_utils.createNewNotebook(this.commands));
       }
     });
     return nb;
   }
 
-  //This is where the code injection occurs in the current console.
+  //This is where the code injection occurs in the current notebook.
   updateVars() {
-    this.getReadyNotebook()
-      .then((notebook: any) => {
-        notebook.content.activeCell.model.value.text = GET_VARS_CMD;
-        this.commands.execute("notebook:run-cell").then(() => {
-          this.handleGetVarsComplete();
-        });
+    this.getReadyNotebookPanel()
+      .then((notebook_panel: NotebookPanel) => {
+        cell_utils
+          .runAndDelete(this.commands, notebook_panel, GET_VARS_CMD)
+          .then(output => {
+            this.handleGetVarsComplete(output);
+          })
+          .catch(error => {
+            console.log(error);
+          });
       })
       .catch(error => {
         console.log(error);
@@ -254,18 +241,15 @@ export class LeftSideBarWidget extends Widget {
 
     return dict;
   }
-  handleGetVarsComplete() {
-    let consoleOutputStr: string = this.notebook.content.activeCell.outputArea
-      .model._lastStream;
-    var outputObj = this.outputStrToDict(consoleOutputStr);
+
+  handleGetVarsComplete(output: string) {
+    var outputObj = this.outputStrToDict(output);
 
     this.component.update(
       outputObj["variables"],
       outputObj["graphicsMethods"],
       outputObj["templates"]
     );
-    this.commands.execute("notebook:delete-cell");
-    this.commands.execute("notebook:insert-cell-below");
   }
 }
 
