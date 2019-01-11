@@ -34,7 +34,7 @@ print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
 
 const CHECK_MODULES_CMD =
   'import sys\n\
-all_modules = ["vcs","cdms2"]\n\
+all_modules = ["lazy_import","vcs","cdms2"]\n\
 missed_modules = []\n\
 for module in all_modules:\n\
 	if module not in sys.modules:\n\
@@ -97,28 +97,48 @@ export class LeftSideBarWidget extends Widget {
     );
   }
 
+  buildImportCommand(modules: string[], lazy: boolean): string {
+    let cmd: string = "";
+    //Check for lazy_imports modules first
+    let ind = modules.indexOf("lazy_import");
+
+    if (lazy) {
+      // Import lazy_imports if it's missing, before doing other imports
+      if (ind >= 0) {
+        modules.splice(ind, 1);
+        cmd = "import lazy_import";
+      }
+      // Import other modules using lazy import syntax
+      modules.forEach(module => {
+        cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
+      });
+    } else {
+      // Remove lazy_imports from required modules if it is there
+      if (ind >= 0) {
+        modules.splice(ind, 1);
+      }
+      // Import modules
+      modules.forEach(module => {
+        cmd += `\nimport ${module}`;
+      });
+    }
+    return cmd;
+  }
+
   // This will inject the required modules into the current notebook (if module not already imported)
-  injectRequiredModules() {
+  injectRequiredModules(): Promise<number> {
     // Check if required modules are imported in notebook
-    var prom: Promise<void> = new Promise((resolve, reject) => {
+    var prom: Promise<number> = new Promise((resolve, reject) => {
       cell_utils
         .runAndDelete(this.commands, this.notebook_panel, CHECK_MODULES_CMD)
         .then(output => {
-          let ModulesMissing: string[] = eval(output);
-          //Lazy import option below
-          /*let cmd = "import lazy_import";
-          ModulesMissing.forEach(module => {
-            cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
-          });*/
-          //No lazy import
-          let cmd = "";
-          ModulesMissing.forEach(module => {
-            cmd += `import ${module}\n`;
-          });
+          let missing_modules: string[] = eval(output);
+
+          let cmd = this.buildImportCommand(missing_modules, false);
           cell_utils
             .insertAndRun(this.commands, this.notebook_panel, -1, cmd)
-            .then(() => {
-              resolve();
+            .then(result => {
+              resolve(result[0]);
             })
             .catch(error => {
               reject(error);
@@ -134,7 +154,11 @@ export class LeftSideBarWidget extends Widget {
 
   // Returns whether the current notebook is vcs ready (has required imports and vcs initialized)
   isVCS_Ready(): boolean {
+    console.log(this.notebook_panel);
     if (
+      this.notebook_panel &&
+      this.notebook_panel.content &&
+      this.notebook_panel.content.model &&
       this.notebook_panel.content.model.metadata.has(READY_KEY) &&
       this.notebook_panel.content.model.metadata.get(READY_KEY) == "true"
     ) {
@@ -163,7 +187,7 @@ export class LeftSideBarWidget extends Widget {
         this.getNotebookPanel()
           .then(notebook_panel => {
             // This command prepares notebook by injecting needed import statements
-            this.injectRequiredModules().then(() => {
+            this.injectRequiredModules().then(index => {
               // This command initializes vcs and canvas
               let cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
                 this.current_file
@@ -189,7 +213,14 @@ export class LeftSideBarWidget extends Widget {
         resolve(this.notebook_panel);
       } else {
         // Create new notebook if one doesn't exist
-        resolve(notebook_utils.createNewNotebook(this.commands));
+        notebook_utils
+          .createNewNotebook(this.commands)
+          .then(notebook_panel => {
+            resolve(notebook_panel);
+          })
+          .catch(error => {
+            reject(MSMediaKeyError);
+          });
       }
     });
     return nb;
