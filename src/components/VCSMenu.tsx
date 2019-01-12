@@ -19,7 +19,7 @@ const divStyle: React.CSSProperties = {
 // updatePlotOptions: any; // a method to cause the plot options to be updated
 export type VCSMenuProps = {
   inject: any; // a method to inject code into the controllers notebook
-  filePath: string; // the file path for the selected netCDF file
+  filePath: any; // Gets the file path for the selected netCDF file
 };
 type VCSMenuState = {
   plotReady: boolean; // are we ready to plot

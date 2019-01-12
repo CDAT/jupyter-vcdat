@@ -24,7 +24,7 @@ import { VarLoader } from "./VarLoader";
 const base_url = "/vcs";
 
 type VarMenuProps = {
-  filePath: string; // the path to our file of interest
+  filePath: any; // the path to our file of interest
   loadVariable: any; // a method to call when loading the variable
 };
 
@@ -59,28 +59,32 @@ export default class VarMenu extends React.Component<
     this.toggleDropdown = this.toggleDropdown.bind(this);
   }
   addVariables() {
-    let params = $.param({
-      file_path: this.props.filePath
-    });
-    let url = base_url + "/get_vars?" + params;
-    this.callApi(url).then((variableAxes: any) => {
-      let newVars = new Array<Variable>();
-      Object.keys(variableAxes.vars).map((item: string) => {
-        let v = new Variable();
-        v.name = item;
-        v.longName = variableAxes.vars[item].name;
-        v.axisList = variableAxes.vars[item].axisList;
-        v.axisInfo = new Array<Object>();
-        variableAxes.vars[item].axisList.map((item: any) => {
-          v.axisInfo.push(variableAxes.axes[item]);
+    if (this.props.filePath() != "") {
+      let params = $.param({
+        file_path: this.props.filePath()
+      });
+      let url = base_url + "/get_vars?" + params;
+      this.callApi(url).then((variableAxes: any) => {
+        let newVars = new Array<Variable>();
+        Object.keys(variableAxes.vars).map((item: string) => {
+          let v = new Variable();
+          v.name = item;
+          v.longName = variableAxes.vars[item].name;
+          v.axisList = variableAxes.vars[item].axisList;
+          v.axisInfo = new Array<Object>();
+          variableAxes.vars[item].axisList.map((item: any) => {
+            v.axisInfo.push(variableAxes.axes[item]);
+          });
+          v.units = variableAxes.vars[item].units;
+          newVars.push(v);
         });
-        v.units = variableAxes.vars[item].units;
-        newVars.push(v);
+        this.setState({
+          variables: newVars
+        });
       });
-      this.setState({
-        variables: newVars
-      });
-    });
+    } else {
+      alert("Open an NC file to see it's variables.");
+    }
   }
   // call an external API
   callApi = async (url: string) => {
@@ -146,11 +150,11 @@ export default class VarMenu extends React.Component<
                 </DropdownMenu>
               </Dropdown>
             </CardSubtitle>
-            <Collapse isOpen={this.state.showMenu}></Collapse>
+            <Collapse isOpen={this.state.showMenu} />
           </CardBody>
         </Card>
         <VarLoader
-          filePath={this.props.filePath}
+          filePath={this.props.filePath()}
           loadVariable={this.props.loadVariable}
           ref={(loader: VarLoader) => (this.varLoader = loader)}
         />

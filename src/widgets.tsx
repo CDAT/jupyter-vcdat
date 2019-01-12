@@ -71,13 +71,14 @@ export class LeftSideBarWidget extends Widget {
     this.currentTemplate = "";
     this.inject = this.inject.bind(this);
     this.current_file = "";
+    this.getFilePath = this.getFilePath.bind(this);
     this.updateVars = this.updateVars.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.injectRequiredModules = this.injectRequiredModules.bind(this);
     this.getReadyNotebookPanel = this.getReadyNotebookPanel.bind(this);
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
     this.component = ReactDOM.render(
-      <VCSMenu inject={this.inject} filePath={this.current_file} />,
+      <VCSMenu inject={this.inject} filePath={this.getFilePath} />,
       this.div
     );
   }
@@ -86,6 +87,10 @@ export class LeftSideBarWidget extends Widget {
     this.component.setState({
       file_path: file_path
     });
+  }
+
+  getFilePath(): string {
+    return this.current_file;
   }
 
   inject(code: string): Promise<[number, string]> {
@@ -192,8 +197,10 @@ export class LeftSideBarWidget extends Widget {
               let cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
                 this.current_file
               }\")`;
-              this.inject(cmd).then(() => {
+              this.inject(cmd).then((result) => {
                 this.setVCS_Ready();
+                this.notebook_panel.content.activeCellIndex = result[0]+1;// Set the active cell to be under the injected code
+                notebook_panel.context.save(); // Save the notebook to preserve the cells and metadata
                 resolve(notebook_panel);
               });
             });
