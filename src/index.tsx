@@ -137,8 +137,8 @@ export class NCViewerFactory extends ABCWidgetFactory<
       // Activate sidebar widget
       shell.activateById(sidebar.id);
 
-      // Get name of opened file
-      sidebar.current_file = context.session.name;
+      // Update the open filepath in sidebar
+      sidebar.updatePath(context.session.name);
 
       // Check if there's an open notebook
       if (notebook_active) {

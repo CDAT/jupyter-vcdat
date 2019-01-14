@@ -7,6 +7,7 @@ import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 import { GET_VARS_CMD, CHECK_MODULES_CMD, READY_KEY } from "./constants";
 import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
+import { ModelDB } from "@jupyterlab/observables";
 
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
@@ -14,13 +15,9 @@ export class LeftSideBarWidget extends Widget {
   notebook_panel: NotebookPanel; // The notebook this widget is interacting with
   notebook_tracker: NotebookTracker; // This is to track current notebooks
   variables: string;
-
-  // component_props: VCSMenuProps; // An object that stores the props to pass down to LeftSideBar
   component: any; // the LeftSidebar component
-  currentGm: string; // name of the active graphics method
-  currentVariable: string; // name of the activate variable
-  currentTemplate: string; // name of the activate template
-  current_file: string; // The path for the file from which a variable is added, set when the file is double clicked
+  loading_data: boolean;
+  current_file: string;
   constructor(commands: CommandRegistry, tracker: NotebookTracker) {
     super();
     this.div = document.createElement("div");
@@ -29,9 +26,7 @@ export class LeftSideBarWidget extends Widget {
     this.commands = commands;
     this.notebook_tracker = tracker;
     this.notebook_panel = tracker.currentWidget;
-    this.currentGm = "";
-    this.currentVariable = "";
-    this.currentTemplate = "";
+    this.loading_data = false;
     this.inject = this.inject.bind(this);
     this.current_file = "";
     this.getFilePath = this.getFilePath.bind(this);
@@ -41,12 +36,24 @@ export class LeftSideBarWidget extends Widget {
     this.getReadyNotebookPanel = this.getReadyNotebookPanel.bind(this);
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
     this.component = ReactDOM.render(
-      <VCSMenu inject={this.inject} filePath={this.current_file} />,
+      <VCSMenu
+        commands={this.commands}
+        inject={this.inject}
+        file_path={this.current_file}
+      />,
       this.div
     );
+
+    this.commands.addCommand("vcs:load-data", {
+      execute: args => {
+        this.loading_data = true;
+        this.commands.execute("filebrowser:activate");
+      }
+    });
   }
 
   updatePath(file_path: string) {
+    this.current_file = file_path;
     this.component.setState({
       file_path: file_path
     });
@@ -68,25 +75,28 @@ export class LeftSideBarWidget extends Widget {
   buildImportCommand(modules: string[], lazy: boolean): string {
     let cmd: string = "";
     //Check for lazy_imports modules first
+    let tmp_modules = modules;
     let ind = modules.indexOf("lazy_import");
 
     if (lazy) {
       // Import lazy_imports if it's missing, before doing other imports
       if (ind >= 0) {
-        modules.splice(ind, 1);
+        console.log(tmp_modules);
+        tmp_modules.splice(ind, 1);
         cmd = "import lazy_import";
+        console.log(tmp_modules);
       }
       // Import other modules using lazy import syntax
-      modules.forEach(module => {
+      tmp_modules.forEach(module => {
         cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
       });
     } else {
       // Remove lazy_imports from required modules if it is there
       if (ind >= 0) {
-        modules.splice(ind, 1);
+        tmp_modules.splice(ind, 1);
       }
       // Import modules
-      modules.forEach(module => {
+      tmp_modules.forEach(module => {
         cmd += `\nimport ${module}`;
       });
     }
@@ -95,14 +105,15 @@ export class LeftSideBarWidget extends Widget {
 
   // This will inject the required modules into the current notebook (if module not already imported)
   injectRequiredModules(): Promise<number> {
+    console.log("Injecting required modules");
     // Check if required modules are imported in notebook
     var prom: Promise<number> = new Promise((resolve, reject) => {
       cell_utils
         .runAndDelete(this.commands, this.notebook_panel, CHECK_MODULES_CMD)
         .then(output => {
           let missing_modules: string[] = eval(output);
-
-          let cmd = this.buildImportCommand(missing_modules, false);
+          console.log(missing_modules);
+          let cmd = this.buildImportCommand(missing_modules, true);
           cell_utils
             .insertAndRun(this.commands, this.notebook_panel, -1, cmd)
             .then(result => {
@@ -122,7 +133,6 @@ export class LeftSideBarWidget extends Widget {
 
   // Returns whether the current notebook is vcs ready (has required imports and vcs initialized)
   isVCS_Ready(): boolean {
-    console.log(this.notebook_panel);
     if (
       this.notebook_panel &&
       this.notebook_panel.content &&
@@ -147,7 +157,7 @@ export class LeftSideBarWidget extends Widget {
       if (this.current_file == "") {
         console.log("Rejection");
         reject("No file has been set for obtaining variables.");
-      } else if (this.isVCS_Ready()) {
+      } else if (false && this.isVCS_Ready()) {
         // The notebook already has vcs initialized
         console.log("Notebook has vcs initialized!");
         resolve(this.notebook_panel);

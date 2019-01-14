@@ -22,17 +22,24 @@ def list_all():\n\
     return out\n\
 print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
 
-const CHECK_MODULES_CMD =
-  'import sys\n\
-all_modules = ["lazy_import","vcs","cdms2"]\n\
+const REQUIRED_MODULES = ["lazy_import", "cdms2", "vcs"];
+
+const CHECK_MODULES_CMD = `import sys\n\
+all_modules = ${REQUIRED_MODULES}\n\
 missed_modules = []\n\
 for module in all_modules:\n\
 	if module not in sys.modules:\n\
 		missed_modules.append(module)\n\
-missed_modules';
-
-const REQUIRED_MODULES = ["cdms2", "vcs"];
+missed_modules`;
 
 const BASE_URL = "/vcs";
 
-export { GET_VARS_CMD, CHECK_MODULES_CMD, REQUIRED_MODULES, BASE_URL };
+const READY_KEY = "vcdat_ready";
+
+export {
+  GET_VARS_CMD,
+  CHECK_MODULES_CMD,
+  REQUIRED_MODULES,
+  BASE_URL,
+  READY_KEY
+};
