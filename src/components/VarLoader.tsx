@@ -17,7 +17,7 @@ import Variable from "./Variable";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 type VarLoaderProps = {
-  filePath: string; // path to input file
+  file_path: string; // path to input file
   loadVariable: any; // function to call when user hits load
 };
 type VarLoaderState = {
@@ -98,7 +98,7 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
                   File
                 </Col>
                 <Col sm={9}>
-                  <p>{this.props.filePath}</p>
+                  <p>{this.props.file_path}</p>
                 </Col>
               </Row>
             </div>

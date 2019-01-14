@@ -1,49 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { cell_utils, notebook_utils } from "./vcdat_utils";
+import { cell_utils, notebook_utils } from "./utils";
 import { Widget } from "@phosphor/widgets";
 import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
-
+import { GET_VARS_CMD, CHECK_MODULES_CMD, READY_KEY } from "./constants";
 import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
-
-const GET_VARS_CMD =
-  'import __main__\n\
-import json\n\
-def variables():\n\
-		out = []\n\
-		for nm, obj in __main__.__dict__.items():\n\
-				if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-						out+=[nm]\n\
-		return out\n\
-def graphic_methods():\n\
-		out = {}\n\
-		for typ in vcs.graphicsmethodlist():\n\
-				out[typ] = vcs.listelements(typ)\n\
-		return out\n\
-def templates():\n\
-		return vcs.listelements("template")\n\
-def list_all():\n\
-		out = {}\n\
-		out["variables"] = variables()\n\
-		out["gm"] = graphic_methods()\n\
-		out["template"] = templates()\n\
-		return out\n\
-print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
-
-const CHECK_MODULES_CMD =
-  'import sys\n\
-all_modules = ["lazy_import","vcs","cdms2"]\n\
-missed_modules = []\n\
-for module in all_modules:\n\
-	if module not in sys.modules:\n\
-		missed_modules.append(module)\n\
-missed_modules';
-
-const REQUIRED_MODULES = ["cdms2", "vcs"];
-
-const READY_KEY = "vcdat_ready";
 
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
@@ -78,7 +41,7 @@ export class LeftSideBarWidget extends Widget {
     this.getReadyNotebookPanel = this.getReadyNotebookPanel.bind(this);
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
     this.component = ReactDOM.render(
-      <VCSMenu inject={this.inject} filePath={this.getFilePath} />,
+      <VCSMenu inject={this.inject} filePath={this.current_file} />,
       this.div
     );
   }
@@ -197,9 +160,9 @@ export class LeftSideBarWidget extends Widget {
               let cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
                 this.current_file
               }\")`;
-              this.inject(cmd).then((result) => {
+              this.inject(cmd).then(result => {
                 this.setVCS_Ready();
-                this.notebook_panel.content.activeCellIndex = result[0]+1;// Set the active cell to be under the injected code
+                this.notebook_panel.content.activeCellIndex = result[0] + 1; // Set the active cell to be under the injected code
                 notebook_panel.context.save(); // Save the notebook to preserve the cells and metadata
                 resolve(notebook_panel);
               });

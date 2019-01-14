@@ -10,7 +10,6 @@ import {
   FormGroup,
   Label,
   Input,
-  FormFeedback,
   CardTitle,
   CardSubtitle,
   Button,
@@ -19,20 +18,27 @@ import {
 } from "reactstrap";
 import Variable from "./Variable";
 import { VarLoader } from "./VarLoader";
+import { callApi } from "./../utils";
+import { BASE_URL } from "./../constants";
 // import { showDialog } from "@jupyterlab/apputils";
 
-const base_url = "/vcs";
+var labelStyle: React.CSSProperties = {
+  paddingLeft: "1em"
+};
+var buttonStyle: React.CSSProperties = {
+  marginLeft: "1em"
+};
 
 type VarMenuProps = {
-  filePath: any; // the path to our file of interest
+  file_path: string; // the path to our file of interest
   loadVariable: any; // a method to call when loading the variable
+  commands: any; // the command executer
 };
 
 type VarMenuState = {
   showMenu: boolean; // should the collapse be open
-  showDropdown: boolean; // should the variable select drop down be open
   showModal: boolean; // should we show the axis select/subset modal
-  selectedVariable: Variable; // the variable the user has selected
+  selectedVariables: Array<Variable>; // the variable the user has selected
   variables: Array<Variable>; // variables from the selected file
   variablesFetched: boolean; // have the variables been fetched from the backend yet
 };
@@ -46,115 +52,137 @@ export default class VarMenu extends React.Component<
     super(props);
     this.state = {
       showMenu: false,
-      showDropdown: false,
       showModal: false,
-      selectedVariable: new Variable(),
+      selectedVariables: new Array<Variable>(),
       variablesFetched: false,
-      variables: [new Variable()]
+      variables: new Array<Variable>()
     };
     this.varLoader = (React as any).createRef();
     this.addVariables = this.addVariables.bind(this);
-    this.callApi = this.callApi.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
-    this.toggleDropdown = this.toggleDropdown.bind(this);
+    this.clear = this.clear.bind(this);
+    this.launchFilebrowser = this.launchFilebrowser.bind(this);
+    this.selectVariable = this.selectVariable.bind(this);
   }
+
   addVariables() {
-    if (this.props.filePath() != "") {
-      let params = $.param({
-        file_path: this.props.filePath()
-      });
-      let url = base_url + "/get_vars?" + params;
-      this.callApi(url).then((variableAxes: any) => {
-        let newVars = new Array<Variable>();
-        Object.keys(variableAxes.vars).map((item: string) => {
-          let v = new Variable();
-          v.name = item;
-          v.longName = variableAxes.vars[item].name;
-          v.axisList = variableAxes.vars[item].axisList;
-          v.axisInfo = new Array<Object>();
-          variableAxes.vars[item].axisList.map((item: any) => {
-            v.axisInfo.push(variableAxes.axes[item]);
-          });
-          v.units = variableAxes.vars[item].units;
-          newVars.push(v);
+    let params = $.param({
+      file_path: this.props.file_path
+    });
+    let url = BASE_URL + "/get_vars?" + params;
+    callApi(url).then((variableAxes: any) => {
+      let newVars = new Array<Variable>();
+      Object.keys(variableAxes.vars).map((item: string) => {
+        let v = new Variable();
+        v.name = item;
+        v.longName = variableAxes.vars[item].name;
+        v.axisList = variableAxes.vars[item].axisList;
+        v.axisInfo = new Array<Object>();
+        variableAxes.vars[item].axisList.map((item: any) => {
+          v.axisInfo.push(variableAxes.axes[item]);
         });
-        this.setState({
-          variables: newVars
-        });
+        v.units = variableAxes.vars[item].units;
+        newVars.push(v);
       });
-    } else {
-      alert("Open an NC file to see it's variables.");
-    }
+      this.setState({
+        variables: newVars,
+        variablesFetched: true
+      });
+    });
   }
-  // call an external API
-  callApi = async (url: string) => {
-    const response = await fetch(url);
-    const body = await response.json();
-    if (response.status !== 200) throw Error(body.message);
-    return body;
-  };
+
+  clear() {
+    this.setState({
+      variables: new Array<Variable>(),
+      variablesFetched: false,
+      selectedVariables: new Array<Variable>()
+    });
+  }
+
   toggleMenu() {
+    if (this.state.variables.length == 0 && this.props.file_path) {
+      this.addVariables();
+    }
     this.setState({
       showMenu: !this.state.showMenu
     });
   }
-  toggleDropdown() {
-    this.setState({
-      showDropdown: !this.state.showDropdown
+
+  launchFilebrowser() {
+    this.props.commands.execute("vcs:load-data").then(() => {
+      console.log("file selected");
     });
   }
+
+  selectVariable(event: any, item: Variable) {
+    if (event.target.checked) {
+      this.setState({
+        selectedVariables: this.state.selectedVariables.concat([item])
+      });
+    } else {
+      let index = this.state.selectedVariables.indexOf(item);
+      this.setState({
+        selectedVariables: this.state.selectedVariables.splice(index, 1)
+      });
+    }
+  }
+
   render() {
+    var buttonClicker;
+    if (!this.props.file_path) {
+      buttonClicker = this.launchFilebrowser;
+    } else {
+      buttonClicker = this.toggleMenu;
+    }
     return (
       <div>
-        <Card
-          onClick={() => {
-            if (!this.state.variablesFetched) {
-              this.addVariables();
-            }
-            if (!this.state.showMenu) {
-              this.setState({ showMenu: true });
-            }
-          }}
-        >
+        <Card>
           <CardBody>
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
-              <Dropdown
-                isOpen={this.state.showDropdown}
-                toggle={this.toggleDropdown}
-              >
-                <DropdownToggle caret>
-                  {this.state.variablesFetched &&
-                    this.state.selectedVariable.name}
-                  {!this.state.variablesFetched && "Select Variable"}
-                </DropdownToggle>
-                <DropdownMenu>
-                  {this.state.variables.map((item: Variable) => {
+              <Button onClick={buttonClicker}>
+                {!this.props.file_path && <span>Load Data</span>}
+                {this.props.file_path && <span>Select Variables</span>}
+              </Button>
+            </CardSubtitle>
+            <Collapse isOpen={this.state.showMenu}>
+              {this.state.variablesFetched && (
+                <Form>
+                  {this.state.variables.map(item => {
                     return (
-                      <DropdownItem
-                        key={item.name}
-                        onClick={() => {
-                          this.setState({
-                            variablesFetched: true,
-                            selectedVariable: item,
-                            showMenu: true
-                          });
-                          this.varLoader.toggle();
-                          this.varLoader.setVariable(item);
-                        }}
-                      >
-                        {item.name}: {item.longName}
-                      </DropdownItem>
+                      <div key={item.name}>
+                        <FormGroup check>
+                          <Label
+                            check
+                            style={labelStyle}
+                            onClick={(event: any) => {
+                              this.selectVariable(event, item);
+                            }}
+                          >
+                            <Input type="checkbox" />
+                            {item.name} - {item.longName}
+                          </Label>
+                        </FormGroup>
+                      </div>
                     );
                   })}
-                </DropdownMenu>
-              </Dropdown>
-            </CardSubtitle>
-            <Collapse isOpen={this.state.showMenu} />
+                  {this.state.selectedVariables.length > 0 && (
+                    <Button
+                      style={buttonStyle}
+                      onClick={() => {
+                        this.props.loadVariable(this.state.selectedVariables);
+                      }}
+                    >
+                      load
+                    </Button>
+                  )}
+                </Form>
+              )}
+            </Collapse>
           </CardBody>
         </Card>
         <VarLoader
-          filePath={this.props.filePath()}
+          file_path={this.props.file_path}
           loadVariable={this.props.loadVariable}
           ref={(loader: VarLoader) => (this.varLoader = loader)}
         />

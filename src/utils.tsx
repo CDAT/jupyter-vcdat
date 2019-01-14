@@ -3,8 +3,16 @@ import { Notebook, NotebookPanel } from "@jupyterlab/notebook";
 import { nbformat } from "@jupyterlab/coreutils";
 import { CommandRegistry } from "@phosphor/commands";
 
+// call an external API
+async function callApi(url: string) {
+  const response = await fetch(url);
+  const body = await response.json();
+  if (response.status !== 200) throw Error(body.message);
+  return body;
+}
+
 /** Contains some utility functions for handling notebook cells */
-export namespace cell_utils {
+namespace cell_utils {
   /**
    * Reads the output at a cell within the specified notebook and returns it as a string
    * @param notebook The notebook to get the cell from
@@ -373,7 +381,7 @@ export namespace cell_utils {
 }
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
-export namespace notebook_utils {
+namespace notebook_utils {
   /**
    * Creates a new JupyterLab notebook for use by the application
    * @param command The command registry
@@ -400,4 +408,4 @@ export namespace notebook_utils {
   }
 }
 
-export default { cell_utils, notebook_utils };
+export { callApi, cell_utils, notebook_utils };

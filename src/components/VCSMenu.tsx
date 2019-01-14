@@ -19,13 +19,15 @@ const divStyle: React.CSSProperties = {
 // updatePlotOptions: any; // a method to cause the plot options to be updated
 export type VCSMenuProps = {
   inject: any; // a method to inject code into the controllers notebook
-  filePath: any; // Gets the file path for the selected netCDF file
+  file_path: string; // the file path for the selected netCDF file
+  commands: any; // the command executor
 };
 type VCSMenuState = {
+  file_path: string;
   plotReady: boolean; // are we ready to plot
-  selected_variables: Array<string>;
+  selected_variables: Array<Variable>;
   selected_gm: string;
-  selected_gm_group: string; 
+  selected_gm_group: string;
   selected_template: string;
 };
 
@@ -33,8 +35,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   constructor(props: VCSMenuProps) {
     super(props);
     this.state = {
+      file_path: props.file_path,
       plotReady: false,
-      selected_variables: new Array<string>(),
+      selected_variables: new Array<Variable>(),
       selected_gm: "",
       selected_gm_group: "",
       selected_template: ""
@@ -46,7 +49,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updateVarOptions = this.updateVarOptions.bind(this);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
   }
-  update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {}
+  update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {
+    console.log(vars, gms, templates);
+  }
   updateGraphicsOptions(group: string, name: string) {
     this.setState({
       selected_gm_group: group,
@@ -55,16 +60,20 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     let gm_string = `${group}_${name} = vcs.get${group}('${name}')`;
     this.props.inject(gm_string);
   }
-  updateVarOptions(variable: string, dimInfo: any) {
+  updateVarOptions(variableList: Array<Variable>) {
     this.setState({
-      selected_variables: this.state.selected_variables.concat([variable])
-    })
-    let var_string = `${variable} = data("${variable}"`;
-    Object.keys(dimInfo).forEach((item) => {
-      var_string += `, ${item}=(${dimInfo[item].min}, ${dimInfo[item].max})`
-    })
-    var_string += ')'
-    this.props.inject(var_string);
+      selected_variables: variableList
+    });
+    variableList.forEach((item: Variable) => {
+      let var_string = `${item.name} = data("${item.name}"`;
+      item.axisInfo.forEach((axis: any) => {
+        var_string += `, ${axis.name}=(${axis.data[0]}, ${
+          axis.data[axis.data.length - 1]
+        })`;
+      });
+      var_string += ")";
+      this.props.inject(var_string);
+    });
   }
   updateTemplateOptions() {}
   plot() {
@@ -79,9 +88,11 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       if (!temp) {
         temp = '"default"';
       }
-      let plotString = `canvas.clear()\ncanvas.plot(${this.state.selected_variables.join(
-        ", "
-      )}, ${gm}, ${temp})`;
+      let plotString = "canvas.clear()\ncanvas.plot(";
+      this.state.selected_variables.forEach(variable => {
+        plotString += variable.name + ", ";
+      });
+      plotString += `${gm}, ${temp})`;
       this.props.inject(plotString);
     }
   }
@@ -91,11 +102,12 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       varInfo: new Variable()
     };
     let VarMenuProps = {
-      filePath: this.props.filePath,
-      loadVariable: this.updateVarOptions
+      file_path: this.state.file_path,
+      loadVariable: this.updateVarOptions,
+      commands: this.props.commands
     };
     let TemplateMenuProps = {
-      updateTemplate: () => {}
+      updateTemplate: () => {} //TODO: this
     };
 
     return (
@@ -108,24 +120,27 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
             <Button
               type="button"
               color="primary"
+              className="col-sm-3"
               style={btnStyle}
               onClick={this.plot}
               disabled={this.state.plotReady}
             >
-              Plot
+              Generate Plot
             </Button>
             <Button
               type="button"
               color="primary"
+              className="col-sm-3"
               style={btnStyle}
               onClick={this.plot}
               disabled={this.state.plotReady}
             >
-              Save Image
+              Save Plot
             </Button>
             <Button
               type="button"
               color="primary"
+              className="col-sm-3"
               style={btnStyle}
               onClick={this.plot}
               disabled={this.state.plotReady}
