@@ -5,7 +5,12 @@ import { Widget } from "@phosphor/widgets";
 import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
-import { GET_VARS_CMD, CHECK_MODULES_CMD, READY_KEY } from "./constants";
+import {
+  GET_VARS_CMD,
+  CHECK_MODULES_CMD,
+  READY_KEY,
+  REQUIRED_MODULES
+} from "./constants";
 import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
 import { ModelDB } from "@jupyterlab/observables";
 
@@ -108,20 +113,11 @@ export class LeftSideBarWidget extends Widget {
     console.log("Injecting required modules");
     // Check if required modules are imported in notebook
     var prom: Promise<number> = new Promise((resolve, reject) => {
+      let cmd = this.buildImportCommand(REQUIRED_MODULES, true);
       cell_utils
-        .runAndDelete(this.commands, this.notebook_panel, CHECK_MODULES_CMD)
-        .then(output => {
-          let missing_modules: string[] = eval(output);
-          console.log(missing_modules);
-          let cmd = this.buildImportCommand(missing_modules, true);
-          cell_utils
-            .insertAndRun(this.commands, this.notebook_panel, -1, cmd)
-            .then(result => {
-              resolve(result[0]);
-            })
-            .catch(error => {
-              reject(error);
-            });
+        .insertAndRun(this.commands, this.notebook_panel, -1, cmd)
+        .then(result => {
+          resolve(result[0]);
         })
         .catch(error => {
           reject(error);
@@ -157,7 +153,7 @@ export class LeftSideBarWidget extends Widget {
       if (this.current_file == "") {
         console.log("Rejection");
         reject("No file has been set for obtaining variables.");
-      } else if (false && this.isVCS_Ready()) {
+      } else if (this.isVCS_Ready()) {
         // The notebook already has vcs initialized
         console.log("Notebook has vcs initialized!");
         resolve(this.notebook_panel);
