@@ -1,13 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { cell_utils, notebook_utils as nb_utils } from "./utils";
+import { notebook_utils as nb_utils } from "./notebook_utils";
+import { cell_utils } from "./cell_utils";
 import { Widget } from "@phosphor/widgets";
 import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 import { GET_VARS_CMD, CHECK_MODULES_CMD, READY_KEY } from "./constants";
 import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
-import { ThemeManager } from "@jupyterlab/apputils";
 
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget

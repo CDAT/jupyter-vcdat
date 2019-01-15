@@ -1,5 +1,5 @@
 import "../style/css/index.css";
-import { cell_utils, notebook_utils as nb_utils } from "./utils";
+import { notebook_utils as nb_utils } from "./notebook_utils";
 import {
   ABCWidgetFactory,
   DocumentRegistry,
