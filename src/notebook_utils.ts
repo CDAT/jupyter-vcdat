@@ -1,4 +1,4 @@
-import { Notebook } from "@jupyterlab/notebook";
+import { Notebook, NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
@@ -6,10 +6,12 @@ namespace notebook_utils {
   /**
    * Creates a new JupyterLab notebook for use by the application
    * @param command The command registry
-   * @returns A promise containing the notebook object that was created (if successful).
+   * @returns A promise containing the notebook panel object that was created (if successful).
    */
-  export function createNewNotebook(command: CommandRegistry): Promise<any> {
-    let prom = new Promise((resolve, reject) => {
+  export function createNewNotebook(
+    command: CommandRegistry
+  ): Promise<NotebookPanel> {
+    let prom: Promise<NotebookPanel> = new Promise((resolve, reject) => {
       command
         .execute("notebook:create-new", {
           activate: true,

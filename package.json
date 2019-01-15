@@ -69,7 +69,8 @@
 		"react-load-script": "0.0.6",
 		"react-toastify": "^4.4.0",
 		"reactstrap": "^6.5.0",
-		"remove": "^0.1.5"
+		"remove": "^0.1.5",
+		"tslint": "^5.12.1"
 	},
 	"devDependencies": {
 		"node-sass": "^4.11.0",

@@ -2,10 +2,6 @@ import * as React from "react";
 import * as $ from "jquery";
 import {
   Collapse,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Form,
   FormGroup,
   Label,
@@ -18,8 +14,8 @@ import {
 } from "reactstrap";
 import Variable from "./Variable";
 import { VarLoader } from "./VarLoader";
-import { callApi } from "./../utils";
-import { BASE_URL } from "./../constants";
+import { callApi } from "../utils";
+import { BASE_URL } from "../constants";
 // import { showDialog } from "@jupyterlab/apputils";
 
 var labelStyle: React.CSSProperties = {

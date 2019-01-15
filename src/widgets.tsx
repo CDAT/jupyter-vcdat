@@ -3,21 +3,29 @@ import * as ReactDOM from "react-dom";
 import { notebook_utils as nb_utils } from "./notebook_utils";
 import { cell_utils } from "./cell_utils";
 import { Widget } from "@phosphor/widgets";
-import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
+import { VCSMenu } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
-import { GET_VARS_CMD, CHECK_MODULES_CMD, READY_KEY } from "./constants";
+import {
+  GET_VARS_CMD,
+  CHECK_MODULES_CMD,
+  READY_KEY,
+  FILE_PATH_KEY
+} from "./constants";
 import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
 
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
   commands: CommandRegistry; // Jupyter app CommandRegistry
-  notebook_panel: NotebookPanel; // The notebook this widget is interacting with
   notebook_tracker: NotebookTracker; // This is to track current notebooks
   variables: string;
   component: any; // the LeftSidebar component
   loading_data: boolean;
-  current_file: string;
+
+  private _vcs_ready: boolean; // Wether the notebook has had necessary imports and is ready for code injection
+  private _current_file: string; // The current filepath of the data file being used for variables and data
+  private _notebook_panel: NotebookPanel; // The notebook this widget is interacting with
+
   constructor(commands: CommandRegistry, tracker: NotebookTracker) {
     super();
     this.div = document.createElement("div");
@@ -25,11 +33,11 @@ export class LeftSideBarWidget extends Widget {
     this.node.appendChild(this.div);
     this.commands = commands;
     this.notebook_tracker = tracker;
-    this.notebook_panel = tracker.currentWidget;
+    this._notebook_panel = tracker.currentWidget;
     this.loading_data = false;
-    this.current_file = "";
+    this._current_file = "";
+    this._vcs_ready = false;
     this.inject = this.inject.bind(this);
-    this.getFilePath = this.getFilePath.bind(this);
     this.updateVars = this.updateVars.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.injectRequiredModules = this.injectRequiredModules.bind(this);
@@ -50,17 +58,80 @@ export class LeftSideBarWidget extends Widget {
         this.commands.execute("filebrowser:activate");
       }
     });
+
+    // Checks the current notebook
   }
 
-  updatePath(file_path: string) {
-    this.current_file = file_path;
-    this.component.setState({
-      file_path: file_path
-    });
+  public get vcs_ready(): boolean {
+    return this._vcs_ready;
+  }
+  public set vcs_ready(value: boolean) {
+    try {
+      if (value) {
+        nb_utils.setMetaData(this.notebook_panel.content, READY_KEY, "true");
+      } else {
+        nb_utils.setMetaData(this.notebook_panel.content, READY_KEY, "false");
+      }
+
+      this._vcs_ready = value;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  getFilePath(): string {
-    return this.current_file;
+  public get notebook_panel(): NotebookPanel {
+    return this._notebook_panel;
+  }
+  /**
+   * Set's the widget'c current notebook and updates the necessary variables
+   */
+  public set notebook_panel(newNotebook: NotebookPanel) {
+    try {
+      this._notebook_panel = newNotebook;
+
+      if (newNotebook) {
+        // Update whether the current notebook is vcs ready (has required imports and vcs initialized)
+        if (nb_utils.getMetaData(newNotebook.content, READY_KEY)) {
+          this.vcs_ready = true;
+        } else {
+          this.vcs_ready = false;
+        }
+        // Check if the notebook has a file to load variables from already
+        let file_path: string = nb_utils.getMetaData(
+          newNotebook.content,
+          FILE_PATH_KEY
+        );
+        // If file path isn't null, update it.
+        if (file_path) {
+          console.log(`File path restored! File: ${file_path}`);
+          this.current_file = file_path;
+        } else {
+          this.current_file = "";
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      this.vcs_ready = false;
+    }
+  }
+
+  public get current_file(): string {
+    return this._current_file;
+  }
+  public set current_file(file_path: string) {
+    try {
+      this._current_file = file_path;
+      nb_utils.setMetaData(
+        this.notebook_panel.content,
+        FILE_PATH_KEY,
+        file_path
+      );
+      this.component.setState({
+        file_path: file_path
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   inject(code: string): any {
@@ -136,18 +207,6 @@ export class LeftSideBarWidget extends Widget {
     return prom;
   }
 
-  // Returns whether the current notebook is vcs ready (has required imports and vcs initialized)
-  isVCS_Ready(): boolean {
-    try {
-      if (nb_utils.getMetaData(this.notebook_panel.content, READY_KEY)) {
-        return true;
-      }
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  }
-
   // returns promise of a vcs ready notebook, creating one if necessary
   getReadyNotebookPanel() {
     let nb: Promise<NotebookPanel> = new Promise((resolve, reject) => {
@@ -155,7 +214,7 @@ export class LeftSideBarWidget extends Widget {
       if (this.current_file == "") {
         console.log("Rejection");
         reject("No file has been set for obtaining variables.");
-      } else if (this.isVCS_Ready()) {
+      } else if (this.vcs_ready) {
         // The notebook already has vcs initialized
         console.log("Notebook has vcs initialized!");
         resolve(this.notebook_panel);
@@ -178,11 +237,7 @@ export class LeftSideBarWidget extends Widget {
                     true
                   )
                   .then(result => {
-                    nb_utils.setMetaData(
-                      this.notebook_panel.content,
-                      READY_KEY,
-                      "true"
-                    );
+                    this.vcs_ready = true; // The notebook has required modules and is ready
                     this.notebook_panel.content.activeCellIndex = result[0] + 1; // Set the active cell to be under the injected code
                     notebook_panel.context.save(); // Save the notebook to preserve the cells and metadata
                     resolve(notebook_panel);

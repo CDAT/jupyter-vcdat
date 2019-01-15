@@ -20,7 +20,6 @@ import {
   NotebookTracker,
   NotebookPanel
 } from "@jupyterlab/notebook";
-import { READY_KEY, FILE_PATH_KEY } from "./constants";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -92,30 +91,37 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
 
   // Sets the current notebook once the application shell has been restored
   // and all the widgets have been added to the notebooktracker
-  app.shell.restored.then(() => {
-    if (nb_tracker.currentWidget instanceof NotebookPanel) {
-      console.log("Currently open notebook selected.");
-      nb_panel_current = nb_tracker.currentWidget;
-      // Check if the notebook had loaded a file already
-      try {
-        let fp: any = nb_utils.getMetaData(
-          nb_panel_current.content,
-          FILE_PATH_KEY
-        );
-        if (fp) {
-          console.log("File path restored!");
-          sidebar.updatePath(fp);
-        } else {
-          sidebar.updatePath("");
-        }
-      } catch (error) {
-        console.log(error);
+  app.shell.restored
+    .then(() => {
+      // Check the active widget is a notebook panel
+      if (nb_tracker.currentWidget instanceof NotebookPanel) {
+        // If an active notebook, wait for it to be ready before setting
+        // it as current notebook (to ensure that metadata is ready)
+        console.log("Currently open notebook selected.");
+        nb_panel_current = nb_tracker.currentWidget;
+        nb_panel_current.session.ready.then(() => {
+          sidebar.notebook_panel = nb_panel_current;
+        });
+      } else {
+        // There is no active notebook widget, so create a new one
+        console.log("Created new notebook at start.");
+        nb_utils
+          .createNewNotebook(commands)
+          .then(notebook => {
+            nb_panel_current = notebook;
+            // Once notebook is made, wait for the session to be ready before setting it as current notebook
+            notebook.session.ready.then(() => {
+              sidebar.notebook_panel = notebook;
+            });
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
-    } else {
-      console.log("Created new notebook at start.");
-      nb_utils.createNewNotebook(commands);
-    }
-  });
+    })
+    .catch(error => {
+      console.log(error);
+    });
 
   // Notebook tracker will signal when a notebook is changed
   nb_tracker.currentChanged.connect(handleNotebooksChanged);
@@ -131,19 +137,6 @@ function handleNotebooksChanged(
     nb_panel_current = notebook; // Set the current notebook
     sidebar.notebook_panel = notebook; // Update sidebar notebook
     notebook_active = true;
-
-    // Check if the notebook had loaded a file already
-    try {
-      let fp: any = nb_utils.getMetaData(notebook.content, FILE_PATH_KEY);
-      if (fp) {
-        console.log("File path restored!");
-        sidebar.updatePath(fp);
-      } else {
-        sidebar.updatePath("");
-      }
-    } catch (error) {
-      console.log(error);
-    }
   } else {
     console.log("No active notebook detected.");
     notebook_active = false;
@@ -167,7 +160,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
       shell.activateById(sidebar.id);
 
       // Update the open filepath in sidebar
-      sidebar.updatePath(context.session.name);
+      sidebar.current_file = context.session.name;
 
       // Check if there's an open notebook
       if (notebook_active) {
@@ -178,11 +171,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
           shell.activateById(nb_panel_current.id);
         }
         sidebar.getReadyNotebookPanel().then(notebook => {
-          nb_utils.setMetaData(
-            notebook.content,
-            FILE_PATH_KEY,
-            context.session.name
-          );
+          sidebar.current_file = context.session.name;
         });
       } else {
         //Create a notebook if none is currently open
@@ -194,11 +183,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
           .then(notebook_panel => {
             sidebar.notebook_panel = notebook_panel;
             sidebar.getReadyNotebookPanel().then(notebook => {
-              nb_utils.setMetaData(
-                notebook.content,
-                FILE_PATH_KEY,
-                context.session.name
-              );
+              sidebar.current_file = context.session.name;
             });
           })
           .catch(error => {
