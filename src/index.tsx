@@ -1,5 +1,5 @@
 import "../style/css/index.css";
-import { cell_utils, notebook_utils } from "./utils";
+import { cell_utils, notebook_utils as nb_utils } from "./utils";
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -20,6 +20,7 @@ import {
   NotebookTracker,
   NotebookPanel
 } from "@jupyterlab/notebook";
+import { READY_KEY, FILE_PATH_KEY } from "./constants";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -95,9 +96,24 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
     if (nb_tracker.currentWidget instanceof NotebookPanel) {
       console.log("Currently open notebook selected.");
       nb_panel_current = nb_tracker.currentWidget;
+      // Check if the notebook had loaded a file already
+      try {
+        let fp: any = nb_utils.getMetaData(
+          nb_panel_current.content,
+          FILE_PATH_KEY
+        );
+        if (fp) {
+          console.log("File path restored!");
+          sidebar.updatePath(fp);
+        } else {
+          sidebar.updatePath("");
+        }
+      } catch (error) {
+        console.log(error);
+      }
     } else {
       console.log("Created new notebook at start.");
-      notebook_utils.createNewNotebook(commands);
+      nb_utils.createNewNotebook(commands);
     }
   });
 
@@ -113,8 +129,21 @@ function handleNotebooksChanged(
   if (notebook) {
     console.log(`Notebook changed to ${notebook.title.label}`);
     nb_panel_current = notebook; // Set the current notebook
-    sidebar.notebook_panel = nb_panel_current; // Update sidebar notebook
+    sidebar.notebook_panel = notebook; // Update sidebar notebook
     notebook_active = true;
+
+    // Check if the notebook had loaded a file already
+    try {
+      let fp: any = nb_utils.getMetaData(notebook.content, FILE_PATH_KEY);
+      if (fp) {
+        console.log("File path restored!");
+        sidebar.updatePath(fp);
+      } else {
+        sidebar.updatePath("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   } else {
     console.log("No active notebook detected.");
     notebook_active = false;
@@ -145,21 +174,32 @@ export class NCViewerFactory extends ABCWidgetFactory<
         if (shell.activeWidget == nb_panel_current) {
           //Get the current active notebook if a notebook is opened
           sidebar.notebook_panel = nb_panel_current;
-          sidebar.getReadyNotebookPanel();
         } else {
           shell.activateById(nb_panel_current.id);
-          sidebar.getReadyNotebookPanel();
         }
+        sidebar.getReadyNotebookPanel().then(notebook => {
+          nb_utils.setMetaData(
+            notebook.content,
+            FILE_PATH_KEY,
+            context.session.name
+          );
+        });
       } else {
         //Create a notebook if none is currently open
         console.log(
           "Created new notebook because all other notebooks were closed."
         );
-        notebook_utils
+        nb_utils
           .createNewNotebook(commands)
           .then(notebook_panel => {
             sidebar.notebook_panel = notebook_panel;
-            sidebar.getReadyNotebookPanel();
+            sidebar.getReadyNotebookPanel().then(notebook => {
+              nb_utils.setMetaData(
+                notebook.content,
+                FILE_PATH_KEY,
+                context.session.name
+              );
+            });
           })
           .catch(error => {
             console.log(error);

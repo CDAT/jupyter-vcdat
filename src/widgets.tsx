@@ -1,18 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { cell_utils, notebook_utils } from "./utils";
+import { cell_utils, notebook_utils as nb_utils } from "./utils";
 import { Widget } from "@phosphor/widgets";
 import { VCSMenu, VCSMenuProps } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
-import {
-  GET_VARS_CMD,
-  CHECK_MODULES_CMD,
-  READY_KEY,
-  REQUIRED_MODULES
-} from "./constants";
+import { GET_VARS_CMD, CHECK_MODULES_CMD, READY_KEY } from "./constants";
 import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
-import { ModelDB } from "@jupyterlab/observables";
+import { ThemeManager } from "@jupyterlab/apputils";
 
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
@@ -32,8 +27,8 @@ export class LeftSideBarWidget extends Widget {
     this.notebook_tracker = tracker;
     this.notebook_panel = tracker.currentWidget;
     this.loading_data = false;
-    this.inject = this.inject.bind(this);
     this.current_file = "";
+    this.inject = this.inject.bind(this);
     this.getFilePath = this.getFilePath.bind(this);
     this.updateVars = this.updateVars.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
@@ -68,13 +63,21 @@ export class LeftSideBarWidget extends Widget {
     return this.current_file;
   }
 
-  inject(code: string): Promise<[number, string]> {
-    return cell_utils.insertAndRun(
-      this.commands,
-      this.notebook_panel,
-      this.notebook_panel.content.activeCellIndex,
-      code
-    );
+  inject(code: string): any {
+    cell_utils
+      .insertAndRun(
+        this.commands,
+        this.notebook_panel,
+        this.notebook_panel.content.activeCellIndex,
+        code,
+        false
+      )
+      .then(result => {
+        return result;
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   buildImportCommand(modules: string[], lazy: boolean): string {
@@ -86,10 +89,8 @@ export class LeftSideBarWidget extends Widget {
     if (lazy) {
       // Import lazy_imports if it's missing, before doing other imports
       if (ind >= 0) {
-        console.log(tmp_modules);
         tmp_modules.splice(ind, 1);
         cmd = "import lazy_import";
-        console.log(tmp_modules);
       }
       // Import other modules using lazy import syntax
       tmp_modules.forEach(module => {
@@ -113,14 +114,22 @@ export class LeftSideBarWidget extends Widget {
     console.log("Injecting required modules");
     // Check if required modules are imported in notebook
     var prom: Promise<number> = new Promise((resolve, reject) => {
-      let cmd = this.buildImportCommand(REQUIRED_MODULES, true);
       cell_utils
-        .insertAndRun(this.commands, this.notebook_panel, -1, cmd)
-        .then(result => {
-          resolve(result[0]);
+        .runAndDelete(this.commands, this.notebook_panel, CHECK_MODULES_CMD)
+        .then(output => {
+          let missing_modules: string[] = eval(output);
+          let cmd = this.buildImportCommand(missing_modules, true);
+          cell_utils
+            .insertAndRun(this.commands, this.notebook_panel, -1, cmd, false)
+            .then(result => {
+              resolve(result[0]);
+            })
+            .catch(error => {
+              reject(error);
+            });
         })
         .catch(error => {
-          reject(error);
+          console.log(error);
         });
     });
 
@@ -129,21 +138,14 @@ export class LeftSideBarWidget extends Widget {
 
   // Returns whether the current notebook is vcs ready (has required imports and vcs initialized)
   isVCS_Ready(): boolean {
-    if (
-      this.notebook_panel &&
-      this.notebook_panel.content &&
-      this.notebook_panel.content.model &&
-      this.notebook_panel.content.model.metadata.has(READY_KEY) &&
-      this.notebook_panel.content.model.metadata.get(READY_KEY) == "true"
-    ) {
-      return true;
+    try {
+      if (nb_utils.getMetaData(this.notebook_panel.content, READY_KEY)) {
+        return true;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
     }
-    return false;
-  }
-
-  // Sets the current notebook as vcs ready
-  setVCS_Ready(): void {
-    this.notebook_panel.content.model.metadata.set(READY_KEY, "true");
   }
 
   // returns promise of a vcs ready notebook, creating one if necessary
@@ -161,21 +163,40 @@ export class LeftSideBarWidget extends Widget {
         this.getNotebookPanel()
           .then(notebook_panel => {
             // This command prepares notebook by injecting needed import statements
-            this.injectRequiredModules().then(index => {
-              // This command initializes vcs and canvas
-              let cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
-                this.current_file
-              }\")`;
-              this.inject(cmd).then(result => {
-                this.setVCS_Ready();
-                this.notebook_panel.content.activeCellIndex = result[0] + 1; // Set the active cell to be under the injected code
-                notebook_panel.context.save(); // Save the notebook to preserve the cells and metadata
-                resolve(notebook_panel);
+            this.injectRequiredModules()
+              .then(index => {
+                // This command initializes vcs and canvas
+                let cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
+                  this.current_file
+                }\")`;
+                cell_utils
+                  .insertAndRun(
+                    this.commands,
+                    this.notebook_panel,
+                    this.notebook_panel.content.activeCellIndex,
+                    cmd,
+                    true
+                  )
+                  .then(result => {
+                    nb_utils.setMetaData(
+                      this.notebook_panel.content,
+                      READY_KEY,
+                      "true"
+                    );
+                    this.notebook_panel.content.activeCellIndex = result[0] + 1; // Set the active cell to be under the injected code
+                    notebook_panel.context.save(); // Save the notebook to preserve the cells and metadata
+                    resolve(notebook_panel);
+                  })
+                  .catch(error => {
+                    reject(error);
+                  });
+              })
+              .catch(error => {
+                reject(error);
               });
-            });
           })
           .catch(error => {
-            reject(error);
+            console.log(error);
           });
       }
     });
@@ -189,13 +210,13 @@ export class LeftSideBarWidget extends Widget {
         resolve(this.notebook_panel);
       } else {
         // Create new notebook if one doesn't exist
-        notebook_utils
+        nb_utils
           .createNewNotebook(this.commands)
           .then(notebook_panel => {
             resolve(notebook_panel);
           })
           .catch(error => {
-            reject(MSMediaKeyError);
+            reject(error);
           });
       }
     });

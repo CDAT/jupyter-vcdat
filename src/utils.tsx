@@ -91,16 +91,20 @@ namespace cell_utils {
               command
                 .execute("notebook:run-cell")
                 .then(() => {
-                  let output = readOutput(notebook, index);
-                  notebook.activeCellIndex = oldIndex;
-                  resolve(output);
+                  try {
+                    let output = readOutput(notebook, index);
+                    notebook.activeCellIndex = oldIndex;
+                    resolve(output);
+                  } catch (error) {
+                    reject(error);
+                  }
                 })
                 .catch(error => {
                   notebook.activeCellIndex = oldIndex;
                   reject(error);
                 });
             } else {
-              reject("The index was out of range.");
+              reject(new Error("The index was out of range."));
             }
           })
           .catch(error => {
@@ -108,7 +112,9 @@ namespace cell_utils {
           });
       } else {
         reject(
-          "Null or undefined parameter was given for command or notebook argument."
+          new Error(
+            "Null or undefined parameter was given for command or notebook argument."
+          )
         );
       }
     });
@@ -157,7 +163,7 @@ namespace cell_utils {
                   reject(error);
                 });
             } else {
-              reject("The index was out of range.");
+              reject(new Error("The index was out of range."));
             }
           })
           .catch(error => {
@@ -165,7 +171,9 @@ namespace cell_utils {
           });
       } else {
         reject(
-          "Null or undefined parameter was given for command or notebook argument."
+          new Error(
+            "Null or undefined parameter was given for command or notebook argument."
+          )
         );
       }
     });
@@ -241,7 +249,9 @@ namespace cell_utils {
           });
       } else {
         reject(
-          "Null or undefined parameter was given for command or notebook argument."
+          new Error(
+            "Null or undefined parameter was given for command or notebook argument."
+          )
         );
       }
     });
@@ -322,13 +332,15 @@ namespace cell_utils {
    * If the cell index is less than or equal to 0, it will be added at the top.
    * If the cell index is greater than the last index, it will be added at the bottom.
    * @param code The code to inject into the cell after it has been inserted
+   * @param deleteOnError If set to true, the cell will be deleted if the code results in an error
    * @returns A promise for when the cell code has executed containing the cell's index and output result
    */
   export function insertAndRun(
     command: CommandRegistry,
     notebook_panel: NotebookPanel,
     index: number,
-    code: string
+    code: string,
+    deleteOnError: boolean
   ): Promise<[number, string]> {
     let prom: Promise<[number, string]> = new Promise((resolve, reject) => {
       insertInjectCode(command, notebook_panel, index, code)
@@ -338,7 +350,17 @@ namespace cell_utils {
               resolve([insertionIndex, output]);
             })
             .catch(error => {
-              reject(error);
+              if (deleteOnError) {
+                deleteCellAtIndex(command, notebook_panel, insertionIndex)
+                  .then(() => {
+                    reject(error);
+                  })
+                  .catch(error => {
+                    reject(error);
+                  });
+              } else {
+                reject(error);
+              }
             });
         })
         .catch(error => {
@@ -351,6 +373,7 @@ namespace cell_utils {
   /**
    * This will insert a cell with specified code at the top and run the code.
    * Once the code is run and output received, the cell is deleted, giving back cell's output.
+   * If the code results in an error, the injected cell is still deleted but the promise will be rejected.
    * @param command The command registry
    * @param notebook_panel The notebook to run the code in
    * @param code The code to run in the cell
@@ -362,7 +385,7 @@ namespace cell_utils {
     code: string
   ): Promise<string> {
     let prom: Promise<string> = new Promise((resolve, reject) => {
-      insertAndRun(command, notebook_panel, -1, code)
+      insertAndRun(command, notebook_panel, -1, code, true)
         .then(result => {
           deleteCellAtIndex(command, notebook_panel, result[0])
             .then(() => {
@@ -405,6 +428,43 @@ namespace notebook_utils {
         });
     });
     return prom;
+  }
+
+  /**
+   * Gets the value of a key from specified notebook's metadata. Returns null if the key doesn't exist.
+   * @param notebook The notebook to get meta data from.
+   * @param key The key of the value.
+   * @returns The value of the metadata.
+   */
+  export function getMetaData(notebook: Notebook, key: string): any {
+    try {
+      if (notebook.model.metadata.has(key)) {
+        return notebook.model.metadata.get(key);
+      } else {
+        return null;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Sets the key value pair in the notebook's metadata. If the key doesn't exists it will add one.
+   * @param notebook The notebook to set meta data in.
+   * @param key The key of the value to create.
+   * @param value The value to set.
+   * @returns The old value for the key, or undefined if it did not exist.
+   */
+  export function setMetaData(
+    notebook: Notebook,
+    key: string,
+    value: any
+  ): any {
+    try {
+      return notebook.model.metadata.set(key, value);
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
