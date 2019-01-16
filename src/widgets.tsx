@@ -67,11 +67,7 @@ export class LeftSideBarWidget extends Widget {
   }
   public set vcs_ready(value: boolean) {
     try {
-      if (value) {
-        nb_utils.setMetaData(this.notebook_panel, READY_KEY, "true");
-      } else {
-        nb_utils.setMetaData(this.notebook_panel, READY_KEY, "false");
-      }
+      nb_utils.setMetaData(this.notebook_panel, READY_KEY, value);
 
       this._vcs_ready = value;
     } catch (error) {
@@ -85,29 +81,32 @@ export class LeftSideBarWidget extends Widget {
   /**
    * Set's the widget'c current notebook and updates the necessary variables
    */
-  public set notebook_panel(newNotebook: NotebookPanel) {
+  public set notebook_panel(notebook_panel: NotebookPanel) {
     try {
-      this._notebook_panel = newNotebook;
+      this._notebook_panel = notebook_panel;
 
-      if (newNotebook) {
+      if (notebook_panel) {
         // Update whether the current notebook is vcs ready (has required imports and vcs initialized)
-        if (nb_utils.getMetaData(newNotebook, READY_KEY)) {
-          this.vcs_ready = true;
-        } else {
-          this.vcs_ready = false;
-        }
+        nb_utils.getMetaData(notebook_panel, READY_KEY).then(vcs_ready => {
+          if (vcs_ready) {
+            this.vcs_ready = true;
+          } else {
+            this.vcs_ready = false;
+          }
+        });
+
         // Check if the notebook has a file to load variables from already
-        let file_path: string = nb_utils.getMetaData(
-          newNotebook,
-          FILE_PATH_KEY
-        );
-        // If file path isn't null, update it.
-        if (file_path) {
-          console.log(`File path restored! File: ${file_path}`);
-          this.current_file = file_path;
-        } else {
-          this.current_file = "";
-        }
+        nb_utils.getMetaData(notebook_panel, FILE_PATH_KEY).then(file_path => {
+          // If file path isn't null, update it.
+          if (file_path) {
+            console.log(`File path obtained: ${file_path}`);
+            this.current_file = file_path;
+          } else {
+            console.log(this.notebook_panel);
+            console.log("File path meta data not available.");
+            this.current_file = "";
+          }
+        });
       }
     } catch (error) {
       console.log(error);

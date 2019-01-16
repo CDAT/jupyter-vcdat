@@ -20,6 +20,7 @@ import {
   NotebookTracker,
   NotebookPanel
 } from "@jupyterlab/notebook";
+import { FILE_PATH_KEY } from "./constants";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -160,21 +161,17 @@ export class NCViewerFactory extends ABCWidgetFactory<
       // Check if there's an open notebook
       if (notebook_active) {
         // Activate the notebook panel if it's not active
-        if (shell.activeWidget != nb_panel_current) {
+        if (shell.activeWidget == nb_panel_current) {
+          // Update current notebook to be the active notebook
+          sidebar.notebook_panel = nb_panel_current;
+        } else {
           shell.activateById(nb_panel_current.id);
         }
-        // Prepare the notebook for code injection
 
-        sidebar.notebook_panel = nb_panel_current;
-        sidebar
-          .getReadyNotebookPanel()
-          .then(notebook => {
-            // Update the notebook's file path based context
-            sidebar.current_file = context.session.name;
-          })
-          .catch(error => {
-            console.log(error);
-          });
+        // Prepare the notebook for code injection
+        sidebar.getReadyNotebookPanel().catch(error => {
+          console.log(error);
+        });
       } else {
         //Create a notebook if none is currently open
         console.log(
@@ -184,8 +181,8 @@ export class NCViewerFactory extends ABCWidgetFactory<
           .createNewNotebook(commands)
           .then(notebook_panel => {
             sidebar.notebook_panel = notebook_panel;
-            sidebar.getReadyNotebookPanel().then(notebook => {
-              sidebar.current_file = context.session.name;
+            sidebar.getReadyNotebookPanel().catch(error => {
+              console.log(error);
             });
           })
           .catch(error => {

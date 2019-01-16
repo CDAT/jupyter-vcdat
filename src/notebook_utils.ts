@@ -37,22 +37,23 @@ namespace notebook_utils {
    * @param key The key of the value.
    * @returns The value of the metadata.
    */
-  export function getMetaData(notebook_panel: NotebookPanel, key: string): any {
-    try {
+  export function getMetaData(
+    notebook_panel: NotebookPanel,
+    key: string
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
       notebook_panel.session.ready
         .then(() => {
-          if (notebook_panel.model.metadata.has(key)) {
-            return notebook_panel.model.metadata.get(key);
+          if (notebook_panel.content.model.metadata.has(key)) {
+            resolve(notebook_panel.content.model.metadata.get(key));
           } else {
-            return null;
+            return resolve(null);
           }
         })
         .catch(error => {
-          throw error;
+          reject(error);
         });
-    } catch (error) {
-      throw error;
-    }
+    });
   }
 
   /**
@@ -67,18 +68,16 @@ namespace notebook_utils {
     notebook_panel: NotebookPanel,
     key: string,
     value: any
-  ): any {
-    try {
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
       notebook_panel.session.ready
         .then(() => {
-          return notebook_panel.model.metadata.set(key, value);
+          resolve(notebook_panel.content.model.metadata.set(key, value));
         })
         .catch(error => {
-          throw error;
+          reject(error);
         });
-    } catch (error) {
-      throw error;
-    }
+    });
   }
 }
 
