@@ -68,9 +68,9 @@ export class LeftSideBarWidget extends Widget {
   public set vcs_ready(value: boolean) {
     try {
       if (value) {
-        nb_utils.setMetaData(this.notebook_panel.content, READY_KEY, "true");
+        nb_utils.setMetaData(this.notebook_panel, READY_KEY, "true");
       } else {
-        nb_utils.setMetaData(this.notebook_panel.content, READY_KEY, "false");
+        nb_utils.setMetaData(this.notebook_panel, READY_KEY, "false");
       }
 
       this._vcs_ready = value;
@@ -91,14 +91,14 @@ export class LeftSideBarWidget extends Widget {
 
       if (newNotebook) {
         // Update whether the current notebook is vcs ready (has required imports and vcs initialized)
-        if (nb_utils.getMetaData(newNotebook.content, READY_KEY)) {
+        if (nb_utils.getMetaData(newNotebook, READY_KEY)) {
           this.vcs_ready = true;
         } else {
           this.vcs_ready = false;
         }
         // Check if the notebook has a file to load variables from already
         let file_path: string = nb_utils.getMetaData(
-          newNotebook.content,
+          newNotebook,
           FILE_PATH_KEY
         );
         // If file path isn't null, update it.
@@ -121,11 +121,7 @@ export class LeftSideBarWidget extends Widget {
   public set current_file(file_path: string) {
     try {
       this._current_file = file_path;
-      nb_utils.setMetaData(
-        this.notebook_panel.content,
-        FILE_PATH_KEY,
-        file_path
-      );
+      nb_utils.setMetaData(this.notebook_panel, FILE_PATH_KEY, file_path);
       this.component.setState({
         file_path: file_path
       });
@@ -212,8 +208,7 @@ export class LeftSideBarWidget extends Widget {
     let nb: Promise<NotebookPanel> = new Promise((resolve, reject) => {
       // Reject initilization if no file has been selected
       if (this.current_file == "") {
-        console.log("Rejection");
-        reject("No file has been set for obtaining variables.");
+        reject(new Error("No file has been set for obtaining variables."));
       } else if (this.vcs_ready) {
         // The notebook already has vcs initialized
         console.log("Notebook has vcs initialized!");

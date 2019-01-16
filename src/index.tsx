@@ -93,15 +93,12 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
   // and all the widgets have been added to the notebooktracker
   app.shell.restored
     .then(() => {
+      notebook_active = true;
       // Check the active widget is a notebook panel
       if (nb_tracker.currentWidget instanceof NotebookPanel) {
-        // If an active notebook, wait for it to be ready before setting
-        // it as current notebook (to ensure that metadata is ready)
         console.log("Currently open notebook selected.");
         nb_panel_current = nb_tracker.currentWidget;
-        nb_panel_current.session.ready.then(() => {
-          sidebar.notebook_panel = nb_panel_current;
-        });
+        sidebar.notebook_panel = nb_panel_current;
       } else {
         // There is no active notebook widget, so create a new one
         console.log("Created new notebook at start.");
@@ -109,10 +106,7 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
           .createNewNotebook(commands)
           .then(notebook => {
             nb_panel_current = notebook;
-            // Once notebook is made, wait for the session to be ready before setting it as current notebook
-            notebook.session.ready.then(() => {
-              sidebar.notebook_panel = notebook;
-            });
+            sidebar.notebook_panel = notebook;
           })
           .catch(error => {
             console.log(error);
@@ -120,6 +114,7 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
       }
     })
     .catch(error => {
+      notebook_active = false;
       console.log(error);
     });
 
@@ -164,15 +159,22 @@ export class NCViewerFactory extends ABCWidgetFactory<
 
       // Check if there's an open notebook
       if (notebook_active) {
-        if (shell.activeWidget == nb_panel_current) {
-          //Get the current active notebook if a notebook is opened
-          sidebar.notebook_panel = nb_panel_current;
-        } else {
+        // Activate the notebook panel if it's not active
+        if (shell.activeWidget != nb_panel_current) {
           shell.activateById(nb_panel_current.id);
         }
-        sidebar.getReadyNotebookPanel().then(notebook => {
-          sidebar.current_file = context.session.name;
-        });
+        // Prepare the notebook for code injection
+
+        sidebar.notebook_panel = nb_panel_current;
+        sidebar
+          .getReadyNotebookPanel()
+          .then(notebook => {
+            // Update the notebook's file path based context
+            sidebar.current_file = context.session.name;
+          })
+          .catch(error => {
+            console.log(error);
+          });
       } else {
         //Create a notebook if none is currently open
         console.log(
