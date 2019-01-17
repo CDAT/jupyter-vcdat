@@ -20,7 +20,6 @@ import {
   NotebookTracker,
   NotebookPanel
 } from "@jupyterlab/notebook";
-import { FILE_PATH_KEY } from "./constants";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
