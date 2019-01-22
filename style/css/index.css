@@ -7,3 +7,7 @@
 .jp-vcsWidget-apply-buttons {
     padding-top: 1em;
 }
+
+.jp-vcdat-icon {
+    background-image: url('../icons/cdat_icon_colored.png');
+}

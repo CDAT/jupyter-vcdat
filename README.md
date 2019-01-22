@@ -13,14 +13,17 @@ For a development install:
 
 ```bash
 
-    # Create the environment
-    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge -c cdat -c anaconda nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels
+    #Create the environment
+    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels
     source activate jupyter-vcdat
 
     # Install sidecar
-    pip install sidecar
+    python -m pip install --no-deps --ignore-installed sidecar
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
+
+    # Install lazy_import
+    pip install lazy_import
 
     # Go to vcs repo to update vcs code
     git clone https://github.com/CDAT/vcs.git
@@ -50,5 +53,5 @@ jupyter lab build
 
 If you get an FFMPEG import error, run the following command:
 ```bash
-    conda install -c conda-forge "ffmpeg>4"
+    conda install -c conda-forge "ffmpeg>4.0.1"
 ```

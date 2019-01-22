@@ -125,12 +125,7 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
           {this.state.variable.axisInfo &&
             this.state.variable.axisInfo.map((item: any) => {
               item.updateDimInfo = this.updateDimInfo;
-              return (
-                <DimensionSlider
-                  key={item.name}
-                  {...item}
-                />
-              );
+              return <DimensionSlider key={item.name} {...item} />;
             })}
           <ModalFooter>
             <Button color="primary" onClick={this.loadVariable}>

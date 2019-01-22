@@ -2,10 +2,6 @@ import * as React from "react";
 import * as $ from "jquery";
 import {
   Collapse,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Form,
   FormGroup,
   Label,
@@ -95,7 +91,8 @@ export default class VarMenu extends React.Component<
     this.setState({
       variables: new Array<Variable>(),
       variablesFetched: false,
-      selectedVariables: new Array<Variable>()
+      selectedVariables: new Array<Variable>(),
+      showMenu: false
     });
   }
 
@@ -145,7 +142,7 @@ export default class VarMenu extends React.Component<
                 {this.props.file_path && <span>Select Variables</span>}
               </Button>
             </CardSubtitle>
-            <Collapse isOpen={this.state.showMenu}>
+            <Collapse isOpen={this.state.showMenu && this.props.file_path!=""}>
               {this.state.variablesFetched && (
                 <Form>
                   {this.state.variables.map(item => {

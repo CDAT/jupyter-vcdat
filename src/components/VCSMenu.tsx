@@ -45,9 +45,13 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
     this.update = this.update.bind(this);
     this.plot = this.plot.bind(this);
+    this.switchNotebook = this.switchNotebook.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
     this.updateVarOptions = this.updateVarOptions.bind(this);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
+  }
+  switchNotebook(){
+
   }
   update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {
     console.log(vars, gms, templates);
