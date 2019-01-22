@@ -22,15 +22,14 @@ For a development install:
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
-    # GITHUB EXTENSION
-    jupyter labextension install @jupyterlab/github
-    # maybe?
-    pip install jupyterlab_github
-    jupyter serverextension enable --sys-prefix jupyterlab_github
-
     # Install lazy_import
-    python -m pip install --no-deps --ignore-installed lazy_import
+    pip install lazy_import
 
+    # Go to vcs repo to update vcs code
+    git clone https://github.com/CDAT/vcs.git
+    cd vcs
+    git checkout boxfill_widgets_jupyter
+    python setup.py install
 
     # Install the extension
     cd ..

@@ -9,7 +9,8 @@ namespace cell_utils {
    * Reads the output at a cell within the specified notebook and returns it as a string
    * @param notebook The notebook to get the cell from
    * @param index The index of the cell to read
-   * @returns A string value of the cell output from the specified notebook and cell index, or null if there is no output.
+   * @returns any - A string value of the cell output from the specified
+   * notebook and cell index, or null if there is no output.
    * @throws An error message if there are issues in getting the output
    */
   export function readOutput(notebook: Notebook, index: number): any {
@@ -50,7 +51,7 @@ namespace cell_utils {
    * Gets the cell object at specified index in the notebook
    * @param notebook The notebook to get the cell from
    * @param index The index for the cell
-   * @returns The cell at specified index
+   * @returns Cell - The cell at specified index
    */
   export function getCell(notebook: Notebook, index: number): Cell {
     if (notebook && index >= 0 && index < notebook.widgets.length) {
@@ -63,7 +64,7 @@ namespace cell_utils {
    * Runs code in the currently selected cell of the notebook
    * @param command The command registry which can execute the run command.
    * @param notebook The notebook panel to run the cell in
-   * @returns A promise containing the output after the code has executed.
+   * @returns Promise<string> - A promise containing the output after the code has executed.
    */
   export function runCellAtIndex(
     command: CommandRegistry,
@@ -118,6 +119,7 @@ namespace cell_utils {
    * @param command The command registry which can execute the run command
    * @param notebook_panel The notebook panel to delete the cell from
    * @param index The index that the cell will be deleted at
+   * @returns Promise<void> - A promise for when cell is deleted.
    */
   export function deleteCellAtIndex(
     command: CommandRegistry,
@@ -180,7 +182,7 @@ namespace cell_utils {
    * @param index The index of where the new cell will be inserted.
    * If the cell index is less than or equal to 0, it will be added at the top.
    * If the cell index is greater than the last index, it will be added at the bottom.
-   * @returns A promise for when the cell is inserted, and at what index it was inserted
+   * @returns Promise<number> - A promise for when the cell is inserted, and at what index it was inserted
    */
   export function insertCellAtIndex(
     command: CommandRegistry,
@@ -258,6 +260,7 @@ namespace cell_utils {
    * @param index The index of the cell to inject the code into
    * @param code A string containing the code to inject into the CodeCell.
    * @throws An error message if there are issues with injecting code at a particular cell
+   * @returns void
    */
   export function injectCodeAtIndex(
     notebook: Notebook,
@@ -291,7 +294,7 @@ namespace cell_utils {
    * If the cell index is less than or equal to 0, it will be added at the top.
    * If the cell index is greater than the last index, it will be added at the bottom.
    * @param code The code to inject into the cell after it has been inserted
-   * @returns A promise for when the cell is ready, and at what index it was inserted
+   * @returns Promise<number> - A promise for when the cell is ready, and at what index it was inserted
    */
   export function insertInjectCode(
     command: CommandRegistry,
@@ -325,7 +328,8 @@ namespace cell_utils {
    * If the cell index is greater than the last index, it will be added at the bottom.
    * @param code The code to inject into the cell after it has been inserted
    * @param deleteOnError If set to true, the cell will be deleted if the code results in an error
-   * @returns A promise for when the cell code has executed containing the cell's index and output result
+   * @returns Promise<[number, string]> - A promise for when the cell code has executed
+   * containing the cell's index and output result
    */
   export function insertAndRun(
     command: CommandRegistry,
@@ -369,15 +373,21 @@ namespace cell_utils {
    * @param command The command registry
    * @param notebook_panel The notebook to run the code in
    * @param code The code to run in the cell
-   * @returns A promise when the cell has been deleted, containing the execution result as a string
+   * @param insertAtEnd True means the cell will be inserted at the bottom
+   * @returns Promise<string> - A promise when the cell has been deleted, containing the execution result as a string
    */
   export function runAndDelete(
     command: CommandRegistry,
     notebook_panel: NotebookPanel,
-    code: string
+    code: string,
+    insertAtEnd = true
   ): Promise<string> {
     let prom: Promise<string> = new Promise((resolve, reject) => {
-      insertAndRun(command, notebook_panel, -1, code, true)
+      let index: number = -1;
+      if (insertAtEnd) {
+        index = notebook_panel.content.model.cells.length;
+      }
+      insertAndRun(command, notebook_panel, index, code, true)
         .then(result => {
           deleteCellAtIndex(command, notebook_panel, result[0])
             .then(() => {
