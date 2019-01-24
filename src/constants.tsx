@@ -20,17 +20,27 @@ def list_all():\n\
     out["gm"] = graphic_methods()\n\
     out["template"] = templates()\n\
     return out\n\
-print("{}|{}|{})".format(variables(),templates(),graphic_methods()))';
+output = "{}|{}|{})".format(variables(),templates(),graphic_methods())';
+
+const REFRESH_VARS_CMD =
+  "import __main__\n\
+def variables():\n\
+    out = []\n\
+    for nm, obj in __main__.__dict__.items():\n\
+        if isinstance(obj, cdms2.MV2.TransientVariable):\n\
+            out+=[nm]\n\
+    return out\n\
+output = variables()";
 
 const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
 
 const CHECK_MODULES_CMD = `import sys\n\
 all_modules = [${REQUIRED_MODULES}]\n\
-missed_modules = []\n\
+output = []\n\
 for module in all_modules:\n\
 	if module not in sys.modules:\n\
-		missed_modules.append(module)\n\
-missed_modules`;
+		output.append(module)\n\
+output`;
 
 const BASE_URL = "/vcs";
 
@@ -39,6 +49,7 @@ const FILE_PATH_KEY = "vcdat_file_path";
 
 export {
   GET_VARS_CMD,
+  REFRESH_VARS_CMD,
   CHECK_MODULES_CMD,
   REQUIRED_MODULES,
   BASE_URL,

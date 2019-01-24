@@ -1,5 +1,5 @@
 import "../style/css/index.css";
-import { notebook_utils as nb_utils } from "./notebook_utils";
+import { notebook_utils as nb_utils, notebook_utils } from "./notebook_utils";
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -18,8 +18,11 @@ import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
 import {
   INotebookTracker,
   NotebookTracker,
-  NotebookPanel
+  NotebookPanel,
+  Notebook
 } from "@jupyterlab/notebook";
+import { REFRESH_VARS_CMD } from "./constants";
+import { Cell } from "@jupyterlab/cells";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -93,6 +96,7 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
   // and all the widgets have been added to the notebooktracker
   app.shell.restored
     .then(() => {
+      //Set active true because if there isn't an active notebook, one will be created.
       notebook_active = true;
       // Check the active widget is a notebook panel
       if (nb_tracker.currentWidget instanceof NotebookPanel) {
@@ -112,29 +116,47 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
             console.log(error);
           });
       }
+
+      // Notebook tracker will signal when a notebook is changed
+      nb_tracker.currentChanged.connect(handleNotebooksChanged);
+      // Track when active cell is changed in current notebook
+      nb_panel_current.content.activeCellChanged.connect(handleCellChanged);
     })
     .catch(error => {
       notebook_active = false;
       console.log(error);
     });
-
-  // Notebook tracker will signal when a notebook is changed
-  nb_tracker.currentChanged.connect(handleNotebooksChanged);
 }
 
-// Perform actions when user switches notebooks
-function handleNotebooksChanged(
+// Perform actions when current notebook is changed
+async function handleNotebooksChanged(
   tracker: NotebookTracker,
   notebook: NotebookPanel
 ) {
   if (notebook) {
-    console.log(`Notebook changed to ${notebook.title.label}`);
+    console.log(`Notebook changed to ${notebook.title.label}.`);
+    nb_panel_current.content.activeCellChanged.disconnect(handleCellChanged);
     nb_panel_current = notebook; // Set the current notebook
     sidebar.notebook_panel = notebook; // Update sidebar notebook
     notebook_active = true;
+    notebook.content.activeCellChanged.connect(handleCellChanged);
   } else {
     console.log("No active notebook detected.");
     notebook_active = false;
+  }
+}
+
+// Perform actions when active cell is changed
+async function handleCellChanged(notebook: Notebook, cell: Cell) {
+  try {
+    // This command captures the current variables available in kernel
+    let output: string = await notebook_utils.sendSimpleKernelRequest(
+      nb_panel_current,
+      REFRESH_VARS_CMD
+    );
+    console.log(output);
+  } catch (error) {
+    console.log(error);
   }
 }
 
