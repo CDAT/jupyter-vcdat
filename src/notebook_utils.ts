@@ -105,8 +105,11 @@ namespace notebook_utils {
           let message: KernelMessage.IShellMessage = await notebook_panel.session.kernel.requestExecute(
             {
               code: code,
+              silent: false,
+              store_history: store_history,
               user_expressions: { result: "output" },
-              store_history: store_history
+              allow_stdin: false,
+              stop_on_error: false
             }
           ).done;
           let content: any = message.content;
@@ -139,8 +142,14 @@ namespace notebook_utils {
    * @param notebook_panel The notebook to run the code in.
    * @param code The code to run in the kernel.
    * @param user_expressions The expressions used to capture the desired info from the executed code.
+   * @param silent Default is false. If true, kernel will execute as quietly as possible.
+   * store_history will be set to false, and no broadcast on IOPUB channel will be made.
    * @param store_history Default is false. If true, the code executed will be stored in the kernel's history
    * and the counter which is shown in the cells will be incremented to reflect code was run.
+   * @param allow_stdin Default is false. If true, code running in kernel can prompt user for input using
+   * an input_request message.
+   * @param stop_on_error Default is false. If True, does not abort the execution queue, if an exception is encountered.
+   * This allows the queued execution of multiple execute_requests, even if they generate exceptions.
    * @returns Promise<any> - A promise containing the execution results of the code as an object with
    * keys based on the user_expressions.
    * @example
@@ -163,7 +172,10 @@ namespace notebook_utils {
     notebook_panel: NotebookPanel,
     code: string,
     user_expressions: any,
-    store_history: boolean = false
+    silent: boolean = false,
+    store_history: boolean = false,
+    allow_stdin: boolean = false,
+    stop_on_error: boolean = false
   ): Promise<any> {
     let prom: Promise<any> = new Promise(async (resolve, reject) => {
       // Check notebook panel is ready
@@ -175,8 +187,11 @@ namespace notebook_utils {
           let message: KernelMessage.IShellMessage = await notebook_panel.session.kernel.requestExecute(
             {
               code: code,
+              silent: silent,
+              store_history: store_history,
               user_expressions: user_expressions,
-              store_history: store_history
+              allow_stdin: allow_stdin,
+              stop_on_error: stop_on_error
             }
           ).done;
           let content: any = message.content;

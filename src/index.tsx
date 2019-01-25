@@ -23,6 +23,8 @@ import {
 } from "@jupyterlab/notebook";
 import { REFRESH_VARS_CMD } from "./constants";
 import { Cell } from "@jupyterlab/cells";
+import { IClientSession } from "@jupyterlab/apputils";
+import { Kernel } from "@jupyterlab/services";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -34,6 +36,7 @@ let nb_panel_current: NotebookPanel; // The current notebook panel targeted by t
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
 let shell: ApplicationShell;
 let notebook_active: boolean; // Keeps track whether a notebook is active or not
+let var_refresh: boolean; // If true, it means the vars list should be updated
 
 /**
  * Initialization data for the jupyter-vcdat extension.
@@ -96,8 +99,12 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
   // and all the widgets have been added to the notebooktracker
   app.shell.restored
     .then(() => {
-      //Set active true because if there isn't an active notebook, one will be created.
+      // Set active true because if there isn't an active notebook, one will be created.
       notebook_active = true;
+
+      // Activate variable list refresh
+      var_refresh = true;
+
       // Check the active widget is a notebook panel
       if (nb_tracker.currentWidget instanceof NotebookPanel) {
         console.log("Currently open notebook selected.");
@@ -117,6 +124,8 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
           });
       }
 
+      // Track when kernel runs code and becomes idle
+      nb_panel_current.session.statusChanged.connect(handleSessionChanged);
       // Notebook tracker will signal when a notebook is changed
       nb_tracker.currentChanged.connect(handleNotebooksChanged);
       // Track when active cell is changed in current notebook
@@ -135,30 +144,53 @@ async function handleNotebooksChanged(
 ) {
   if (notebook) {
     console.log(`Notebook changed to ${notebook.title.label}.`);
+
+    // Disconnect handlers from previous notebook_panel
+    nb_panel_current.session.statusChanged.disconnect(handleSessionChanged);
     nb_panel_current.content.activeCellChanged.disconnect(handleCellChanged);
-    nb_panel_current = notebook; // Set the current notebook
-    sidebar.notebook_panel = notebook; // Update sidebar notebook
+
+    // Update current notebook and status
+    nb_panel_current = notebook;
+    sidebar.notebook_panel = notebook;
     notebook_active = true;
-    notebook.content.activeCellChanged.connect(handleCellChanged);
+
+    // Connect handlers to new notebook
+    nb_panel_current.session.statusChanged.connect(handleSessionChanged);
+    nb_panel_current.content.activeCellChanged.connect(handleCellChanged);
+
   } else {
     console.log("No active notebook detected.");
     notebook_active = false;
   }
 }
 
-// Perform actions when active cell is changed
-async function handleCellChanged(notebook: Notebook, cell: Cell) {
+// Performs actions whenever the current notebook session changes status
+async function handleSessionChanged(
+  session: IClientSession,
+  status: Kernel.Status
+) {
   try {
-    // This command captures the current variables available in kernel
-    let output: string = await notebook_utils.sendSimpleKernelRequest(
-      nb_panel_current,
-      REFRESH_VARS_CMD
-    );
-    console.log(output);
+    // If the status is idle and variables need to be refreshed
+    if (status == "idle" && var_refresh) {
+      var_refresh = false;
+      //Refresh the variables
+      let output: string = await notebook_utils.sendSimpleKernelRequest(
+        nb_panel_current,
+        REFRESH_VARS_CMD
+      );
+      //Output gives the list of latest variables. This could be added to the 
+      console.log(output);
+    } else if (status == "idle") {
+      var_refresh = true;
+    }
   } catch (error) {
     console.log(error);
+    var_refresh = false;
   }
 }
+
+// Perform actions when active cell is changed in current notebook
+async function handleCellChanged(notebook: Notebook, cell: Cell) {}
 
 /**
  * Create a new widget given a context.
