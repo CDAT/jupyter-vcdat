@@ -95,7 +95,6 @@ namespace cell_utils {
         } catch (error) {
           reject(error);
         }
-        // Check the session is ready and continue with commands when it is
       } else {
         reject(
           new Error(
@@ -123,12 +122,12 @@ namespace cell_utils {
       try {
         if (command && notebook_panel) {
           let notebook = notebook_panel.content;
-          // Check the session is ready and continue with commands when it is
           await notebook_panel.session.ready;
           if (index >= 0 && index < notebook.widgets.length) {
             //Save the old index, then set the current active cell
             let oldIndex = notebook.activeCellIndex;
             notebook.activeCellIndex = index;
+            //Adjust old index to account for deleted cell.
             if (oldIndex == index) {
               if (oldIndex > 0) {
                 oldIndex -= 1;
@@ -176,7 +175,6 @@ namespace cell_utils {
       try {
         if (command && notebook_panel) {
           let notebook = notebook_panel.content;
-          // Check the session is ready and continue with commands when it is
           await notebook_panel.session.ready;
           //Save the old index, then set the current active cell
           let oldIndex = notebook.activeCellIndex;
