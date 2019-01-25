@@ -110,6 +110,14 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
         console.log("Currently open notebook selected.");
         nb_panel_current = nb_tracker.currentWidget;
         sidebar.notebook_panel = nb_panel_current;
+        // Track when kernel runs code and becomes idle
+        nb_panel_current.session.statusChanged.connect(handleSessionChanged);
+
+        // Track when active cell is changed in current notebook
+        nb_panel_current.content.activeCellChanged.connect(handleCellChanged);
+
+        // Notebook tracker will signal when a notebook is changed
+        nb_tracker.currentChanged.connect(handleNotebooksChanged);
       } else {
         // There is no active notebook widget, so create a new one
         console.log("Created new notebook at start.");
@@ -118,18 +126,24 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
           .then(notebook => {
             nb_panel_current = notebook;
             sidebar.notebook_panel = notebook;
+
+            // Track when kernel runs code and becomes idle
+            nb_panel_current.session.statusChanged.connect(
+              handleSessionChanged
+            );
+
+            // Track when active cell is changed in current notebook
+            nb_panel_current.content.activeCellChanged.connect(
+              handleCellChanged
+            );
+
+            // Notebook tracker will signal when a notebook is changed
+            nb_tracker.currentChanged.connect(handleNotebooksChanged);
           })
           .catch(error => {
             console.log(error);
           });
       }
-
-      // Track when kernel runs code and becomes idle
-      nb_panel_current.session.statusChanged.connect(handleSessionChanged);
-      // Notebook tracker will signal when a notebook is changed
-      nb_tracker.currentChanged.connect(handleNotebooksChanged);
-      // Track when active cell is changed in current notebook
-      nb_panel_current.content.activeCellChanged.connect(handleCellChanged);
     })
     .catch(error => {
       notebook_active = false;
@@ -142,25 +156,28 @@ async function handleNotebooksChanged(
   tracker: NotebookTracker,
   notebook: NotebookPanel
 ) {
-  if (notebook) {
-    console.log(`Notebook changed to ${notebook.title.label}.`);
+  try {
+    if (notebook) {
+      console.log(`Notebook changed to ${notebook.title.label}.`);
 
-    // Disconnect handlers from previous notebook_panel
-    nb_panel_current.session.statusChanged.disconnect(handleSessionChanged);
-    nb_panel_current.content.activeCellChanged.disconnect(handleCellChanged);
+      // Disconnect handlers from previous notebook_panel
+      nb_panel_current.session.statusChanged.disconnect(handleSessionChanged);
+      nb_panel_current.content.activeCellChanged.disconnect(handleCellChanged);
 
-    // Update current notebook and status
-    nb_panel_current = notebook;
-    sidebar.notebook_panel = notebook;
-    notebook_active = true;
+      // Update current notebook and status
+      nb_panel_current = notebook;
+      sidebar.notebook_panel = notebook;
+      notebook_active = true;
 
-    // Connect handlers to new notebook
-    nb_panel_current.session.statusChanged.connect(handleSessionChanged);
-    nb_panel_current.content.activeCellChanged.connect(handleCellChanged);
-
-  } else {
-    console.log("No active notebook detected.");
-    notebook_active = false;
+      // Connect handlers to new notebook
+      nb_panel_current.session.statusChanged.connect(handleSessionChanged);
+      nb_panel_current.content.activeCellChanged.connect(handleCellChanged);
+    } else {
+      console.log("No active notebook detected.");
+      notebook_active = false;
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -170,17 +187,18 @@ async function handleSessionChanged(
   status: Kernel.Status
 ) {
   try {
-    // If the status is idle and variables need to be refreshed
-    if (status == "idle" && var_refresh) {
+    // Don't do anythin unless kernel is idle, the notebook is vcs ready and variables need a refresh
+    if (status == "idle" && sidebar.vcs_ready && var_refresh) {
+      // If the status is idle, vcs is ready and variables need to be refreshed
       var_refresh = false;
       //Refresh the variables
       let output: string = await notebook_utils.sendSimpleKernelRequest(
         nb_panel_current,
         REFRESH_VARS_CMD
       );
-      //Output gives the list of latest variables. This could be added to the 
+      //Output gives the list of latest variables. This could be added to the
       console.log(output);
-    } else if (status == "idle") {
+    } else if (status == "idle" && sidebar.vcs_ready) {
       var_refresh = true;
     }
   } catch (error) {
