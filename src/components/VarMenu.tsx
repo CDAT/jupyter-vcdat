@@ -29,6 +29,7 @@ type VarMenuProps = {
   file_path: string; // the path to our file of interest
   loadVariable: any; // a method to call when loading the variable
   commands: any; // the command executer
+  vcs_ready: boolean; // whether notebook is ready for code injection
 };
 
 type VarMenuState = {
@@ -126,7 +127,7 @@ export default class VarMenu extends React.Component<
 
   render() {
     var buttonClicker;
-    if (!this.props.file_path) {
+    if (!this.props.file_path || !this.props.vcs_ready) {
       buttonClicker = this.launchFilebrowser;
     } else {
       buttonClicker = this.toggleMenu;
@@ -138,11 +139,11 @@ export default class VarMenu extends React.Component<
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
               <Button onClick={buttonClicker}>
-                {!this.props.file_path && <span>Load Data</span>}
-                {this.props.file_path && <span>Select Variables</span>}
+                {(!this.props.file_path || !this.props.vcs_ready) && <span>Load Data</span>}
+                {this.props.file_path && this.props.vcs_ready && <span>Select Variables</span>}
               </Button>
             </CardSubtitle>
-            <Collapse isOpen={this.state.showMenu && this.props.file_path!=""}>
+            <Collapse isOpen={this.state.showMenu && this.props.file_path!="" && this.props.vcs_ready}>
               {this.state.variablesFetched && (
                 <Form>
                   {this.state.variables.map(item => {

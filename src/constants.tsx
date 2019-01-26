@@ -34,13 +34,14 @@ output = variables()";
 
 const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
 
-const CHECK_MODULES_CMD = `import sys\n\
-all_modules = [${REQUIRED_MODULES}]\n\
-output = []\n\
-for module in all_modules:\n\
-	if module not in sys.modules:\n\
-		output.append(module)\n\
-output`;
+const CHECK_MODULES_CMD = `import types\n\
+required = [${REQUIRED_MODULES}]\n\
+def imports():\n\
+  for name, val in globals().items():\n\
+    if isinstance(val, types.ModuleType):\n\
+      yield val.__name__\n\
+found = list(imports())\n\
+output = list(set(required)-set(found))`;
 
 const BASE_URL = "/vcs";
 

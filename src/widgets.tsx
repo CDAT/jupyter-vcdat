@@ -10,9 +10,12 @@ import {
   GET_VARS_CMD,
   CHECK_MODULES_CMD,
   READY_KEY,
-  FILE_PATH_KEY
+  FILE_PATH_KEY,
+  REFRESH_VARS_CMD
 } from "./constants";
 import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
+import { IClientSession } from "@jupyterlab/apputils";
+import { Kernel } from "@jupyterlab/services";
 
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
@@ -22,6 +25,8 @@ export class LeftSideBarWidget extends Widget {
   component: any; // the LeftSidebar component
   loading_data: boolean;
 
+  notebook_active: boolean; // Keeps track whether a notebook is active or not
+  var_refresh: boolean; // If true, it means the vars list should be updated
   private _vcs_ready: boolean; // Wether the notebook has had necessary imports and is ready for code injection
   private _current_file: string; // The current filepath of the data file being used for variables and data
   private _notebook_panel: NotebookPanel; // The notebook this widget is interacting with
@@ -37,17 +42,22 @@ export class LeftSideBarWidget extends Widget {
     this.loading_data = false;
     this._current_file = "";
     this._vcs_ready = false;
+    this.initialize = this.initialize.bind(this);
     this.inject = this.inject.bind(this);
     this.updateVars = this.updateVars.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.injectRequiredModules = this.injectRequiredModules.bind(this);
     this.getReadyNotebookPanel = this.getReadyNotebookPanel.bind(this);
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
+    this.handleSessionChanged = this.handleSessionChanged.bind(this);
+    this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
+
     this.component = ReactDOM.render(
       <VCSMenu
         commands={this.commands}
         inject={this.inject}
         file_path={this.current_file}
+        plotReady={this.vcs_ready}
       />,
       this.div
     );
@@ -58,8 +68,115 @@ export class LeftSideBarWidget extends Widget {
         this.commands.execute("filebrowser:activate");
       }
     });
+  }
 
-    // Checks the current notebook
+  initialize(): void {
+    // Set active true because if there isn't an active notebook, one will be created.
+    this.notebook_active = true;
+
+    // Activate variable list refresh
+    this.var_refresh = true;
+
+    try {
+      // Check the active widget is a notebook panel
+      if (this.notebook_tracker.currentWidget instanceof NotebookPanel) {
+        console.log("Currently open notebook selected.");
+
+        this.notebook_tracker.currentWidget.session.ready.then(() => {
+          this.notebook_panel = this.notebook_tracker.currentWidget;
+
+          // Track when kernel runs code and becomes idle
+          this.notebook_panel.session.statusChanged.connect(
+            this.handleSessionChanged
+          );
+
+          // Notebook tracker will signal when a notebook is changed
+          this.notebook_tracker.currentChanged.connect(
+            this.handleNotebooksChanged
+          );
+        });
+      } else {
+        // There is no active notebook widget, so create a new one
+        console.log("Created new notebook at start.");
+        nb_utils
+          .createNewNotebook(this.commands)
+          .then(notebook => {
+            notebook.session.ready.then(() => {
+              this.notebook_panel = notebook;
+
+              // Track when kernel runs code and becomes idle
+              this.notebook_panel.session.statusChanged.connect(
+                this.handleSessionChanged
+              );
+
+              // Notebook tracker will signal when a notebook is changed
+              this.notebook_tracker.currentChanged.connect(
+                this.handleNotebooksChanged
+              );
+            });
+          })
+          .catch(error => {
+            this.notebook_active = false;
+            console.log(error);
+          });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // Perform actions when current notebook is changed
+  async handleNotebooksChanged(
+    tracker: NotebookTracker,
+    notebook_panel: NotebookPanel
+  ) {
+    try {
+      if (notebook_panel) {
+        console.log(`Notebook changed to ${notebook_panel.title.label}.`);
+
+        // Disconnect handlers from previous notebook_panel
+        this.notebook_panel.session.statusChanged.disconnect(
+          this.handleSessionChanged
+        );
+
+        // Update current notebook and status
+        this.notebook_panel = notebook_panel;
+        this.notebook_active = true;
+
+        // Connect handlers to new notebook
+        this.notebook_panel.session.statusChanged.connect(
+          this.handleSessionChanged
+        );
+      } else {
+        console.log("No active notebook detected.");
+        this.notebook_active = false;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // Performs actions whenever the current notebook session changes status
+  async handleSessionChanged(session: IClientSession, status: Kernel.Status) {
+    try {
+      // Don't do anythin unless kernel is idle, the notebook is vcs ready and variables need a refresh
+      if (status == "idle" && this.vcs_ready && this.var_refresh) {
+        // If the status is idle, vcs is ready and variables need to be refreshed
+        this.var_refresh = false;
+        //Refresh the variables
+        let output: string = await notebook_utils.sendSimpleKernelRequest(
+          this.notebook_panel,
+          REFRESH_VARS_CMD
+        );
+        //Output gives the list of latest variables. This could be added to the
+        console.log(output);
+      } else if (status == "idle" && this.vcs_ready) {
+        this.var_refresh = true;
+      }
+    } catch (error) {
+      console.log(error);
+      this.var_refresh = false;
+    }
   }
 
   public get vcs_ready(): boolean {
@@ -67,9 +184,11 @@ export class LeftSideBarWidget extends Widget {
   }
   public set vcs_ready(value: boolean) {
     try {
-      nb_utils.setMetaData(this.notebook_panel, READY_KEY, value);
-
+      nb_utils.setMetaDataNow(this.notebook_panel, READY_KEY, value);
       this._vcs_ready = value;
+      this.component.setState({
+        plotReady: value
+      });
     } catch (error) {
       console.log(error);
     }
@@ -87,26 +206,24 @@ export class LeftSideBarWidget extends Widget {
 
       if (notebook_panel) {
         // Update whether the current notebook is vcs ready (has required imports and vcs initialized)
-        nb_utils.getMetaData(notebook_panel, READY_KEY).then(vcs_ready => {
-          if (vcs_ready) {
-            this.vcs_ready = true;
-          } else {
-            this.vcs_ready = false;
-          }
-        });
+        console.log(notebook_panel.content.model.metadata);
+        let ready = nb_utils.getMetaDataNow(notebook_panel, READY_KEY);
+        if (ready) {
+          this.vcs_ready = true;
+        } else {
+          this.vcs_ready = false;
+        }
 
         // Check if the notebook has a file to load variables from already
-        nb_utils.getMetaData(notebook_panel, FILE_PATH_KEY).then(file_path => {
-          // If file path isn't null, update it.
-          if (file_path) {
-            console.log(`File path obtained: ${file_path}`);
-            this.current_file = file_path;
-          } else {
-            console.log(this.notebook_panel);
-            console.log("File path meta data not available.");
-            this.current_file = "";
-          }
-        });
+        let file_path = nb_utils.getMetaDataNow(notebook_panel, FILE_PATH_KEY);
+        // If file path isn't null, update it.
+        if (file_path) {
+          console.log(`File path obtained: ${file_path}`);
+          this.current_file = file_path;
+        } else {
+          console.log("File path meta data not available.");
+          this.current_file = "";
+        }
       }
     } catch (error) {
       console.log(error);
@@ -120,7 +237,7 @@ export class LeftSideBarWidget extends Widget {
   public set current_file(file_path: string) {
     try {
       this._current_file = file_path;
-      nb_utils.setMetaData(this.notebook_panel, FILE_PATH_KEY, file_path);
+      nb_utils.setMetaDataNow(this.notebook_panel, FILE_PATH_KEY, file_path);
       this.component.setState({
         file_path: file_path
       });
