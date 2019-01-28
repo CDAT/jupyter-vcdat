@@ -45,8 +45,9 @@ export class LeftSideBarWidget extends Widget {
     this.initialize = this.initialize.bind(this);
     this.inject = this.inject.bind(this);
     this.updateVars = this.updateVars.bind(this);
+    this.runImportCell = this.runImportCell.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
-    this.injectRequiredModules = this.injectRequiredModules.bind(this);
+    this.injectRequiredCode = this.injectRequiredCode.bind(this);
     this.getReadyNotebookPanel = this.getReadyNotebookPanel.bind(this);
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
     this.handleSessionChanged = this.handleSessionChanged.bind(this);
@@ -143,6 +144,12 @@ export class LeftSideBarWidget extends Widget {
         this.notebook_panel = notebook_panel;
         this.notebook_active = true;
 
+        // If notebook is vcs_ready, run import code
+        if (this.vcs_ready) {
+          console.log("Running import cell after notebook switched.");
+          await this.runImportCell();
+        }
+
         // Connect handlers to new notebook
         this.notebook_panel.session.statusChanged.connect(
           this.handleSessionChanged
@@ -159,8 +166,13 @@ export class LeftSideBarWidget extends Widget {
   // Performs actions whenever the current notebook session changes status
   async handleSessionChanged(session: IClientSession, status: Kernel.Status) {
     try {
-      // Don't do anythin unless kernel is idle, the notebook is vcs ready and variables need a refresh
-      if (status == "idle" && this.vcs_ready && this.var_refresh) {
+      // Upon kernel first connect, if notebook is vcs_ready, run import code
+      if (status == "connected" && this.vcs_ready) {
+        console.log("Running import cell after session connected.");
+        await this.runImportCell();
+      }
+      // Don't do anything unless kernel is idle, the notebook is vcs ready and variables need a refresh
+      else if (status == "idle" && this.vcs_ready && this.var_refresh) {
         // If the status is idle, vcs is ready and variables need to be refreshed
         this.var_refresh = false;
         //Refresh the variables
@@ -261,6 +273,30 @@ export class LeftSideBarWidget extends Widget {
     }
   }
 
+  async runImportCell() {
+    try {
+      // Search for a cell containing the imports key
+      let find = cell_utils.findCellWithMetaKey(
+        this.notebook_panel.content,
+        "vcdat_imports"
+      );
+
+      if (find[0] >= 0) {
+        // If found, run the imports code
+        await notebook_utils.sendSimpleKernelRequest(
+          this.notebook_panel,
+          find[1].value.text,
+          false
+        );
+      } else {
+        // If not found, inject the required code
+        await this.injectRequiredCode();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   buildImportCommand(modules: string[], lazy: boolean): string {
     let cmd: string = "";
     //Check for lazy_imports modules first
@@ -291,23 +327,38 @@ export class LeftSideBarWidget extends Widget {
   }
 
   // This will inject the required modules into the current notebook (if module not already imported)
-  async injectRequiredModules(): Promise<number> {
+  async injectRequiredCode(): Promise<number> {
     console.log("Injecting required modules");
     // Check if required modules are imported in notebook
     var prom: Promise<number> = new Promise(async (resolve, reject) => {
       try {
+        // Check if necessary modules are loaded
         let output: string = await notebook_utils.sendSimpleKernelRequest(
           this.notebook_panel,
           CHECK_MODULES_CMD
         );
+
+        // Create import string based on missing dependencies
         let missing_modules: string[] = eval(output);
-        let cmd = this.buildImportCommand(missing_modules, true);
+        let cmd =
+          "#This code is required for vcdat. To avoid issues, do not modify.\n";
+        cmd += this.buildImportCommand(missing_modules, true);
+        cmd += `\ncanvas = vcs.init()\ndata = cdms2.open(\"${
+          this.current_file
+        }\")`;
         let result: [number, string] = await cell_utils.insertAndRun(
           this.commands,
           this.notebook_panel,
           -1,
           cmd,
           false
+        );
+
+        cell_utils.setCellMetaData(
+          this.notebook_panel.content,
+          result[0],
+          "vcdat_imports",
+          "saved"
         );
         resolve(result[0]);
       } catch (error) {
@@ -326,28 +377,20 @@ export class LeftSideBarWidget extends Widget {
         if (this.current_file == "") {
           reject(new Error("No file has been set for obtaining variables."));
         } else if (this.vcs_ready) {
-          // The notebook already has vcs initialized
+          // The notebook should have vcs initialized, verify
+
           console.log("Notebook has vcs initialized!");
           resolve(this.notebook_panel);
         } else {
           // Grab a notebook panel
           let notebook_panel: NotebookPanel = await this.getNotebookPanel();
           // Prepare notebook by injecting needed import statements
-          await this.injectRequiredModules();
-          // Initialize vcs and canvas
-          let cmd: string = `canvas = vcs.init()\ndata = cdms2.open(\"${
-            this.current_file
-          }\")`;
-          let result: [number, string] = await cell_utils.insertAndRun(
-            this.commands,
-            this.notebook_panel,
-            this.notebook_panel.content.activeCellIndex,
-            cmd,
-            true
-          );
+          let newIndex = (await this.injectRequiredCode()) + 1;
+          // Set the active cell to be under the injected code
+          this.notebook_panel.content.activeCellIndex = newIndex + 1;
           // Once ready, set notebook meta data and save
           this.vcs_ready = true; // The notebook has required modules and is ready
-          this.notebook_panel.content.activeCellIndex = result[0] + 1; // Set the active cell to be under the injected code
+
           notebook_panel.context.save(); // Save the notebook to preserve the cells and metadata
           resolve(notebook_panel);
         }

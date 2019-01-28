@@ -1,4 +1,4 @@
-import { Cell, ICellModel, isCodeCellModel } from "@jupyterlab/cells";
+import { ICellModel, isCodeCellModel } from "@jupyterlab/cells";
 import { Notebook, NotebookPanel } from "@jupyterlab/notebook";
 import { nbformat } from "@jupyterlab/coreutils";
 import { CommandRegistry } from "@phosphor/commands";
@@ -99,6 +99,32 @@ namespace cell_utils {
       }
     }
     throw new Error(msg);
+  }
+
+  /**
+   * @description Looks within the notebook for a cell containing the specified meta key
+   * @param notebook The notebook to search in
+   * @param key The metakey to search for
+   * @returns [number, ICellModel] - A pair of values, the first is the index of where the cell was found
+   * and the second is a reference to the cell itself. Returns [-1, null] if cell not found.
+   */
+  export function findCellWithMetaKey(
+    notebook: Notebook,
+    key: string
+  ): [number, ICellModel] {
+    const iter = notebook.model.cells.iter();
+    let index = 0;
+    for (
+      let nextVal = iter.next();
+      iter.next() !== undefined;
+      nextVal = iter.next()
+    ) {
+      if (nextVal.metadata.has(key)) {
+        return [index, nextVal];
+      }
+      index++;
+    }
+    return [-1, null];
   }
 
   /**
