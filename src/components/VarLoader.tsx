@@ -8,8 +8,6 @@ import {
   Button,
   Row,
   Col,
-  FormGroup,
-  Input
 } from "reactstrap";
 
 import { DimensionSlider } from "./DimensionSlider";

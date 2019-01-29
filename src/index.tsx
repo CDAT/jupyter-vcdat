@@ -1,5 +1,5 @@
 import "../style/css/index.css";
-import { notebook_utils as nb_utils } from "./notebook_utils";
+import { notebook_utils as nb_utils, notebook_utils } from "./notebook_utils";
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -18,8 +18,13 @@ import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
 import {
   INotebookTracker,
   NotebookTracker,
-  NotebookPanel
+  NotebookPanel,
+  Notebook
 } from "@jupyterlab/notebook";
+import { REFRESH_VARS_CMD } from "./constants";
+import { Cell } from "@jupyterlab/cells";
+import { IClientSession } from "@jupyterlab/apputils";
+import { Kernel } from "@jupyterlab/services";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -31,6 +36,7 @@ let nb_panel_current: NotebookPanel; // The current notebook panel targeted by t
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
 let shell: ApplicationShell;
 let notebook_active: boolean; // Keeps track whether a notebook is active or not
+let var_refresh: boolean; // If true, it means the vars list should be updated
 
 /**
  * Initialization data for the jupyter-vcdat extension.
@@ -93,12 +99,25 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
   // and all the widgets have been added to the notebooktracker
   app.shell.restored
     .then(() => {
+      // Set active true because if there isn't an active notebook, one will be created.
       notebook_active = true;
+
+      // Activate variable list refresh
+      var_refresh = true;
+
       // Check the active widget is a notebook panel
       if (nb_tracker.currentWidget instanceof NotebookPanel) {
         console.log("Currently open notebook selected.");
         nb_panel_current = nb_tracker.currentWidget;
         sidebar.notebook_panel = nb_panel_current;
+        // Track when kernel runs code and becomes idle
+        nb_panel_current.session.statusChanged.connect(handleSessionChanged);
+
+        // Track when active cell is changed in current notebook
+        nb_panel_current.content.activeCellChanged.connect(handleCellChanged);
+
+        // Notebook tracker will signal when a notebook is changed
+        nb_tracker.currentChanged.connect(handleNotebooksChanged);
       } else {
         // There is no active notebook widget, so create a new one
         console.log("Created new notebook at start.");
@@ -107,6 +126,19 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
           .then(notebook => {
             nb_panel_current = notebook;
             sidebar.notebook_panel = notebook;
+
+            // Track when kernel runs code and becomes idle
+            nb_panel_current.session.statusChanged.connect(
+              handleSessionChanged
+            );
+
+            // Track when active cell is changed in current notebook
+            nb_panel_current.content.activeCellChanged.connect(
+              handleCellChanged
+            );
+
+            // Notebook tracker will signal when a notebook is changed
+            nb_tracker.currentChanged.connect(handleNotebooksChanged);
           })
           .catch(error => {
             console.log(error);
@@ -117,26 +149,66 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
       notebook_active = false;
       console.log(error);
     });
-
-  // Notebook tracker will signal when a notebook is changed
-  nb_tracker.currentChanged.connect(handleNotebooksChanged);
 }
 
-// Perform actions when user switches notebooks
-function handleNotebooksChanged(
+// Perform actions when current notebook is changed
+async function handleNotebooksChanged(
   tracker: NotebookTracker,
   notebook: NotebookPanel
 ) {
-  if (notebook) {
-    console.log(`Notebook changed to ${notebook.title.label}`);
-    nb_panel_current = notebook; // Set the current notebook
-    sidebar.notebook_panel = notebook; // Update sidebar notebook
-    notebook_active = true;
-  } else {
-    console.log("No active notebook detected.");
-    notebook_active = false;
+  try {
+    if (notebook) {
+      console.log(`Notebook changed to ${notebook.title.label}.`);
+
+      // Disconnect handlers from previous notebook_panel
+      nb_panel_current.session.statusChanged.disconnect(handleSessionChanged);
+      nb_panel_current.content.activeCellChanged.disconnect(handleCellChanged);
+
+      // Update current notebook and status
+      nb_panel_current = notebook;
+      sidebar.notebook_panel = notebook;
+      notebook_active = true;
+
+      // Connect handlers to new notebook
+      nb_panel_current.session.statusChanged.connect(handleSessionChanged);
+      nb_panel_current.content.activeCellChanged.connect(handleCellChanged);
+    } else {
+      console.log("No active notebook detected.");
+      notebook_active = false;
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
+
+// Performs actions whenever the current notebook session changes status
+async function handleSessionChanged(
+  session: IClientSession,
+  status: Kernel.Status
+) {
+  try {
+    // Don't do anythin unless kernel is idle, the notebook is vcs ready and variables need a refresh
+    if (status == "idle" && sidebar.vcs_ready && var_refresh) {
+      // If the status is idle, vcs is ready and variables need to be refreshed
+      var_refresh = false;
+      //Refresh the variables
+      let output: string = await notebook_utils.sendSimpleKernelRequest(
+        nb_panel_current,
+        REFRESH_VARS_CMD
+      );
+      //Output gives the list of latest variables. This could be added to the
+      console.log(output);
+    } else if (status == "idle" && sidebar.vcs_ready) {
+      var_refresh = true;
+    }
+  } catch (error) {
+    console.log(error);
+    var_refresh = false;
+  }
+}
+
+// Perform actions when active cell is changed in current notebook
+async function handleCellChanged(notebook: Notebook, cell: Cell) {}
 
 /**
  * Create a new widget given a context.

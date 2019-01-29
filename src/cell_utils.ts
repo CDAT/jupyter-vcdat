@@ -6,7 +6,7 @@ import { CommandRegistry } from "@phosphor/commands";
 /** Contains some utility functions for handling notebook cells */
 namespace cell_utils {
   /**
-   * Reads the output at a cell within the specified notebook and returns it as a string
+   * @description Reads the output at a cell within the specified notebook and returns it as a string
    * @param notebook The notebook to get the cell from
    * @param index The index of the cell to read
    * @returns any - A string value of the cell output from the specified
@@ -48,7 +48,7 @@ namespace cell_utils {
   }
 
   /**
-   * Gets the cell object at specified index in the notebook
+   * @description Gets the cell object at specified index in the notebook
    * @param notebook The notebook to get the cell from
    * @param index The index for the cell
    * @returns Cell - The cell at specified index
@@ -61,48 +61,40 @@ namespace cell_utils {
   }
 
   /**
-   * Runs code in the currently selected cell of the notebook
+   * @description Runs code in the currently selected cell of the notebook
    * @param command The command registry which can execute the run command.
    * @param notebook The notebook panel to run the cell in
    * @returns Promise<string> - A promise containing the output after the code has executed.
    */
-  export function runCellAtIndex(
+  export async function runCellAtIndex(
     command: CommandRegistry,
     notebook_panel: NotebookPanel,
     index: number
-  ) {
-    let prom: Promise<string> = new Promise((resolve, reject) => {
+  ): Promise<string> {
+    let prom: Promise<string> = new Promise(async (resolve, reject) => {
       if (command && notebook_panel) {
-        // Check the session is ready and continue with commands when it is
-        notebook_panel.session.ready
-          .then(() => {
-            let notebook = notebook_panel.content;
-            if (index >= 0 && index < notebook.widgets.length) {
-              //Save the old index, then set the current active cell
-              let oldIndex = notebook.activeCellIndex;
-              notebook.activeCellIndex = index;
-              command
-                .execute("notebook:run-cell")
-                .then(() => {
-                  try {
-                    let output = readOutput(notebook, index);
-                    notebook.activeCellIndex = oldIndex;
-                    resolve(output);
-                  } catch (error) {
-                    reject(error);
-                  }
-                })
-                .catch(error => {
-                  notebook.activeCellIndex = oldIndex;
-                  reject(error);
-                });
-            } else {
-              reject(new Error("The index was out of range."));
+        try {
+          await notebook_panel.session.ready;
+          let notebook = notebook_panel.content;
+          if (index >= 0 && index < notebook.widgets.length) {
+            //Save the old index, then set the current active cell
+            let oldIndex = notebook.activeCellIndex;
+            notebook.activeCellIndex = index;
+            try {
+              await command.execute("notebook:run-cell");
+              let output = readOutput(notebook, index);
+              notebook.activeCellIndex = oldIndex;
+              resolve(output);
+            } catch (error) {
+              notebook.activeCellIndex = oldIndex;
+              reject(error);
             }
-          })
-          .catch(error => {
-            reject(error);
-          });
+          } else {
+            reject(new Error("The index was out of range."));
+          }
+        } catch (error) {
+          reject(error);
+        }
       } else {
         reject(
           new Error(
@@ -115,67 +107,57 @@ namespace cell_utils {
   }
 
   /**
-   * Deletes the cell at specified index in the open notebook
+   * @description Deletes the cell at specified index in the open notebook
    * @param command The command registry which can execute the run command
    * @param notebook_panel The notebook panel to delete the cell from
    * @param index The index that the cell will be deleted at
    * @returns Promise<void> - A promise for when cell is deleted.
    */
-  export function deleteCellAtIndex(
+  export async function deleteCellAtIndex(
     command: CommandRegistry,
     notebook_panel: NotebookPanel,
     index: number
   ): Promise<void> {
-    let prom: Promise<void> = new Promise((resolve, reject) => {
-      if (command && notebook_panel) {
-        let notebook = notebook_panel.content;
-        // Check the session is ready and continue with commands when it is
-        notebook_panel.session.ready
-          .then(() => {
-            if (index >= 0 && index < notebook.widgets.length) {
-              //Save the old index, then set the current active cell
-              let oldIndex = notebook.activeCellIndex;
-              notebook.activeCellIndex = index;
-
-              if (oldIndex == index) {
-                if (oldIndex > 0) {
-                  oldIndex -= 1;
-                } else {
-                  oldIndex = 0;
-                }
-              } else if (oldIndex > index) {
+    let prom: Promise<void> = new Promise(async (resolve, reject) => {
+      try {
+        if (command && notebook_panel) {
+          let notebook = notebook_panel.content;
+          await notebook_panel.session.ready;
+          if (index >= 0 && index < notebook.widgets.length) {
+            //Save the old index, then set the current active cell
+            let oldIndex = notebook.activeCellIndex;
+            notebook.activeCellIndex = index;
+            //Adjust old index to account for deleted cell.
+            if (oldIndex == index) {
+              if (oldIndex > 0) {
                 oldIndex -= 1;
+              } else {
+                oldIndex = 0;
               }
-              command
-                .execute("notebook:delete-cell")
-                .then(() => {
-                  notebook.activeCellIndex = oldIndex;
-                  resolve();
-                })
-                .catch(error => {
-                  notebook.activeCellIndex = oldIndex;
-                  reject(error);
-                });
-            } else {
-              reject(new Error("The index was out of range."));
+            } else if (oldIndex > index) {
+              oldIndex -= 1;
             }
-          })
-          .catch(error => {
-            reject(error);
-          });
-      } else {
-        reject(
-          new Error(
-            "Null or undefined parameter was given for command or notebook argument."
-          )
-        );
+            await command.execute("notebook:delete-cell");
+            resolve();
+          } else {
+            reject(new Error("The index was out of range."));
+          }
+        } else {
+          reject(
+            new Error(
+              "Null or undefined parameter was given for command or notebook argument."
+            )
+          );
+        }
+      } catch (error) {
+        reject(error);
       }
     });
     return prom;
   }
 
   /**
-   * Inserts a cell into the notebook, the new cell will be at the specified index.
+   * @description Inserts a cell into the notebook, the new cell will be at the specified index.
    * If the cell is inserted at the currently active cell index, the active cell will be moved down by 1.
    * @param command The command registry which can execute the run command
    * @param notebook_panel The notebook panel to insert the cell in
@@ -184,77 +166,54 @@ namespace cell_utils {
    * If the cell index is greater than the last index, it will be added at the bottom.
    * @returns Promise<number> - A promise for when the cell is inserted, and at what index it was inserted
    */
-  export function insertCellAtIndex(
+  export async function insertCellAtIndex(
     command: CommandRegistry,
     notebook_panel: NotebookPanel,
     index: number
   ): Promise<number> {
-    let prom: Promise<number> = new Promise((resolve, reject) => {
-      if (command && notebook_panel) {
-        let notebook = notebook_panel.content;
-        // Check the session is ready and continue with commands when it is
-        notebook_panel.session.ready
-          .then(() => {
-            //Save the old index, then set the current active cell
-            let oldIndex = notebook.activeCellIndex;
+    let prom: Promise<number> = new Promise(async (resolve, reject) => {
+      try {
+        if (command && notebook_panel) {
+          let notebook = notebook_panel.content;
+          await notebook_panel.session.ready;
+          //Save the old index, then set the current active cell
+          let oldIndex = notebook.activeCellIndex;
+          //Adjust old index for cells inserted above active cell.
+          if (oldIndex >= index) {
+            oldIndex++;
+          }
+          if (index <= 0) {
+            notebook.activeCellIndex = 0;
+            await command.execute("notebook:insert-cell-above");
+            notebook.activeCellIndex = oldIndex;
+            resolve(0);
+          } else if (index >= notebook.widgets.length) {
+            notebook.activeCellIndex = notebook.widgets.length - 1;
+            await command.execute("notebook:insert-cell-below");
+            notebook.activeCellIndex = oldIndex;
+            resolve(notebook.widgets.length - 1);
+          } else {
+            notebook.activeCellIndex = index;
+            await command.execute("notebook:insert-cell-above");
 
-            //Adjust old index for cells inserted above active cell.
-            if (oldIndex >= index) {
-              oldIndex++;
-            }
-
-            if (index <= 0) {
-              notebook.activeCellIndex = 0;
-              command
-                .execute("notebook:insert-cell-above")
-                .then(() => {
-                  notebook.activeCellIndex = oldIndex;
-                  resolve(0);
-                })
-                .catch(error => {
-                  reject(error);
-                });
-            } else if (index >= notebook.widgets.length) {
-              notebook.activeCellIndex = notebook.widgets.length - 1;
-              command
-                .execute("notebook:insert-cell-below")
-                .then(() => {
-                  notebook.activeCellIndex = oldIndex;
-                  resolve(notebook.widgets.length - 1);
-                })
-                .catch(error => {
-                  reject(error);
-                });
-            } else {
-              notebook.activeCellIndex = index;
-              command
-                .execute("notebook:insert-cell-above")
-                .then(() => {
-                  notebook.activeCellIndex = oldIndex;
-                  resolve(index);
-                })
-                .catch(error => {
-                  reject(error);
-                });
-            }
-          })
-          .catch(error => {
-            reject(error);
-          });
-      } else {
-        reject(
-          new Error(
-            "Null or undefined parameter was given for command or notebook argument."
-          )
-        );
-      }
+            notebook.activeCellIndex = oldIndex;
+            resolve(index);
+          }
+        } else {
+          reject(
+            new Error(
+              "Null or undefined parameter was given for command or notebook argument."
+            )
+          );
+        }
+      } catch (error) {}
     });
 
     return prom;
   }
 
   /**
-   * Injects code into the specified cell of a notebook, does not run the code.
+   * @description Injects code into the specified cell of a notebook, does not run the code.
    * Warning: the existing cell's code/text will be overwritten.
    * @param notebook The notebook to select the cell from
    * @param index The index of the cell to inject the code into
@@ -287,7 +246,7 @@ namespace cell_utils {
   }
 
   /**
-   * This will insert a new cell at the specified index and the inject the specified code into it.
+   * @description This will insert a new cell at the specified index and the inject the specified code into it.
    * @param command The command registry which can execute the insert command
    * @param notebook The notebook to insert the cell into
    * @param index The index of where the new cell will be inserted.
@@ -296,31 +255,26 @@ namespace cell_utils {
    * @param code The code to inject into the cell after it has been inserted
    * @returns Promise<number> - A promise for when the cell is ready, and at what index it was inserted
    */
-  export function insertInjectCode(
+  export async function insertInjectCode(
     command: CommandRegistry,
     notebook_panel: NotebookPanel,
     index: number,
     code: string
   ): Promise<number> {
-    let prom: Promise<number> = new Promise((resolve, reject) => {
-      insertCellAtIndex(command, notebook_panel, index)
-        .then(insertionIndex => {
-          try {
-            injectCodeAtIndex(notebook_panel.content, insertionIndex, code);
-            resolve(insertionIndex);
-          } catch (error) {
-            reject(error);
-          }
-        })
-        .catch(error => {
-          reject(error);
-        });
+    let prom: Promise<number> = new Promise(async (resolve, reject) => {
+      try {
+        let newIndex = await insertCellAtIndex(command, notebook_panel, index);
+        injectCodeAtIndex(notebook_panel.content, newIndex, code);
+        resolve(newIndex);
+      } catch (error) {
+        reject(error);
+      }
     });
     return prom;
   }
 
   /**
-   * This will insert a new cell at the specified index, inject the specified code into it and the run the code.
+   * @description This will insert a new cell at the specified index, inject the specified code into it and the run the code.
    * @param command The command registry which can execute the insert command
    * @param notebook_panel The notebook to insert the cell into
    * @param index The index of where the new cell will be inserted and run.
@@ -331,7 +285,7 @@ namespace cell_utils {
    * @returns Promise<[number, string]> - A promise for when the cell code has executed
    * containing the cell's index and output result
    */
-  export function insertAndRun(
+  export async function insertAndRun(
     command: CommandRegistry,
     notebook_panel: NotebookPanel,
     index: number,
@@ -367,7 +321,9 @@ namespace cell_utils {
   }
 
   /**
-   * This will insert a cell with specified code at the top and run the code.
+   * @deprecated Using notebook_utils.sendSimpleKernelRequest or notebook_utils.sendKernelRequest
+   * will execute code directly in the kernel without the need to create a cell and delete it.
+   * @description This will insert a cell with specified code at the top and run the code.
    * Once the code is run and output received, the cell is deleted, giving back cell's output.
    * If the code results in an error, the injected cell is still deleted but the promise will be rejected.
    * @param command The command registry
@@ -376,30 +332,30 @@ namespace cell_utils {
    * @param insertAtEnd True means the cell will be inserted at the bottom
    * @returns Promise<string> - A promise when the cell has been deleted, containing the execution result as a string
    */
-  export function runAndDelete(
+  export async function runAndDelete(
     command: CommandRegistry,
     notebook_panel: NotebookPanel,
     code: string,
     insertAtEnd = true
   ): Promise<string> {
-    let prom: Promise<string> = new Promise((resolve, reject) => {
+    let prom: Promise<string> = new Promise(async (resolve, reject) => {
       let index: number = -1;
-      if (insertAtEnd) {
-        index = notebook_panel.content.model.cells.length;
+      try {
+        if (insertAtEnd) {
+          index = notebook_panel.content.model.cells.length;
+        }
+        let result: [number, string] = await insertAndRun(
+          command,
+          notebook_panel,
+          index,
+          code,
+          true
+        );
+        await deleteCellAtIndex(command, notebook_panel, result[0]);
+        resolve(result[1]);
+      } catch (error) {
+        reject(error);
       }
-      insertAndRun(command, notebook_panel, index, code, true)
-        .then(result => {
-          deleteCellAtIndex(command, notebook_panel, result[0])
-            .then(() => {
-              resolve(result[1]);
-            })
-            .catch(error => {
-              reject(error);
-            });
-        })
-        .catch(error => {
-          reject(error);
-        });
     });
     return prom;
   }

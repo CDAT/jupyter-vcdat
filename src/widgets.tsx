@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { notebook_utils as nb_utils } from "./notebook_utils";
+import { notebook_utils as nb_utils, notebook_utils } from "./notebook_utils";
 import { cell_utils } from "./cell_utils";
 import { Widget } from "@phosphor/widgets";
 import { VCSMenu } from "./components/VCSMenu";
@@ -129,21 +129,19 @@ export class LeftSideBarWidget extends Widget {
     }
   }
 
-  inject(code: string): any {
-    cell_utils
-      .insertAndRun(
+  async inject(code: string): Promise<any> {
+    try {
+      let result: any = await cell_utils.insertAndRun(
         this.commands,
         this.notebook_panel,
         this.notebook_panel.content.activeCellIndex,
         code,
         false
-      )
-      .then(result => {
-        return result;
-      })
-      .catch(error => {
-        console.log(error);
-      });
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   buildImportCommand(modules: string[], lazy: boolean): string {
@@ -176,118 +174,104 @@ export class LeftSideBarWidget extends Widget {
   }
 
   // This will inject the required modules into the current notebook (if module not already imported)
-  injectRequiredModules(): Promise<number> {
+  async injectRequiredModules(): Promise<number> {
     console.log("Injecting required modules");
     // Check if required modules are imported in notebook
-    var prom: Promise<number> = new Promise((resolve, reject) => {
-      cell_utils
-        .runAndDelete(this.commands, this.notebook_panel, CHECK_MODULES_CMD)
-        .then(output => {
-          let missing_modules: string[] = eval(output);
-          let cmd = this.buildImportCommand(missing_modules, true);
-          cell_utils
-            .insertAndRun(this.commands, this.notebook_panel, -1, cmd, false)
-            .then(result => {
-              resolve(result[0]);
-            })
-            .catch(error => {
-              reject(error);
-            });
-        })
-        .catch(error => {
-          console.log(error);
-        });
+    var prom: Promise<number> = new Promise(async (resolve, reject) => {
+      try {
+        let output: string = await notebook_utils.sendSimpleKernelRequest(
+          this.notebook_panel,
+          CHECK_MODULES_CMD
+        );
+        let missing_modules: string[] = eval(output);
+        let cmd = this.buildImportCommand(missing_modules, true);
+        let result: [number, string] = await cell_utils.insertAndRun(
+          this.commands,
+          this.notebook_panel,
+          -1,
+          cmd,
+          false
+        );
+        resolve(result[0]);
+      } catch (error) {
+        reject(error);
+      }
     });
 
     return prom;
   }
 
   // returns promise of a vcs ready notebook, creating one if necessary
-  getReadyNotebookPanel() {
-    let nb: Promise<NotebookPanel> = new Promise((resolve, reject) => {
-      // Reject initilization if no file has been selected
-      if (this.current_file == "") {
-        reject(new Error("No file has been set for obtaining variables."));
-      } else if (this.vcs_ready) {
-        // The notebook already has vcs initialized
-        console.log("Notebook has vcs initialized!");
-        resolve(this.notebook_panel);
-      } else {
-        this.getNotebookPanel()
-          .then(notebook_panel => {
-            // This command prepares notebook by injecting needed import statements
-            this.injectRequiredModules()
-              .then(index => {
-                // This command initializes vcs and canvas
-                let cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
-                  this.current_file
-                }\")`;
-                cell_utils
-                  .insertAndRun(
-                    this.commands,
-                    this.notebook_panel,
-                    this.notebook_panel.content.activeCellIndex,
-                    cmd,
-                    true
-                  )
-                  .then(result => {
-                    this.vcs_ready = true; // The notebook has required modules and is ready
-                    this.notebook_panel.content.activeCellIndex = result[0] + 1; // Set the active cell to be under the injected code
-                    notebook_panel.context.save(); // Save the notebook to preserve the cells and metadata
-                    resolve(notebook_panel);
-                  })
-                  .catch(error => {
-                    reject(error);
-                  });
-              })
-              .catch(error => {
-                reject(error);
-              });
-          })
-          .catch(error => {
-            console.log(error);
-          });
+  async getReadyNotebookPanel(): Promise<NotebookPanel> {
+    let prom: Promise<NotebookPanel> = new Promise(async (resolve, reject) => {
+      try {
+        // Reject initilization if no file has been selected
+        if (this.current_file == "") {
+          reject(new Error("No file has been set for obtaining variables."));
+        } else if (this.vcs_ready) {
+          // The notebook already has vcs initialized
+          console.log("Notebook has vcs initialized!");
+          resolve(this.notebook_panel);
+        } else {
+          // Grab a notebook panel
+          let notebook_panel: NotebookPanel = await this.getNotebookPanel();
+          // Prepare notebook by injecting needed import statements
+          await this.injectRequiredModules();
+          // Initialize vcs and canvas
+          let cmd: string = `canvas = vcs.init()\ndata = cdms2.open(\"${
+            this.current_file
+          }\")`;
+          let result: [number, string] = await cell_utils.insertAndRun(
+            this.commands,
+            this.notebook_panel,
+            this.notebook_panel.content.activeCellIndex,
+            cmd,
+            true
+          );
+          // Once ready, set notebook meta data and save
+          this.vcs_ready = true; // The notebook has required modules and is ready
+          this.notebook_panel.content.activeCellIndex = result[0] + 1; // Set the active cell to be under the injected code
+          notebook_panel.context.save(); // Save the notebook to preserve the cells and metadata
+          resolve(notebook_panel);
+        }
+      } catch (error) {
+        reject(error);
       }
     });
-    return nb;
+    return prom;
   }
 
   // return a promise of current notebook panel (may not be vcs ready)
-  getNotebookPanel() {
-    let nb: Promise<NotebookPanel> = new Promise((resolve, reject) => {
-      if (this.notebook_panel) {
-        resolve(this.notebook_panel);
-      } else {
-        // Create new notebook if one doesn't exist
-        nb_utils
-          .createNewNotebook(this.commands)
-          .then(notebook_panel => {
-            resolve(notebook_panel);
-          })
-          .catch(error => {
-            reject(error);
-          });
-      }
+  async getNotebookPanel() {
+    let prom: Promise<NotebookPanel> = new Promise(async (resolve, reject) => {
+      try {
+        if (this.notebook_panel) {
+          resolve(this.notebook_panel);
+        } else {
+          // Create new notebook if one doesn't exist
+          let notebook_panel: NotebookPanel = await nb_utils.createNewNotebook(
+            this.commands
+          );
+          resolve(notebook_panel);
+        }
+      } catch (error) {}
     });
-    return nb;
+    return prom;
   }
 
-  //This is where the code injection occurs in the current notebook.
-  updateVars() {
-    this.getReadyNotebookPanel()
-      .then((notebook_panel: NotebookPanel) => {
-        cell_utils
-          .runAndDelete(this.commands, notebook_panel, GET_VARS_CMD)
-          .then(output => {
-            this.handleGetVarsComplete(output);
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      })
-      .catch(error => {
-        console.log(error);
-      });
+  //This runs a script to get the current variables
+  async updateVars() {
+    try {
+      let notebook_panel: NotebookPanel = await this.getReadyNotebookPanel();
+      let output: string = await notebook_utils.sendSimpleKernelRequest(
+        notebook_panel,
+        GET_VARS_CMD
+      );
+
+      this.handleGetVarsComplete(output);
+    } catch (error) {
+      console.log(error);
+    }
   }
   //Helper function to convert output string to an object/dictionary
   outputStrToDict(output: string) {
