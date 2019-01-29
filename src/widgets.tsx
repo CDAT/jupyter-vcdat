@@ -1,11 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { notebook_utils as nb_utils, notebook_utils } from "./notebook_utils";
-import { cell_utils } from "./cell_utils";
 import { Widget } from "@phosphor/widgets";
 import { VCSMenu } from "./components/VCSMenu";
 import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
+import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
+import { IClientSession } from "@jupyterlab/apputils";
+import { Kernel } from "@jupyterlab/services";
+
 import {
   GET_VARS_CMD,
   CHECK_MODULES_CMD,
@@ -13,9 +15,8 @@ import {
   FILE_PATH_KEY,
   REFRESH_VARS_CMD
 } from "./constants";
-import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
-import { IClientSession } from "@jupyterlab/apputils";
-import { Kernel } from "@jupyterlab/services";
+import { notebook_utils as nb_utils } from "./notebook_utils";
+import { cell_utils } from "./cell_utils";
 
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
@@ -176,7 +177,7 @@ export class LeftSideBarWidget extends Widget {
         // If the status is idle, vcs is ready and variables need to be refreshed
         this.var_refresh = false;
         //Refresh the variables
-        let output: string = await notebook_utils.sendSimpleKernelRequest(
+        let output: string = await nb_utils.sendSimpleKernelRequest(
           this.notebook_panel,
           REFRESH_VARS_CMD
         );
@@ -283,7 +284,7 @@ export class LeftSideBarWidget extends Widget {
 
       if (find[0] >= 0) {
         // If found, run the imports code
-        await notebook_utils.sendSimpleKernelRequest(
+        await nb_utils.sendSimpleKernelRequest(
           this.notebook_panel,
           find[1].value.text,
           false
@@ -333,7 +334,7 @@ export class LeftSideBarWidget extends Widget {
     var prom: Promise<number> = new Promise(async (resolve, reject) => {
       try {
         // Check if necessary modules are loaded
-        let output: string = await notebook_utils.sendSimpleKernelRequest(
+        let output: string = await nb_utils.sendSimpleKernelRequest(
           this.notebook_panel,
           CHECK_MODULES_CMD
         );
@@ -423,7 +424,7 @@ export class LeftSideBarWidget extends Widget {
   async updateVars() {
     try {
       let notebook_panel: NotebookPanel = await this.getReadyNotebookPanel();
-      let output: string = await notebook_utils.sendSimpleKernelRequest(
+      let output: string = await nb_utils.sendSimpleKernelRequest(
         notebook_panel,
         GET_VARS_CMD
       );

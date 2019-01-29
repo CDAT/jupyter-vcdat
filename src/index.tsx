@@ -1,5 +1,3 @@
-import "../style/css/index.css";
-import { notebook_utils as nb_utils } from "./notebook_utils";
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -16,6 +14,9 @@ import {
 import { CommandRegistry } from "@phosphor/commands";
 import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
+
+import "../style/css/index.css";
+import { notebook_utils as nb_utils } from "./notebook_utils";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
