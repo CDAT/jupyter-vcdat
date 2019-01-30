@@ -1,3 +1,9 @@
+const BASE_URL = "/vcs";
+const READY_KEY = "vcdat_ready";
+const FILE_PATH_KEY = "vcdat_file_path";
+const IMPORT_CELL_KEY = "vcdat_imports";
+const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
+
 const GET_VARS_CMD =
   'import __main__\n\
 import json\n\
@@ -32,8 +38,6 @@ def variables():\n\
     return out\n\
 output = variables()";
 
-const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
-
 const CHECK_MODULES_CMD = `import types\n\
 required = [${REQUIRED_MODULES}]\n\
 def imports():\n\
@@ -43,17 +47,23 @@ def imports():\n\
 found = list(imports())\n\
 output = list(set(required)-set(found))`;
 
-const BASE_URL = "/vcs";
-
-const READY_KEY = "vcdat_ready";
-const FILE_PATH_KEY = "vcdat_file_path";
+const LIST_CANVASES_CMD = `import __main__\n
+def canvases():\n\
+  out = []\n\
+  for nm, obj in __main__.__dict__.items():\n\
+    if isinstance(obj, vcs.Canvas.Canvas):\n\
+      out+=[nm]\n\
+  return out\n\
+output = canvases()`;
 
 export {
+  BASE_URL,
+  READY_KEY,
+  FILE_PATH_KEY,
+  IMPORT_CELL_KEY,
+  REQUIRED_MODULES,
   GET_VARS_CMD,
   REFRESH_VARS_CMD,
   CHECK_MODULES_CMD,
-  REQUIRED_MODULES,
-  BASE_URL,
-  READY_KEY,
-  FILE_PATH_KEY
+  LIST_CANVASES_CMD
 };

@@ -2,6 +2,7 @@ import { ICellModel, isCodeCellModel } from "@jupyterlab/cells";
 import { Notebook, NotebookPanel } from "@jupyterlab/notebook";
 import { nbformat } from "@jupyterlab/coreutils";
 import { CommandRegistry } from "@phosphor/commands";
+import { notebook_utils } from "./notebook_utils";
 
 /** Contains some utility functions for handling notebook cells */
 namespace cell_utils {
@@ -58,15 +59,19 @@ namespace cell_utils {
     notebook: Notebook,
     index: number,
     key: string
-  ) {
+  ): any {
     let msg: string = "Notebook was null!"; // For error tracking
     if (notebook) {
       if (index >= 0 && index < notebook.model.cells.length) {
-        let cell: ICellModel = notebook.model.cells.get(index);
-        if (cell.metadata.has(key)) {
-          return cell.metadata.get(key);
-        } else {
-          return null;
+        try {
+          let cell: ICellModel = notebook.model.cells.get(index);
+          if (cell.metadata.has(key)) {
+            return cell.metadata.get(key);
+          } else {
+            return null;
+          }
+        } catch (error) {
+          throw error;
         }
       } else {
         msg = "Cell index out of range.";
@@ -81,19 +86,30 @@ namespace cell_utils {
    * @param notebook_panel The notebook to set meta data in.
    * @param key The key of the value to create.
    * @param value The value to set.
-   * @returns The old value for the key, or undefined if it did not exist.
+   * @param save Default is false. Whether the notebook should be saved after the meta data is set.
+   * Note: This function will not wait for the save to complete, it only sends a save request.
+   * @returns any - The old value for the key, or undefined if it did not exist.
    */
   export function setCellMetaData(
-    notebook: Notebook,
+    notebook_panel: NotebookPanel,
     index: number,
     key: string,
-    value: any
-  ) {
+    value: any,
+    save: boolean = false
+  ): any {
     let msg: string = "Notebook was null!"; // For error tracking
-    if (notebook) {
-      if (index >= 0 && index < notebook.model.cells.length) {
-        let cell: ICellModel = notebook.model.cells.get(index);
-        return cell.metadata.set(key, value);
+    if (notebook_panel) {
+      if (index >= 0 && index < notebook_panel.model.cells.length) {
+        try {
+          let cell: ICellModel = notebook_panel.model.cells.get(index);
+          let old_val: any = cell.metadata.set(key, value);
+          if (save) {
+            notebook_panel.context.save();
+          }
+          return old_val;
+        } catch (error) {
+          throw error;
+        }
       } else {
         msg = "Cell index out of range.";
       }
@@ -329,7 +345,6 @@ namespace cell_utils {
 
   /**
    * @description This will insert a new cell at the specified index, inject the specified code into it and the run the code.
-   * @param command The command registry which can execute the insert command
    * @param notebook_panel The notebook to insert the cell into
    * @param index The index of where the new cell will be inserted and run.
    * If the cell index is less than or equal to 0, it will be added at the top.
@@ -340,35 +355,36 @@ namespace cell_utils {
    * containing the cell's index and output result
    */
   export async function insertAndRun(
-    command: CommandRegistry,
     notebook_panel: NotebookPanel,
     index: number,
     code: string,
     deleteOnError: boolean
   ): Promise<[number, string]> {
-    let prom: Promise<[number, string]> = new Promise((resolve, reject) => {
-      try {
-        let insertionIndex = insertInjectCode(notebook_panel, index, code);
-        runCellAtIndex(command, notebook_panel, insertionIndex)
-          .then(output => {
-            resolve([insertionIndex, output]);
-          })
-          .catch(error => {
-            if (deleteOnError) {
-              try {
-                deleteCellAtIndex(notebook_panel, insertionIndex);
-                reject(error);
-              } catch (error) {
-                reject(error);
-              }
-            } else {
+    let prom: Promise<[number, string]> = new Promise(
+      async (resolve, reject) => {
+        let insertionIndex;
+        try {
+          insertionIndex = insertInjectCode(notebook_panel, index, code);
+          let output: string = await notebook_utils.sendSimpleKernelRequest(
+            notebook_panel,
+            code,
+            false
+          );
+          resolve([insertionIndex, output]);
+        } catch (error) {
+          if (deleteOnError) {
+            try {
+              deleteCellAtIndex(notebook_panel, insertionIndex);
+              reject(error);
+            } catch (error) {
               reject(error);
             }
-          });
-      } catch (error) {
-        reject(error);
+          } else {
+            reject(error);
+          }
+        }
       }
-    });
+    );
     return prom;
   }
 
@@ -378,14 +394,12 @@ namespace cell_utils {
    * @description This will insert a cell with specified code at the top and run the code.
    * Once the code is run and output received, the cell is deleted, giving back cell's output.
    * If the code results in an error, the injected cell is still deleted but the promise will be rejected.
-   * @param command The command registry
    * @param notebook_panel The notebook to run the code in
    * @param code The code to run in the cell
    * @param insertAtEnd True means the cell will be inserted at the bottom
    * @returns Promise<string> - A promise when the cell has been deleted, containing the execution result as a string
    */
   export async function runAndDelete(
-    command: CommandRegistry,
     notebook_panel: NotebookPanel,
     code: string,
     insertAtEnd = true
@@ -397,7 +411,6 @@ namespace cell_utils {
           index = notebook_panel.content.model.cells.length;
         }
         let result: [number, string] = await insertAndRun(
-          command,
           notebook_panel,
           index,
           code,

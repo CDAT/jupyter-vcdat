@@ -81,17 +81,28 @@ namespace notebook_utils {
    * @param notebook_panel The notebook to set meta data in.
    * @param key The key of the value to create.
    * @param value The value to set.
+   * @param save Default is false. Whether the notebook should be saved after the meta data is set.
    * @returns The old value for the key, or undefined if it did not exist.
    */
   export function setMetaData(
     notebook_panel: NotebookPanel,
     key: string,
-    value: any
+    value: any,
+    save: boolean = false
   ): Promise<any> {
     let prom: Promise<any> = new Promise(async (resolve, reject) => {
       try {
         await notebook_panel.session.ready;
-        resolve(notebook_panel.content.model.metadata.set(key, value));
+        let old_val: any = notebook_panel.content.model.metadata.set(
+          key,
+          value
+        );
+        if (save) {
+          await notebook_panel.context.save().catch(error => {
+            reject(error);
+          });
+        }
+        resolve(old_val);
       } catch (error) {
         reject(error);
       }
@@ -105,15 +116,24 @@ namespace notebook_utils {
    * @param notebook_panel The notebook to set meta data in.
    * @param key The key of the value to create.
    * @param value The value to set.
+   * @param save Default is false. Whether the notebook should be saved after the meta data is set.
+   * Note: This function will not wait for the save to complete, it only sends a save request.
    * @returns The old value for the key, or undefined if it did not exist.
    */
   export function setMetaDataNow(
     notebook_panel: NotebookPanel,
     key: string,
-    value: any
+    value: any,
+    save: boolean = false
   ): any {
     try {
-      return notebook_panel.content.model.metadata.set(key, value);
+      let old_val = notebook_panel.content.model.metadata.set(key, value);
+      if (save) {
+        notebook_panel.context.save().catch(error => {
+          throw error;
+        });
+      }
+      return old_val;
     } catch (error) {
       throw error;
     }

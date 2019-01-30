@@ -9,11 +9,12 @@ import { IClientSession } from "@jupyterlab/apputils";
 import { Kernel } from "@jupyterlab/services";
 
 import {
+  READY_KEY,
   GET_VARS_CMD,
   CHECK_MODULES_CMD,
-  READY_KEY,
   FILE_PATH_KEY,
-  REFRESH_VARS_CMD
+  REFRESH_VARS_CMD,
+  IMPORT_CELL_KEY
 } from "./constants";
 import { notebook_utils as nb_utils } from "./notebook_utils";
 import { cell_utils } from "./cell_utils";
@@ -181,7 +182,7 @@ export class LeftSideBarWidget extends Widget {
           this.notebook_panel,
           REFRESH_VARS_CMD
         );
-        //Output gives the list of latest variables. This could be added to the
+        //Output gives the list of latest variables.
         console.log(output);
       } else if (status == "idle" && this.vcs_ready) {
         this.var_refresh = true;
@@ -197,7 +198,7 @@ export class LeftSideBarWidget extends Widget {
   }
   public set vcs_ready(value: boolean) {
     try {
-      nb_utils.setMetaDataNow(this.notebook_panel, READY_KEY, value);
+      nb_utils.setMetaDataNow(this.notebook_panel, READY_KEY, value, false);
       this._vcs_ready = value;
       this.component.setState({
         plotReady: value
@@ -219,7 +220,6 @@ export class LeftSideBarWidget extends Widget {
 
       if (notebook_panel) {
         // Update whether the current notebook is vcs ready (has required imports and vcs initialized)
-        console.log(notebook_panel.content.model.metadata);
         let ready = nb_utils.getMetaDataNow(notebook_panel, READY_KEY);
         if (ready) {
           this.vcs_ready = true;
@@ -250,7 +250,12 @@ export class LeftSideBarWidget extends Widget {
   public set current_file(file_path: string) {
     try {
       this._current_file = file_path;
-      nb_utils.setMetaDataNow(this.notebook_panel, FILE_PATH_KEY, file_path);
+      nb_utils.setMetaDataNow(
+        this.notebook_panel,
+        FILE_PATH_KEY,
+        file_path,
+        false
+      );
       this.component.setState({
         file_path: file_path
       });
@@ -262,7 +267,6 @@ export class LeftSideBarWidget extends Widget {
   async inject(code: string): Promise<any> {
     try {
       let result: any = await cell_utils.insertAndRun(
-        this.commands,
         this.notebook_panel,
         this.notebook_panel.content.activeCellIndex,
         code,
@@ -279,7 +283,7 @@ export class LeftSideBarWidget extends Widget {
       // Search for a cell containing the imports key
       let find = cell_utils.findCellWithMetaKey(
         this.notebook_panel.content,
-        "vcdat_imports"
+        IMPORT_CELL_KEY
       );
 
       if (find[0] >= 0) {
@@ -342,26 +346,32 @@ export class LeftSideBarWidget extends Widget {
         // Create import string based on missing dependencies
         let missing_modules: string[] = eval(output);
         let cmd =
-          "#This code is required for vcdat. To avoid issues, do not modify.\n";
+          "#These imports are required for vcdat. To avoid issues, do not delete or modify.\n";
         cmd += this.buildImportCommand(missing_modules, true);
-        cmd += `\ncanvas = vcs.init()\ndata = cdms2.open(\"${
-          this.current_file
-        }\")`;
+
+        // Inject imports in a new cell
         let result: [number, string] = await cell_utils.insertAndRun(
-          this.commands,
           this.notebook_panel,
           -1,
           cmd,
           false
         );
 
+        // Set cell meta data to identify it as containing imports
         cell_utils.setCellMetaData(
-          this.notebook_panel.content,
+          this.notebook_panel,
           result[0],
           "vcdat_imports",
-          "saved"
+          "saved",
+          true
         );
-        resolve(result[0]);
+
+        // Run code that creates a canvas and opens the current selected .nc file
+        cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
+          this.current_file
+        }\")`;
+        cell_utils.insertAndRun(this.notebook_panel, result[0] + 1, cmd, true);
+        resolve(result[0] + 2);
       } catch (error) {
         reject(error);
       }
@@ -378,8 +388,8 @@ export class LeftSideBarWidget extends Widget {
         if (this.current_file == "") {
           reject(new Error("No file has been set for obtaining variables."));
         } else if (this.vcs_ready) {
-          // The notebook should have vcs initialized, verify
-
+          // The notebook should have vcs imports initialized, verify
+          await this.runImportCell();
           console.log("Notebook has vcs initialized!");
           resolve(this.notebook_panel);
         } else {
@@ -391,8 +401,8 @@ export class LeftSideBarWidget extends Widget {
           this.notebook_panel.content.activeCellIndex = newIndex + 1;
           // Once ready, set notebook meta data and save
           this.vcs_ready = true; // The notebook has required modules and is ready
-
-          notebook_panel.context.save(); // Save the notebook to preserve the cells and metadata
+          // Save the notebook to preserve the cells and metadata
+          await this.notebook_panel.context.save();
           resolve(notebook_panel);
         }
       } catch (error) {
