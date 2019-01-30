@@ -8,11 +8,15 @@ import {
   Button,
   Row,
   Col,
+  FormGroup,
+  Input
 } from "reactstrap";
 
-import { DimensionSlider } from "./DimensionSlider";
+import DimensionSlider from "./DimensionSlider";
 import Variable from "./Variable";
 import "bootstrap/dist/css/bootstrap.min.css";
+import AxisInfo from "./AxisInfo";
+import VarCard from "./VarCard";
 
 type VarLoaderProps = {
   file_path: string; // path to input file
@@ -20,11 +24,11 @@ type VarLoaderProps = {
 };
 type VarLoaderState = {
   show: boolean; // should the modal be shown
-  variable: Variable; // selected variable
-  axis: any; // variable axis information
-  selectedVariableName: string; // cdms name of selected variable
-  selectedVariableInfo: any; // axis objects for selected variab;le
-  dimInfo: any; // information returned from the loader about the selected dimenesions
+  variables: Array<Variable>; // selected variable
+  // axis: any; // variable axis information
+  // selectedVariableName: string; // cdms name of selected variable
+  // selectedVariableInfo: any; // axis objects for selected variable
+  // dimInfo: any; // information returned from the loader about the selected dimenesions
 };
 
 export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
@@ -32,17 +36,18 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
     super(props);
     this.state = {
       show: false,
-      selectedVariableName: "",
-      selectedVariableInfo: {},
-      axis: {},
-      variable: new Variable(),
-      dimInfo: {}
+      // selectedVariableName: "",
+      // selectedVariableInfo: {},
+      // axis: {},
+      variables: new Array<Variable>(),
+      // dimInfo: {}
     };
 
     this.toggle = this.toggle.bind(this);
-    this.setVariable = this.setVariable.bind(this);
-    this.loadVariable = this.loadVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
+    // this.setVariable = this.setVariable.bind(this);
+    // this.loadVariable = this.loadVariable.bind(this);
+    // this.updateDimInfo = this.updateDimInfo.bind(this);
   }
   // open and close the variable loader modal
   toggle() {
@@ -50,34 +55,38 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
       show: !this.state.show
     });
   }
+
   // set the variables and axis info
-  setVariable(variable: Variable) {
+  setVariables(variables: Array<Variable>) {
     this.setState({
-      variable: variable
+      variables: variables
     });
   }
   // user has clicked the load button
-  loadVariable() {
-    this.toggle();
-    let dimInfo: any = {};
-    this.state.variable.axisList.map((info: string) => {
-      dimInfo[info] = {
-        min: this.state.dimInfo[info].min,
-        max: this.state.dimInfo[info].max
-      };
-    });
-    this.props.loadVariable(this.state.variable.name, dimInfo);
-  }
+  // loadVariable() {
+  //   this.toggle();
+  //   let dimInfo: any = {};
+  //   this.state.variable.axisList.map((info: string) => {
+  //     dimInfo[info] = {
+  //       min: this.state.dimInfo[info].min,
+  //       max: this.state.dimInfo[info].max
+  //     };
+  //   });
+  //   this.props.loadVariable(this.state.variable.name, dimInfo);
+  // }
   // user has moved one of the dimension sliders
-  updateDimInfo(dimInfo: any) {
-    let newDimInfo = this.state.dimInfo;
-    newDimInfo[dimInfo.name] = {
-      min: dimInfo.min,
-      max: dimInfo.max
-    };
-    this.setState({
-      dimInfo: newDimInfo
-    });
+  // updateDimInfo(dimInfo: any) {
+  //   let newDimInfo = this.state.dimInfo;
+  //   newDimInfo[dimInfo.name] = {
+  //     min: dimInfo.min,
+  //     max: dimInfo.max
+  //   };
+  //   this.setState({
+  //     dimInfo: newDimInfo
+  //   });
+  // }
+  updateDimInfo(info: any){
+    console.log(info);
   }
   render() {
     return (
@@ -93,40 +102,20 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
             <div className="load-from">
               <Row>
                 <Col className="text-right" sm={2}>
-                  File
+                  Selected File:
                 </Col>
                 <Col sm={9}>
                   <p>{this.props.file_path}</p>
                 </Col>
               </Row>
             </div>
-            {/* <Row>
-              <Col className="text-right" sm={2}>
-                Variable(s)
-              </Col>
-              <Col sm={9}>
-                <FormGroup>
-                  <Input type="select" onChange={this.selectVariable}>
-                    <option key="default">select variable</option>
-                    {Object.keys(this.state.variables).map((key: any) => {
-                      return (
-                        <option key={key} title={key}>
-                          {key}: {this.state.variables[key].name}
-                        </option>
-                      );
-                    })}
-                  </Input>
-                </FormGroup>
-              </Col>
-            </Row> */}
           </ModalBody>
-          {this.state.variable.axisInfo &&
-            this.state.variable.axisInfo.map((item: any) => {
-              item.updateDimInfo = this.updateDimInfo;
-              return <DimensionSlider key={item.name} {...item} />;
+          {this.state.variables.length != 0 &&
+            this.state.variables.map((item: Variable) => {
+              return <VarCard key={item.name} variable={item} selectVariable={()=>{}}></VarCard>
             })}
           <ModalFooter>
-            <Button color="primary" onClick={this.loadVariable}>
+            <Button color="primary">
               Load
             </Button>{" "}
           </ModalFooter>

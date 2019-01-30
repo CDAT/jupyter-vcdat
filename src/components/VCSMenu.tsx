@@ -32,6 +32,7 @@ type VCSMenuState = {
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
+  varMenuRef: any;
   constructor(props: VCSMenuProps) {
     super(props);
     this.state = {
@@ -42,6 +43,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       selected_gm_group: "",
       selected_template: ""
     };
+    this.varMenuRef = (React as any).createRef();
 
     this.update = this.update.bind(this);
     this.plot = this.plot.bind(this);
@@ -100,6 +102,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       this.props.inject(plotString);
     }
   }
+  launchVarSelect(file_path: string){
+    this.varMenuRef.loadVariables();
+  }
   render() {
     let GraphicsMenuProps = {
       updateGraphicsOptions: this.updateGraphicsOptions,
@@ -117,7 +122,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     return (
       <div>
         <GraphicsMenu {...GraphicsMenuProps} />
-        <VarMenu {...VarMenuProps} />
+        <VarMenu 
+          {...VarMenuProps}
+          ref={loader => (this.varMenuRef = loader)} />
         <TemplateMenu {...TemplateMenuProps} />
         <Card>
           <CardBody>
@@ -129,7 +136,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
               onClick={this.plot}
               disabled={this.state.plotReady}
             >
-              Generate Plot
+              Create Plot
             </Button>
             <Button
               type="button"

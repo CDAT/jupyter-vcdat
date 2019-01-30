@@ -43,7 +43,7 @@ type DimensionSliderState = {
   values: number[]; // the absolute min and absolute max values
 };
 
-export class DimensionSlider extends React.Component<
+export default class DimensionSlider extends React.Component<
   DimensionSliderProps,
   DimensionSliderState
 > {
@@ -197,4 +197,4 @@ export class DimensionSlider extends React.Component<
   }
 }
 
-export default DimensionSlider;
+// export default DimensionSlider;

@@ -13,9 +13,11 @@ import {
   CardBody
 } from "reactstrap";
 import Variable from "./Variable";
+import axisInfo from "./AxisInfo";
 import { VarLoader } from "./VarLoader";
 import { callApi } from "../utils";
 import { BASE_URL } from "../constants";
+import AxisInfo from "./AxisInfo";
 // import { showDialog } from "@jupyterlab/apputils";
 
 var labelStyle: React.CSSProperties = {
@@ -43,7 +45,7 @@ export default class VarMenu extends React.Component<
   VarMenuProps,
   VarMenuState
 > {
-  varLoader: VarLoader;
+  varLoaderRef: VarLoader;
   constructor(props: VarMenuProps) {
     super(props);
     this.state = {
@@ -53,38 +55,40 @@ export default class VarMenu extends React.Component<
       variablesFetched: false,
       variables: new Array<Variable>()
     };
-    this.varLoader = (React as any).createRef();
+    this.varLoaderRef = (React as any).createRef();
     this.addVariables = this.addVariables.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
     this.clear = this.clear.bind(this);
     this.launchFilebrowser = this.launchFilebrowser.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
+    this.loadVariables = this.loadVariables.bind(this);
   }
 
-  addVariables() {
+  async addVariables() {
     let params = $.param({
       file_path: this.props.file_path
     });
     let url = BASE_URL + "/get_vars?" + params;
-    callApi(url).then((variableAxes: any) => {
-      let newVars = new Array<Variable>();
+    let newVars = new Array<Variable>();
+    await callApi(url).then((variableAxes: any) => {
       Object.keys(variableAxes.vars).map((item: string) => {
         let v = new Variable();
         v.name = item;
         v.longName = variableAxes.vars[item].name;
         v.axisList = variableAxes.vars[item].axisList;
-        v.axisInfo = new Array<Object>();
+        v.axisInfo = new Array<AxisInfo>();
         variableAxes.vars[item].axisList.map((item: any) => {
           v.axisInfo.push(variableAxes.axes[item]);
         });
         v.units = variableAxes.vars[item].units;
         newVars.push(v);
       });
-      this.setState({
-        variables: newVars,
-        variablesFetched: true
-      });
     });
+    this.setState({
+      variables: newVars,
+      variablesFetched: true
+    });
+    return newVars;
   }
 
   clear() {
@@ -107,7 +111,7 @@ export default class VarMenu extends React.Component<
 
   launchFilebrowser() {
     this.props.commands.execute("vcs:load-data").then(() => {
-      console.log("file selected");
+      console.log("starting file select");
     });
   }
 
@@ -122,6 +126,16 @@ export default class VarMenu extends React.Component<
         selectedVariables: this.state.selectedVariables.splice(index, 1)
       });
     }
+  }
+
+  async loadVariables(){
+    let newVars = await this.addVariables();
+    if(this.state.variables){
+      this.varLoaderRef.setVariables(this.state.variables);
+    } else {
+      this.varLoaderRef.setVariables(newVars);
+    }
+    this.varLoaderRef.toggle();
   }
 
   render() {
@@ -181,7 +195,7 @@ export default class VarMenu extends React.Component<
         <VarLoader
           file_path={this.props.file_path}
           loadVariable={this.props.loadVariable}
-          ref={(loader: VarLoader) => (this.varLoader = loader)}
+          ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />
       </div>
     );
