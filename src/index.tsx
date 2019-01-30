@@ -88,6 +88,8 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
     sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";
     sidebar.title.closable = true;
 
+    sidebar.setupNotebook = setupNotebook;
+
     // Attach it to the left side of main area
     shell.addToLeftArea(sidebar);
 
@@ -119,36 +121,38 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
         // Notebook tracker will signal when a notebook is changed
         nb_tracker.currentChanged.connect(handleNotebooksChanged);
       } else {
-        // There is no active notebook widget, so create a new one
-        console.log("Created new notebook at start.");
-        nb_utils
-          .createNewNotebook(commands)
-          .then(notebook => {
-            nb_panel_current = notebook;
-            sidebar.notebook_panel = notebook;
-
-            // Track when kernel runs code and becomes idle
-            nb_panel_current.session.statusChanged.connect(
-              handleSessionChanged
-            );
-
-            // Track when active cell is changed in current notebook
-            nb_panel_current.content.activeCellChanged.connect(
-              handleCellChanged
-            );
-
-            // Notebook tracker will signal when a notebook is changed
-            nb_tracker.currentChanged.connect(handleNotebooksChanged);
-          })
-          .catch(error => {
-            console.log(error);
-          });
+        // There is no active notebook widget
       }
     })
     .catch(error => {
       notebook_active = false;
       console.log(error);
     });
+}
+
+function setupNotebook() {
+  let prom = new Promise((resolve, reject) => {
+    nb_utils
+      .createNewNotebook(commands)
+      .then(notebook => {
+        nb_panel_current = notebook;
+        sidebar.notebook_panel = notebook;
+
+        // Track when kernel runs code and becomes idle
+        nb_panel_current.session.statusChanged.connect(handleSessionChanged);
+
+        // Track when active cell is changed in current notebook
+        nb_panel_current.content.activeCellChanged.connect(handleCellChanged);
+
+        // Notebook tracker will signal when a notebook is changed
+        nb_tracker.currentChanged.connect(handleNotebooksChanged);
+        resolve(nb_panel_current);
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+  return prom;
 }
 
 // Perform actions when current notebook is changed
@@ -240,25 +244,15 @@ export class NCViewerFactory extends ABCWidgetFactory<
         }
 
         // Prepare the notebook for code injection
-        sidebar.getReadyNotebookPanel().catch(error => {
-          console.log(error);
-        });
+        // sidebar.getReadyNotebookPanel().catch(error => {
+        //   console.log(error);
+        // });
       } else {
-        //Create a notebook if none is currently open
+        // Create a notebook if none is currently open
         console.log(
           "Created new notebook because all other notebooks were closed."
         );
-        nb_utils
-          .createNewNotebook(commands)
-          .then(notebook_panel => {
-            sidebar.notebook_panel = notebook_panel;
-            sidebar.getReadyNotebookPanel().catch(error => {
-              console.log(error);
-            });
-          })
-          .catch(error => {
-            console.log(error);
-          });
+        sidebar.setupNotebook();
       }
     }
 

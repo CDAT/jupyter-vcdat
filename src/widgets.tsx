@@ -10,7 +10,8 @@ import {
   GET_VARS_CMD,
   CHECK_MODULES_CMD,
   READY_KEY,
-  FILE_PATH_KEY
+  FILE_PATH_KEY,
+  VARIABLES_LOADED_KEY
 } from "./constants";
 import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
 
@@ -21,6 +22,8 @@ export class LeftSideBarWidget extends Widget {
   variables: string;
   component: any; // the LeftSidebar component
   loading_data: boolean;
+
+  setupNotebook: any;
 
   private _vcs_ready: boolean; // Wether the notebook has had necessary imports and is ready for code injection
   private _current_file: string; // The current filepath of the data file being used for variables and data
@@ -102,9 +105,11 @@ export class LeftSideBarWidget extends Widget {
             console.log(`File path obtained: ${file_path}`);
             this.current_file = file_path;
           } else {
-            console.log(this.notebook_panel);
-            console.log("File path meta data not available.");
-            this.current_file = "";
+            // this is broken and I dont know why
+            // debugger;
+            // console.log(this.notebook_panel);
+            // console.log("File path meta data not available.");
+            // this.current_file = "";
           }
         });
       }
@@ -118,12 +123,42 @@ export class LeftSideBarWidget extends Widget {
     return this._current_file;
   }
   public set current_file(file_path: string) {
-    try {
+    if (file_path == this._current_file || file_path == "") {
+      return;
+    }
+    if (!this.notebook_panel) {
       this._current_file = file_path;
-      nb_utils.setMetaData(this.notebook_panel, FILE_PATH_KEY, file_path);
-      this.component.setState({
-        file_path: file_path
+      this.getReadyNotebookPanel().then((nb_panel: any) => {
+        this._set_current_file(file_path);
       });
+    } else {
+      this._set_current_file(file_path);
+    }
+  }
+
+  private _set_current_file(file_path: string) {
+    try {
+      nb_utils
+        .setMetaData(this.notebook_panel, FILE_PATH_KEY, file_path)
+        .then(() => {
+          this.component.setState(
+            {
+              file_path: file_path
+            },
+            () => {
+              nb_utils
+                .getMetaData(this.notebook_panel, VARIABLES_LOADED_KEY)
+                .then(res => {
+                  if (!res) {
+                    this.component.launchVarSelect(file_path);
+                  }
+                });
+            }
+          );
+        })
+        .catch(err => {
+          console.log(err);
+        });
     } catch (error) {
       console.log(error);
     }
@@ -215,6 +250,14 @@ export class LeftSideBarWidget extends Widget {
         } else {
           // Grab a notebook panel
           let notebook_panel: NotebookPanel = await this.getNotebookPanel();
+          if (this.current_file) {
+            await nb_utils.setMetaData(
+              notebook_panel,
+              FILE_PATH_KEY,
+              this.current_file
+            );
+          }
+          this._notebook_panel = notebook_panel;
           // Prepare notebook by injecting needed import statements
           await this.injectRequiredModules();
           // Initialize vcs and canvas
@@ -249,10 +292,11 @@ export class LeftSideBarWidget extends Widget {
           resolve(this.notebook_panel);
         } else {
           // Create new notebook if one doesn't exist
-          let notebook_panel: NotebookPanel = await nb_utils.createNewNotebook(
-            this.commands
+          let notebook_panel: NotebookPanel = this.setupNotebook().then(
+            (nb_panel: any) => {
+              resolve(nb_panel);
+            }
           );
-          resolve(notebook_panel);
         }
       } catch (error) {}
     });
