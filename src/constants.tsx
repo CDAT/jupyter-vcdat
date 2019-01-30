@@ -46,8 +46,10 @@ const BASE_URL = "/vcs";
 
 const READY_KEY = "vcdat_ready";
 const FILE_PATH_KEY = "vcdat_file_path";
+const VARIABLES_LOADED_KEY = "vcdat_variables_loaded";
 
 export {
+  VARIABLES_LOADED_KEY,
   GET_VARS_CMD,
   REFRESH_VARS_CMD,
   CHECK_MODULES_CMD,
