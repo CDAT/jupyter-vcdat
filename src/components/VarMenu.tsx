@@ -10,19 +10,26 @@ import {
   CardSubtitle,
   Button,
   Card,
-  CardBody
+  CardBody,
+  Row,
+  Col
 } from "reactstrap";
+
 import Variable from "./Variable";
 import VarLoader from "./VarLoader";
 import { callApi } from "../utils";
 import { BASE_URL } from "../constants";
+import AxisInfo from "./AxisInfo";
 // import { showDialog } from "@jupyterlab/apputils";
 
-var labelStyle: React.CSSProperties = {
+const labelStyle: React.CSSProperties = {
   paddingLeft: "1em"
 };
-var buttonStyle: React.CSSProperties = {
+const buttonStyle: React.CSSProperties = {
   marginLeft: "1em"
+};
+const varButtonStyle: React.CSSProperties = {
+  marginBottom: "1em"
 };
 
 type VarMenuProps = {
@@ -36,6 +43,7 @@ type VarMenuState = {
   showMenu: boolean; // should the collapse be open
   showModal: boolean; // should we show the axis select/subset modal
   selectedVariables: Array<Variable>; // the variable the user has selected
+  loadedVariables: Array<Variable>;
   variables: Array<Variable>; // variables from the selected file
   variablesFetched: boolean; // have the variables been fetched from the backend yet
 };
@@ -44,50 +52,67 @@ export default class VarMenu extends React.Component<
   VarMenuProps,
   VarMenuState
 > {
-  varLoader: VarLoader;
+  varLoaderRef: VarLoader;
   constructor(props: VarMenuProps) {
     super(props);
     this.state = {
       showMenu: false,
       showModal: false,
       selectedVariables: new Array<Variable>(),
+      loadedVariables: new Array<Variable>(),
       variablesFetched: false,
       variables: new Array<Variable>()
     };
-    this.varLoader = (React as any).createRef();
+    this.varLoaderRef = (React as any).createRef();
     this.addVariables = this.addVariables.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
     this.clear = this.clear.bind(this);
     this.launchFilebrowser = this.launchFilebrowser.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
+    this.getVariablesFromFile = this.getVariablesFromFile.bind(this);
+    this.launchVarLoader = this.launchVarLoader.bind(this);
+    this.loadVariable = this.loadVariable.bind(this);
   }
 
-  addVariables() {
+  /**
+   * @description call the backend API and get the variable information out of the selected file
+   * @returns an Array<Variable> of all the variables from the file
+   */
+  async addVariables() {
     let params = $.param({
       file_path: this.props.file_path
     });
     let url = BASE_URL + "/get_vars?" + params;
-    callApi(url).then((variableAxes: any) => {
-      let newVars = new Array<Variable>();
+    let newVars = new Array<Variable>();
+    await callApi(url).then((variableAxes: any) => {
       Object.keys(variableAxes.vars).map((item: string) => {
         let v = new Variable();
         v.name = item;
         v.longName = variableAxes.vars[item].name;
         v.axisList = variableAxes.vars[item].axisList;
-        v.axisInfo = new Array<any>();
+        v.axisInfo = new Array<AxisInfo>();
         variableAxes.vars[item].axisList.map((item: any) => {
+          variableAxes.axes[item].min = variableAxes.axes[item].data[0];
+          variableAxes.axes[item].max =
+            variableAxes.axes[item].data[
+              variableAxes.axes[item].data.length - 1
+            ];
           v.axisInfo.push(variableAxes.axes[item]);
         });
         v.units = variableAxes.vars[item].units;
         newVars.push(v);
       });
-      this.setState({
-        variables: newVars,
-        variablesFetched: true
-      });
     });
+    this.setState({
+      variablesFetched: true,
+      variables: newVars
+    });
+    return newVars;
   }
 
+  /**
+   * @description sets everything back the their defaults
+   */
   clear() {
     this.setState({
       variables: new Array<Variable>(),
@@ -97,6 +122,9 @@ export default class VarMenu extends React.Component<
     });
   }
 
+  /**
+   * @description Toggles the menu state. If no variables have been loaded, calls the backend API to fetch them
+   */
   toggleMenu() {
     if (this.state.variables.length == 0 && this.props.file_path) {
       this.addVariables();
@@ -106,12 +134,20 @@ export default class VarMenu extends React.Component<
     });
   }
 
+  /**
+   * @description launches the notebooks filebrowser so the user can select a data file
+   */
   launchFilebrowser() {
     this.props.commands.execute("vcs:load-data").then(() => {
-      console.log("file selected");
+      console.log("starting file select");
     });
   }
 
+  /**
+   * @description the user clicked on a checkbox to select the variable
+   * @param event the incoming onClick event
+   * @param item the variable associated with the checkbox
+   */
   selectVariable(event: any, item: Variable) {
     if (event.target.checked) {
       this.setState({
@@ -125,25 +161,64 @@ export default class VarMenu extends React.Component<
     }
   }
 
-  render() {
-    var buttonClicker;
-    if (!this.props.file_path || !this.props.vcs_ready) {
-      buttonClicker = this.launchFilebrowser;
+  /**
+   * @description loads the variables from the file and sets the state
+   */
+  async getVariablesFromFile() {
+    let newVars = await this.addVariables();
+    if (this.state.variables) {
+      this.varLoaderRef.setVariables(this.state.variables);
     } else {
-      buttonClicker = this.toggleMenu;
+      this.varLoaderRef.setVariables(newVars);
     }
+  }
+
+  /**
+   * @description toggles the varLoaders menu
+   */
+  launchVarLoader() {
+    this.varLoaderRef.toggle();
+  }
+
+  /**
+   *
+   * @param variable the variable to load
+   */
+  loadVariable(variable: Variable) {
+    this.setState({
+      loadedVariables: this.state.loadedVariables.concat([variable])
+    });
+    return this.props.loadVariable(variable);
+  }
+
+  render() {
     return (
       <div>
         <Card>
           <CardBody>
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
-              <Button onClick={buttonClicker}>
-                {(!this.props.file_path || !this.props.vcs_ready) && <span>Load Data</span>}
-                {this.props.file_path && this.props.vcs_ready && <span>Select Variables</span>}
-              </Button>
+              <Row>
+                <Col>
+                  <Button onClick={this.toggleMenu} style={varButtonStyle}>
+                    Select Plot Variables
+                  </Button>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <Button
+                    onClick={this.launchFilebrowser}
+                    style={varButtonStyle}
+                  >
+                    Load File Variables
+                  </Button>
+                </Col>
+              </Row>
             </CardSubtitle>
-            <Collapse isOpen={this.state.showMenu && this.props.file_path!="" && this.props.vcs_ready}>
+            <Collapse
+              isOpen={this.state.showMenu && this.props.file_path != ""}
+            >
               {this.state.variablesFetched && (
                 <Form>
                   {this.state.variables.map(item => {
@@ -164,16 +239,6 @@ export default class VarMenu extends React.Component<
                       </div>
                     );
                   })}
-                  {this.state.selectedVariables.length > 0 && (
-                    <Button
-                      style={buttonStyle}
-                      onClick={() => {
-                        this.props.loadVariable(this.state.selectedVariables);
-                      }}
-                    >
-                      load
-                    </Button>
-                  )}
                 </Form>
               )}
             </Collapse>
@@ -181,8 +246,8 @@ export default class VarMenu extends React.Component<
         </Card>
         <VarLoader
           file_path={this.props.file_path}
-          loadVariable={this.props.loadVariable}
-          ref={(loader: VarLoader) => (this.varLoader = loader)}
+          loadVariable={this.loadVariable}
+          ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />
       </div>
     );

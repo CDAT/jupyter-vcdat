@@ -2,6 +2,7 @@ const BASE_URL = "/vcs";
 const READY_KEY = "vcdat_ready";
 const FILE_PATH_KEY = "vcdat_file_path";
 const IMPORT_CELL_KEY = "vcdat_imports";
+const VARIABLES_LOADED_KEY = "vcdat_variables_loaded";
 const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
 
 const GET_VARS_CMD =
@@ -57,11 +58,12 @@ def canvases():\n\
 output = canvases()`;
 
 export {
+  REQUIRED_MODULES,
   BASE_URL,
   READY_KEY,
   FILE_PATH_KEY,
   IMPORT_CELL_KEY,
-  REQUIRED_MODULES,
+  VARIABLES_LOADED_KEY,
   GET_VARS_CMD,
   REFRESH_VARS_CMD,
   CHECK_MODULES_CMD,

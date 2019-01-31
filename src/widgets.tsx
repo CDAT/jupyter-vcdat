@@ -10,11 +10,12 @@ import { Kernel } from "@jupyterlab/services";
 
 import {
   READY_KEY,
+  IMPORT_CELL_KEY,
   GET_VARS_CMD,
   CHECK_MODULES_CMD,
-  FILE_PATH_KEY,
   REFRESH_VARS_CMD,
-  IMPORT_CELL_KEY
+  FILE_PATH_KEY,
+  VARIABLES_LOADED_KEY
 } from "./constants";
 import { notebook_utils as nb_utils } from "./notebook_utils";
 import { cell_utils } from "./cell_utils";
@@ -29,6 +30,8 @@ export class LeftSideBarWidget extends Widget {
 
   notebook_active: boolean; // Keeps track whether a notebook is active or not
   var_refresh: boolean; // If true, it means the vars list should be updated
+  setupNotebook: any;
+
   private _vcs_ready: boolean; // Wether the notebook has had necessary imports and is ready for code injection
   private _current_file: string; // The current filepath of the data file being used for variables and data
   private _notebook_panel: NotebookPanel; // The notebook this widget is interacting with
@@ -250,17 +253,42 @@ export class LeftSideBarWidget extends Widget {
     return this._current_file;
   }
   public set current_file(file_path: string) {
-    try {
+    if (file_path == this._current_file || file_path == "") {
+      return;
+    }
+    if (!this.notebook_panel) {
       this._current_file = file_path;
-      nb_utils.setMetaDataNow(
-        this.notebook_panel,
-        FILE_PATH_KEY,
-        file_path,
-        false
-      );
-      this.component.setState({
-        file_path: file_path
+      this.getReadyNotebookPanel().then((nb_panel: any) => {
+        this._set_current_file(file_path);
       });
+    } else {
+      this._set_current_file(file_path);
+    }
+  }
+
+  private _set_current_file(file_path: string) {
+    try {
+      nb_utils
+        .setMetaData(this.notebook_panel, FILE_PATH_KEY, file_path)
+        .then(() => {
+          this.component.setState(
+            {
+              file_path: file_path
+            },
+            () => {
+              nb_utils
+                .getMetaData(this.notebook_panel, VARIABLES_LOADED_KEY)
+                .then(res => {
+                  if (!res) {
+                    this.component.launchVarSelect(file_path);
+                  }
+                });
+            }
+          );
+        })
+        .catch(err => {
+          console.log(err);
+        });
     } catch (error) {
       console.log(error);
     }
@@ -270,13 +298,12 @@ export class LeftSideBarWidget extends Widget {
   // Results of code are returned.
   async inject(code: string): Promise<any> {
     try {
-      let result: any = await cell_utils.insertAndRun(
+      return cell_utils.insertAndRun(
         this.notebook_panel,
         this.notebook_panel.content.model.cells.length,
         code,
         false
-      );
-      return result;
+      )
     } catch (error) {
       console.log(error);
     }
@@ -416,6 +443,14 @@ export class LeftSideBarWidget extends Widget {
         } else {
           // Grab a notebook panel
           let notebook_panel: NotebookPanel = await this.getNotebookPanel();
+          if (this.current_file) {
+            await nb_utils.setMetaData(
+              notebook_panel,
+              FILE_PATH_KEY,
+              this.current_file
+            );
+          }
+          this._notebook_panel = notebook_panel;
           // Prepare notebook by injecting needed import statements
           let newIndex = (await this.injectRequiredCode()) + 1;
           // Set the active cell to be under the injected code
@@ -441,10 +476,11 @@ export class LeftSideBarWidget extends Widget {
           resolve(this.notebook_panel);
         } else {
           // Create new notebook if one doesn't exist
-          let notebook_panel: NotebookPanel = await nb_utils.createNewNotebook(
-            this.commands
+          let notebook_panel: NotebookPanel = this.setupNotebook().then(
+            (nb_panel: any) => {
+              resolve(nb_panel);
+            }
           );
-          resolve(notebook_panel);
         }
       } catch (error) {}
     });
