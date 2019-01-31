@@ -2,6 +2,8 @@ import * as React from "react";
 import * as _ from "lodash";
 import * as moment from "moment";
 
+import { Row, Col } from "reactstrap";
+
 import { Slider, Rail, Handles, Tracks, Ticks } from "react-compound-slider";
 import { Handle, Track, Tick } from "./Tracks";
 
@@ -22,9 +24,10 @@ const railStyle: React.CSSProperties = {
   backgroundColor: "rgb(155,155,155)"
 };
 
-const unitsStyle: React.CSSProperties = {
-  marginLeft: "5%"
-};
+const centered: React.CSSProperties = {
+  margin: "auto",
+  paddingBottom: "0.5em"
+}
 
 type DimensionSliderProps = {
   data: number[]; // the raw axis data
@@ -125,12 +128,15 @@ export default class DimensionSlider extends React.Component<
       <div className="dimension-slider">
         {!this.singleValue && (
           <div className="form-inline">
-            <small className="units" style={unitsStyle}>
-              {this.props.name} [{this.state.values[0]}...{this.state.values[1]}]: (
-              {this.props.units})
-            </small>
+            <div style={centered}>
+              <Row>
+                <Col xs="auto"> {this.props.name} </Col>
+                <Col xs="auto"> {this.props.units} </Col>
+                <Col xs="auto"> [{this.state.values[0]}...{this.state.values[1]}] </Col>
+              </Row>
+            </div>
             <Slider
-              mode={2}
+              mode={1}
               step={step}
               domain={[this.state.min, this.state.max]}
               rootStyle={sliderStyle}
@@ -156,7 +162,7 @@ export default class DimensionSlider extends React.Component<
                   </div>
                 )}
               </Handles>
-              <Tracks right={false}>
+              <Tracks left={false} right={false}>
                 {({ tracks, getTrackProps }) => (
                   <div className="slider-tracks">
                     {tracks.map(({ id, source, target }) => (
