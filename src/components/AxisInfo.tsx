@@ -7,4 +7,6 @@ export default class AxisInfo {
     name: string;           // the name of the axis
     shape: Array<number>;   // the shape of the axis
     units: string;          // what units this is measuring
+    min: number;
+    max: number;
 }

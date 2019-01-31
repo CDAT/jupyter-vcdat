@@ -3,6 +3,7 @@ import * as React from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import { serial } from "../utils";
 import Variable from "./Variable";
 import VarCard from "./VarCard";
 
@@ -11,10 +12,12 @@ type VarLoaderProps = {
   loadVariable: any; // function to call when user hits load
 };
 type VarLoaderState = {
-  show: boolean; // should the modal be shown
-  variables: Array<Variable>; // selected variable
+  show: boolean;                      // should the modal be shown
+  variables: Array<Variable>;         // selected variable
   selectedVariables: Array<Variable>; // the variables the user has selected to be loaded
 };
+
+
 
 export default class VarLoader extends React.Component<
   VarLoaderProps,
@@ -98,19 +101,21 @@ export default class VarLoader extends React.Component<
               })}
           </ModalBody>
           <ModalFooter>
-            {this.state.selectedVariables.length > 0 && (
-              <Button
-                color="primary"
-                onClick={() => {
-                  this.toggle();
-                  this.state.selectedVariables.forEach((item: Variable) => {
-                    this.props.loadVariable(item);
-                  });
-                }}
-              >
-                Load
-              </Button>
-            )}
+            <Button
+              outline
+              active={this.state.selectedVariables.length > 0}
+              color="primary"
+              onClick={() => {
+                this.toggle();
+                let funcs = this.state.selectedVariables.map(
+                  (variable: Variable) => () =>
+                    this.props.loadVariable(variable)
+                );
+                serial(funcs);
+              }}
+            >
+              Load
+            </Button>
           </ModalFooter>
         </Modal>
       </div>

@@ -88,6 +88,8 @@ export default class VarMenu extends React.Component<
         v.axisList = variableAxes.vars[item].axisList;
         v.axisInfo = new Array<AxisInfo>();
         variableAxes.vars[item].axisList.map((item: any) => {
+          variableAxes.axes[item].min = variableAxes.axes[item].data[0];
+          variableAxes.axes[item].max = variableAxes.axes[item].data[variableAxes.axes[item].data.length - 1];
           v.axisInfo.push(variableAxes.axes[item]);
         });
         v.units = variableAxes.vars[item].units;

@@ -1,6 +1,6 @@
 // Dependencies
 import * as React from "react";
-import { Button, Card, CardBody } from "reactstrap";
+import { Button, Card, CardBody, Row, Col } from "reactstrap";
 // Project Components
 import VarMenu from "./VarMenu";
 import GraphicsMenu from "./GraphicsMenu";
@@ -12,6 +12,9 @@ const btnStyle: React.CSSProperties = {
 };
 const divStyle: React.CSSProperties = {
   overflow: "scroll"
+};
+const centered: React.CSSProperties = {
+  margin: "auto"
 };
 
 // plotAction: any; // the method to call when the user hits the "Plot" button
@@ -77,18 +80,13 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @description take a variable and load it into the notebook
    * @param variable The variable to load into the notebook
    */
-  updateVarOptions(variable: Variable) {
-    this.setState({
-      selected_variables: this.state.selected_variables.concat([variable])
-    });
+  async updateVarOptions(variable: Variable) {
     let var_string = `${variable.name} = data("${variable.name}"`;
     variable.axisInfo.forEach((axis: any) => {
-      var_string += `, ${axis.name}=(${axis.data[0]}, ${
-        axis.data[axis.data.length - 1]
-      })`;
+      var_string += `, ${axis.name}=(${axis.min}, ${axis.max})`;
     });
     var_string += ")";
-    this.props.inject(var_string);
+    await this.props.inject(var_string);
   }
 
   updateTemplateOptions() {}
@@ -142,41 +140,43 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
     return (
       <div>
-        <GraphicsMenu {...GraphicsMenuProps} />
         <VarMenu {...VarMenuProps} ref={loader => (this.varMenuRef = loader)} />
+        <GraphicsMenu {...GraphicsMenuProps} />
         <TemplateMenu {...TemplateMenuProps} />
         <Card>
           <CardBody>
-            <Button
-              type="button"
-              color="primary"
-              className="col-sm-3"
-              style={btnStyle}
-              onClick={this.plot}
-              disabled={this.state.plotReady}
-            >
-              Plot
-            </Button>
-            <Button
-              type="button"
-              color="primary"
-              className="col-sm-3"
-              style={btnStyle}
-              onClick={this.plot}
-              disabled={this.state.plotReady}
-            >
-              Save
-            </Button>
-            <Button
-              type="button"
-              color="primary"
-              className="col-sm-3"
-              style={btnStyle}
-              onClick={this.plot}
-              disabled={this.state.plotReady}
-            >
-              Clear
-            </Button>
+            <div style={centered}>
+              <Button
+                type="button"
+                color="primary"
+                className="col-sm-3"
+                style={btnStyle}
+                onClick={this.plot}
+                disabled={this.state.plotReady}
+              >
+                Plot
+              </Button>
+              <Button
+                type="button"
+                color="primary"
+                className="col-sm-3"
+                style={btnStyle}
+                onClick={this.plot}
+                disabled={this.state.plotReady}
+              >
+                Save
+              </Button>
+              <Button
+                type="button"
+                color="primary"
+                className="col-sm-3"
+                style={btnStyle}
+                onClick={this.plot}
+                disabled={this.state.plotReady}
+              >
+                Clear
+              </Button>
+            </div>
           </CardBody>
         </Card>
       </div>

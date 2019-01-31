@@ -80,7 +80,14 @@ export default class VarCard extends React.Component<
    * @param newInfo new dimension info for the variables axis
    */
   updateDimInfo(newInfo: any) {
-    console.log(newInfo);
+    this.props.variable.axisInfo.forEach((axisInfo: AxisInfo) => {
+      if(axisInfo.name != newInfo.name){
+        return
+      } else {
+        axisInfo.max = newInfo.max;
+        axisInfo.min = newInfo.min;
+      }
+    })
   }
 
   /**
@@ -102,7 +109,6 @@ export default class VarCard extends React.Component<
       });
     }
   }
-  
   
   render() {
     let buttonString = "Select";

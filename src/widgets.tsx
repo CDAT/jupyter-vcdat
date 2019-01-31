@@ -167,14 +167,13 @@ export class LeftSideBarWidget extends Widget {
 
   async inject(code: string): Promise<any> {
     try {
-      let result: any = await cell_utils.insertAndRun(
+      return cell_utils.insertAndRun(
         this.commands,
         this.notebook_panel,
         this.notebook_panel.content.activeCellIndex,
         code,
         false
-      );
-      return result;
+      )
     } catch (error) {
       console.log(error);
     }

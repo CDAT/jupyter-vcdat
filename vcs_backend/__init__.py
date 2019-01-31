@@ -21,9 +21,7 @@ class VCSHandler(APIHandler):
     @gen.coroutine
     def get(self, path=''):
         """Return a list of variables from the given file name."""
-        print('got a get request on path {}'.format(path))
         file_path = self.get_argument('file_path')
-        print('file_path = ' + file_path)
     
         reader = cdms2.open(file_path)
         outVars = {}
@@ -111,7 +109,6 @@ class VCSHandler(APIHandler):
             'vars': outVars,
             'axes': outAxes
         }
-        print('sending response ' + str(response))
         self.write(response)
     
     
