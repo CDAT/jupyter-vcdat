@@ -40,6 +40,7 @@ export class LeftSideBarWidget extends Widget {
     this.loading_data = false;
     this._current_file = "";
     this._vcs_ready = false;
+
     this.inject = this.inject.bind(this);
     this.updateVars = this.updateVars.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);

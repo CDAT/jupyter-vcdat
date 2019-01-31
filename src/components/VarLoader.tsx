@@ -1,21 +1,9 @@
 import * as React from "react";
 
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Row,
-  Col,
-  FormGroup,
-  Input
-} from "reactstrap";
-
-import DimensionSlider from "./DimensionSlider";
-import Variable from "./Variable";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import AxisInfo from "./AxisInfo";
+
+import Variable from "./Variable";
 import VarCard from "./VarCard";
 
 type VarLoaderProps = {
@@ -25,69 +13,67 @@ type VarLoaderProps = {
 type VarLoaderState = {
   show: boolean; // should the modal be shown
   variables: Array<Variable>; // selected variable
-  // axis: any; // variable axis information
-  // selectedVariableName: string; // cdms name of selected variable
-  // selectedVariableInfo: any; // axis objects for selected variable
-  // dimInfo: any; // information returned from the loader about the selected dimenesions
+  selectedVariables: Array<Variable>; // the variables the user has selected to be loaded
 };
 
-export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
+export default class VarLoader extends React.Component<
+  VarLoaderProps,
+  VarLoaderState
+> {
   constructor(props: VarLoaderProps) {
     super(props);
     this.state = {
       show: false,
-      // selectedVariableName: "",
-      // selectedVariableInfo: {},
-      // axis: {},
       variables: new Array<Variable>(),
-      // dimInfo: {}
+      selectedVariables: new Array<Variable>()
     };
 
     this.toggle = this.toggle.bind(this);
-    this.updateDimInfo = this.updateDimInfo.bind(this);
-    // this.setVariable = this.setVariable.bind(this);
-    // this.loadVariable = this.loadVariable.bind(this);
-    // this.updateDimInfo = this.updateDimInfo.bind(this);
+    this.selectVariableForLoad = this.selectVariableForLoad.bind(this);
+    this.deselectVariableForLoad = this.deselectVariableForLoad.bind(this);
   }
-  // open and close the variable loader modal
+
+  /**
+   * @description Toggles the variable loader modal
+   */
   toggle() {
     this.setState({
       show: !this.state.show
     });
   }
 
-  // set the variables and axis info
+  /**
+   *
+   * @param variables An array of Variable objects to display in the loader modal
+   */
   setVariables(variables: Array<Variable>) {
     this.setState({
       variables: variables
     });
   }
-  // user has clicked the load button
-  // loadVariable() {
-  //   this.toggle();
-  //   let dimInfo: any = {};
-  //   this.state.variable.axisList.map((info: string) => {
-  //     dimInfo[info] = {
-  //       min: this.state.dimInfo[info].min,
-  //       max: this.state.dimInfo[info].max
-  //     };
-  //   });
-  //   this.props.loadVariable(this.state.variable.name, dimInfo);
-  // }
-  // user has moved one of the dimension sliders
-  // updateDimInfo(dimInfo: any) {
-  //   let newDimInfo = this.state.dimInfo;
-  //   newDimInfo[dimInfo.name] = {
-  //     min: dimInfo.min,
-  //     max: dimInfo.max
-  //   };
-  //   this.setState({
-  //     dimInfo: newDimInfo
-  //   });
-  // }
-  updateDimInfo(info: any){
-    console.log(info);
+
+  /**
+   *
+   * @param variable The Variable the user has selected to get loaded
+   */
+  selectVariableForLoad(variable: Variable) {
+    this.setState({
+      selectedVariables: this.state.selectedVariables.concat([variable])
+    });
   }
+
+  /**
+   *
+   * @param variable Remove a variable from the list to be loaded
+   */
+  deselectVariableForLoad(variable: Variable) {
+    let selectedVars = this.state.selectedVariables.slice();
+    selectedVars.splice(this.state.selectedVariables.indexOf(variable), 1);
+    this.setState({
+      selectedVariables: selectedVars
+    });
+  }
+
   render() {
     return (
       <div>
@@ -99,25 +85,32 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
         >
           <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
           <ModalBody>
-            <div className="load-from">
-              <Row>
-                <Col className="text-right" sm={2}>
-                  Selected File:
-                </Col>
-                <Col sm={9}>
-                  <p>{this.props.file_path}</p>
-                </Col>
-              </Row>
-            </div>
+            {this.state.variables.length != 0 &&
+              this.state.variables.map((item: Variable) => {
+                return (
+                  <VarCard
+                    key={item.name}
+                    variable={item}
+                    selectVariable={this.selectVariableForLoad}
+                    deselectVariable={this.deselectVariableForLoad}
+                  />
+                );
+              })}
           </ModalBody>
-          {this.state.variables.length != 0 &&
-            this.state.variables.map((item: Variable) => {
-              return <VarCard key={item.name} variable={item} selectVariable={()=>{}}></VarCard>
-            })}
           <ModalFooter>
-            <Button color="primary">
-              Load
-            </Button>{" "}
+            {this.state.selectedVariables.length > 0 && (
+              <Button
+                color="primary"
+                onClick={() => {
+                  this.toggle();
+                  this.state.selectedVariables.forEach((item: Variable) => {
+                    this.props.loadVariable(item);
+                  });
+                }}
+              >
+                Load
+              </Button>
+            )}
           </ModalFooter>
         </Modal>
       </div>

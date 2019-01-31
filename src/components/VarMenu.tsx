@@ -10,21 +10,26 @@ import {
   CardSubtitle,
   Button,
   Card,
-  CardBody
+  CardBody,
+  Row,
+  Col
 } from "reactstrap";
+
 import Variable from "./Variable";
-import axisInfo from "./AxisInfo";
-import { VarLoader } from "./VarLoader";
+import VarLoader from "./VarLoader";
 import { callApi } from "../utils";
 import { BASE_URL } from "../constants";
 import AxisInfo from "./AxisInfo";
 // import { showDialog } from "@jupyterlab/apputils";
 
-var labelStyle: React.CSSProperties = {
+const labelStyle: React.CSSProperties = {
   paddingLeft: "1em"
 };
-var buttonStyle: React.CSSProperties = {
+const buttonStyle: React.CSSProperties = {
   marginLeft: "1em"
+};
+const varButtonStyle: React.CSSProperties = {
+  marginBottom: "1em"
 };
 
 type VarMenuProps = {
@@ -61,9 +66,14 @@ export default class VarMenu extends React.Component<
     this.clear = this.clear.bind(this);
     this.launchFilebrowser = this.launchFilebrowser.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
-    this.loadVariables = this.loadVariables.bind(this);
+    this.getVariablesFromFile = this.getVariablesFromFile.bind(this);
+    this.launchVarLoader = this.launchVarLoader.bind(this);
   }
 
+  /**
+   * @description call the backend API and get the variable information out of the selected file
+   * @returns an Array<Variable> of all the variables from the file
+   */
   async addVariables() {
     let params = $.param({
       file_path: this.props.file_path
@@ -91,6 +101,9 @@ export default class VarMenu extends React.Component<
     return newVars;
   }
 
+  /**
+   * @description sets everything back the their defaults
+   */
   clear() {
     this.setState({
       variables: new Array<Variable>(),
@@ -100,6 +113,9 @@ export default class VarMenu extends React.Component<
     });
   }
 
+  /**
+   * @description Toggles the menu state. If no variables have been loaded, calls the backend API to fetch them
+   */
   toggleMenu() {
     if (this.state.variables.length == 0 && this.props.file_path) {
       this.addVariables();
@@ -109,12 +125,20 @@ export default class VarMenu extends React.Component<
     });
   }
 
+  /**
+   * @description launches the notebooks filebrowser so the user can select a data file
+   */
   launchFilebrowser() {
     this.props.commands.execute("vcs:load-data").then(() => {
       console.log("starting file select");
     });
   }
 
+  /**
+   * @description the user clicked on a checkbox to select the variable
+   * @param event the incoming onClick event
+   * @param item the variable associated with the checkbox
+   */
   selectVariable(event: any, item: Variable) {
     if (event.target.checked) {
       this.setState({
@@ -128,35 +152,53 @@ export default class VarMenu extends React.Component<
     }
   }
 
-  async loadVariables(){
+  /**
+   * @description loads the variables from the file and sets the state
+   */
+  async getVariablesFromFile() {
     let newVars = await this.addVariables();
-    if(this.state.variables){
+    if (this.state.variables) {
       this.varLoaderRef.setVariables(this.state.variables);
     } else {
       this.varLoaderRef.setVariables(newVars);
     }
+  }
+
+  /**
+   * @description toggles the varLoaders menu
+   */
+  launchVarLoader() {
     this.varLoaderRef.toggle();
   }
 
   render() {
-    var buttonClicker;
-    if (!this.props.file_path) {
-      buttonClicker = this.launchFilebrowser;
-    } else {
-      buttonClicker = this.toggleMenu;
-    }
     return (
       <div>
         <Card>
           <CardBody>
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
-              <Button onClick={buttonClicker}>
-                {!this.props.file_path && <span>Load Data</span>}
-                {this.props.file_path && <span>Select Variables</span>}
-              </Button>
+              <Row>
+                <Col>
+                  <Button onClick={this.toggleMenu} style={varButtonStyle}>
+                    Select Plot Variables
+                  </Button>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <Button
+                    onClick={this.launchFilebrowser}
+                    style={varButtonStyle}
+                  >
+                    Load File Variables
+                  </Button>
+                </Col>
+              </Row>
             </CardSubtitle>
-            <Collapse isOpen={this.state.showMenu && this.props.file_path!=""}>
+            <Collapse
+              isOpen={this.state.showMenu && this.props.file_path != ""}
+            >
               {this.state.variablesFetched && (
                 <Form>
                   {this.state.variables.map(item => {
@@ -177,16 +219,6 @@ export default class VarMenu extends React.Component<
                       </div>
                     );
                   })}
-                  {this.state.selectedVariables.length > 0 && (
-                    <Button
-                      style={buttonStyle}
-                      onClick={() => {
-                        this.props.loadVariable(this.state.selectedVariables);
-                      }}
-                    >
-                      load
-                    </Button>
-                  )}
                 </Form>
               )}
             </Collapse>
