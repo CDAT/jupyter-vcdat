@@ -12,12 +12,10 @@ type VarLoaderProps = {
   loadVariable: any; // function to call when user hits load
 };
 type VarLoaderState = {
-  show: boolean;                      // should the modal be shown
-  variables: Array<Variable>;         // selected variable
+  show: boolean; // should the modal be shown
+  variables: Array<Variable>; // selected variable
   selectedVariables: Array<Variable>; // the variables the user has selected to be loaded
 };
-
-
 
 export default class VarLoader extends React.Component<
   VarLoaderProps,

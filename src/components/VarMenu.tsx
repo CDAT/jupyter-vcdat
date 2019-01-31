@@ -42,6 +42,7 @@ type VarMenuState = {
   showMenu: boolean; // should the collapse be open
   showModal: boolean; // should we show the axis select/subset modal
   selectedVariables: Array<Variable>; // the variable the user has selected
+  loadedVariables: Array<Variable>;
   variables: Array<Variable>; // variables from the selected file
   variablesFetched: boolean; // have the variables been fetched from the backend yet
 };
@@ -57,6 +58,7 @@ export default class VarMenu extends React.Component<
       showMenu: false,
       showModal: false,
       selectedVariables: new Array<Variable>(),
+      loadedVariables: new Array<Variable>(),
       variablesFetched: false,
       variables: new Array<Variable>()
     };
@@ -68,6 +70,7 @@ export default class VarMenu extends React.Component<
     this.selectVariable = this.selectVariable.bind(this);
     this.getVariablesFromFile = this.getVariablesFromFile.bind(this);
     this.launchVarLoader = this.launchVarLoader.bind(this);
+    this.loadVariable = this.loadVariable.bind(this);
   }
 
   /**
@@ -89,7 +92,10 @@ export default class VarMenu extends React.Component<
         v.axisInfo = new Array<AxisInfo>();
         variableAxes.vars[item].axisList.map((item: any) => {
           variableAxes.axes[item].min = variableAxes.axes[item].data[0];
-          variableAxes.axes[item].max = variableAxes.axes[item].data[variableAxes.axes[item].data.length - 1];
+          variableAxes.axes[item].max =
+            variableAxes.axes[item].data[
+              variableAxes.axes[item].data.length - 1
+            ];
           v.axisInfo.push(variableAxes.axes[item]);
         });
         v.units = variableAxes.vars[item].units;
@@ -97,8 +103,8 @@ export default class VarMenu extends React.Component<
       });
     });
     this.setState({
-      variables: newVars,
-      variablesFetched: true
+      variablesFetched: true,
+      variables: newVars
     });
     return newVars;
   }
@@ -173,6 +179,17 @@ export default class VarMenu extends React.Component<
     this.varLoaderRef.toggle();
   }
 
+  /**
+   *
+   * @param variable the variable to load
+   */
+  loadVariable(variable: Variable) {
+    this.setState({
+      loadedVariables: this.state.loadedVariables.concat([variable])
+    });
+    return this.props.loadVariable(variable);
+  }
+
   render() {
     return (
       <div>
@@ -228,7 +245,7 @@ export default class VarMenu extends React.Component<
         </Card>
         <VarLoader
           file_path={this.props.file_path}
-          loadVariable={this.props.loadVariable}
+          loadVariable={this.loadVariable}
           ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />
       </div>
