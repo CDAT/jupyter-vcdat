@@ -13,7 +13,7 @@ import {
   CardBody
 } from "reactstrap";
 import Variable from "./Variable";
-import { VarLoader } from "./VarLoader";
+import VarLoader from "./VarLoader";
 import { callApi } from "../utils";
 import { BASE_URL } from "../constants";
 // import { showDialog } from "@jupyterlab/apputils";
@@ -74,7 +74,7 @@ export default class VarMenu extends React.Component<
         v.name = item;
         v.longName = variableAxes.vars[item].name;
         v.axisList = variableAxes.vars[item].axisList;
-        v.axisInfo = new Array<Object>();
+        v.axisInfo = new Array<any>();
         variableAxes.vars[item].axisList.map((item: any) => {
           v.axisInfo.push(variableAxes.axes[item]);
         });

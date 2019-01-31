@@ -27,7 +27,7 @@ type VarLoaderState = {
   dimInfo: any; // information returned from the loader about the selected dimenesions
 };
 
-export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
+export default class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
   constructor(props: VarLoaderProps) {
     super(props);
     this.state = {
