@@ -345,6 +345,7 @@ namespace cell_utils {
 
   /**
    * @description This will insert a new cell at the specified index, inject the specified code into it and the run the code.
+   * Note: The code will be run but the results (output or errors) will not be displayed in the cell. Best for void functions.
    * @param notebook_panel The notebook to insert the cell into
    * @param index The index of where the new cell will be inserted and run.
    * If the cell index is less than or equal to 0, it will be added at the top.
@@ -369,6 +370,54 @@ namespace cell_utils {
             notebook_panel,
             code,
             false
+          );
+          resolve([insertionIndex, output]);
+        } catch (error) {
+          if (deleteOnError) {
+            try {
+              deleteCellAtIndex(notebook_panel, insertionIndex);
+              reject(error);
+            } catch (error) {
+              reject(error);
+            }
+          } else {
+            reject(error);
+          }
+        }
+      }
+    );
+    return prom;
+  }
+
+  /**
+   * @description This will insert a new cell at the specified index, inject the specified code into it and the run the code.
+   * Note: The code will be run and the result (output or errors) WILL BE DISPLAYED in the cell.
+   * @param notebook_panel The notebook to insert the cell into
+   * @param command The command registry which can execute the run command.
+   * @param index The index of where the new cell will be inserted and run.
+   * If the cell index is less than or equal to 0, it will be added at the top.
+   * If the cell index is greater than the last index, it will be added at the bottom.
+   * @param code The code to inject into the cell after it has been inserted
+   * @param deleteOnError If set to true, the cell will be deleted if the code results in an error
+   * @returns Promise<[number, string]> - A promise for when the cell code has executed
+   * containing the cell's index and output result
+   */
+  export async function insertRunShow(
+    notebook_panel: NotebookPanel,
+    command: CommandRegistry,
+    index: number,
+    code: string,
+    deleteOnError: boolean
+  ): Promise<[number, string]> {
+    let prom: Promise<[number, string]> = new Promise(
+      async (resolve, reject) => {
+        let insertionIndex;
+        try {
+          insertionIndex = insertInjectCode(notebook_panel, index, code);
+          let output: string = await runCellAtIndex(
+            command,
+            notebook_panel,
+            insertionIndex
           );
           resolve([insertionIndex, output]);
         } catch (error) {

@@ -33,6 +33,8 @@ export class LeftSideBarWidget extends Widget {
   private _current_file: string; // The current filepath of the data file being used for variables and data
   private _notebook_panel: NotebookPanel; // The notebook this widget is interacting with
 
+  // Multi plot, data and files
+
   constructor(commands: CommandRegistry, tracker: NotebookTracker) {
     super();
     this.div = document.createElement("div");
@@ -264,11 +266,30 @@ export class LeftSideBarWidget extends Widget {
     }
   }
 
+  // Inject code into the bottom cell of the notebook, doesn't display results (output or error)
+  // Results of code are returned.
   async inject(code: string): Promise<any> {
     try {
       let result: any = await cell_utils.insertAndRun(
         this.notebook_panel,
-        this.notebook_panel.content.activeCellIndex,
+        this.notebook_panel.content.model.cells.length,
+        code,
+        false
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // Inject code into the bottom cell of the notebook, and will display results (output or error)
+  // Results of code are also returned.
+  async injectAndDisplay(code: string): Promise<any> {
+    try {
+      let result: any = await cell_utils.insertRunShow(
+        this.notebook_panel,
+        this.commands,
+        this.notebook_panel.content.model.cells.length,
         code,
         false
       );
