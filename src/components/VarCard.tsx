@@ -24,6 +24,7 @@ type VarCardProps = {
   variable: Variable;
   selectVariable: any;    // method to call to add this variable to the list to get loaded
   deselectVariable: any;  // method to call to remove a variable from the list
+  hidden: boolean;        // should the axis be hidden by default
 };
 type VarCardState = {
   showAxis: boolean;
@@ -41,10 +42,10 @@ export default class VarCard extends React.Component<
     super(props);
     this.state = {
       loadOrder: -1,
-      showAxis: false,
       axisState: [],
+      showAxis: false,
       isSelected: false,
-      hidden: false
+      hidden: props.hidden
     };
 
     this.toggleMenu = this.toggleMenu.bind(this);
@@ -57,13 +58,18 @@ export default class VarCard extends React.Component<
    * @description sets the isSelected attribute, and propagates up the selection action to the parent
    */
   selectVariable() {
-    if (!(this.state.isSelected && this.state.hidden)) {
+    if (!this.state.isSelected && !this.state.hidden) {
       this.toggleMenu();
     }
+    if(this.state.showAxis && this.state.isSelected) {
+      this.setState({
+        showAxis: false
+      })
+    }
+
     this.setState(
       {
         isSelected: !this.state.isSelected,
-        hidden: false
       },
       () => {
         if(this.state.isSelected){
@@ -103,7 +109,7 @@ export default class VarCard extends React.Component<
    * @description open the menu if its closed
    */
   openMenu() {
-    if (!this.state.showAxis) {
+    if (!this.state.showAxis && !this.state.hidden) {
       this.setState({
         showAxis: true
       });

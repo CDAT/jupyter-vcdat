@@ -20,6 +20,7 @@ import VarLoader from "./VarLoader";
 import { callApi } from "../utils";
 import { BASE_URL } from "../constants";
 import AxisInfo from "./AxisInfo";
+import VarCard from "./VarCard";
 // import { showDialog } from "@jupyterlab/apputils";
 
 const labelStyle: React.CSSProperties = {
@@ -220,21 +221,14 @@ export default class VarMenu extends React.Component<
             >
               {this.state.variablesFetched && (
                 <Form>
-                  {this.state.variables.map(item => {
+                  {this.state.loadedVariables.map(item => {
                     return (
                       <div key={item.name}>
-                        <FormGroup check>
-                          <Label
-                            check
-                            style={labelStyle}
-                            onClick={(event: any) => {
-                              this.selectVariable(event, item);
-                            }}
-                          >
-                            <Input type="checkbox" />
-                            {item.name} - {item.longName}
-                          </Label>
-                        </FormGroup>
+                        <VarCard
+                          variable={item}
+                          selectVariable={()=>{}}
+                          deselectVariable={()=>{}}
+                          hidden={true}/>
                       </div>
                     );
                   })}

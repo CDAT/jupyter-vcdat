@@ -90,6 +90,7 @@ export default class VarLoader extends React.Component<
               this.state.variables.map((item: Variable) => {
                 return (
                   <VarCard
+                    hidden={false}
                     key={item.name}
                     variable={item}
                     selectVariable={this.selectVariableForLoad}
