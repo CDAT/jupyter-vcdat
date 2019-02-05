@@ -47,10 +47,12 @@ export class LeftSideBarWidget extends Widget {
     this.injectRequiredModules = this.injectRequiredModules.bind(this);
     this.getReadyNotebookPanel = this.getReadyNotebookPanel.bind(this);
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
+
     this.component = ReactDOM.render(
       <VCSMenu
         commands={this.commands}
         inject={this.inject}
+        notebook_panel={this._notebook_panel}
         file_path={this.current_file}
       />,
       this.div
@@ -69,6 +71,7 @@ export class LeftSideBarWidget extends Widget {
   public get vcs_ready(): boolean {
     return this._vcs_ready;
   }
+
   public set vcs_ready(value: boolean) {
     try {
       nb_utils.setMetaData(this.notebook_panel, READY_KEY, value);
@@ -82,13 +85,16 @@ export class LeftSideBarWidget extends Widget {
   public get notebook_panel(): NotebookPanel {
     return this._notebook_panel;
   }
+
   /**
    * Set's the widget'c current notebook and updates the necessary variables
    */
   public set notebook_panel(notebook_panel: NotebookPanel) {
     try {
       this._notebook_panel = notebook_panel;
-
+      this.component.setState({
+        notebook_panel: notebook_panel
+      });
       if (notebook_panel) {
         // Update whether the current notebook is vcs ready (has required imports and vcs initialized)
         nb_utils.getMetaData(notebook_panel, READY_KEY).then(vcs_ready => {
@@ -150,9 +156,10 @@ export class LeftSideBarWidget extends Widget {
               nb_utils
                 .getMetaData(this.notebook_panel, VARIABLES_LOADED_KEY)
                 .then(res => {
-                  if (!res) {
-                    this.component.launchVarSelect(file_path);
+                  if(res){
+                    this.component.updateLoadedVariables(res);
                   }
+                  this.component.launchVarSelect(file_path);
                 });
             }
           );
@@ -173,7 +180,7 @@ export class LeftSideBarWidget extends Widget {
         this.notebook_panel.content.activeCellIndex,
         code,
         false
-      )
+      );
     } catch (error) {
       console.log(error);
     }

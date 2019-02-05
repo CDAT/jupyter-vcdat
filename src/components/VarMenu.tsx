@@ -36,7 +36,9 @@ const varButtonStyle: React.CSSProperties = {
 type VarMenuProps = {
   file_path: string; // the path to our file of interest
   loadVariable: any; // a method to call when loading the variable
-  commands: any; // the command executer
+  loadedVariables: any; //
+  commands?: any; // the command executer
+  updateSelected: any; // update the list of selected variables
 };
 
 type VarMenuState = {
@@ -56,10 +58,10 @@ export default class VarMenu extends React.Component<
   constructor(props: VarMenuProps) {
     super(props);
     this.state = {
-      showMenu: false,
+      showMenu: true,
       showModal: false,
-      selectedVariables: new Array<Variable>(),
-      loadedVariables: new Array<Variable>(),
+      selectedVariables: this.props.loadedVariables.slice(), //new Array<Variable>(),
+      loadedVariables: this.props.loadedVariables,
       variablesFetched: false,
       variables: new Array<Variable>()
     };
@@ -68,10 +70,13 @@ export default class VarMenu extends React.Component<
     this.toggleMenu = this.toggleMenu.bind(this);
     this.clear = this.clear.bind(this);
     this.launchFilebrowser = this.launchFilebrowser.bind(this);
-    this.selectVariable = this.selectVariable.bind(this);
     this.getVariablesFromFile = this.getVariablesFromFile.bind(this);
     this.launchVarLoader = this.launchVarLoader.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
+    this.selectVariable = this.selectVariable.bind(this);
+    this.deselectVariable = this.deselectVariable.bind(this);
+    this.handleStatusChange = this.handleStatusChange.bind(this);
+    this.updateDimInfo = this.updateDimInfo.bind(this);
   }
 
   /**
@@ -90,6 +95,7 @@ export default class VarMenu extends React.Component<
         v.name = item;
         v.longName = variableAxes.vars[item].name;
         v.axisList = variableAxes.vars[item].axisList;
+        v.units = variableAxes.vars[item].units;
         v.axisInfo = new Array<AxisInfo>();
         variableAxes.vars[item].axisList.map((item: any) => {
           variableAxes.axes[item].min = variableAxes.axes[item].data[0];
@@ -99,7 +105,6 @@ export default class VarMenu extends React.Component<
             ];
           v.axisInfo.push(variableAxes.axes[item]);
         });
-        v.units = variableAxes.vars[item].units;
         newVars.push(v);
       });
     });
@@ -144,24 +149,6 @@ export default class VarMenu extends React.Component<
   }
 
   /**
-   * @description the user clicked on a checkbox to select the variable
-   * @param event the incoming onClick event
-   * @param item the variable associated with the checkbox
-   */
-  selectVariable(event: any, item: Variable) {
-    if (event.target.checked) {
-      this.setState({
-        selectedVariables: this.state.selectedVariables.concat([item])
-      });
-    } else {
-      let index = this.state.selectedVariables.indexOf(item);
-      this.setState({
-        selectedVariables: this.state.selectedVariables.splice(index, 1)
-      });
-    }
-  }
-
-  /**
    * @description loads the variables from the file and sets the state
    */
   async getVariablesFromFile() {
@@ -177,7 +164,14 @@ export default class VarMenu extends React.Component<
    * @description toggles the varLoaders menu
    */
   launchVarLoader() {
-    this.varLoaderRef.toggle();
+    this.varLoaderRef.setState(
+      {
+        loadedVariables: this.state.loadedVariables
+      },
+      () => {
+        this.varLoaderRef.toggle();
+      }
+    );
   }
 
   /**
@@ -185,13 +179,90 @@ export default class VarMenu extends React.Component<
    * @param variable the variable to load
    */
   loadVariable(variable: Variable) {
-    this.setState({
-      loadedVariables: this.state.loadedVariables.concat([variable])
-    });
-    return this.props.loadVariable(variable);
+    // if the variable ISNT already selected, add it to the selected list
+    if (this.state.selectedVariables.indexOf(variable) == -1) {
+      this.setState({
+        selectedVariables: this.state.selectedVariables.concat([variable])
+      });
+    }
+    // if the variable ISNT already loaded, add it to the loaded list
+    if (this.state.loadedVariables.indexOf(variable) == -1) {
+      this.setState({
+        loadedVariables: this.state.loadedVariables.concat([variable])
+      });
+      return this.props.loadVariable(variable);
+    }
+  }
+
+  selectVariable(variable: Variable) {
+    if (this.state.selectedVariables.indexOf(variable) == -1) {
+      this.setState(
+        {
+          selectedVariables: this.state.selectedVariables.concat([variable])
+        },
+        () => {
+          this.props.updateSelected(this.state.selectedVariables);
+        }
+      );
+    }
+  }
+
+  deselectVariable(variable: Variable) {
+    // console.log(this.state.selectedVariables);
+    let varIndex = this.state.selectedVariables.indexOf(variable);
+    if (varIndex != -1) {
+      let array = this.state.selectedVariables;
+      array.splice(varIndex, 1);
+      this.setState(
+        {
+          selectedVariables: array
+        },
+        () => {
+          this.props.updateSelected(this.state.selectedVariables);
+        }
+      );
+    }
+  }
+
+  handleStatusChange(status: any) {
+    console.log(status);
+  }
+
+  /**
+   * @description this is just a placeholder for now
+   * @param newInfo new dimension info for the variables axis
+   * @param varName the name of the variable to update
+   */
+  updateDimInfo(newInfo: any, varName: string) {
+    this.state.selectedVariables.forEach(
+      (variable: Variable, varIndex: number) => {
+        if (variable.name != varName) {
+          return;
+        }
+        variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
+          if (axis.name != newInfo.name) {
+            return;
+          }
+          let variables = this.state.selectedVariables;
+          variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
+          variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
+          this.setState({
+            selectedVariables: variables
+          });
+        });
+      }
+    );
+  }
+
+  reloadVariable(variable: Variable) {
+    this.props.loadVariable(variable);
   }
 
   render() {
+    let showHideString = "Show Selected";
+    if (this.state.showMenu) {
+      showHideString = "Hide Selected";
+    }
     return (
       <div>
         <Card>
@@ -200,18 +271,26 @@ export default class VarMenu extends React.Component<
             <CardSubtitle>
               <Row>
                 <Col>
-                  <Button onClick={this.toggleMenu} style={varButtonStyle}>
-                    Select Plot Variables
+                  <Button
+                    color="info"
+                    onClick={this.launchFilebrowser}
+                    style={varButtonStyle}
+                  >
+                    Load Variables
                   </Button>
                 </Col>
               </Row>
               <Row>
                 <Col>
                   <Button
-                    onClick={this.launchFilebrowser}
+                    outline
+                    active={this.state.loadedVariables.length > 0}
+                    disabled={this.state.loadedVariables.length == 0}
+                    color="info"
+                    onClick={this.toggleMenu}
                     style={varButtonStyle}
                   >
-                    Load File Variables
+                    {showHideString}
                   </Button>
                 </Col>
               </Row>
@@ -219,16 +298,26 @@ export default class VarMenu extends React.Component<
             <Collapse
               isOpen={this.state.showMenu && this.props.file_path != ""}
             >
-              {this.state.variablesFetched && (
+              {(this.state.variablesFetched ||
+                this.state.loadedVariables.length > 0) && (
                 <Form>
                   {this.state.loadedVariables.map(item => {
                     return (
                       <div key={item.name}>
                         <VarCard
+                          reload={() => {
+                            this.reloadVariable(item);
+                          }}
+                          allowReload={true}
+                          isSelected={
+                            this.state.selectedVariables.indexOf(item) != -1
+                          }
+                          updateDimInfo={this.updateDimInfo}
                           variable={item}
-                          selectVariable={()=>{}}
-                          deselectVariable={()=>{}}
-                          hidden={true}/>
+                          selectVariable={this.selectVariable}
+                          deselectVariable={this.deselectVariable}
+                          hidden={true}
+                        />
                       </div>
                     );
                   })}
@@ -240,6 +329,7 @@ export default class VarMenu extends React.Component<
         <VarLoader
           file_path={this.props.file_path}
           loadVariable={this.loadVariable}
+          loadedVariables={this.state.loadedVariables}
           ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />
       </div>
