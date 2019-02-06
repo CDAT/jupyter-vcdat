@@ -12,8 +12,12 @@ import {
 } from "@jupyterlab/application";
 
 import { CommandRegistry } from "@phosphor/commands";
-import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
-import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
+import { NCViewerWidget, LeftSideBarWidget, NotebookState } from "./widgets";
+import {
+  INotebookTracker,
+  NotebookTracker,
+  NotebookPanel
+} from "@jupyterlab/notebook";
 
 import "../style/css/index.css";
 import { notebook_utils as nb_utils } from "./notebook_utils";
@@ -70,7 +74,7 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
   // Creates the left side bar widget once the app has fully started
   app.started.then(() => {
     // Create the left side bar
-    sidebar = new LeftSideBarWidget(commands, tracker);
+    sidebar = new LeftSideBarWidget(app, tracker);
     sidebar.id = "vcdat-left-side-bar";
     sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";
     sidebar.title.closable = true;
@@ -105,37 +109,11 @@ export class NCViewerFactory extends ABCWidgetFactory<
       // Activate sidebar widget
       shell.activateById(sidebar.id);
 
-      // Update the open filepath in sidebar
-      sidebar.current_file = context.session.name;
-
-      // Check if there's an open notebook
-      if (sidebar.notebook_active) {
-        // Activate the notebook panel if it's not active
-        if (shell.activeWidget != sidebar.notebook_panel) {
-          shell.activateById(sidebar.notebook_panel.id);
-        }
-
-        // Prepare the notebook for code injection
-        sidebar.getReadyNotebookPanel().catch(error => {
-          console.log(error);
-        });
-      } else {
-        //Create a notebook if none is currently open
-        console.log(
-          "Created new notebook because all other notebooks were closed."
-        );
-        nb_utils
-          .createNewNotebook(commands)
-          .then(notebook_panel => {
-            sidebar.notebook_panel = notebook_panel;
-            sidebar.getReadyNotebookPanel().catch(error => {
-              console.log(error);
-            });
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      }
+      // Prepare the notebook for code injection
+      console.log(context.session.name);
+      sidebar.prepareNotebookPanel(context.session.name).catch(error => {
+        console.log(error);
+      });
     }
 
     return ncWidget;
