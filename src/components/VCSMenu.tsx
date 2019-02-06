@@ -21,6 +21,7 @@ export type VCSMenuProps = {
   inject: any; // a method to inject code into the controllers notebook
   file_path: string; // the file path for the selected netCDF file
   commands: any; // the command executor
+  plotReady: boolean;
 };
 type VCSMenuState = {
   file_path: string;
@@ -36,7 +37,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     super(props);
     this.state = {
       file_path: props.file_path,
-      plotReady: false,
+      plotReady: props.plotReady,
       selected_variables: new Array<Variable>(),
       selected_gm: "",
       selected_gm_group: "",
@@ -107,6 +108,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     };
     let VarMenuProps = {
       file_path: this.state.file_path,
+      vcs_ready: this.state.plotReady,
       loadVariable: this.updateVarOptions,
       commands: this.props.commands
     };
@@ -127,7 +129,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
               className="col-sm-3"
               style={btnStyle}
               onClick={this.plot}
-              disabled={this.state.plotReady}
+              disabled={!this.state.plotReady}
             >
               Generate Plot
             </Button>
@@ -137,7 +139,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
               className="col-sm-3"
               style={btnStyle}
               onClick={this.plot}
-              disabled={this.state.plotReady}
+              disabled={!this.state.plotReady}
             >
               Save Plot
             </Button>
@@ -147,7 +149,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
               className="col-sm-3"
               style={btnStyle}
               onClick={this.plot}
-              disabled={this.state.plotReady}
+              disabled={!this.state.plotReady}
             >
               Clear Plot
             </Button>

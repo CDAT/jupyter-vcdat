@@ -7,7 +7,7 @@ namespace notebook_utils {
   /**
    * @description Creates a new JupyterLab notebook for use by the application
    * @param command The command registry
-   * @returns A promise containing the notebook panel object that was created (if successful).
+   * @returns Promise<NotebookPanel> - A promise containing the notebook panel object that was created (if successful).
    */
   export async function createNewNotebook(
     command: CommandRegistry
@@ -29,11 +29,11 @@ namespace notebook_utils {
   }
 
   /**
-   * @description Gets the value of a key from specified notebook's metadata. Returns null if the key doesn't exist.
-   * Checks the notebook session is ready before getting the metadata.
+   * @description Gets the value of a key from specified notebook's metadata.
+   * This asynchronous version checks the notebook session is ready before getting metadata.
    * @param notebook_panel The notebook to get meta data from.
    * @param key The key of the value.
-   * @returns The value of the metadata.
+   * @returns any - The value of the metadata. Returns null if the key doesn't exist.
    */
   export async function getMetaData(
     notebook_panel: NotebookPanel,
@@ -45,7 +45,7 @@ namespace notebook_utils {
         if (notebook_panel.content.model.metadata.has(key)) {
           resolve(notebook_panel.content.model.metadata.get(key));
         } else {
-          return resolve(null);
+          resolve(null);
         }
       } catch (error) {
         reject(error);
@@ -55,27 +55,88 @@ namespace notebook_utils {
   }
 
   /**
+   * @description Gets the value of a key from specified notebook's metadata.
+   * @param notebook_panel The notebook to get meta data from.
+   * @param key The key of the value.
+   * @returns any -The value of the metadata. Returns null if the key doesn't exist.
+   */
+  export function getMetaDataNow(
+    notebook_panel: NotebookPanel,
+    key: string
+  ): any {
+    try {
+      if (notebook_panel.content.model.metadata.has(key)) {
+        return notebook_panel.content.model.metadata.get(key);
+      } else {
+        return null;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * @description Sets the key value pair in the notebook's metadata. If the key doesn't exists it will add one.
-   * Checks the notebook session is ready before getting the metadata.
+   * This asynchronous version checks the notebook session is ready before setting the metadata.
    * @param notebook_panel The notebook to set meta data in.
    * @param key The key of the value to create.
    * @param value The value to set.
+   * @param save Default is false. Whether the notebook should be saved after the meta data is set.
    * @returns The old value for the key, or undefined if it did not exist.
    */
   export function setMetaData(
     notebook_panel: NotebookPanel,
     key: string,
-    value: any
+    value: any,
+    save: boolean = false
   ): Promise<any> {
     let prom: Promise<any> = new Promise(async (resolve, reject) => {
       try {
         await notebook_panel.session.ready;
-        resolve(notebook_panel.content.model.metadata.set(key, value));
+        let old_val: any = notebook_panel.content.model.metadata.set(
+          key,
+          value
+        );
+        if (save) {
+          await notebook_panel.context.save().catch(error => {
+            reject(error);
+          });
+        }
+        resolve(old_val);
       } catch (error) {
         reject(error);
       }
     });
     return prom;
+  }
+
+  /**
+   * @description Sets the key value pair in the notebook's metadata.
+   * If the key doesn't exists it will add one.
+   * @param notebook_panel The notebook to set meta data in.
+   * @param key The key of the value to create.
+   * @param value The value to set.
+   * @param save Default is false. Whether the notebook should be saved after the meta data is set.
+   * Note: This function will not wait for the save to complete, it only sends a save request.
+   * @returns The old value for the key, or undefined if it did not exist.
+   */
+  export function setMetaDataNow(
+    notebook_panel: NotebookPanel,
+    key: string,
+    value: any,
+    save: boolean = false
+  ): any {
+    try {
+      let old_val = notebook_panel.content.model.metadata.set(key, value);
+      if (save) {
+        notebook_panel.context.save().catch(error => {
+          throw error;
+        });
+      }
+      return old_val;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
