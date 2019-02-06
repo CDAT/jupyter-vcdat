@@ -179,12 +179,8 @@ export default class VarMenu extends React.Component<
    * @param variable the variable to load
    */
   loadVariable(variable: Variable) {
-    // if the variable ISNT already selected, add it to the selected list
-    if (this.state.selectedVariables.indexOf(variable) == -1) {
-      this.setState({
-        selectedVariables: this.state.selectedVariables.concat([variable])
-      });
-    }
+    this.selectVariable(variable);
+
     // if the variable ISNT already loaded, add it to the loaded list
     if (this.state.loadedVariables.indexOf(variable) == -1) {
       this.setState({
@@ -207,8 +203,11 @@ export default class VarMenu extends React.Component<
     }
   }
 
+  /**
+   * @description removes a variable from the state.selectedVariables list
+   * @param variable the variable to remove from the selected list
+   */
   deselectVariable(variable: Variable) {
-    // console.log(this.state.selectedVariables);
     let varIndex = this.state.selectedVariables.indexOf(variable);
     if (varIndex != -1) {
       let array = this.state.selectedVariables;

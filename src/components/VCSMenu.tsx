@@ -31,7 +31,7 @@ export type VCSMenuProps = {
 type VCSMenuState = {
   file_path: string;
   plotReady: boolean; // are we ready to plot
-  selected_variables: Array<Variable>;
+  selectedVariables: Array<Variable>;
   loadedVariables: Array<Variable>;
   selected_gm: string;
   selected_gm_group: string;
@@ -46,7 +46,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.state = {
       file_path: props.file_path,
       plotReady: false,
-      selected_variables: new Array<Variable>(),
+      selectedVariables: new Array<Variable>(),
       loadedVariables: new Array<Variable>(),
       selected_gm: "",
       selected_gm_group: "",
@@ -105,7 +105,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
             notebook_utils
               .getMetaData(this.state.notebook_panel, VARIABLES_LOADED_KEY)
               .then((res: any) => {
-                // debugger;
+                // if no variables are stored in the metadata, save the new one
                 if (res == null) {
                   let varArray = new Array<Variable>();
                   varArray.push(variable);
@@ -119,6 +119,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                       console.log(res);
                     });
                 } else {
+                  // if there are already variables stored but this one isnt present then save it
                   if (res.indexOf(variable) == -1) {
                     res.push(variable);
                     notebook_utils.setMetaData(
@@ -147,7 +148,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
   plot() {
-    if (this.state.selected_variables.length == 0) {
+    if (this.state.selectedVariables.length == 0) {
       this.props.inject("# Please select a variable from the left panel");
     } else {
       let gm = this.state.selected_gm;
@@ -159,7 +160,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         temp = '"default"';
       }
       let plotString = "canvas.clear()\ncanvas.plot(";
-      this.state.selected_variables.forEach(variable => {
+      this.state.selectedVariables.forEach(variable => {
         plotString += variable.name + ", ";
       });
       plotString += `${gm}, ${temp})`;
@@ -185,7 +186,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
 
     this.setState({
-      loadedVariables: newLoadedVariables
+      loadedVariables: newLoadedVariables,
+      selectedVariables: this.state.selectedVariables.concat(variables)
     });
     this.varMenuRef.setState({
       loadedVariables: newLoadedVariables,
@@ -193,16 +195,23 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
+  /**
+   * @description adds a list of variables to the selectedVariables list after checking that they're not already there
+   * @param variables the list of variables to add to the selectedVariables list
+   */
   updateSelectedVariables(variables: Array<Variable>) {
-    let newSelectedVariables = this.state.selected_variables.slice();
-    variables.forEach((variable: Variable) => {
-      if (newSelectedVariables.indexOf(variable) == -1) {
-        newSelectedVariables.push(variable);
-      }
-    });
+    // let newSelectedVariables = this.state.selectedVariables.slice();
+    // variables.forEach((variable: Variable) => {
+    //   if (newSelectedVariables.indexOf(variable) == -1) {
+    //     newSelectedVariables.push(variable);
+    //   }
+    // });
 
+    // this.setState({
+    //   selectedVariables: newSelectedVariables
+    // });
     this.setState({
-      selected_variables: newSelectedVariables
+      selectedVariables: variables
     });
   }
 
