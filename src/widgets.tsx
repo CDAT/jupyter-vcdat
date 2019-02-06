@@ -158,8 +158,9 @@ export class LeftSideBarWidget extends Widget {
                 .then(res => {
                   if(res){
                     this.component.updateLoadedVariables(res);
+                  } else {
+                    this.component.launchVarSelect(file_path);
                   }
-                  this.component.launchVarSelect(file_path);
                 });
             }
           );
