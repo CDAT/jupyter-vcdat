@@ -79,35 +79,41 @@ export default class VarMenu extends React.Component<
    * @returns an Array<Variable> of all the variables from the file
    */
   async addVariables() {
-    let params = $.param({
-      file_path: this.props.file_path
-    });
-    let url = BASE_URL + "/get_vars?" + params;
-    let newVars = new Array<Variable>();
-    await callApi(url).then((variableAxes: any) => {
-      Object.keys(variableAxes.vars).map((item: string) => {
-        let v = new Variable();
-        v.name = item;
-        v.longName = variableAxes.vars[item].name;
-        v.axisList = variableAxes.vars[item].axisList;
-        v.axisInfo = new Array<AxisInfo>();
-        variableAxes.vars[item].axisList.map((item: any) => {
-          variableAxes.axes[item].min = variableAxes.axes[item].data[0];
-          variableAxes.axes[item].max =
-            variableAxes.axes[item].data[
-              variableAxes.axes[item].data.length - 1
-            ];
-          v.axisInfo.push(variableAxes.axes[item]);
-        });
-        v.units = variableAxes.vars[item].units;
-        newVars.push(v);
+    let url: string;
+    try {
+      let params = $.param({
+        file_path: this.props.file_path
       });
-    });
-    this.setState({
-      variablesFetched: true,
-      variables: newVars
-    });
-    return newVars;
+      url = BASE_URL + "/get_vars?" + params;
+      let newVars = new Array<Variable>();
+      await callApi(url).then((variableAxes: any) => {
+        Object.keys(variableAxes.vars).map((item: string) => {
+          let v = new Variable();
+          v.name = item;
+          v.longName = variableAxes.vars[item].name;
+          v.axisList = variableAxes.vars[item].axisList;
+          v.axisInfo = new Array<AxisInfo>();
+          variableAxes.vars[item].axisList.map((item: any) => {
+            variableAxes.axes[item].min = variableAxes.axes[item].data[0];
+            variableAxes.axes[item].max =
+              variableAxes.axes[item].data[
+                variableAxes.axes[item].data.length - 1
+              ];
+            v.axisInfo.push(variableAxes.axes[item]);
+          });
+          v.units = variableAxes.vars[item].units;
+          newVars.push(v);
+        });
+      });
+      this.setState({
+        variablesFetched: true,
+        variables: newVars
+      });
+      return newVars;
+    } catch (error) {
+      console.log(error);
+      console.log(url);
+    }
   }
 
   /**

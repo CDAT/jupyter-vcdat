@@ -110,6 +110,7 @@ export class LeftSideBarWidget extends Widget {
     try {
       //Exit early if no change needed
       if (this._notebook_panel == notebook_panel) {
+        console.log("The current notebook didn't change.");
         return;
       }
       // Disconnect handlers from previous notebook_panel (if exists)
@@ -135,13 +136,11 @@ export class LeftSideBarWidget extends Widget {
           FILE_PATH_KEY
         );
         if (last_file_opened) {
-          await this.setCurrentFile(last_file_opened);
+          await this.setCurrentFile(last_file_opened, false);
         } else {
-          console.log("False!");
-          console.log(notebook_panel.content.model.metadata);
-          await this.setCurrentFile("");
+          await this.setCurrentFile("", false);
         }
-        console.log(`Current file set: ${last_file_opened}`);
+        console.log(`Current file is now: ${last_file_opened}`);
 
         // Run imports if cell isn't vcs ready, to make it vcs ready
         if (this.state == NotebookState.ImportsReady) {
@@ -169,16 +168,15 @@ export class LeftSideBarWidget extends Widget {
           }
         }
 
+        this.refreshVarList();
         // Set up notebook's handlers to keep track of kernel status
         this._notebook_panel.session.statusChanged.connect(
           this.handleSessionChanged
         );
       } else {
         // Leave notebook alone if its not vcs ready
-        this.setCurrentFile("");
+        this.setCurrentFile("", false);
       }
-
-      this.refreshVarList();
     } catch (error) {
       console.log(error);
     }
@@ -199,42 +197,39 @@ export class LeftSideBarWidget extends Widget {
     return this._current_file;
   }
 
-  async setCurrentFile(file_path: string) {
+  async setCurrentFile(file_path: string, save: boolean) {
     try {
-      // If the new path is already there or the new path is empty, leave as is
-      if (file_path == this._current_file || file_path == "") {
-        //console.log(`Current file: ${this._current_file}`);
-        return;
-      }
       this._current_file = file_path;
-
       // If notebook panel exists, set the notebook meta data to store current file path
-      if (this.notebook_panel) {
-        await nb_utils.setMetaData(
+      if (this.notebook_panel && save) {
+        // Ensure notebook session is ready before setting metadata
+        await this.notebook_panel.session.ready;
+        await nb_utils.setMetaDataNow(
           this.notebook_panel,
           FILE_PATH_KEY,
           file_path
         );
-        // Update component and retreive variables if needed
-        this.component.setState(
-          {
-            file_path: file_path
-          },
-          () => {
-            nb_utils
-              .getMetaData(this.notebook_panel, VARIABLES_LOADED_KEY)
-              .then(res => {
-                if (!res) {
-                  this.component.launchVarSelect(file_path);
-                }
-              });
-          }
-        );
-      } else {
         // Update component, no variable retrieval
         this.component.setState({
           file_path: file_path
         });
+        let result = nb_utils.getMetaDataNow(
+          this.notebook_panel,
+          VARIABLES_LOADED_KEY
+        );
+        console.log(`Meta data result: ${result}`);
+        if (!result) {
+          console.log(`Launching var loader with filepath: ${file_path}`);
+          this.component.launchVarSelect(file_path);
+          nb_utils.setMetaDataNow(
+            this.notebook_panel,
+            VARIABLES_LOADED_KEY,
+            file_path
+          );
+        }
+        // Save the notebook to preserve the cell metadata
+        await this.notebook_panel.context.save();
+        console.log("Filepath to saved.");
       }
     } catch (error) {
       console.log(error);
@@ -248,9 +243,11 @@ export class LeftSideBarWidget extends Widget {
   ): Promise<void> {
     try {
       if (notebook_panel) {
-        console.log(`Notebook changed to ${notebook_panel.title.label}.`);
+        console.log(
+          `======== Notebook is now: ${notebook_panel.title.label} ========`
+        );
       } else {
-        console.log("No notebook detected.");
+        console.log("======== No notebook detected ========");
       }
       // Set the current notebook and wait for the session to be ready
       await this.setNotebookPanel(notebook_panel);
@@ -296,13 +293,13 @@ export class LeftSideBarWidget extends Widget {
     try {
       // Check the active widget is a notebook panel
       if (this.application.shell.currentWidget instanceof NotebookPanel) {
-        console.log("Currently open notebook selected.");
+        console.log("======== Currently open notebook selected ========");
 
         // Set the current notebook and wait for the session to be ready
         await this.setNotebookPanel(this.application.shell.currentWidget);
       } else {
         // There is no active notebook widget
-        console.log("No active notebook.");
+        console.log("======== No active notebook ========");
         await this.setNotebookPanel(null);
       }
 
@@ -327,8 +324,8 @@ export class LeftSideBarWidget extends Widget {
         console.log(`Updated vars list: ${output}`);
       } else {
         this.variables_list = [];
+        console.log(`Updated vars list: []`);
       }
-      console.log(this.variables_list);
       this.var_refresh = false;
     } catch (error) {
       console.log(error);
@@ -342,6 +339,8 @@ export class LeftSideBarWidget extends Widget {
       if (this.notebook_tracker.size > 0) {
         // Check if notebook is active widget
         if (this.notebook_panel instanceof NotebookPanel) {
+          // Ensure notebook session is ready before checking for metadata
+          await this._notebook_panel.session.ready;
           // Check if there is a kernel listed as vcs_ready
           if (
             this._ready_kernels.length > 0 &&
@@ -351,10 +350,8 @@ export class LeftSideBarWidget extends Widget {
           ) {
             // Ready kernel identified, so the notebook is ready for injection
             this.state = NotebookState.VCS_Ready;
-            console.log("The notebook is VCS ready!");
+            //console.log("The notebook is VCS ready!");
           } else {
-            // Ensure notebook session is ready before checking for metadata
-            await this._notebook_panel.session.ready;
             // Search for a cell containing the imports key
             let find = cell_utils.findCellWithMetaKey(
               this.notebook_panel.content,
@@ -363,27 +360,28 @@ export class LeftSideBarWidget extends Widget {
             if (find[0] >= 0) {
               // The imports cell was found, but wasn't run yet
               this.state = NotebookState.ImportsReady;
-              console.log("Notebook imports are ready!");
+              //console.log("Notebook imports are ready!");
             } else {
               // No import cell was found, but the notebook is active
               this.state = NotebookState.ActiveNotebook;
-              console.log("A notebook is active.");
+              //console.log("Notebook is active.");
             }
           }
         } else {
           // No notebook is currently open
           this.state = NotebookState.InactiveNotebook;
-          console.log("No notebook is active.");
+          //console.log("No notebook is active.");
         }
       } else {
         // No notebook is open (tracker was empty)
         this.state = NotebookState.NoOpenNotebook;
-        console.log("No notebook opened.");
+        //console.log("No notebook opened.");
       }
-      console.log(`State updated: ${NotebookState[this.state]}`);
     } catch (error) {
       this.state = NotebookState.Unknown;
+      console.log(error);
     }
+    console.log(`State updated: ${NotebookState[this.state]}`);
   }
 
   // Inject code into the bottom cell of the notebook, doesn't display results (output or error)
@@ -392,7 +390,7 @@ export class LeftSideBarWidget extends Widget {
     try {
       return cell_utils.insertAndRun(
         this.notebook_panel,
-        this.notebook_panel.content.model.cells.length,
+        this.notebook_panel.content.model.cells.length - 1,
         code,
         false
       );
@@ -491,7 +489,7 @@ export class LeftSideBarWidget extends Widget {
           this.commands,
           result[0] + 1,
           cmd,
-          true
+          false
         );
 
         // Select the last cell
@@ -518,23 +516,25 @@ export class LeftSideBarWidget extends Widget {
   async prepareNotebookPanel(current_file: string): Promise<void> {
     let prom: Promise<void> = new Promise(async (resolve, reject) => {
       try {
-        // Ensure notebook session is ready before setting metadata
-        await this._notebook_panel.session.ready;
         // Reject initilization if no file has been selected
         if (current_file == "") {
           reject(new Error("No file has been set for obtaining variables."));
         } else if (this.state == NotebookState.VCS_Ready) {
           console.log("The current notebook is already vcs ready.");
           // Set the current file and save the file path as meta data
-          await this.setCurrentFile(current_file);
+          await this.setCurrentFile(current_file, true);
+
+          this.refreshVarList();
         } else {
           console.log("Getting a vcs ready notebook.");
-          // Set the current file and save the file path as meta data
-          await this.setCurrentFile(current_file);
           // Grab a notebook panel
           let new_notebook_panel = await this.getNotebookPanel();
           // Set as current notebook (if not already)
           await this.setNotebookPanel(new_notebook_panel);
+          console.log("Notebook set.");
+          // Set the current file and save the file path as meta data
+          await this.setCurrentFile(current_file, true);
+          console.log("File set.");
           // Make notebook vcs ready
           this.notebook_panel.content.activeCellIndex = await this.injectRequiredCode();
         }

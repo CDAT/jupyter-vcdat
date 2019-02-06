@@ -3,10 +3,14 @@
  * @param url a url string to send the get request to, this should already be fully encoded
  */
 async function callApi(url: string) {
-  const response = await fetch(url);
-  const body = await response.json();
-  if (response.status !== 200) throw Error(body.message);
-  return body;
+  try {
+    const response = await fetch(url);
+    const body = await response.json();
+    if (response.status !== 200) throw Error(body.message);
+    return body;
+  } catch (error) {
+    throw error;
+  }
 }
 /**
  * @description run an array of promises in serial
