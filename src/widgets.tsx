@@ -6,21 +6,19 @@ import { CommandRegistry } from "@phosphor/commands";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
 import { IClientSession } from "@jupyterlab/apputils";
-import { Kernel, Session } from "@jupyterlab/services";
+import { Kernel } from "@jupyterlab/services";
 
 import {
-  READY_KEY,
   FILE_PATH_KEY,
   IMPORT_CELL_KEY,
   VARIABLES_LOADED_KEY,
-  GET_VARS_CMD,
   REFRESH_VARS_CMD,
-  CHECK_MODULES_CMD
+  CHECK_MODULES_CMD,
+  REQUIRED_MODULES
 } from "./constants";
 import { notebook_utils as nb_utils, notebook_utils } from "./notebook_utils";
 import { cell_utils } from "./cell_utils";
 import { JupyterLab } from "@jupyterlab/application";
-import { ICellModel } from "@jupyterlab/cells";
 
 export enum NotebookState {
   Unknown, // The current state of the notebook is unknown and should be updated.
@@ -44,41 +42,35 @@ export class LeftSideBarWidget extends Widget {
 
   private _ready_kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
   private variables_list: string[]; // The list of vcdat variables the current notebook has
-  //private _notebook_active: boolean; // Keeps track whether a notebook is active or not
-  //private _vcs_ready: boolean; // Wether the notebook has had necessary imports and is ready for code injection
   private _current_file: string; // The current filepath of the data file being used for variables and data
   private _notebook_panel: NotebookPanel; // The notebook this widget is interacting with
-
-  // Multi plot, data and files
 
   constructor(app: JupyterLab, tracker: NotebookTracker) {
     super();
     this.div = document.createElement("div");
     this.div.id = "left-sidebar";
     this.node.appendChild(this.div);
+    this.application = app;
     this.commands = app.commands;
     this.notebook_tracker = tracker;
-    this.application = app;
-
     this.state = NotebookState.Unknown;
     this.loading_data = false;
-    //this._notebook_active = false;
     this.var_refresh = false;
     this._current_file = "";
     this._notebook_panel = null;
     this.variables_list = [];
     this._ready_kernels = [];
     this.initialize = this.initialize.bind(this);
-    this.setNotebookPanel = this.setNotebookPanel.bind(this);
+    this.refreshVarList = this.refreshVarList.bind(this);
     this.setCurrentFile = this.setCurrentFile.bind(this);
-    this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
+    this.setNotebookPanel = this.setNotebookPanel.bind(this);
+    this.updateNotebookState = this.updateNotebookState.bind(this);
+    //this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
     this.handleSessionChanged = this.handleSessionChanged.bind(this);
     //this.handleNotebookDisposed = this.handleNotebookDisposed.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
-
     this.inject = this.inject.bind(this);
-    //this.updateVars = this.updateVars.bind(this);
-    //this.runImportCell = this.runImportCell.bind(this);
+    this.injectAndDisplay = this.injectAndDisplay.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.injectRequiredCode = this.injectRequiredCode.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
@@ -106,10 +98,11 @@ export class LeftSideBarWidget extends Widget {
   }
 
   /**
-   * Set's the widget's current notebook and updates the notebook state
+   * Set's the widget's current notebook and updates needed widget variables.
    */
   async setNotebookPanel(notebook_panel: NotebookPanel): Promise<void> {
     try {
+      console.log(`Current variables list: ${this.variables_list}`);
       //Exit early if no change needed
       if (this._notebook_panel == notebook_panel) {
         console.log("The current notebook didn't change.");
@@ -189,6 +182,9 @@ export class LeftSideBarWidget extends Widget {
     return this.state == NotebookState.VCS_Ready;
   }
 
+  /**
+   * Sets the notebook state as vcs_ready which means the imports are ready and code injection should work.
+   */
   public set vcs_ready(value: boolean) {
     this.component.setState({ vcs_ready: value });
     if (value) {
@@ -200,6 +196,11 @@ export class LeftSideBarWidget extends Widget {
     return this._current_file;
   }
 
+  /**
+   * Updates the widget's current filepath which is used to load variables.
+   * @param file_path The new file path to set
+   * @param save Whether the file path should be saved to the notebook's meta data.
+   */
   async setCurrentFile(file_path: string, save: boolean) {
     try {
       this._current_file = file_path;
@@ -241,7 +242,10 @@ export class LeftSideBarWidget extends Widget {
     }
   }
 
-  // Perform actions when current notebook is changed
+  /**
+   * This handles when a notebook is switched to another notebook.
+   * The parameters are automatically passed from the signal when a switch occurs.
+   */
   async handleNotebooksChanged(
     tracker: NotebookTracker,
     notebook_panel: NotebookPanel
@@ -261,7 +265,11 @@ export class LeftSideBarWidget extends Widget {
     }
   }
 
-  // Performs actions whenever the current notebook session changes status
+  /**
+   * This handles when a notebook's session status changes, like if a cell runs code or
+   * the kernel is connected/disconnected/aborted.
+   * The parameters are automatically passed from the signal when a status change occurs.
+   */
   async handleSessionChanged(
     session: IClientSession,
     status: Kernel.Status
@@ -307,8 +315,7 @@ export class LeftSideBarWidget extends Widget {
     }
   }*/
 
-  //async handleNotebookClosed()
-
+  /*
   handleGetVarsComplete(output: string): void {
     var outputObj = this.outputStrToDict(output);
 
@@ -317,8 +324,12 @@ export class LeftSideBarWidget extends Widget {
       outputObj["graphicsMethods"],
       outputObj["templates"]
     );
-  }
+  }*/
 
+  /**
+   * This initializes the left side bar widget and checks for any open notebooks.
+   * The status of the notebook is set and the notebook switching handler is connected.
+   */
   async initialize(): Promise<void> {
     try {
       // Check the active widget is a notebook panel
@@ -340,7 +351,9 @@ export class LeftSideBarWidget extends Widget {
     }
   }
 
-  // Refreshes the variable list in the current notebook
+  /**
+   * This updates the current variable list by sending a command to the kernel directly.
+   */
   async refreshVarList(): Promise<void> {
     try {
       if (this.vcs_ready) {
@@ -362,7 +375,10 @@ export class LeftSideBarWidget extends Widget {
     }
   }
 
-  // Will update the state of the widget's current notebook panel
+  /**
+   * Will update the state of the widget's current notebook panel.
+   * This serves other functions that base their action on the notebook's current state
+   */
   async updateNotebookState(): Promise<void> {
     try {
       // Check whether there is a notebook opened
@@ -414,8 +430,11 @@ export class LeftSideBarWidget extends Widget {
     console.log(`State updated: ${NotebookState[this.state]}`);
   }
 
-  // Inject code into the bottom cell of the notebook, doesn't display results (output or error)
-  // Results of code are returned.
+  /**
+   * Injects code into the bottom cell of the notebook, doesn't display results (output or error)
+   * @param code A string that has the code to inject into the notebook cell.
+   * @returns any - Results from running the code.
+   */
   async inject(code: string): Promise<any> {
     try {
       let result = await cell_utils.insertAndRun(
@@ -431,8 +450,11 @@ export class LeftSideBarWidget extends Widget {
     }
   }
 
-  // Inject code into the bottom cell of the notebook, and will display results (output or error)
-  // Results of code are also returned.
+  /**
+   * Injects code into the bottom cell of the notebook, and WILL display results (output or error)
+   * @param code A string that has the code to inject into the notebook cell.
+   * @returns any - Results from running the code.
+   */
   async injectAndDisplay(code: string): Promise<any> {
     try {
       let result: any = await cell_utils.insertRunShow(
@@ -448,6 +470,12 @@ export class LeftSideBarWidget extends Widget {
     }
   }
 
+  /**
+   * This will construct an import string for the notebook based on the modules passed to it.
+   * @param modules An array of strings representing the modules to include in the import command.
+   * @param lazy Whether to use lazy imports syntax when making the command. Will include lazy_imports
+   * if it is needed.
+   */
   buildImportCommand(modules: string[], lazy: boolean): string {
     let cmd: string = "";
     //Check for lazy_imports modules first
@@ -477,23 +505,32 @@ export class LeftSideBarWidget extends Widget {
     return cmd;
   }
 
-  // This will inject the required modules into the current notebook (if module not already imported)
-  async injectRequiredCode(): Promise<number> {
+  /**
+   * This will inject the required modules into the current notebook (if a module was not already imported)
+   * @param skip Default false. If set to true, a check of the kernel will be made to see if the modules are already
+   * imported and any that are will be skipped (not added) in the import statements of the required code.
+   */
+  async injectRequiredCode(skip: boolean = false): Promise<number> {
     console.log("Injecting required modules.");
     // Check if required modules are imported in notebook
     var prom: Promise<number> = new Promise(async (resolve, reject) => {
       try {
-        // Check if necessary modules are loaded
-        let output: string = await nb_utils.sendSimpleKernelRequest(
-          this.notebook_panel,
-          CHECK_MODULES_CMD
-        );
-
-        // Create import string based on missing dependencies
-        let missing_modules: string[] = eval(output);
         let cmd =
           "#These imports are required for vcdat. To avoid issues, do not delete or modify.\n";
-        cmd += this.buildImportCommand(missing_modules, true);
+
+        if (skip) {
+          // Check if necessary modules are loaded
+          let output: string = await nb_utils.sendSimpleKernelRequest(
+            this.notebook_panel,
+            CHECK_MODULES_CMD
+          );
+
+          // Create import string based on missing dependencies
+          let missing_modules: string[] = eval(output);
+          cmd += this.buildImportCommand(missing_modules, true);
+        } else {
+          cmd += this.buildImportCommand(eval(`[${REQUIRED_MODULES}]`), true);
+        }
 
         // Inject imports in a new cell
         let result: [number, string] = await cell_utils.insertAndRun(
@@ -544,7 +581,10 @@ export class LeftSideBarWidget extends Widget {
     return prom;
   }
 
-  // returns promise of a vcs ready notebook, creating one if necessary
+  /**
+   * Prepares the current widget notebook to be a vcs_ready notebook. Will create a new one if none exists.
+   * @param current_file The file_path to set for the variable loading. If left blank, and error will occur.
+   */
   async prepareNotebookPanel(current_file: string): Promise<void> {
     let prom: Promise<void> = new Promise(async (resolve, reject) => {
       try {
@@ -582,7 +622,9 @@ export class LeftSideBarWidget extends Widget {
     return prom;
   }
 
-  // return a promise of current notebook panel (may not be vcs ready)
+  /**
+   * @returns Promise<NotebookPanel> - The widget's current notebook_panel or a new one if none exists.
+   */
   async getNotebookPanel(): Promise<NotebookPanel> {
     let prom: Promise<NotebookPanel> = new Promise(async (resolve, reject) => {
       try {
@@ -600,7 +642,7 @@ export class LeftSideBarWidget extends Widget {
     return prom;
   }
 
-  //Helper function to convert output string to an object/dictionary
+  /*
   outputStrToDict(output: string): any {
     var dict: any = { variables: {}, templates: {}, graphicsMethods: {} };
     var outputElements = output.replace(/\'/g, "").split("|");
@@ -636,6 +678,7 @@ export class LeftSideBarWidget extends Widget {
 
     return dict;
   }
+  */
 }
 
 export class NCViewerWidget extends Widget {
