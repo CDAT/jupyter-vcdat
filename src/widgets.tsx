@@ -73,7 +73,9 @@ export class LeftSideBarWidget extends Widget {
     this.setCurrentFile = this.setCurrentFile.bind(this);
     this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
     this.handleSessionChanged = this.handleSessionChanged.bind(this);
+    //this.handleNotebookDisposed = this.handleNotebookDisposed.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
+
     this.inject = this.inject.bind(this);
     //this.updateVars = this.updateVars.bind(this);
     //this.runImportCell = this.runImportCell.bind(this);
@@ -85,8 +87,8 @@ export class LeftSideBarWidget extends Widget {
       <VCSMenu
         commands={this.commands}
         inject={this.inject}
+        notebook_panel={this._notebook_panel}
         file_path={this.current_file}
-        plotReady={this.vcs_ready}
       />,
       this.div
     );
@@ -169,10 +171,11 @@ export class LeftSideBarWidget extends Widget {
         }
 
         this.refreshVarList();
-        // Set up notebook's handlers to keep track of kernel status
+        // Set up notebook's handlers to keep track of notebook status
         this._notebook_panel.session.statusChanged.connect(
           this.handleSessionChanged
         );
+        //this._notebook_panel.disposed.connect(this.handleNotebookDisposed);
       } else {
         // Leave notebook alone if its not vcs ready
         this.setCurrentFile("", false);
@@ -218,7 +221,9 @@ export class LeftSideBarWidget extends Widget {
           VARIABLES_LOADED_KEY
         );
         console.log(`Meta data result: ${result}`);
-        if (!result) {
+        if (result) {
+          this.component.updateLoadedVariables(result);
+        } else {
           console.log(`Launching var loader with filepath: ${file_path}`);
           this.component.launchVarSelect(file_path);
           nb_utils.setMetaDataNow(
@@ -276,6 +281,31 @@ export class LeftSideBarWidget extends Widget {
       this.var_refresh = false;
     }
   }
+
+  // Performs actions when the notebook is disposed/closed
+  /*async handleNotebookDisposed(notebook_panel: NotebookPanel) {
+    try {
+      console.log("Notebook was disposed:");
+      console.log(notebook_panel);
+      //notebook_panel.disposed.disconnect(this.handleNotebookDisposed);
+      // Check if the notebook's session was vcs ready
+      if (notebook_panel.session) {
+        let session_id = notebook_panel.session.kernel.id;
+        let index = this._ready_kernels.indexOf(session_id);
+        if (index >= 0) {
+          // If so, remove it
+          this._ready_kernels = this._ready_kernels.splice(index, 1);
+          console.log("VCS ready Notebook disposed.");
+        } else {
+          console.log("Active notebook was disposed.");
+        }
+      } else {
+        console.log("Inactive notebook was closed.");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }*/
 
   //async handleNotebookClosed()
 
@@ -388,12 +418,14 @@ export class LeftSideBarWidget extends Widget {
   // Results of code are returned.
   async inject(code: string): Promise<any> {
     try {
-      return cell_utils.insertAndRun(
+      let result = await cell_utils.insertAndRun(
         this.notebook_panel,
         this.notebook_panel.content.model.cells.length - 1,
         code,
         false
       );
+      this.notebook_panel.content.activeCellIndex = result[0] + 1;
+      return result;
     } catch (error) {
       console.log(error);
     }

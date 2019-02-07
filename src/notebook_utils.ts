@@ -31,6 +31,7 @@ namespace notebook_utils {
   /**
    * @description Gets the value of a key from specified notebook's metadata.
    * This asynchronous version checks the notebook session is ready before getting metadata.
+   * If the notebook is null, an error will occur.
    * @param notebook_panel The notebook to get meta data from.
    * @param key The key of the value.
    * @returns any - The value of the metadata. Returns null if the key doesn't exist.
@@ -41,12 +42,20 @@ namespace notebook_utils {
   ): Promise<any> {
     let prom: Promise<any> = new Promise(async (resolve, reject) => {
       try {
-        await notebook_panel.activated;
-        await notebook_panel.session.ready;
-        if (notebook_panel.content.model.metadata.has(key)) {
-          resolve(notebook_panel.content.model.metadata.get(key));
+        if (notebook_panel) {
+          await notebook_panel.activated;
+          await notebook_panel.session.ready;
+          if (notebook_panel.content.model.metadata.has(key)) {
+            resolve(notebook_panel.content.model.metadata.get(key));
+          } else {
+            resolve(null);
+          }
         } else {
-          resolve(null);
+          reject(
+            new Error(
+              "The notebook is null or undefined. No meta data available."
+            )
+          );
         }
       } catch (error) {
         reject(error);

@@ -11,11 +11,6 @@ def runme(cmd):
     return o,e
 
 
-runme("pip install sidecar")
-runme("pip install lazy_import")
-# runme("npm install --no-package-lock")
-# runme("npm run build --no-package-lock")
-
 Version = "2.0"
 p = Popen(
     ("git",
@@ -41,6 +36,8 @@ setup(name="jupyter_vcdat",
       #data_files=[('share/vcs', ('Share/wmo_symbols.json',))]
 )
 
+runme("pip install sidecar")
+runme("pip install lazy_import")
 runme("jupyter labextension install .")
 runme("jupyter serverextension enable --py vcs_backend")
 
