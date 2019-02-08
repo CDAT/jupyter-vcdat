@@ -160,7 +160,7 @@ export default class VarLoader extends React.Component<
                 this.toggle();
                 let funcs = this.state.selectedVariables.map(
                   (variable: Variable) => async () => {
-                    return this.props.loadVariable(variable);
+                    return await this.props.loadVariable(variable);
                   }
                 );
                 serial(funcs);

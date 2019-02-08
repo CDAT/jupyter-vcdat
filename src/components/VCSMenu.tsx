@@ -1,8 +1,8 @@
 // Dependencies
 import * as React from "react";
-import { Button, Card, CardBody, Row, Col } from "reactstrap";
+import { Button, Card, CardBody } from "reactstrap";
 // Project Components
-import { notebook_utils as nb_utils, notebook_utils } from "../notebook_utils";
+import { notebook_utils } from "../notebook_utils";
 import { VARIABLES_LOADED_KEY } from "../constants";
 import VarMenu from "./VarMenu";
 import GraphicsMenu from "./GraphicsMenu";
@@ -98,47 +98,48 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           var_string += `, ${axis.name}=(${axis.min}, ${axis.max})`;
         });
         var_string += ")";
-
-        this.props.inject(var_string).then(() => {
-          // update the notebooks metadata with the variable
-          try {
-            notebook_utils
-              .getMetaData(this.state.notebook_panel, VARIABLES_LOADED_KEY)
-              .then((res: any) => {
-                // if no variables are stored in the metadata, save the new one
-                if (res == null) {
-                  let varArray = new Array<Variable>();
-                  varArray.push(variable);
-                  notebook_utils
-                    .setMetaData(
-                      this.state.notebook_panel,
-                      VARIABLES_LOADED_KEY,
-                      varArray
-                    )
-                    .then((res: any) => {
-                      console.log(res);
-                    });
-                } else {
-                  // if there are already variables stored but this one isnt present then save it
-                  if (res.indexOf(variable) == -1) {
-                    res.push(variable);
-                    notebook_utils.setMetaData(
-                      this.state.notebook_panel,
-                      VARIABLES_LOADED_KEY,
-                      res
-                    );
-                  }
+        this.props.inject(var_string);
+        notebook_utils
+          .getMetaData(this.state.notebook_panel, VARIABLES_LOADED_KEY)
+          .then((res: any) => {
+            // if no variables are stored in the metadata, save the new one
+            if (res == null) {
+              let varArray = new Array<Variable>();
+              varArray.push(variable);
+              notebook_utils
+                .setMetaData(
+                  this.state.notebook_panel,
+                  VARIABLES_LOADED_KEY,
+                  varArray
+                )
+                .then((res: any) => {
+                  console.log(res);
+                });
+            } else {
+              // if there are already variables stored but this one isnt present then save it
+              let newVariableArray = res.slice();
+              let found: boolean = false;
+              res.forEach((storedVar: Variable, varIndex: number) => {
+                if (storedVar.name == variable.name) {
+                  newVariableArray[varIndex] = variable;
+                  found = true;
                 }
-                console.log(res);
-                resolve();
-              })
-              .catch(error => {
-                console.log(error);
               });
-          } catch (error) {
+              if (!found) {
+                newVariableArray.push(variable);
+              }
+              notebook_utils.setMetaData(
+                this.state.notebook_panel,
+                VARIABLES_LOADED_KEY,
+                newVariableArray
+              );
+            }
+            console.log(res);
+            resolve();
+          })
+          .catch(error => {
             console.log(error);
-          }
-        });
+          });
       } catch (error) {
         reject(error);
       }

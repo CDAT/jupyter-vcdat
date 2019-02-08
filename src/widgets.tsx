@@ -102,6 +102,11 @@ export class LeftSideBarWidget extends Widget {
    */
   async setNotebookPanel(notebook_panel: NotebookPanel): Promise<void> {
     try {
+
+      this.component.setState({
+        notebook_panel: notebook_panel
+      });
+
       console.log(`Current variables list: ${this.variables_list}`);
       //Exit early if no change needed
       if (this._notebook_panel == notebook_panel) {
@@ -227,15 +232,10 @@ export class LeftSideBarWidget extends Widget {
         } else {
           console.log(`Launching var loader with filepath: ${file_path}`);
           this.component.launchVarSelect(file_path);
-          nb_utils.setMetaDataNow(
-            this.notebook_panel,
-            VARIABLES_LOADED_KEY,
-            file_path
-          );
         }
         // Save the notebook to preserve the cell metadata
         await this.notebook_panel.context.save();
-        console.log("Filepath to saved.");
+        console.log(`Filepath to ${file_path} saved.`);
       }
     } catch (error) {
       console.log(error);
