@@ -16,7 +16,7 @@ import {
 } from "reactstrap";
 
 const cardStyle: React.CSSProperties = {
-  margin: "1em"
+  margin: ".5em"
 };
 const centered: React.CSSProperties = {
   margin: "auto"
@@ -134,21 +134,18 @@ export default class VarCard extends React.Component<
     if (this.state.isSelected) {
       buttonString = "Unselect";
     }
-    let hideString = "hide axis";
+    let hideString = "Axes";
     if (this.state.hidden) {
-      hideString = "show axis";
+      hideString = "Axes";
     }
     return (
       <div>
         <Card style={cardStyle}>
           <CardBody>
             <CardTitle>
-              {this.props.variable.name}: {this.props.variable.longName}
-            </CardTitle>
-            <CardSubtitle>
               <div style={centered}>
                 <Row>
-                  <Col xs="sm-4">
+                  <Col xs="sm-5">
                     <Button
                       outline
                       color="success"
@@ -156,7 +153,7 @@ export default class VarCard extends React.Component<
                       active={this.state.isSelected == true}
                       style={buttonsStyle}
                     >
-                      {buttonString}
+                      {this.props.variable.name}
                     </Button>
                   </Col>
                   <Col xs="sm-4">
@@ -177,7 +174,7 @@ export default class VarCard extends React.Component<
                     )}
                   </Col>
                   {this.props.allowReload && this.state.isChanged && (
-                    <Col xs="sm-4">
+                    <Col xs="sm-3">
                       <Button
                         outline
                         color="info"
@@ -194,13 +191,16 @@ export default class VarCard extends React.Component<
                   )}
                 </Row>
               </div>
-            </CardSubtitle>
+            </CardTitle>
             <Collapse isOpen={this.state.showAxis} onClick={this.openMenu}>
               {this.props.variable.axisInfo.map((item: AxisInfo) => {
                 if (item.data.length <= 1) {
                   return;
                 }
                 item.updateDimInfo = this.updateDimInfo;
+                // Adjust min and max to fit slider
+                item.min = Math.floor(item.min);
+                item.max = Math.floor(item.max);
                 return (
                   <div key={item.name} style={axisStyle}>
                     <Card>

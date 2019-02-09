@@ -31,6 +31,7 @@ type TemplateMenuState = {
   showDropdown: boolean;
   selectedTemplate: string;
   optionsChanged: boolean;
+  plotReady: boolean;
 };
 
 export default class TemplateMenu extends React.Component<
@@ -43,7 +44,8 @@ export default class TemplateMenu extends React.Component<
       showMenu: false,
       showDropdown: false,
       selectedTemplate: "Select a template",
-      optionsChanged: false
+      optionsChanged: false,
+      plotReady: false
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
@@ -85,7 +87,7 @@ export default class TemplateMenu extends React.Component<
                 isOpen={this.state.showDropdown}
                 toggle={this.toggleDropdown}
               >
-                <DropdownToggle caret>
+                <DropdownToggle disabled={!this.state.plotReady} caret>
                   {this.state.selectedTemplate}
                 </DropdownToggle>
                 <DropdownMenu style={dropdownMenuStype}>

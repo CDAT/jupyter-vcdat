@@ -12,15 +12,10 @@ import {
 } from "@jupyterlab/application";
 
 import { CommandRegistry } from "@phosphor/commands";
-import { NCViewerWidget, LeftSideBarWidget, NotebookState } from "./widgets";
-import {
-  INotebookTracker,
-  NotebookTracker,
-  NotebookPanel
-} from "@jupyterlab/notebook";
+import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
+import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 import "../style/css/index.css";
-import { notebook_utils as nb_utils } from "./notebook_utils";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -110,7 +105,6 @@ export class NCViewerFactory extends ABCWidgetFactory<
       shell.activateById(sidebar.id);
 
       // Prepare the notebook for code injection
-      console.log(context.session.name);
       sidebar.prepareNotebookPanel(context.session.name).catch(error => {
         console.log(error);
       });

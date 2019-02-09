@@ -59,7 +59,7 @@ export default class VarLoader extends React.Component<
         let found = false;
         this.state.loadedVariables.forEach((loadedVariable: Variable) => {
           if (newVariable.name == loadedVariable.name) {
-            newVariables.push(loadedVariable);
+            //newVariables.push(loadedVariable);
             found = true;
           }
         });

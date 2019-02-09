@@ -204,7 +204,7 @@ export default class DimensionSlider extends React.Component<
     if (e.length != 2) {
       return;
     }
-    console.log(e);
+    //console.log(e);
     this.setState({
       values: e,
       min: e[0],
