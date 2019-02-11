@@ -1,0 +1,23 @@
+proxy:
+  secretToken: "3ef396509d1aa54e09e12854e441b05dc2424c720809ce95ddf7b40a49572942"
+singleuser:
+  image:
+    # Get the latest image tag at:
+    # https://hub.docker.com/r/jupyter/datascience-notebook/tags/
+    # Inspect the Dockerfile at:
+    # https://github.com/jupyter/docker-stacks/tree/master/datascience-notebook/Dockerfile
+    # tag: 177037d09156
+    name: cdoutrix/vcdat
+    tag: extension_variables_switching
+    # name: jupyter/datascience-notebook
+    # use jupyterlab
+    defaultUrl: "/lab"
+  memory:
+    limit: 1.5G
+    guarantee: 1G
+
+hub:
+  extraConfig:
+    jupyterlab: |
+      c.Spawner.cmd = ['jupyter-labhub']
+
