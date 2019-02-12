@@ -184,6 +184,7 @@ namespace notebook_utils {
               stop_on_error: false
             }
           ).done;
+          
           let content: any = message.content;
           if (content["status"] == "ok") {
             let output = content["user_expressions"]["result"];

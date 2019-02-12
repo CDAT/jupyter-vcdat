@@ -41,6 +41,7 @@ export class LeftSideBarWidget extends Widget {
   application: JupyterLab; //The JupyterLab application object
   component: any; // the LeftSidebar component
   loading_data: boolean;
+  using_kernel: boolean; // The widgets is running a kernel command
   var_refresh: boolean; // If true, it means the vars list should be updated
 
   private _ready_kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
@@ -60,6 +61,7 @@ export class LeftSideBarWidget extends Widget {
     this.notebook_tracker = tracker;
     this._state = NotebookState.Unknown;
     this.loading_data = false;
+    this.using_kernel = false;
     this.var_refresh = false;
     this._current_file = "";
     this._notebook_panel = null;
@@ -72,7 +74,7 @@ export class LeftSideBarWidget extends Widget {
     this.setNotebookPanel = this.setNotebookPanel.bind(this);
     this.updateNotebookState = this.updateNotebookState.bind(this);
     //this.handleGetVarsComplete = this.handleGetVarsComplete.bind(this);
-    //this.handleSessionChanged = this.handleSessionChanged.bind(this);
+    this.handleSessionChanged = this.handleSessionChanged.bind(this);
     //this.handleNotebookDisposed = this.handleNotebookDisposed.bind(this);
     this.refreshVarInfo = this.refreshVarInfo.bind(this);
     this.getFileVariables = this.getFileVariables.bind(this);
@@ -134,11 +136,11 @@ export class LeftSideBarWidget extends Widget {
         return;
       }
       // Disconnect handlers from previous notebook_panel (if exists)
-      /*if (this._notebook_panel) {
+      if (this._notebook_panel) {
         this._notebook_panel.session.statusChanged.disconnect(
           this.handleSessionChanged
         );
-      }*/
+      }
       // Update current notebook
       this._notebook_panel = notebook_panel;
 
@@ -192,9 +194,9 @@ export class LeftSideBarWidget extends Widget {
         // Select the top variable if any exist
 
         // Set up notebook's handlers to keep track of notebook status
-        /*this._notebook_panel.session.statusChanged.connect(
+        this._notebook_panel.session.statusChanged.connect(
           this.handleSessionChanged
-        );*/
+        );
         //this._notebook_panel.disposed.connect(this.handleNotebookDisposed);
       } else {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
@@ -277,7 +279,7 @@ export class LeftSideBarWidget extends Widget {
         // Save the notebook to preserve the cell metadata
         await this.notebook_panel.context.save();
         console.log(`Filepath to ${file_path} saved.`);
-        this.refreshVarList();
+        await this.refreshVarList();
       }
     } catch (error) {
       console.log(error);
@@ -313,17 +315,25 @@ export class LeftSideBarWidget extends Widget {
    * the kernel is connected/disconnected/aborted.
    * The parameters are automatically passed from the signal when a status change occurs.
    */
-  /*async handleSessionChanged(
+  async handleSessionChanged(
     session: IClientSession,
     status: Kernel.Status
   ): Promise<void> {
     try {
+      //Refresh the variables
+      console.log(`Status: ${status}`);
+      console.log(this.var_refresh);
+      console.log(this.state);
       // Don't do anything unless kernel is idle, the notebook is vcs ready and variables need a refresh
-      if (status == "idle" && this.var_refresh && this.vcs_ready) {
-        //Refresh the variables
-        console.log("Status changed.");
-        await this.refreshVarList();
-      } else if (status == "idle" && this.vcs_ready) {
+      if (
+        status == "idle" &&
+        this.var_refresh &&
+        this.state == NotebookState.VCS_Ready
+      ) {
+        if (!this.using_kernel) {
+          await this.refreshVarList();
+        }
+      } else if (status == "idle" && this.state == NotebookState.VCS_Ready) {
         // If the status is idle, vcs is ready and variables need to be refreshed
         this.var_refresh = true;
       }
@@ -331,7 +341,7 @@ export class LeftSideBarWidget extends Widget {
       console.log(error);
       this.var_refresh = false;
     }
-  }*/
+  }
 
   // Performs actions when the notebook is disposed/closed
   /*async handleNotebookDisposed(notebook_panel: NotebookPanel) {
@@ -401,6 +411,7 @@ export class LeftSideBarWidget extends Widget {
     try {
       if (this.state == NotebookState.VCS_Ready) {
         //Refresh the variables
+        this.using_kernel = true;
         let output: string = await nb_utils.sendSimpleKernelRequest(
           this.notebook_panel,
           REFRESH_VARS_CMD
@@ -408,7 +419,8 @@ export class LeftSideBarWidget extends Widget {
         //Update the list of latest variables and info
         this.variables_list = eval(output);
         console.log(`Updated vars list: ${output}`);
-        this.refreshVarInfo();
+        await this.refreshVarInfo();
+        this.using_kernel = false;
       } else {
         this.variables_list = [];
         this.variable_info = new Array<Variable>();
@@ -573,16 +585,18 @@ export class LeftSideBarWidget extends Widget {
    */
   async inject(code: string): Promise<any> {
     try {
-      let result = await cell_utils.insertAndRun(
+      let result = await cell_utils.insertRunShow(
         this.notebook_panel,
+        this.commands,
         this.notebook_panel.content.model.cells.length - 1,
         code,
-        false
+        true
       );
       this.notebook_panel.content.activeCellIndex = result[0] + 1;
       return result;
     } catch (error) {
       console.log(error);
+      alert(error);
     }
   }
 
@@ -668,11 +682,12 @@ export class LeftSideBarWidget extends Widget {
         }
 
         // Inject imports in a new cell
-        let result: [number, string] = await cell_utils.insertAndRun(
+        let result: [number, string] = await cell_utils.insertRunShow(
           this.notebook_panel,
+          this.commands,
           -1,
           cmd,
-          false
+          true
         );
 
         // Set cell meta data to identify it as containing imports
@@ -693,7 +708,7 @@ export class LeftSideBarWidget extends Widget {
           this.commands,
           result[0] + 1,
           cmd,
-          false
+          true
         );
 
         // Select the last cell
@@ -737,6 +752,7 @@ export class LeftSideBarWidget extends Widget {
           // Set as current notebook (if not already)
           await this.setNotebookPanel(new_notebook_panel);
           console.log("Notebook set.");
+
           // Set the current file and save the file path as meta data
           await this.setCurrentFile(current_file, true);
           if (this.current_file != "") {
@@ -744,11 +760,17 @@ export class LeftSideBarWidget extends Widget {
           } else {
             reject(new Error("The file varaibles could not be read."));
           }
+
+          // Set up notebook's handlers to keep track of kernel status
+          this._notebook_panel.session.statusChanged.connect(
+            this.handleSessionChanged
+          );
         }
 
         // Activate current notebook
         this.application.shell.activateById(this.notebook_panel.id);
         this.state = NotebookState.VCS_Ready;
+        this.var_refresh = true;
         resolve();
       } catch (error) {
         reject(error);
