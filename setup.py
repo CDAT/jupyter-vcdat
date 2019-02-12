@@ -39,5 +39,5 @@ setup(name="jupyter_vcdat",
 runme("pip install sidecar")
 runme("pip install lazy_import")
 runme("jupyter labextension install .")
-runme("jupyter serverextension enable --py vcs_backend")
-
+runme("pip install nbgitpuller")
+runme("jupyter serverextension enable --py nbgitpuller --sys-prefix")
