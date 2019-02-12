@@ -28,6 +28,10 @@ For a development install:
     pip install jupyterlab_github
     jupyter serverextension enable --sys-prefix jupyterlab_github
 
+    # nbgitpuller
+    pip install nbgitpuller
+    jupyter serverextension enable --py nbgitpuller --sys-prefix
+
     # Install the extension
     cd ..
     git clone https://github.com/CDAT/jupyter-vcdat.git
