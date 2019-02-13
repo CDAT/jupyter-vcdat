@@ -19,6 +19,8 @@ const centered: React.CSSProperties = {
   margin: "auto"
 };
 
+const MAX_SLABS = 2;
+
 // plotAction: any; // the method to call when the user hits the "Plot" button
 // refreshAction: any; // the method to call when the user hits the "refresh" button
 // updatePlotOptions: any; // a method to cause the plot options to be updated
@@ -178,7 +180,12 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         temp = '"default"';
       }
       let plotString = "canvas.clear()\ncanvas.plot(";
-      this.state.selectedVariables.forEach(variable => {
+      let selection: Array<Variable> = this.state.selectedVariables;
+
+      if (selection.length > MAX_SLABS) {
+        selection = selection.slice(0, 2);
+      }
+      selection.forEach(variable => {
         plotString += variable.name + ", ";
       });
       plotString += `${gm}, ${temp})`;

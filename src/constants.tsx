@@ -237,6 +237,16 @@ output = json.dumps({\n\
   'axes': outAxes\n\
   })`;
 
+enum NOTEBOOK_STATE {
+  Unknown, // The current state of the notebook is unknown and should be updated.
+  NoOpenNotebook, // JupyterLab has no notebook opened
+  InactiveNotebook, // No notebook is currently active
+  ActiveNotebook, // An active notebook, but needs imports cell
+  NoSession, // The active notebook doesn't have a client session running
+  ImportsReady, // Has imports cell, but they need to be run
+  VCS_Ready // The notebook is ready for code injection
+}
+
 export {
   BASE_URL,
   READY_KEY,
@@ -249,5 +259,6 @@ export {
   REFRESH_VAR_INFO,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,
-  GET_FILE_VARIABLES
+  GET_FILE_VARIABLES,
+  NOTEBOOK_STATE
 };
