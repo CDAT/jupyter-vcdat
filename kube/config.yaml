@@ -12,10 +12,10 @@ singleuser:
     # name: jupyter/datascience-notebook
     # use jupyterlab
     defaultUrl: "/lab"
-    #lifecycleHooks:
-    #postStart:
-    #  exec:
-    #    command: ["gitpuller", "https://github.com/cdat/vcs", "master", "vcs"]
+  lifecycleHooks:
+    postStart:
+      exec:
+        command: ["gitpuller", "https://github.com/cdat/vcs", "master", "vcs"]
   memory:
     limit: 1.5G
     guarantee: 1G
