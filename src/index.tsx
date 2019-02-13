@@ -62,10 +62,6 @@ function activate(app: JupyterLab, tracker: NotebookTracker) {
   app.docRegistry.addFileType(ft);
   app.docRegistry.addWidgetFactory(factory);
 
-  /*factory.widgetCreated.connect((sender, widget) => {
-    console.log("NCViewerWidget created from factory");
-  });*/
-
   // Creates the left side bar widget once the app has fully started
   app.started.then(() => {
     // Create the left side bar
