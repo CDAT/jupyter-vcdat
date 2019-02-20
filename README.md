@@ -22,14 +22,15 @@ For a development install:
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
-    # Install lazy_import
-    pip install lazy_import
+    # GITHUB EXTENSION
+    jupyter labextension install @jupyterlab/github
+    # maybe?
+    pip install jupyterlab_github
+    jupyter serverextension enable --sys-prefix jupyterlab_github
 
-    # Go to vcs repo to update vcs code
-    git clone https://github.com/CDAT/vcs.git
-    cd vcs
-    git checkout boxfill_widgets_jupyter
-    python setup.py install
+    # nbgitpuller
+    pip install nbgitpuller
+    jupyter serverextension enable --py nbgitpuller --sys-prefix
 
     # Install the extension
     cd ..
@@ -37,7 +38,7 @@ For a development install:
     cd jupyter-vcdat
     python setup.py install
 
-    # Start jupyter lab
+    # To run, got to jupyter-vcdat repo
     jupyter lab
 
 ```

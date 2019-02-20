@@ -31,6 +31,7 @@ namespace notebook_utils {
   /**
    * @description Gets the value of a key from specified notebook's metadata.
    * This asynchronous version checks the notebook session is ready before getting metadata.
+   * If the notebook is null, an error will occur.
    * @param notebook_panel The notebook to get meta data from.
    * @param key The key of the value.
    * @returns any - The value of the metadata. Returns null if the key doesn't exist.
@@ -41,11 +42,20 @@ namespace notebook_utils {
   ): Promise<any> {
     let prom: Promise<any> = new Promise(async (resolve, reject) => {
       try {
-        await notebook_panel.session.ready;
-        if (notebook_panel.content.model.metadata.has(key)) {
-          resolve(notebook_panel.content.model.metadata.get(key));
+        if (notebook_panel) {
+          await notebook_panel.activated;
+          await notebook_panel.session.ready;
+          if (notebook_panel.content.model.metadata.has(key)) {
+            resolve(notebook_panel.content.model.metadata.get(key));
+          } else {
+            resolve(null);
+          }
         } else {
-          resolve(null);
+          reject(
+            new Error(
+              "The notebook is null or undefined. No meta data available."
+            )
+          );
         }
       } catch (error) {
         reject(error);
@@ -150,6 +160,7 @@ namespace notebook_utils {
    * @param store_history Default is false. If true, the code executed will be stored in the kernel's history
    * and the counter which is shown in the cells will be incremented to reflect code was run.
    * @returns Promise<string> - A promise containing the execution results of the code as a string.
+   * Or an empty string if there were no results.
    */
   export async function sendSimpleKernelRequest(
     notebook_panel: NotebookPanel,
@@ -173,10 +184,11 @@ namespace notebook_utils {
               stop_on_error: false
             }
           ).done;
+
           let content: any = message.content;
           if (content["status"] == "ok") {
             let output = content["user_expressions"]["result"];
-            if (output) {
+            if (output && output.data !== undefined) {
               //Output has data
               let execResult: string = output["data"]["text/plain"];
               resolve(execResult);
@@ -243,6 +255,7 @@ namespace notebook_utils {
       if (notebook_panel) {
         try {
           // Wait for kernel to be ready before sending request
+          await notebook_panel.activated;
           await notebook_panel.session.ready;
           await notebook_panel.session.kernel.ready;
           let message: KernelMessage.IShellMessage = await notebook_panel.session.kernel.requestExecute(

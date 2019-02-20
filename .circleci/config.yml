@@ -31,9 +31,6 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
-       python setup.py install
-       jupyter labextension install . 
-       jupyter serverextension enable --py vcs_backend
        # SIDECAR
        python -m pip install --no-deps --ignore-installed sidecar
        jupyter labextension install @jupyter-widgets/jupyterlab-manager
@@ -44,6 +41,10 @@ aliases:
        # maybe?
        pip install jupyterlab_github
        jupyter serverextension enable --sys-prefix jupyterlab_github
+
+       python setup.py install
+       rm -rf node_modules
+       jupyter labextension install . 
 
   - &run_jupyter_vcdat_tests
     name: run_jupyter_vcdat_tests

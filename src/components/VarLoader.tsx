@@ -1,84 +1,128 @@
 import * as React from "react";
 
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Row,
-  Col,
-} from "reactstrap";
-
-import { DimensionSlider } from "./DimensionSlider";
-import Variable from "./Variable";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+
+import { serial } from "../utils";
+import Variable from "./Variable";
+import VarCard from "./VarCard";
+import AxisInfo from "./AxisInfo";
 
 type VarLoaderProps = {
   file_path: string; // path to input file
   loadVariable: any; // function to call when user hits load
+  loadedVariables: Array<Variable>; // list of already loaded variables
 };
 type VarLoaderState = {
   show: boolean; // should the modal be shown
-  variable: Variable; // selected variable
-  axis: any; // variable axis information
-  selectedVariableName: string; // cdms name of selected variable
-  selectedVariableInfo: any; // axis objects for selected variab;le
-  dimInfo: any; // information returned from the loader about the selected dimenesions
+  variables: Array<Variable>; // selected variable
+  selectedVariables: Array<Variable>; // the variables the user has selected to be loaded
+  loadedVariables: Array<Variable>; // list of already loaded variables
 };
 
-export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
+export default class VarLoader extends React.Component<
+  VarLoaderProps,
+  VarLoaderState
+> {
   constructor(props: VarLoaderProps) {
     super(props);
     this.state = {
       show: false,
-      selectedVariableName: "",
-      selectedVariableInfo: {},
-      axis: {},
-      variable: new Variable(),
-      dimInfo: {}
+      variables: new Array<Variable>(),
+      selectedVariables: new Array<Variable>(),
+      loadedVariables: this.props.loadedVariables
     };
 
     this.toggle = this.toggle.bind(this);
-    this.setVariable = this.setVariable.bind(this);
-    this.loadVariable = this.loadVariable.bind(this);
+    this.selectVariableForLoad = this.selectVariableForLoad.bind(this);
+    this.deselectVariableForLoad = this.deselectVariableForLoad.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
   }
-  // open and close the variable loader modal
+
+  /**
+   * @description Toggles the variable loader modal
+   */
   toggle() {
     this.setState({
       show: !this.state.show
     });
   }
-  // set the variables and axis info
-  setVariable(variable: Variable) {
+
+  /**
+   *
+   * @param variables An array of Variable objects to display in the loader modal
+   */
+  setVariables(variables: Array<Variable>) {
+    if (this.state.loadedVariables.length > 0) {
+      let newVariables = new Array<Variable>();
+      variables.forEach((newVariable: Variable, newVarIndex: number) => {
+        let found = false;
+        this.state.loadedVariables.forEach((loadedVariable: Variable) => {
+          if (newVariable.name == loadedVariable.name) {
+            //newVariables.push(loadedVariable);
+            found = true;
+          }
+        });
+        if (!found) {
+          newVariables.push(newVariable);
+        }
+      });
+      this.setState({
+        variables: newVariables
+      });
+    } else {
+      this.setState({
+        variables: variables
+      });
+    }
+  }
+
+  /**
+   *
+   * @param variable The Variable the user has selected to get loaded
+   */
+  selectVariableForLoad(variable: Variable) {
     this.setState({
-      variable: variable
+      selectedVariables: this.state.selectedVariables.concat([variable])
     });
   }
-  // user has clicked the load button
-  loadVariable() {
-    this.toggle();
-    let dimInfo: any = {};
-    this.state.variable.axisList.map((info: string) => {
-      dimInfo[info] = {
-        min: this.state.dimInfo[info].min,
-        max: this.state.dimInfo[info].max
-      };
-    });
-    this.props.loadVariable(this.state.variable.name, dimInfo);
-  }
-  // user has moved one of the dimension sliders
-  updateDimInfo(dimInfo: any) {
-    let newDimInfo = this.state.dimInfo;
-    newDimInfo[dimInfo.name] = {
-      min: dimInfo.min,
-      max: dimInfo.max
-    };
+
+  /**
+   *
+   * @param variable Remove a variable from the list to be loaded
+   */
+  deselectVariableForLoad(variable: Variable) {
+    let selectedVars = this.state.selectedVariables.slice();
+    selectedVars.splice(this.state.selectedVariables.indexOf(variable), 1);
     this.setState({
-      dimInfo: newDimInfo
+      selectedVariables: selectedVars
     });
   }
+
+  /**
+   * @description this is just a placeholder for now
+   * @param newInfo new dimension info for the variables axis
+   * @param varName the name of the variable to update
+   */
+  updateDimInfo(newInfo: any, varName: string) {
+    this.state.variables.forEach((variable: Variable, varIndex: number) => {
+      if (variable.name != varName) {
+        return;
+      }
+      variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
+        if (axis.name != newInfo.name) {
+          return;
+        }
+        let variables = this.state.variables;
+        variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
+        variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
+        this.setState({
+          variables: variables
+        });
+      });
+    });
+  }
+
   render() {
     return (
       <div>
@@ -90,45 +134,40 @@ export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
         >
           <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
           <ModalBody>
-            <div className="load-from">
-              <Row>
-                <Col className="text-right" sm={2}>
-                  File
-                </Col>
-                <Col sm={9}>
-                  <p>{this.props.file_path}</p>
-                </Col>
-              </Row>
-            </div>
-            {/* <Row>
-              <Col className="text-right" sm={2}>
-                Variable(s)
-              </Col>
-              <Col sm={9}>
-                <FormGroup>
-                  <Input type="select" onChange={this.selectVariable}>
-                    <option key="default">select variable</option>
-                    {Object.keys(this.state.variables).map((key: any) => {
-                      return (
-                        <option key={key} title={key}>
-                          {key}: {this.state.variables[key].name}
-                        </option>
-                      );
-                    })}
-                  </Input>
-                </FormGroup>
-              </Col>
-            </Row> */}
+            {this.state.variables.length != 0 &&
+              this.state.variables.map((item: Variable) => {
+                return (
+                  <VarCard
+                    reload={() => {}}
+                    allowReload={false}
+                    updateDimInfo={this.updateDimInfo}
+                    isSelected={this.state.loadedVariables.indexOf(item) != -1}
+                    hidden={true}
+                    key={item.name}
+                    variable={item}
+                    selectVariable={this.selectVariableForLoad}
+                    deselectVariable={this.deselectVariableForLoad}
+                  />
+                );
+              })}
           </ModalBody>
-          {this.state.variable.axisInfo &&
-            this.state.variable.axisInfo.map((item: any) => {
-              item.updateDimInfo = this.updateDimInfo;
-              return <DimensionSlider key={item.name} {...item} />;
-            })}
           <ModalFooter>
-            <Button color="primary" onClick={this.loadVariable}>
+            <Button
+              outline
+              active={this.state.selectedVariables.length > 0}
+              color="primary"
+              onClick={() => {
+                this.toggle();
+                let funcs = this.state.selectedVariables.map(
+                  (variable: Variable) => async () => {
+                    return await this.props.loadVariable(variable);
+                  }
+                );
+                serial(funcs);
+              }}
+            >
               Load
-            </Button>{" "}
+            </Button>
           </ModalFooter>
         </Modal>
       </div>

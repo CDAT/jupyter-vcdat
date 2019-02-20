@@ -29,6 +29,7 @@ type GraphicsMenuState = {
   selectedGroup: string;
   firstSelection: boolean;
   optionsChanged: boolean;
+  plotReady: boolean;
 };
 
 export default class GraphicsMenu extends React.Component<
@@ -43,7 +44,8 @@ export default class GraphicsMenu extends React.Component<
       selectedMethod: "",
       selectedGroup: "Select Plot Type",
       firstSelection: false,
-      optionsChanged: false
+      optionsChanged: false,
+      plotReady: false
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
@@ -78,7 +80,7 @@ export default class GraphicsMenu extends React.Component<
                 isOpen={this.state.showDropdown}
                 toggle={this.toggleDropdown}
               >
-                <DropdownToggle caret>
+                <DropdownToggle disabled={!this.state.plotReady} caret>
                   {this.state.selectedGroup}
                 </DropdownToggle>
                 <DropdownMenu style={dropdownMenuStype}>
