@@ -8,6 +8,7 @@ import VarMenu from "./VarMenu";
 import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import Variable from "./Variable";
+import CarouselCaption from "reactstrap/lib/CarouselCaption";
 
 const btnStyle: React.CSSProperties = {
   margin: "5px"
@@ -17,6 +18,11 @@ const divStyle: React.CSSProperties = {
 };
 const centered: React.CSSProperties = {
   margin: "auto"
+};
+
+const sidebarOverflow: React.CSSProperties = {
+  maxHeight: "100vh",
+  overflow: "auto"
 };
 
 const MAX_SLABS = 2;
@@ -282,7 +288,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     };
 
     return (
-      <div style={centered}>
+      <div style={{ ...centered, ...sidebarOverflow }}>
         <Card>
           <CardBody>
             <div style={centered}>
