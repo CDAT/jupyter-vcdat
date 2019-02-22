@@ -1,7 +1,6 @@
 // Dependencies
 import * as React from "react";
-import { Button, Card, CardBody } from "reactstrap";
-
+import { Alert, Button, ButtonGroup, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Input, Label  } from "reactstrap";
 // Project Components
 import { notebook_utils } from "../notebook_utils";
 import {
@@ -50,7 +49,11 @@ type VCSMenuState = {
   selected_gm: string;
   selected_gm_group: string;
   selected_template: string;
-  notebook_panel: NotebookPanel;
+  notebook_panel: any;
+  modal: boolean;
+  plotName: string;
+  plotFileFormat: string;
+  alertVisible: boolean;
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
@@ -66,7 +69,12 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       selected_gm: "",
       selected_gm_group: "",
       selected_template: "",
-      notebook_panel: this.props.notebook_panel
+      notebook_panel: this.props.notebook_panel,
+      modal: false,
+      plotName: "",
+      plotFileFormat: "",
+      alertVisible: false
+
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
@@ -82,6 +90,32 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updatePlotReady = this.updatePlotReady.bind(this);
     this.updateVariables = this.updateVariables.bind(this);
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
+    this.toggle = this.toggle.bind(this);
+    this.onFormSubmit = this.onFormSubmit.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
+  }
+
+  onDismiss() {
+   this.setState({ alertVisible: false });
+ }
+
+  toggle() {
+    this.setState(prevState => ({
+      modal: !prevState.modal
+    }));
+  }
+
+  onFormSubmit() {
+    // alert(JSON.stringify(this.state, null, '  '));
+    console.log(this.state.plotName)
+  }
+
+  onRadioBtnClick(rSelected: string) {
+   this.setState({ plotFileFormat: rSelected });
+ }
+
+  update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {
+    console.log(vars, gms, templates);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
   }
 
@@ -342,15 +376,26 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     }
   }
 
-  save(): void {
-    let response: string | null = prompt(
-      "Please enter the name to save the plot as."
-    );
-    if (response == null || response == "") {
-      notebook_utils.showMessage("Notice", "Injection cancelled.");
-    } else {
-      this.props.inject(`canvas.png('${response}')`);
+  save() {
+    if(this.state.plotName == null || this.state.plotName == ""){
+      alert("Invalid plot name.");
     }
+    console.log("plotFileFormat:", this.state.plotFileFormat)
+    let fileFormat = this.state.plotFileFormat
+    if(fileFormat === "png"){
+      this.props.inject(`canvas.png('${this.state.plotName}')`);
+    } else if (fileFormat == "pdf") {
+      this.props.inject(`canvas.pdf('${this.state.plotName}')`);
+    } else if (fileFormat == "svg") {
+      this.props.inject(`canvas.svg('${this.state.plotName}')`);
+    }
+
+    this.setState({ alertVisible : true }, () => {
+      window.setTimeout(() => {
+        this.setState({ alertVisible : false })
+      }, 5000)
+    });
+    this.setState({ modal: false });
   }
 
   clear(): void {
@@ -431,7 +476,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                 color="primary"
                 className="col-sm-3"
                 style={btnStyle}
-                onClick={this.save}
+                onClick={this.toggle}
                 disabled={!this.state.plotReady}
               >
                 Save
@@ -458,6 +503,36 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           {...TemplateMenuProps}
           ref={loader => (this.templateMenuRef = loader)}
         />
+        <Modal isOpen={this.state.modal} toggle={this.toggle} >
+          <ModalHeader toggle={this.toggle}>Save Plot</ModalHeader>
+          <ModalBody>
+             <Label>Name:</Label>
+             <Input
+               type="text"
+               name="text"
+               placeholder="Name"
+               value={this.state.plotName}
+               onChange={e => this.setState({ plotName: e.target.value })}
+             />
+             <br />
+             <div>
+               <ButtonGroup>
+                 <Button color="primary" onClick={() => this.onRadioBtnClick("png")} active={this.state.plotFileFormat === "png"}>PNG</Button>
+                 <Button color="primary" onClick={() => this.onRadioBtnClick("svg")} active={this.state.plotFileFormat === "svg"}>SVG</Button>
+                 <Button color="primary" onClick={() => this.onRadioBtnClick("pdf")} active={this.state.plotFileFormat === "pdf"}>PDF</Button>
+               </ButtonGroup>
+             </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.save}>Export</Button>{' '}
+            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
+        <div>
+          <Alert color="primary" isOpen={this.state.alertVisible} toggle={this.onDismiss}>
+            `Exported {this.state.plotName}`
+          </Alert>
+      </div>
       </div>
     );
   }
