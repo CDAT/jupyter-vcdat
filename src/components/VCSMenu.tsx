@@ -8,7 +8,6 @@ import VarMenu from "./VarMenu";
 import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import Variable from "./Variable";
-import CarouselCaption from "reactstrap/lib/CarouselCaption";
 
 const btnStyle: React.CSSProperties = {
   margin: "5px"
