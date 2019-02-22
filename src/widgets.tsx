@@ -304,7 +304,6 @@ export class LeftSideBarWidget extends Widget {
       }
       // Set the current notebook and wait for the session to be ready
       await this.setNotebookPanel(notebook_panel);
-      //await this.component.resetSelected();
     } catch (error) {
       console.log(error);
     }

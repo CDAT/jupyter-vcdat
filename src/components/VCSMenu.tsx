@@ -20,12 +20,8 @@ const centered: React.CSSProperties = {
   margin: "auto"
 };
 
-// plotAction: any; // the method to call when the user hits the "Plot" button
-// refreshAction: any; // the method to call when the user hits the "refresh" button
-// updatePlotOptions: any; // a method to cause the plot options to be updated
 export type VCSMenuProps = {
   inject: any; // a method to inject code into the controllers notebook
-  //file_path: string; // the file path for the selected netCDF file
   commands: any; // the command executor
   notebook_panel: any;
   plotReady: boolean;
@@ -33,7 +29,6 @@ export type VCSMenuProps = {
   updateSelectedVariables: any; // function that updates the selected variables in main widget
 };
 type VCSMenuState = {
-  //file_path: string;
   plotReady: boolean; // are we ready to plot
   variables: Array<Variable>; // All the variables, loaded from files and derived by users
   selectedVariables: Array<string>; // Unique names of all the variables that are currently selected
@@ -50,7 +45,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   constructor(props: VCSMenuProps) {
     super(props);
     this.state = {
-      //file_path: props.file_path,
       plotReady: this.props.plotReady,
       variables: new Array<Variable>(),
       selectedVariables: new Array<string>(),
@@ -65,7 +59,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.plot = this.plot.bind(this);
     this.save = this.save.bind(this);
     this.clear = this.clear.bind(this);
-    //this.resetSelected = this.resetSelected.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
     this.updatePlotReady = this.updatePlotReady.bind(this);
     this.updateLoadedVariables = this.updateLoadedVariables.bind(this);
@@ -222,13 +215,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     await this.varMenuRef.launchVarLoader(variables);
   }
 
-  /*async resetSelected() {
-    // Nothing selected
-    console.log("Nothing selected");
-    await this.setState({ selectedVariables: new Array<Variable>() });
-    await this.varMenuRef.setSelected(new Array<Variable>());
-  }*/
-
   updateLoadedVariables(variables: Array<Variable>) {
     this.setState({ variables: variables });
     this.varMenuRef.setState({ variables: variables });
@@ -248,10 +234,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     ]);
   }
 
-  /*componentDidUpdate(): any {
-    this.setState({...this.state,selectedVariables})
-  }*/
-
   render() {
     let GraphicsMenuProps = {
       updateGraphicsOptions: this.updateGraphicsOptions,
@@ -259,7 +241,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       plotReady: this.state.plotReady
     };
     let VarMenuProps = {
-      //file_path: this.state.file_path,
       commands: this.props.commands,
       loadVariable: this.loadVariable,
       variables: this.state.variables,

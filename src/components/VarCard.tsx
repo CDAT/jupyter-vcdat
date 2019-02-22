@@ -79,7 +79,6 @@ export default class VarCard extends React.Component<
     if (this.state.isLoaded) {
       alert("This variable is already loaded.");
       this.props.deselectVariable(this.varName);
-      //this.setState({ isSelected: false });
       return;
     }
     if (!this.props.isSelected() && !this.state.hidden) {
