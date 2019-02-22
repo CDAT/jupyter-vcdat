@@ -37,7 +37,6 @@ const formOverflow: React.CSSProperties = {
 };
 
 type VarMenuProps = {
-  //file_path: string; // the path to our file of interest
   loadVariable: any; // a method to call when loading the variable
   commands?: any; // the command executer
   variables: Array<Variable>; // an array of all current variables
@@ -65,14 +64,18 @@ export default class VarMenu extends React.Component<
       variables: this.props.variables
     };
     this.varLoaderRef = (React as any).createRef();
-    //this.clear = this.clear.bind(this);
     this.launchFilebrowser = this.launchFilebrowser.bind(this);
     this.launchVarLoader = this.launchVarLoader.bind(this);
     this.loadFileVariable = this.loadFileVariable.bind(this);
+    this.isSelected = this.isSelected.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
     this.handleStatusChange = this.handleStatusChange.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
+  }
+
+  isSelected(varName: string) {
+    return this.state.selectedVariables.indexOf(varName) >= 0;
   }
 
   /**
@@ -188,7 +191,7 @@ export default class VarMenu extends React.Component<
    * @param newInfo new dimension info for the variables axis
    * @param varName the name of the variable to update
    */
-  updateDimInfo(newInfo: any, varName: string) {
+  async updateDimInfo(newInfo: any, varName: string) {
     this.state.variables.forEach((variable: Variable, varIndex: number) => {
       if (variable.name != varName) {
         return;
@@ -236,7 +239,7 @@ export default class VarMenu extends React.Component<
                           this.reloadVariable(item);
                         }}
                         allowReload={true}
-                        isSelected={this.state.selectedVariables.indexOf(item.name) >= 0}
+                        isSelected={this.isSelected}
                         updateDimInfo={this.updateDimInfo}
                         variable={item}
                         isLoaded={false}
@@ -252,6 +255,7 @@ export default class VarMenu extends React.Component<
           </CardBody>
         </Card>
         <VarLoader
+          updateSelectedVariables={this.props.updateSelectedVariables}
           loadFileVariable={this.loadFileVariable}
           variables={this.state.variables}
           ref={(loader: VarLoader) => (this.varLoaderRef = loader)}

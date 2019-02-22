@@ -417,11 +417,11 @@ export class LeftSideBarWidget extends Widget {
 
         console.log(`Updated variable name list: ${output}`);
         await this.refreshVarInfo();
-        //if (this.variable_names.length > 0) {
-        //  this.selected_variables = [this.variable_names[0]];
-        //} else {
-        this.selected_variables = new Array<string>();
-        //}
+        if (this.variable_names.length > 0) {
+          this.selected_variables = [this.variable_names[0]];
+        } else {
+          this.selected_variables = new Array<string>();
+        }
         console.log(`Selected variables: ${this.selected_variables}`);
         this.using_kernel = false;
       } else {

@@ -250,12 +250,6 @@ output = json.dumps({\n\
   'axes': outAxes\n\
   })`;
 
-/*  # Get an id for the variable\n\
-  if hasattr(var, 'id'):\n\
-    id = var.id\n\
-  else:\n\
-    id = vname\n\*/
-
 enum NOTEBOOK_STATE {
   Unknown, // The current state of the notebook is unknown and should be updated.
   NoOpenNotebook, // JupyterLab has no notebook opened

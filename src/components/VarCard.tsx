@@ -34,7 +34,7 @@ type VarCardProps = {
   deselectVariable: any; // method to call to remove a variable from the list
   hidden: boolean; // should the axis be hidden by default
   updateDimInfo: any; // method passed by the parent to update their copy of the variables dimension info
-  isSelected: boolean; // is this variable already selected
+  isSelected: Function; // method to check if this variable is selected in parent
   allowReload: boolean;
   reload: any;
   isLoaded: boolean;
@@ -43,7 +43,6 @@ type VarCardState = {
   showAxis: boolean;
   loadOrder: number;
   axisState: any;
-  isSelected: boolean;
   isLoaded: boolean;
   hidden: boolean;
   isChanged: boolean;
@@ -53,6 +52,7 @@ export default class VarCard extends React.Component<
   VarCardProps,
   VarCardState
 > {
+  varName: string;
   constructor(props: VarCardProps) {
     super(props);
     this.state = {
@@ -60,11 +60,10 @@ export default class VarCard extends React.Component<
       axisState: [],
       isLoaded: this.props.isLoaded,
       showAxis: false,
-      isSelected: this.props.isSelected,
       hidden: props.hidden,
       isChanged: false
     };
-
+    this.varName = this.props.variable.name;
     this.toggleMenu = this.toggleMenu.bind(this);
     this.openMenu = this.openMenu.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
@@ -76,33 +75,27 @@ export default class VarCard extends React.Component<
    * @description sets the isSelected attribute, and propagates up the selection action to the parent
    */
   selectVariable() {
+    console.log("Select clicked");
     if (this.state.isLoaded) {
       alert("This variable is already loaded.");
-      this.props.deselectVariable(this.props.variable.name);
-      this.setState({ isSelected: false });
+      this.props.deselectVariable(this.varName);
+      //this.setState({ isSelected: false });
       return;
     }
-    if (!this.state.isSelected && !this.state.hidden) {
+    if (!this.props.isSelected() && !this.state.hidden) {
       this.toggleMenu();
     }
-    if (this.state.showAxis && this.state.isSelected) {
+    if (this.state.showAxis && this.props.isSelected) {
       this.setState({
         showAxis: false
       });
     }
 
-    this.setState(
-      {
-        isSelected: !this.state.isSelected
-      },
-      () => {
-        if (this.state.isSelected) {
-          this.props.selectVariable(this.props.variable.name);
-        } else {
-          this.props.deselectVariable(this.props.variable.name);
-        }
-      }
-    );
+    if (this.props.isSelected(this.varName)) {
+      this.props.deselectVariable(this.varName);
+    } else {
+      this.props.selectVariable(this.varName);
+    }
   }
 
   /**
@@ -140,7 +133,7 @@ export default class VarCard extends React.Component<
 
   render() {
     let buttonString = "Select";
-    if (this.state.isSelected) {
+    if (this.props.isSelected) {
       buttonString = "Unselect";
     }
     let hideString = "Axes";
@@ -163,17 +156,19 @@ export default class VarCard extends React.Component<
                       outline
                       color={color}
                       onClick={this.selectVariable}
-                      active={this.state.isSelected}
+                      active={this.props.isSelected(this.varName)}
                       style={buttonsStyle}
                     >
                       {this.props.variable.name}
                     </Button>
                   </Col>
                   <Col xs="sm-4">
-                    {(this.state.showAxis || this.state.isSelected) && (
+                    {(this.state.showAxis ||
+                      this.props.isSelected(this.varName)) && (
                       <Button
                         outline
                         color={"danger"}
+                        active={this.state.showAxis}
                         onClick={() => {
                           this.setState({
                             showAxis: !this.state.showAxis,
@@ -220,7 +215,7 @@ export default class VarCard extends React.Component<
                       <CardBody>
                         <DimensionSlider
                           {...item}
-                          varName={this.props.variable.name}
+                          varName={this.varName}
                         />
                       </CardBody>
                     </Card>

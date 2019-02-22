@@ -175,7 +175,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    */
   plot() {
     if (this.state.selectedVariables.length == 0) {
-      this.props.inject("# Please select a variable from the left panel");
+      alert("Please select a variable from the left panel");
     } else {
       let gm = this.state.selected_gm;
       let temp = this.state.selected_template;
@@ -189,7 +189,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       let selection: Array<string> = this.state.selectedVariables;
 
       if (selection.length > MAX_SLABS) {
-        selection = selection.slice(0, 2);
+        selection = selection.slice(0, MAX_SLABS);
       }
       selection.forEach(variableName => {
         plotString += variableName + ", ";
