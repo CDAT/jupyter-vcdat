@@ -72,8 +72,6 @@ export class LeftSideBarWidget extends Widget {
     this.refreshVarInfo = this.refreshVarInfo.bind(this);
     this.getFileVariables = this.getFileVariables.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
-    this.updateVariables = this.updateVariables.bind(this);
-    this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.inject = this.inject.bind(this);
     this.injectAndDisplay = this.injectAndDisplay.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
@@ -89,7 +87,9 @@ export class LeftSideBarWidget extends Widget {
         updateVariables={(variables: Array<Variable>) => {
           this._variable_data = variables;
         }}
-        updateSelectedVariables={this.updateSelectedVariables}
+        updateSelectedVariables={(variableNames: Array<string>) => {
+          this._selected_variables = variableNames;
+        }}
       />,
       this.div
     );
@@ -117,8 +117,7 @@ export class LeftSideBarWidget extends Widget {
   }
 
   public set selected_variables(variables: Array<string>) {
-    this._selected_variables = variables;
-    this.component.updateSelectedVariables(this._selected_variables);
+    this.component.updateSelectedVariables(variables);
   }
 
   public get notebook_panel(): NotebookPanel {
@@ -144,14 +143,6 @@ export class LeftSideBarWidget extends Widget {
   }
 
   //=======ASYNC SETTER FUNCTIONS=======
-
-  updateVariables(variables: Array<Variable>) {
-    this._variable_data = variables;
-  }
-
-  updateSelectedVariables(variableNames: Array<string>) {
-    this._selected_variables = variableNames;
-  }
 
   /**
    * Set's the widget's current notebook and updates needed widget variables.
@@ -426,9 +417,16 @@ export class LeftSideBarWidget extends Widget {
 
         console.log(`Updated variable name list: ${output}`);
         await this.refreshVarInfo();
+        //if (this.variable_names.length > 0) {
+        //  this.selected_variables = [this.variable_names[0]];
+        //} else {
+        this.selected_variables = new Array<string>();
+        //}
+        console.log(`Selected variables: ${this.selected_variables}`);
         this.using_kernel = false;
       } else {
         this.variable_names = [];
+        this.selected_variables = new Array<string>();
         this.variable_data = new Array<Variable>();
         console.log(`Notebook has no variables.`);
       }

@@ -242,7 +242,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    */
   async updateSelectedVariables(selection: Array<string>): Promise<any> {
     this.props.updateSelectedVariables(selection);
-    return Promise.all([
+    await Promise.all([
       this.setState({ selectedVariables: selection }),
       this.varMenuRef.setState({ selectedVariables: selection })
     ]);

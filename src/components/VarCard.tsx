@@ -78,6 +78,7 @@ export default class VarCard extends React.Component<
   selectVariable() {
     if (this.state.isLoaded) {
       alert("This variable is already loaded.");
+      this.props.deselectVariable(this.props.variable.name);
       this.setState({ isSelected: false });
       return;
     }
@@ -162,10 +163,10 @@ export default class VarCard extends React.Component<
                       outline
                       color={color}
                       onClick={this.selectVariable}
-                      active={this.state.isSelected == true}
+                      active={this.state.isSelected}
                       style={buttonsStyle}
                     >
-                      {this.props.variable.name}-{this.props.variable.longName}
+                      {this.props.variable.name}
                     </Button>
                   </Col>
                   <Col xs="sm-4">

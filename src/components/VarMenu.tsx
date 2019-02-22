@@ -236,9 +236,7 @@ export default class VarMenu extends React.Component<
                           this.reloadVariable(item);
                         }}
                         allowReload={true}
-                        isSelected={
-                          this.state.selectedVariables.indexOf(item.name) != -1
-                        }
+                        isSelected={this.state.selectedVariables.indexOf(item.name) >= 0}
                         updateDimInfo={this.updateDimInfo}
                         variable={item}
                         isLoaded={false}
