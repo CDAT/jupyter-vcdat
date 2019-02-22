@@ -37,12 +37,14 @@ type VarCardProps = {
   isSelected: boolean; // is this variable already selected
   allowReload: boolean;
   reload: any;
+  isLoaded: boolean;
 };
 type VarCardState = {
   showAxis: boolean;
   loadOrder: number;
   axisState: any;
   isSelected: boolean;
+  isLoaded: boolean;
   hidden: boolean;
   isChanged: boolean;
 };
@@ -56,6 +58,7 @@ export default class VarCard extends React.Component<
     this.state = {
       loadOrder: -1,
       axisState: [],
+      isLoaded: this.props.isLoaded,
       showAxis: false,
       isSelected: this.props.isSelected,
       hidden: props.hidden,
@@ -73,6 +76,11 @@ export default class VarCard extends React.Component<
    * @description sets the isSelected attribute, and propagates up the selection action to the parent
    */
   selectVariable() {
+    if (this.state.isLoaded) {
+      alert("This variable is already loaded.");
+      this.setState({ isSelected: false });
+      return;
+    }
     if (!this.state.isSelected && !this.state.hidden) {
       this.toggleMenu();
     }
@@ -88,9 +96,9 @@ export default class VarCard extends React.Component<
       },
       () => {
         if (this.state.isSelected) {
-          this.props.selectVariable(this.props.variable);
+          this.props.selectVariable(this.props.variable.name);
         } else {
-          this.props.deselectVariable(this.props.variable);
+          this.props.deselectVariable(this.props.variable.name);
         }
       }
     );
@@ -138,6 +146,10 @@ export default class VarCard extends React.Component<
     if (this.state.hidden) {
       hideString = "Axes";
     }
+    let color = "success";
+    if (this.state.isLoaded) {
+      color = "warning";
+    }
     return (
       <div>
         <Card style={cardStyle}>
@@ -148,19 +160,19 @@ export default class VarCard extends React.Component<
                   <Col xs="sm-5">
                     <Button
                       outline
-                      color="success"
+                      color={color}
                       onClick={this.selectVariable}
                       active={this.state.isSelected == true}
                       style={buttonsStyle}
                     >
-                      {this.props.variable.name}
+                      {this.props.variable.name}-{this.props.variable.longName}
                     </Button>
                   </Col>
                   <Col xs="sm-4">
                     {(this.state.showAxis || this.state.isSelected) && (
                       <Button
                         outline
-                        color="danger"
+                        color={"danger"}
                         onClick={() => {
                           this.setState({
                             showAxis: !this.state.showAxis,

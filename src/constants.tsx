@@ -1,3 +1,4 @@
+const MAX_SLABS = 2;
 const BASE_URL = "/vcs";
 const READY_KEY = "vcdat_ready";
 const FILE_PATH_KEY = "vcdat_file_path";
@@ -29,7 +30,7 @@ def list_all():\n\
     return out\n\
 output = "{}|{}|{})".format(variables(),templates(),graphic_methods())';
 
-const REFRESH_VARS_CMD =
+const REFRESH_NAMES_CMD =
   "import __main__\n\
 def variables():\n\
   out = []\n\
@@ -69,6 +70,11 @@ vars = variables()\n\
 outVars = {}\n\
 for vname in vars:\n\
   var = __main__.__dict__[vname]\n\
+  # Get cdmsID for the variable\n\
+  if hasattr(var, 'id'):\n\
+    cdmsID = var.id\n\
+  else:\n\
+    cdmsID = ""\n\
   # Get a displayable name for the variable\n\
   if hasattr(var, 'long_name'):\n\
     name = var.long_name\n\
@@ -115,6 +121,7 @@ for vname in vars:\n\
     gridType = None\n\
   if (vname not in outVars):\n\
     outVars[vname] = {}\n\
+  outVars[vname]['cdmsID'] = cdmsID\n\
   outVars[vname]['name'] = name\n\
   outVars[vname]['shape'] = var.shape\n\
   outVars[vname]['units'] = units\n\
@@ -156,6 +163,11 @@ const GET_FILE_VARIABLES = `import json\n\
 outVars = {}\n\
 for vname in reader.variables:\n\
   var = reader.variables[vname]\n\
+  # Get cdmsID for the variable\n\
+  if hasattr(var, 'id'):\n\
+    cdmsID = var.id\n\
+  else:\n\
+    cdmsID = ""\n\
   # Get a displayable name for the variable\n\
   if hasattr(var, 'long_name'):\n\
     name = var.long_name\n\
@@ -202,6 +214,7 @@ for vname in reader.variables:\n\
     gridType = None\n\
   if (vname not in outVars):\n\
     outVars[vname] = {}\n\
+  outVars[vname]['cdmsID'] = cdmsID\n\
   outVars[vname]['name'] = name\n\
   outVars[vname]['shape'] = var.shape\n\
   outVars[vname]['units'] = units\n\
@@ -237,6 +250,12 @@ output = json.dumps({\n\
   'axes': outAxes\n\
   })`;
 
+/*  # Get an id for the variable\n\
+  if hasattr(var, 'id'):\n\
+    id = var.id\n\
+  else:\n\
+    id = vname\n\*/
+
 enum NOTEBOOK_STATE {
   Unknown, // The current state of the notebook is unknown and should be updated.
   NoOpenNotebook, // JupyterLab has no notebook opened
@@ -248,6 +267,7 @@ enum NOTEBOOK_STATE {
 }
 
 export {
+  MAX_SLABS,
   BASE_URL,
   READY_KEY,
   FILE_PATH_KEY,
@@ -255,7 +275,7 @@ export {
   VARIABLES_LOADED_KEY,
   REQUIRED_MODULES,
   GET_VARS_CMD,
-  REFRESH_VARS_CMD,
+  REFRESH_NAMES_CMD,
   REFRESH_VAR_INFO,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,

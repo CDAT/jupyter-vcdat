@@ -12,7 +12,7 @@ import { NotebookTracker, NotebookPanel, Notebook } from "@jupyterlab/notebook";
 import {
   FILE_PATH_KEY,
   IMPORT_CELL_KEY,
-  REFRESH_VARS_CMD,
+  REFRESH_NAMES_CMD,
   CHECK_MODULES_CMD,
   REQUIRED_MODULES,
   GET_FILE_VARIABLES,
@@ -38,9 +38,10 @@ export class LeftSideBarWidget extends Widget {
   loading_data: boolean;
   using_kernel: boolean; // The widgets is running a kernel command
 
-  private _ready_kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
   private variable_names: string[]; // The list of vcdat variables the current notebook has as string names
+  private _ready_kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
   private _variable_data: Array<Variable>; // An array containing information about the variables
+  private _selected_variables: Array<string>; // An array that tracks which variable(s) is/are currently selected
   private _current_file: string; // The current filepath of the data file being used for variables and data
   private _notebook_panel: NotebookPanel; // The notebook this widget is interacting with
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
@@ -60,6 +61,7 @@ export class LeftSideBarWidget extends Widget {
     this._notebook_panel = null;
     this.variable_names = [];
     this._variable_data = new Array<Variable>();
+    this._selected_variables = new Array<string>();
     this._ready_kernels = [];
     this.initialize = this.initialize.bind(this);
     this.refreshVarList = this.refreshVarList.bind(this);
@@ -70,6 +72,8 @@ export class LeftSideBarWidget extends Widget {
     this.refreshVarInfo = this.refreshVarInfo.bind(this);
     this.getFileVariables = this.getFileVariables.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
+    this.updateVariables = this.updateVariables.bind(this);
+    this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.inject = this.inject.bind(this);
     this.injectAndDisplay = this.injectAndDisplay.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
@@ -80,11 +84,12 @@ export class LeftSideBarWidget extends Widget {
       <VCSMenu
         commands={this.commands}
         inject={this.inject}
-        plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
-        getFileVariables={this.getFileVariables}
-        loadedVariables={this.variable_data}
         notebook_panel={this._notebook_panel}
-        file_path={this.current_file}
+        plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
+        updateVariables={(variables: Array<Variable>) => {
+          this._variable_data = variables;
+        }}
+        updateSelectedVariables={this.updateSelectedVariables}
       />,
       this.div
     );
@@ -104,8 +109,16 @@ export class LeftSideBarWidget extends Widget {
   }
 
   public set variable_data(var_info: Array<Variable>) {
-    this._variable_data = var_info;
-    this.component.updateLoadedVariables(this._variable_data);
+    this.component.updateLoadedVariables(var_info);
+  }
+
+  public get selected_variables(): Array<string> {
+    return this._selected_variables;
+  }
+
+  public set selected_variables(variables: Array<string>) {
+    this._selected_variables = variables;
+    this.component.updateSelectedVariables(this._selected_variables);
   }
 
   public get notebook_panel(): NotebookPanel {
@@ -131,6 +144,14 @@ export class LeftSideBarWidget extends Widget {
   }
 
   //=======ASYNC SETTER FUNCTIONS=======
+
+  updateVariables(variables: Array<Variable>) {
+    this._variable_data = variables;
+  }
+
+  updateSelectedVariables(variableNames: Array<string>) {
+    this._selected_variables = variableNames;
+  }
 
   /**
    * Set's the widget's current notebook and updates needed widget variables.
@@ -292,7 +313,7 @@ export class LeftSideBarWidget extends Widget {
       }
       // Set the current notebook and wait for the session to be ready
       await this.setNotebookPanel(notebook_panel);
-      await this.component.resetSelected();
+      //await this.component.resetSelected();
     } catch (error) {
       console.log(error);
     }
@@ -321,9 +342,10 @@ export class LeftSideBarWidget extends Widget {
   /**
    * Injects code into the bottom cell of the notebook, doesn't display results (output or error)
    * @param code A string that has the code to inject into the notebook cell.
-   * @returns any - Results from running the code.
+   * @returns Promise<[number, string]> - A promise for when the cell code has executed containing
+   * the cell's index and output result
    */
-  async inject(code: string): Promise<any> {
+  async inject(code: string): Promise<[number, string]> {
     try {
       let result = await cell_utils.insertRunShow(
         this.notebook_panel,
@@ -397,7 +419,7 @@ export class LeftSideBarWidget extends Widget {
         this.using_kernel = true;
         let output: string = await notebook_utils.sendSimpleKernelRequest(
           this.notebook_panel,
-          REFRESH_VARS_CMD
+          REFRESH_NAMES_CMD
         );
         //Update the list of latest variables and data
         this.variable_names = eval(output);
@@ -432,6 +454,7 @@ export class LeftSideBarWidget extends Widget {
         Object.keys(variableAxes.vars).map((item: string) => {
           let v = new Variable();
           v.name = item;
+          v.cdmsID = variableAxes.vars[item].cdmsID;
           v.longName = variableAxes.vars[item].name;
           v.axisList = variableAxes.vars[item].axisList;
           v.axisInfo = new Array<AxisInfo>();
@@ -444,6 +467,7 @@ export class LeftSideBarWidget extends Widget {
             v.axisInfo.push(variableAxes.axes[item]);
           });
           v.units = variableAxes.vars[item].units;
+
           newVars.push(v);
         });
         this.variable_data = newVars;
@@ -485,6 +509,7 @@ export class LeftSideBarWidget extends Widget {
         Object.keys(variableAxes.vars).map((item: string) => {
           let v = new Variable();
           v.name = item;
+          v.cdmsID = variableAxes.vars[item].cdmsID; // Loaded variables have same cdmsName
           v.longName = variableAxes.vars[item].name;
           v.axisList = variableAxes.vars[item].axisList;
           v.axisInfo = new Array<AxisInfo>();
@@ -499,7 +524,8 @@ export class LeftSideBarWidget extends Widget {
           v.units = variableAxes.vars[item].units;
           newVars.push(v);
         });
-        console.log("File variables obtained!");
+        //console.log("File variables obtained!");
+        //console.log(newVars);
         return newVars;
       } else {
         console.log("Filename was blank!");
@@ -693,6 +719,20 @@ export class LeftSideBarWidget extends Widget {
           // Set the current file and save the file path as meta data
           await this.setCurrentFile(current_file, true);
           console.log("No code injection needed. Already vcs_ready!");
+          let file_vars: Array<Variable> = await this.getFileVariables(
+            current_file
+          );
+          if (file_vars.length > 0) {
+            await this.component.launchVarSelect(file_vars);
+          } else {
+            alert(
+              "There was an issue reading the file. Please choose another file."
+            );
+            this._current_file = "";
+            throw new Error(
+              "There was an issue getting variables from the file."
+            );
+          }
         } else {
           console.log("Getting a vcs ready notebook.");
           // Grab a notebook panel
