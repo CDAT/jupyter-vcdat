@@ -30,6 +30,7 @@ export type VCSMenuProps = {
   commands: any; // the command executor
   notebook_panel: any;
   plotReady: boolean;
+  getGraphicsList: any; // function that reads the current graphics list
   getFileVariables: any; // Function that reads the current notebook file and retrieves variable data
   loadedVariables: Array<Variable>;
 };
@@ -61,6 +62,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       notebook_panel: this.props.notebook_panel
     };
     this.varMenuRef = (React as any).createRef();
+    this.graphicsMenuRef = (React as any).createRef();
 
     this.update = this.update.bind(this);
     this.plot = this.plot.bind(this);
@@ -264,6 +266,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
   render() {
     let GraphicsMenuProps = {
+      getGraphicsList: this.props.getGraphicsList,
       updateGraphicsOptions: this.updateGraphicsOptions,
       varInfo: new Variable(),
       plotReady: this.state.plotReady

@@ -17,7 +17,7 @@ def variables():\n\
 def graphic_methods():\n\
     out = {}\n\
     for typ in vcs.graphicsmethodlist():\n\
-        out[typ] = vcs.listelements(typ)\n\
+        out[type] = vcs.listelements(typ)\n\
     return out\n\
 def templates():\n\
     return vcs.listelements("template")\n\
@@ -28,6 +28,16 @@ def list_all():\n\
     out["template"] = templates()\n\
     return out\n\
 output = "{}|{}|{})".format(variables(),templates(),graphic_methods())';
+
+const REFRESH_GRAPHICS_CMD =
+  "import __main__\n\
+import json\n\
+def graphic_methods():\n\
+  out = {}\n\
+  for type in vcs.graphicsmethodlist():\n\
+    out[type] = vcs.listelements(type)\n\
+  return out\n\
+output = json.dumps(graphic_methods())";
 
 const REFRESH_VARS_CMD =
   "import __main__\n\
@@ -237,6 +247,93 @@ output = json.dumps({\n\
   'axes': outAxes\n\
   })`;
 
+const BASE_GRAPHICS: any = {
+  "3d_scalar": ["Hovmoller3D", "default"],
+  xvsy: [
+    "a_1d",
+    "a_xvsy_xvsy_",
+    "a_yxvsx_yxvsx_",
+    "blue_yxvsx",
+    "default",
+    "default_xvsy_",
+    "default_yxvsx_",
+    "red_yxvsx"
+  ],
+  xyvsy: ["a_xyvsy_xyvsy_", "default_xyvsy_"],
+  isoline: [
+    "P_and_height",
+    "a_isoline",
+    "a_lambert_isoline",
+    "a_mollweide_isoline",
+    "a_polar_isoline",
+    "a_robinson_isoline",
+    "default",
+    "polar",
+    "quick"
+  ],
+  boxfill: [
+    "a_boxfill",
+    "a_lambert_boxfill",
+    "a_mollweide_boxfill",
+    "a_polar_boxfill",
+    "a_robinson_boxfill",
+    "default",
+    "polar",
+    "quick",
+    "robinson"
+  ],
+  isofill: [
+    "a_isofill",
+    "a_lambert_isofill",
+    "a_mollweide_isofill",
+    "a_polar_isofill",
+    "a_robinson_isofill",
+    "default",
+    "polar",
+    "quick",
+    "robinson"
+  ],
+  streamline: ["default"],
+  "3d_dual_scalar": ["default"],
+  meshfill: [
+    "a_lambert_meshfill",
+    "a_meshfill",
+    "a_mollweide_meshfill",
+    "a_polar_meshfill",
+    "a_robinson_meshfill",
+    "default"
+  ],
+  "3d_vector": ["default"],
+  yxvsx: [
+    "a_1d",
+    "a_xvsy_xvsy_",
+    "a_yxvsx_yxvsx_",
+    "blue_yxvsx",
+    "default",
+    "default_xvsy_",
+    "default_yxvsx_",
+    "red_yxvsx"
+  ],
+  taylordiagram: ["default"],
+  vector: ["default"],
+  "1d": [
+    "a_1d",
+    "a_scatter_scatter_",
+    "a_xvsy_xvsy_",
+    "a_xyvsy_xyvsy_",
+    "a_yxvsx_yxvsx_",
+    "blue_yxvsx",
+    "default",
+    "default_scatter_",
+    "default_xvsy_",
+    "default_xyvsy_",
+    "default_yxvsx_",
+    "quick_scatter",
+    "red_yxvsx"
+  ],
+  scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"]
+};
+
 enum NOTEBOOK_STATE {
   Unknown, // The current state of the notebook is unknown and should be updated.
   NoOpenNotebook, // JupyterLab has no notebook opened
@@ -255,6 +352,8 @@ export {
   VARIABLES_LOADED_KEY,
   REQUIRED_MODULES,
   GET_VARS_CMD,
+  BASE_GRAPHICS,
+  REFRESH_GRAPHICS_CMD,
   REFRESH_VARS_CMD,
   REFRESH_VAR_INFO,
   CHECK_MODULES_CMD,

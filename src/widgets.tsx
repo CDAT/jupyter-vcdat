@@ -18,7 +18,9 @@ import {
   GET_FILE_VARIABLES,
   REFRESH_VAR_INFO,
   VARIABLES_LOADED_KEY,
-  NOTEBOOK_STATE
+  NOTEBOOK_STATE,
+  REFRESH_GRAPHICS_CMD,
+  BASE_GRAPHICS
 } from "./constants";
 import { VCSMenu } from "./components/VCSMenu";
 import { notebook_utils } from "./notebook_utils";
@@ -40,6 +42,7 @@ export class LeftSideBarWidget extends Widget {
 
   private _ready_kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
   private variable_names: string[]; // The list of vcdat variables the current notebook has as string names
+  private _graphics_methods: any; // The current available graphics methods
   private _variable_data: Array<Variable>; // An array containing information about the variables
   private _current_file: string; // The current filepath of the data file being used for variables and data
   private _notebook_panel: NotebookPanel; // The notebook this widget is interacting with
@@ -60,6 +63,7 @@ export class LeftSideBarWidget extends Widget {
     this._notebook_panel = null;
     this.variable_names = [];
     this._variable_data = new Array<Variable>();
+    this._graphics_methods = BASE_GRAPHICS;
     this._ready_kernels = [];
     this.initialize = this.initialize.bind(this);
     this.refreshVarList = this.refreshVarList.bind(this);
@@ -75,13 +79,15 @@ export class LeftSideBarWidget extends Widget {
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.injectRequiredCode = this.injectRequiredCode.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
-
     this.component = ReactDOM.render(
       <VCSMenu
         commands={this.commands}
         inject={this.inject}
         plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
         getFileVariables={this.getFileVariables}
+        getGraphicsList={() => {
+          return this.graphic_methods;
+        }}
         loadedVariables={this.variable_data}
         notebook_panel={this._notebook_panel}
         file_path={this.current_file}
@@ -99,6 +105,15 @@ export class LeftSideBarWidget extends Widget {
 
   //=======GETTERS AND SETTERS=======
 
+  public get graphic_methods(): any {
+    return this._graphics_methods;
+  }
+
+  public set graphic_methods(methods: any) {
+    this._graphics_methods = methods;
+    this.component.graphicsMenuRef.setState({ graphic_methods: methods });
+  }
+
   public get variable_data(): Array<Variable> {
     return this._variable_data;
   }
@@ -106,10 +121,6 @@ export class LeftSideBarWidget extends Widget {
   public set variable_data(var_info: Array<Variable>) {
     this._variable_data = var_info;
     this.component.updateLoadedVariables(this._variable_data);
-  }
-
-  public get notebook_panel(): NotebookPanel {
-    return this._notebook_panel;
   }
 
   public get state() {
@@ -128,6 +139,10 @@ export class LeftSideBarWidget extends Widget {
 
   public get current_file(): string {
     return this._current_file;
+  }
+
+  public get notebook_panel(): NotebookPanel {
+    return this._notebook_panel;
   }
 
   //=======ASYNC SETTER FUNCTIONS=======
@@ -203,6 +218,7 @@ export class LeftSideBarWidget extends Widget {
         }
         // Update the variable list and loaded variables
         await this.refreshVarList();
+        await this.refreshGraphicsList();
 
         // Set up notebook's handlers to keep track of notebook status
         this.notebook_panel.content.stateChanged.connect(
@@ -212,6 +228,7 @@ export class LeftSideBarWidget extends Widget {
       } else {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
         await this.refreshVarList();
+        await this.refreshGraphicsList();
         this.setCurrentFile("", false);
       }
     } catch (error) {
@@ -313,6 +330,7 @@ export class LeftSideBarWidget extends Widget {
     ) {
       console.log("Refreshing variables");
       this.refreshVarList();
+      this.refreshGraphicsList();
     }
   }
 
@@ -388,6 +406,32 @@ export class LeftSideBarWidget extends Widget {
   }
 
   /**
+   * This updates the current graphics methods list by sending a command to the kernel directly.
+   */
+  async refreshGraphicsList(): Promise<void> {
+    try {
+      if (this.state == NOTEBOOK_STATE.VCS_Ready) {
+        //Refresh the graphic methods
+        this.using_kernel = true;
+        let output: string = await notebook_utils.sendSimpleKernelRequest(
+          this.notebook_panel,
+          REFRESH_GRAPHICS_CMD
+        );
+        //Update the list of latest variables and data
+        this.graphic_methods = JSON.parse(output.slice(1, output.length - 1));
+        console.log(`Updated graphics method list:`);
+        console.log(this.graphic_methods);
+        this.using_kernel = false;
+      } else {
+        this.graphic_methods = BASE_GRAPHICS;
+        console.log(`No graphics list for this notebook.`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
    * This updates the current variable list by sending a command to the kernel directly.
    */
   async refreshVarList(): Promise<void> {
@@ -401,14 +445,12 @@ export class LeftSideBarWidget extends Widget {
         );
         //Update the list of latest variables and data
         this.variable_names = eval(output);
-
         console.log(`Updated variable name list: ${output}`);
         await this.refreshVarInfo();
         this.using_kernel = false;
       } else {
         this.variable_names = [];
         this.variable_data = new Array<Variable>();
-        console.log(`Notebook has no variables.`);
       }
     } catch (error) {
       console.log(error);
