@@ -3,7 +3,7 @@ import * as React from "react";
 import { Button, Card, CardBody } from "reactstrap";
 // Project Components
 import { notebook_utils } from "../notebook_utils";
-import { VARIABLES_LOADED_KEY } from "../constants";
+import { VARIABLES_LOADED_KEY, GRAPHICS_METHOD_KEY } from "../constants";
 import VarMenu from "./VarMenu";
 import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
@@ -69,6 +69,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.save = this.save.bind(this);
     this.clear = this.clear.bind(this);
     this.resetSelected = this.resetSelected.bind(this);
+    this.getGraphicsMetaData = this.getGraphicsMetaData.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
     this.updatePlotReady = this.updatePlotReady.bind(this);
@@ -81,18 +82,62 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     console.log(vars, gms, templates);
   }
 
+  getGraphicsMetaData() {
+    // Load the selected graphics method from meta data (if exists)
+    let gm_data: [string, string] = notebook_utils.getMetaDataNow(
+      this.state.notebook_panel,
+      GRAPHICS_METHOD_KEY
+    );
+
+    // If the data is not null, set the selected graphic method and group
+    if (gm_data) {
+      this.setState({
+        selected_gm: gm_data[0],
+        selected_gm_group: gm_data[1]
+      });
+      this.graphicsMenuRef.setState({
+        selectedGroup: gm_data[0],
+        selectedMethod: gm_data[1],
+        tempGroup: gm_data[0]
+      });
+      console.log("Graphics selection loaded.");
+    } else {
+      // No meta data means fresh notebook, reset the graphics
+      this.graphicsMenuRef.resetGraphicsState();
+    }
+  }
+
   /**
    * @description inject code into the notebook loading the graphics method selected by the user
    * @param group the group name that the selected GM came from
    * @param name the specific GM from the group
    */
-  updateGraphicsOptions(group: string, name: string) {
-    this.setState({
-      selected_gm_group: group,
-      selected_gm: `${group}_${name}`
-    });
-    let gm_string = `${group}_${name} = vcs.get${group}('${name}')`;
-    this.props.inject(gm_string);
+  async updateGraphicsOptions(group: string, name: string): Promise<void> {
+    let gm_string: string = "";
+    if (name.indexOf(group) < 0) {
+      gm_string = `${name}_${group} = vcs.get${group}('${name}')`;
+    } else {
+      gm_string = `${name} = vcs.get${group}('${name}')`;
+    }
+
+    // Attempt code injection
+    try {
+      await this.props.inject(gm_string).then(() => {
+        // If successful, update the state
+        this.setState({
+          selected_gm_group: group,
+          selected_gm: name
+        });
+        // Save selected graphics method to meta data
+        notebook_utils.setMetaData(
+          this.state.notebook_panel,
+          GRAPHICS_METHOD_KEY,
+          [this.state.selected_gm_group, this.state.selected_gm]
+        );
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -173,7 +218,11 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     if (this.state.selectedVariables.length == 0) {
       this.props.inject("# Please select a variable from the left panel");
     } else {
-      let gm = this.state.selected_gm;
+      let gm: string = this.state.selected_gm;
+      if (gm.indexOf(this.state.selected_gm_group) < 0) {
+        gm += `_${this.state.selected_gm_group}`;
+      }
+
       let temp = this.state.selected_template;
       if (!gm) {
         gm = '"default"';

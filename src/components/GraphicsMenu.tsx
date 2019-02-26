@@ -13,13 +13,20 @@ import {
   FormGroup,
   Label,
   Input,
-  Button
+  Button,
+  Row
 } from "reactstrap";
-import { BASE_GRAPHICS } from "../constants";
-const dropdownMenuStype: React.CSSProperties = {
+const dropdownMenuStyle: React.CSSProperties = {
   maxHeight: "250px",
+  padding: "2px",
+  marginTop: "5px",
   overflow: "auto"
 };
+const graphicButtonStyle: React.CSSProperties = {
+  marginTop: "2px",
+  padding: "2px 5px"
+};
+
 type GraphicsMenuProps = {
   getGraphicsList: any; // a method that gets the current list of graphics methods
   updateGraphicsOptions: any; // a method to call when the user has selected their desired graphics method
@@ -29,8 +36,7 @@ type GraphicsMenuState = {
   showDropdown: boolean;
   selectedMethod: string;
   selectedGroup: string;
-  firstSelection: boolean;
-  optionsChanged: boolean;
+  tempGroup: string;
   plotReady: boolean;
 };
 
@@ -44,37 +50,59 @@ export default class GraphicsMenu extends React.Component<
       showMenu: false,
       showDropdown: false,
       selectedMethod: "",
-      selectedGroup: "Select Plot Type",
-      firstSelection: false,
-      optionsChanged: false,
+      selectedGroup: "",
+      tempGroup: "",
       plotReady: false
     };
-    this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.graphicsOptions = this.graphicsOptions.bind(this);
-    this.selectFalse = this.selectFalse.bind(this);
-    this.selectTrue = this.selectTrue.bind(this);
+    this.resetGraphicsState = this.resetGraphicsState.bind(this);
+    this.selectItem = this.selectItem.bind(this);
   }
-  toggleMenu() {
-    this.setState({
-      showMenu: !this.state.showMenu
-    });
-  }
+
   toggleDropdown() {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
+    if (this.state.showMenu) {
+      this.setState({
+        showMenu: false,
+        showDropdown: false,
+        tempGroup: this.state.selectedGroup
+      });
+    }
   }
+
+  // Resets the graphics menu to initial, (for when a new notebook is selected)
+  resetGraphicsState() {
+    console.log("Graphics selections reset.");
+    this.setState({
+      showMenu: false,
+      showDropdown: false,
+      selectedMethod: "",
+      selectedGroup: "",
+      tempGroup: ""
+    });
+  }
+
   render() {
+    let dropdownTitle = "Select Plot Type";
+    if (this.state.selectedMethod != "") {
+      if (this.state.tempGroup == "") {
+        dropdownTitle = `${this.state.selectedGroup} (${
+          this.state.selectedMethod
+        })`;
+      } else if (this.state.tempGroup == this.state.selectedGroup) {
+        dropdownTitle = `${this.state.tempGroup} (${
+          this.state.selectedMethod
+        })`;
+      } else {
+        dropdownTitle = `${this.state.tempGroup}`;
+      }
+    }
     return (
       <div>
-        <Card
-          onClick={() => {
-            if (!this.state.showMenu) {
-              this.setState({ showMenu: true });
-            }
-          }}
-        >
+        <Card>
           <CardBody>
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle>
@@ -83,19 +111,19 @@ export default class GraphicsMenu extends React.Component<
                 toggle={this.toggleDropdown}
               >
                 <DropdownToggle disabled={!this.state.plotReady} caret>
-                  {this.state.selectedGroup}
+                  {dropdownTitle}
                 </DropdownToggle>
-                <DropdownMenu style={dropdownMenuStype}>
+                <DropdownMenu style={dropdownMenuStyle}>
                   {Object.keys(this.props.getGraphicsList()).map(item => {
                     return (
                       <DropdownItem
-                        onClick={() =>
+                        onClick={() => {
                           this.setState({
-                            selectedGroup: item,
-                            firstSelection: true,
-                            showDropdown: true
-                          })
-                        }
+                            tempGroup: item,
+                            showDropdown: false,
+                            showMenu: true
+                          });
+                        }}
                         key={item}
                       >
                         {item}
@@ -106,63 +134,80 @@ export default class GraphicsMenu extends React.Component<
               </Dropdown>
             </CardSubtitle>
             <Collapse isOpen={this.state.showMenu}>
-              {this.state.firstSelection &&
-                this.graphicsOptions(this.state.selectedGroup)}
+              {this.state.tempGroup != "" &&
+                this.graphicsOptions(this.state.tempGroup)}
             </Collapse>
           </CardBody>
         </Card>
       </div>
     );
   }
-  selectTrue() {
-    this.setState({
-      showMenu: false
-    });
-    this.props.updateGraphicsOptions(
-      this.state.selectedGroup,
-      this.state.selectedMethod
-    );
+  async selectItem(item: string) {
+    try {
+      if (
+        this.state.tempGroup != this.state.selectedGroup ||
+        this.state.selectedMethod != item
+      ) {
+        await this.props.updateGraphicsOptions(this.state.tempGroup, item);
+
+        this.setState({
+          showMenu: false,
+          selectedMethod: item,
+          selectedGroup: this.state.tempGroup
+        });
+        console.log(`Updated graphics to: ${item}`);
+      } else {
+        this.setState({ showMenu: false });
+        console.log(`No change in graphics method.`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
-  selectFalse() {
-    this.setState({
-      showMenu: false
-    });
-  }
+
   graphicsOptions(group: string) {
     return (
-      <Form className={"jp-vcsWidget-Form"}>
+      <Card style={dropdownMenuStyle}>
         {this.props.getGraphicsList()[group].map((item: string) => {
           return (
-            <FormGroup check key={item}>
+            <div key={group + item}>
+              <Button
+                style={graphicButtonStyle}
+                outline
+                onClick={() => {
+                  this.selectItem(item);
+                }}
+                active={
+                  this.state.selectedGroup == group &&
+                  this.state.selectedMethod == item
+                }
+                color="success"
+              >
+                {item}
+              </Button>
+              <br />
+            </div>
+          );
+        })}
+        {/* 
+            <FormGroup check key={item + group}>
               <Label check>
                 <Input
                   type="radio"
                   name="graphics_method_radio"
                   onClick={() => {
-                    this.setState({
-                      selectedMethod: item,
-                      optionsChanged: true
-                    });
+                    this.selectItem(item);
                   }}
                 />{" "}
                 {item}
               </Label>
             </FormGroup>
-          );
-        })}
         <FormGroup className={"jp-vcsWidget-apply-buttons"}>
-          <Button
-            onClick={this.selectTrue}
-            color="primary"
-            disabled={!this.state.optionsChanged}
-          >
-            apply
-          </Button>
           <Button onClick={this.selectFalse} color="danger">
             cancel
           </Button>
-        </FormGroup>
-      </Form>
+        </FormGroup>*/}
+      </Card>
     );
   }
 }

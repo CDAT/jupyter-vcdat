@@ -2,6 +2,7 @@ const BASE_URL = "/vcs";
 const READY_KEY = "vcdat_ready";
 const FILE_PATH_KEY = "vcdat_file_path";
 const IMPORT_CELL_KEY = "vcdat_imports";
+const GRAPHICS_METHOD_KEY = "graphics_method_selected";
 const VARIABLES_LOADED_KEY = "vcdat_variables_loaded";
 const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
 
@@ -349,6 +350,7 @@ export {
   READY_KEY,
   FILE_PATH_KEY,
   IMPORT_CELL_KEY,
+  GRAPHICS_METHOD_KEY,
   VARIABLES_LOADED_KEY,
   REQUIRED_MODULES,
   GET_VARS_CMD,

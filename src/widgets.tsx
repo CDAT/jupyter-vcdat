@@ -36,7 +36,7 @@ export class LeftSideBarWidget extends Widget {
   commands: CommandRegistry; // Jupyter app CommandRegistry
   notebook_tracker: NotebookTracker; // This is to track current notebooks
   application: JupyterLab; //The JupyterLab application object
-  component: any; // the LeftSidebar component
+  VCSMenuRef: VCSMenu; // the LeftSidebar component
   loading_data: boolean;
   using_kernel: boolean; // The widgets is running a kernel command
 
@@ -79,19 +79,23 @@ export class LeftSideBarWidget extends Widget {
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.injectRequiredCode = this.injectRequiredCode.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
-    this.component = ReactDOM.render(
-      <VCSMenu
-        commands={this.commands}
-        inject={this.inject}
-        plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
-        getFileVariables={this.getFileVariables}
-        getGraphicsList={() => {
-          return this.graphic_methods;
-        }}
-        loadedVariables={this.variable_data}
-        notebook_panel={this._notebook_panel}
-        file_path={this.current_file}
-      />,
+    this.VCSMenuRef = (React as any).createRef();
+    ReactDOM.render(
+      <ErrorBoundary>
+        <VCSMenu
+          ref={loader => (this.VCSMenuRef = loader)}
+          commands={this.commands}
+          inject={this.inject}
+          plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
+          getFileVariables={this.getFileVariables}
+          getGraphicsList={() => {
+            return this.graphic_methods;
+          }}
+          loadedVariables={this.variable_data}
+          notebook_panel={this._notebook_panel}
+          file_path={this.current_file}
+        />
+      </ErrorBoundary>,
       this.div
     );
 
@@ -111,7 +115,6 @@ export class LeftSideBarWidget extends Widget {
 
   public set graphic_methods(methods: any) {
     this._graphics_methods = methods;
-    this.component.graphicsMenuRef.setState({ graphic_methods: methods });
   }
 
   public get variable_data(): Array<Variable> {
@@ -120,7 +123,7 @@ export class LeftSideBarWidget extends Widget {
 
   public set variable_data(var_info: Array<Variable>) {
     this._variable_data = var_info;
-    this.component.updateLoadedVariables(this._variable_data);
+    this.VCSMenuRef.updateLoadedVariables(this._variable_data);
   }
 
   public get state() {
@@ -131,9 +134,9 @@ export class LeftSideBarWidget extends Widget {
     this._state = notebook_state;
 
     if (notebook_state == NOTEBOOK_STATE.VCS_Ready) {
-      this.component.updatePlotReady(true);
+      this.VCSMenuRef.updatePlotReady(true);
     } else {
-      this.component.updatePlotReady(false);
+      this.VCSMenuRef.updatePlotReady(false);
     }
   }
 
@@ -152,11 +155,11 @@ export class LeftSideBarWidget extends Widget {
    */
   async setNotebookPanel(notebook_panel: NotebookPanel): Promise<void> {
     try {
-      this.component.setState({
+      this.VCSMenuRef.setState({
         notebook_panel: notebook_panel
       });
 
-      console.log(`Previous variable list: ${this.variable_names}`);
+      //console.log(`Previous variable list: ${this.variable_names}`);
       //Exit early if no change needed
       if (this._notebook_panel == notebook_panel) {
         console.log("The current notebook didn't change.");
@@ -216,7 +219,8 @@ export class LeftSideBarWidget extends Widget {
             this.state = NOTEBOOK_STATE.VCS_Ready;
           }
         }
-        // Update the variable list and loaded variables
+        // Update the selected graphics method, variable list and loaded variables
+        this.VCSMenuRef.getGraphicsMetaData();
         await this.refreshVarList();
         await this.refreshGraphicsList();
 
@@ -229,6 +233,7 @@ export class LeftSideBarWidget extends Widget {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
         await this.refreshVarList();
         await this.refreshGraphicsList();
+        this.VCSMenuRef.graphicsMenuRef.resetGraphicsState();
         this.setCurrentFile("", false);
       }
     } catch (error) {
@@ -254,7 +259,7 @@ export class LeftSideBarWidget extends Widget {
           file_path
         );
         // Update component, no variable retrieval
-        this.component.setState({
+        this.VCSMenuRef.setState({
           file_path: file_path
         });
         let result = notebook_utils.getMetaDataNow(
@@ -263,12 +268,12 @@ export class LeftSideBarWidget extends Widget {
         );
         //console.log(`Variable data found in notebook: ${result}`);
         if (result) {
-          this.component.updateLoadedVariables(result);
+          this.VCSMenuRef.updateLoadedVariables(result);
         } else {
           //console.log(`Launching var loader with filepath: ${file_path}`);
           let file_vars = await this.getFileVariables(file_path);
           if (file_vars.length > 0) {
-            await this.component.launchVarSelect(file_vars);
+            await this.VCSMenuRef.launchVarSelect(file_vars);
           } else {
             alert(
               "There was an issue reading the file. Please choose another file."
@@ -309,7 +314,7 @@ export class LeftSideBarWidget extends Widget {
       }
       // Set the current notebook and wait for the session to be ready
       await this.setNotebookPanel(notebook_panel);
-      await this.component.resetSelected();
+      await this.VCSMenuRef.resetSelected();
     } catch (error) {
       console.log(error);
     }
@@ -419,8 +424,8 @@ export class LeftSideBarWidget extends Widget {
         );
         //Update the list of latest variables and data
         this.graphic_methods = JSON.parse(output.slice(1, output.length - 1));
-        console.log(`Updated graphics method list:`);
-        console.log(this.graphic_methods);
+        //console.log(`Updated graphics method list:`);
+        //console.log(this.graphic_methods);
         this.using_kernel = false;
       } else {
         this.graphic_methods = BASE_GRAPHICS;
@@ -445,7 +450,7 @@ export class LeftSideBarWidget extends Widget {
         );
         //Update the list of latest variables and data
         this.variable_names = eval(output);
-        console.log(`Updated variable name list: ${output}`);
+        //console.log(`Updated variable name list: ${output}`);
         await this.refreshVarInfo();
         this.using_kernel = false;
       } else {
@@ -489,8 +494,8 @@ export class LeftSideBarWidget extends Widget {
           newVars.push(v);
         });
         this.variable_data = newVars;
-        console.log("Variable list updated to:");
-        console.log(newVars);
+        console.log("Variable list updated.");
+        //console.log(newVars);
       } else {
         console.log("Var list is empty.");
         this.variable_data = new Array<Variable>();
@@ -786,6 +791,28 @@ export class LeftSideBarWidget extends Widget {
       }
     });
     return prom;
+  }
+}
+
+// An error boundary to catch errors without killing the UI
+class ErrorBoundary extends React.Component {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, info: any): void {
+    // You can also log the error to an error reporting service
+    console.log(error, info);
+  }
+
+  render() {
+    return this.props.children;
   }
 }
 
