@@ -19,6 +19,11 @@ const centered: React.CSSProperties = {
   margin: "auto"
 };
 
+const sidebarOverflow: React.CSSProperties = {
+  maxHeight: "100vh",
+  overflow: "auto"
+};
+
 const MAX_SLABS = 2;
 
 // plotAction: any; // the method to call when the user hits the "Plot" button
@@ -282,7 +287,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     };
 
     return (
-      <div style={centered}>
+      <div style={{ ...centered, ...sidebarOverflow }}>
         <Card>
           <CardBody>
             <div style={centered}>
