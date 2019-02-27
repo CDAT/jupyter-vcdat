@@ -1,6 +1,7 @@
 // Dependencies
 import * as React from "react";
-import { Alert, Button, ButtonGroup, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Input, Label  } from "reactstrap";
+import { Alert, Button, ButtonGroup, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Input, Label } from "reactstrap";
+import { Spinner } from "reactstrap";
 // Project Components
 import { notebook_utils } from "../notebook_utils";
 import {
@@ -54,6 +55,7 @@ type VCSMenuState = {
   plotName: string;
   plotFileFormat: string;
   alertVisible: boolean;
+  savePlotAlert: boolean;
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
@@ -73,7 +75,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       modal: false,
       plotName: "",
       plotFileFormat: "",
-      alertVisible: false
+      alertVisible: false,
+      savePlotAlert: false,
 
     };
     this.varMenuRef = (React as any).createRef();
@@ -97,6 +100,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
   onDismiss() {
    this.setState({ alertVisible: false });
+ }
+
+ dismissSavePlotAlert(){
+   this.setState({ savePlotAlert: false });
  }
 
   toggle() {
@@ -376,18 +383,20 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     }
   }
 
-  save() {
+  async save() {
     if(this.state.plotName == null || this.state.plotName == ""){
       alert("Invalid plot name.");
     }
     console.log("plotFileFormat:", this.state.plotFileFormat)
     let fileFormat = this.state.plotFileFormat
     if(fileFormat === "png"){
-      this.props.inject(`canvas.png('${this.state.plotName}')`);
+      this.setState({ savePlotAlert: true })
+      await this.props.inject(`canvas.png('${this.state.plotName}')`);
+      this.setState({ savePlotAlert: false })
     } else if (fileFormat == "pdf") {
-      this.props.inject(`canvas.pdf('${this.state.plotName}')`);
+      await this.props.inject(`canvas.pdf('${this.state.plotName}')`);
     } else if (fileFormat == "svg") {
-      this.props.inject(`canvas.svg('${this.state.plotName}')`);
+      await this.props.inject(`canvas.svg('${this.state.plotName}')`);
     }
 
     this.setState({ alertVisible : true }, () => {
@@ -529,6 +538,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           </ModalFooter>
         </Modal>
         <div>
+        <Alert color="info" isOpen={this.state.savePlotAlert} toggle={this.dismissSavePlotAlert}>
+          `Saving {this.state.plotName} `
+          <Spinner color="info" />
+        </Alert>
           <Alert color="primary" isOpen={this.state.alertVisible} toggle={this.onDismiss}>
             `Exported {this.state.plotName}`
           </Alert>
