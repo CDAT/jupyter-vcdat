@@ -133,12 +133,9 @@ export default class VarMenu extends React.Component<
       // if the variable ISNT already loaded, add it to the loaded list
       let newVariables: Array<Variable> = this.state.variables;
       if (newVariables.indexOf(variable) == -1) {
-        await Promise.all([
-          this.props.updateVariables(newVariables),
-          this.props.loadVariable(variable)
-        ]);
-
+        await this.props.loadVariable(variable);
         newVariables.push(variable);
+        await this.props.updateVariables(newVariables);
       }
     } catch (error) {
       throw error;
