@@ -1,6 +1,7 @@
 // Dependencies
 import * as React from "react";
 import { Button, Card, CardBody } from "reactstrap";
+
 // Project Components
 import { notebook_utils } from "../notebook_utils";
 import { MAX_SLABS, VARIABLES_LOADED_KEY } from "../constants";
@@ -20,6 +21,14 @@ const centered: React.CSSProperties = {
   margin: "auto"
 };
 
+const sidebarOverflow: React.CSSProperties = {
+  maxHeight: "100vh",
+  overflow: "auto"
+};
+
+// plotAction: any; // the method to call when the user hits the "Plot" button
+// refreshAction: any; // the method to call when the user hits the "refresh" button
+// updatePlotOptions: any; // a method to cause the plot options to be updated
 export type VCSMenuProps = {
   inject: any; // a method to inject code into the controllers notebook
   commands: any; // the command executor
@@ -254,7 +263,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     };
 
     return (
-      <div style={centered}>
+      <div style={{ ...centered, ...sidebarOverflow }}>
         <Card>
           <CardBody>
             <div style={centered}>
