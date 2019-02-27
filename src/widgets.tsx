@@ -72,6 +72,7 @@ export class LeftSideBarWidget extends Widget {
     this.updateNotebookState = this.updateNotebookState.bind(this);
     this.handleStateChanged = this.handleStateChanged.bind(this);
     this.refreshVarInfo = this.refreshVarInfo.bind(this);
+    this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
     this.getFileVariables = this.getFileVariables.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
     this.inject = this.inject.bind(this);
@@ -91,6 +92,7 @@ export class LeftSideBarWidget extends Widget {
           getGraphicsList={() => {
             return this.graphic_methods;
           }}
+          refreshGraphicsList={this.refreshGraphicsList}
           loadedVariables={this.variable_data}
           notebook_panel={this._notebook_panel}
           file_path={this.current_file}
@@ -174,6 +176,9 @@ export class LeftSideBarWidget extends Widget {
       // Update current notebook
       this._notebook_panel = notebook_panel;
 
+      // Reset the UI components
+      await this.VCSMenuRef.resetState();
+
       // Update notebook state
       await this.updateNotebookState();
 
@@ -220,9 +225,9 @@ export class LeftSideBarWidget extends Widget {
           }
         }
         // Update the selected graphics method, variable list and loaded variables
-        this.VCSMenuRef.getGraphicsMetaData();
-        await this.refreshVarList();
-        await this.refreshGraphicsList();
+        this.refreshVarList();
+        this.refreshGraphicsList();
+        this.VCSMenuRef.getGraphicsSelections();
 
         // Set up notebook's handlers to keep track of notebook status
         this.notebook_panel.content.stateChanged.connect(
@@ -230,10 +235,9 @@ export class LeftSideBarWidget extends Widget {
         );
         //this._notebook_panel.disposed.connect(this.handleNotebookDisposed);
       } else {
-        // Leave notebook alone if its not vcs ready, refresh var list for UI
-        await this.refreshVarList();
-        await this.refreshGraphicsList();
-        this.VCSMenuRef.graphicsMenuRef.resetGraphicsState();
+        // Refresh the UI lists (will become empty)
+        this.refreshVarList();
+        this.refreshGraphicsList();
         this.setCurrentFile("", false);
       }
     } catch (error) {
@@ -314,7 +318,6 @@ export class LeftSideBarWidget extends Widget {
       }
       // Set the current notebook and wait for the session to be ready
       await this.setNotebookPanel(notebook_panel);
-      await this.VCSMenuRef.resetSelected();
     } catch (error) {
       console.log(error);
     }
@@ -333,7 +336,7 @@ export class LeftSideBarWidget extends Widget {
       this.state == NOTEBOOK_STATE.VCS_Ready &&
       state_change.newValue == "command"
     ) {
-      console.log("Refreshing variables");
+      console.log("Refreshing notebook data.");
       this.refreshVarList();
       this.refreshGraphicsList();
     }

@@ -21,6 +21,7 @@ const centered: React.CSSProperties = {
 
 const sidebarOverflow: React.CSSProperties = {
   maxHeight: "100vh",
+  minWidth: "375px",
   overflow: "auto"
 };
 
@@ -36,6 +37,7 @@ export type VCSMenuProps = {
   notebook_panel: any;
   plotReady: boolean;
   getGraphicsList: any; // function that reads the current graphics list
+  refreshGraphicsList: Function; // function that refreshes the graphics method list
   getFileVariables: any; // Function that reads the current notebook file and retrieves variable data
   loadedVariables: Array<Variable>;
 };
@@ -51,7 +53,7 @@ type VCSMenuState = {
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
-  varMenuRef: any;
+  varMenuRef: VarMenu;
   graphicsMenuRef: GraphicsMenu;
   templateMenuRef: TemplateMenu;
   constructor(props: VCSMenuProps) {
@@ -73,8 +75,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.plot = this.plot.bind(this);
     this.save = this.save.bind(this);
     this.clear = this.clear.bind(this);
-    this.resetSelected = this.resetSelected.bind(this);
-    this.getGraphicsMetaData = this.getGraphicsMetaData.bind(this);
+    this.resetState = this.resetState.bind(this);
+    this.copyGraphicsMethod = this.copyGraphicsMethod.bind(this);
+    this.editGraphicsMethod = this.editGraphicsMethod.bind(this);
+    this.getGraphicsSelections = this.getGraphicsSelections.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
     this.updatePlotReady = this.updatePlotReady.bind(this);
@@ -83,11 +87,26 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
   }
 
+  async resetState() {
+    console.log("VCS Menu state reset.");
+    this.graphicsMenuRef.resetGraphicsState();
+    this.varMenuRef.setSelected(new Array<Variable>());
+    this.setState({
+      file_path: "",
+      plotReady: false,
+      loadedVariables: new Array<Variable>(),
+      selectedVariables: new Array<Variable>(),
+      selected_gm_group: "",
+      selected_gm: "",
+      selected_template: ""
+    });
+  }
+
   update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {
     console.log(vars, gms, templates);
   }
 
-  getGraphicsMetaData() {
+  getGraphicsSelections() {
     // Load the selected graphics method from meta data (if exists)
     let gm_data: [string, string] = notebook_utils.getMetaDataNow(
       this.state.notebook_panel,
@@ -109,6 +128,40 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     } else {
       // No meta data means fresh notebook, reset the graphics
       this.graphicsMenuRef.resetGraphicsState();
+    }
+  }
+  async copyGraphicsMethod(
+    groupName: string,
+    methodName: string,
+    newName: string
+  ) {
+    try {
+      //Check that the method doesn't already exist in the selected group
+      if (this.props.getGraphicsList()[groupName].indexOf(newName) < 0) {
+        // If no duplicates, create command injection string
+        let command: string = `${newName}_${groupName} = `;
+        command += `vcs.create${groupName}('${newName}',source='${methodName}')`;
+        // Attempt code injection
+        await this.props.inject(command).then(async () => {
+          this.props.refreshGraphicsList();
+          // If successful, update the current state
+          await this.setState({
+            selected_gm_group: groupName,
+            selected_gm: newName
+          });
+          // Save selected graphics method to meta data
+          notebook_utils.setMetaData(
+            this.state.notebook_panel,
+            GRAPHICS_METHOD_KEY,
+            [this.state.selected_gm_group, this.state.selected_gm]
+          );
+        });
+        console.log(`Graphics method created: ${newName}`);
+      } else {
+        throw new Error("There is already a graphic method with that name.");
+      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -211,7 +264,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
   updatePlotReady(value: boolean) {
     this.setState({ plotReady: value });
-    this.varMenuRef.setState({ plotReady: value });
+    //this.varMenuRef.setState({ plotReady: value });
     this.graphicsMenuRef.setState({ plotReady: value });
     this.templateMenuRef.setState({ plotReady: value });
   }
@@ -290,13 +343,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
-  async resetSelected() {
-    // Nothing selected
-    console.log("Nothing selected");
-    await this.setState({ selectedVariables: new Array<Variable>() });
-    await this.varMenuRef.setSelected(new Array<Variable>());
-  }
-
   /**
    * @description Adds a list of variables to the selectedVariables list after checking that they're not already there
    * @param variables the list of variables to add to the selectedVariables list
@@ -318,10 +364,16 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
+  editGraphicsMethod() {
+    alert("Edit? Nope! Haha!");
+  }
+
   render() {
     let GraphicsMenuProps = {
       getGraphicsList: this.props.getGraphicsList,
       updateGraphicsOptions: this.updateGraphicsOptions,
+      editGraphicsMethod: this.editGraphicsMethod,
+      copyGraphicsMethod: this.copyGraphicsMethod,
       varInfo: new Variable(),
       plotReady: this.state.plotReady
     };

@@ -9,27 +9,29 @@ import {
   CardSubtitle,
   Card,
   CardBody,
-  Form,
-  FormGroup,
-  Label,
   Input,
-  Button,
-  Row
+  Button
 } from "reactstrap";
+import ListGroup from "reactstrap/lib/ListGroup";
+import ListGroupItem from "reactstrap/lib/ListGroupItem";
+import InputGroup from "reactstrap/lib/InputGroup";
+import InputGroupAddon from "reactstrap/lib/InputGroupAddon";
 const dropdownMenuStyle: React.CSSProperties = {
-  maxHeight: "250px",
+  maxHeight: "200px",
   padding: "2px",
   marginTop: "5px",
   overflow: "auto"
 };
-const graphicButtonStyle: React.CSSProperties = {
-  marginTop: "2px",
-  padding: "2px 5px"
+const listItemStyle: React.CSSProperties = {
+  padding: "2px 7px",
+  textAlign: "left"
 };
 
 type GraphicsMenuProps = {
-  getGraphicsList: any; // a method that gets the current list of graphics methods
-  updateGraphicsOptions: any; // a method to call when the user has selected their desired graphics method
+  getGraphicsList: Function; // a method that gets the current list of graphics methods
+  updateGraphicsOptions: Function; // a method to call when the user has selected their desired graphics method
+  editGraphicsMethod: Function;
+  copyGraphicsMethod: Function;
 };
 type GraphicsMenuState = {
   showMenu: boolean;
@@ -37,6 +39,9 @@ type GraphicsMenuState = {
   selectedMethod: string;
   selectedGroup: string;
   tempGroup: string;
+  enterName: boolean;
+  nameValue: string;
+  invalidName: boolean;
   plotReady: boolean;
 };
 
@@ -44,6 +49,7 @@ export default class GraphicsMenu extends React.Component<
   GraphicsMenuProps,
   GraphicsMenuState
 > {
+  nameInputRef: Input;
   constructor(props: GraphicsMenuProps) {
     super(props);
     this.state = {
@@ -52,23 +58,33 @@ export default class GraphicsMenu extends React.Component<
       selectedMethod: "",
       selectedGroup: "",
       tempGroup: "",
+      enterName: false,
+      nameValue: "",
+      invalidName: false,
       plotReady: false
     };
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.graphicsOptions = this.graphicsOptions.bind(this);
     this.resetGraphicsState = this.resetGraphicsState.bind(this);
+    this.handleNameInput = this.handleNameInput.bind(this);
     this.selectItem = this.selectItem.bind(this);
+    this.nameInputRef = (React as any).createRef();
+  }
+
+  handleNameInput(event: React.ChangeEvent<HTMLInputElement>) {
+    // Regex filter for unallowed name characters
+    let forbidden: RegExp = /^[^A-z_]|[^A-z0-9]+/;
+    let invalid: boolean = forbidden.test(event.target.value);
+    this.setState({ nameValue: event.target.value, invalidName: invalid });
   }
 
   toggleDropdown() {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
-    if (this.state.showMenu) {
+    if (this.state.showMenu && this.state.enterName) {
       this.setState({
-        showMenu: false,
-        showDropdown: false,
-        tempGroup: this.state.selectedGroup
+        showMenu: false
       });
     }
   }
@@ -81,67 +97,14 @@ export default class GraphicsMenu extends React.Component<
       showDropdown: false,
       selectedMethod: "",
       selectedGroup: "",
-      tempGroup: ""
+      tempGroup: "",
+      enterName: false,
+      nameValue: "",
+      invalidName: false,
+      plotReady: false
     });
   }
 
-  render() {
-    let dropdownTitle = "Select Plot Type";
-    if (this.state.selectedMethod != "") {
-      if (this.state.tempGroup == "") {
-        dropdownTitle = `${this.state.selectedGroup} (${
-          this.state.selectedMethod
-        })`;
-      } else if (this.state.tempGroup == this.state.selectedGroup) {
-        dropdownTitle = `${this.state.tempGroup} (${
-          this.state.selectedMethod
-        })`;
-      } else {
-        dropdownTitle = `${this.state.tempGroup}`;
-      }
-    }
-    return (
-      <div>
-        <Card>
-          <CardBody>
-            <CardTitle>Graphics Options</CardTitle>
-            <CardSubtitle>
-              <Dropdown
-                isOpen={this.state.showDropdown}
-                toggle={this.toggleDropdown}
-              >
-                <DropdownToggle disabled={!this.state.plotReady} caret>
-                  {dropdownTitle}
-                </DropdownToggle>
-                <DropdownMenu style={dropdownMenuStyle}>
-                  {Object.keys(this.props.getGraphicsList()).map(item => {
-                    return (
-                      <DropdownItem
-                        onClick={() => {
-                          this.setState({
-                            tempGroup: item,
-                            showDropdown: false,
-                            showMenu: true
-                          });
-                        }}
-                        key={item}
-                      >
-                        {item}
-                      </DropdownItem>
-                    );
-                  })}
-                </DropdownMenu>
-              </Dropdown>
-            </CardSubtitle>
-            <Collapse isOpen={this.state.showMenu}>
-              {this.state.tempGroup != "" &&
-                this.graphicsOptions(this.state.tempGroup)}
-            </Collapse>
-          </CardBody>
-        </Card>
-      </div>
-    );
-  }
   async selectItem(item: string) {
     try {
       if (
@@ -167,47 +130,239 @@ export default class GraphicsMenu extends React.Component<
 
   graphicsOptions(group: string) {
     return (
-      <Card style={dropdownMenuStyle}>
+      <ListGroup flush>
         {this.props.getGraphicsList()[group].map((item: string) => {
           return (
-            <div key={group + item}>
-              <Button
-                style={graphicButtonStyle}
-                outline
-                onClick={() => {
-                  this.selectItem(item);
-                }}
-                active={
-                  this.state.selectedGroup == group &&
-                  this.state.selectedMethod == item
-                }
-                color="success"
-              >
-                {item}
-              </Button>
-              <br />
-            </div>
+            <ListGroupItem
+              className="text-muted"
+              key={group + item}
+              style={listItemStyle}
+              tag="button"
+              onClick={() => {
+                this.selectItem(item);
+              }}
+              color={
+                this.state.selectedGroup == group &&
+                this.state.selectedMethod == item
+                  ? "info"
+                  : ""
+              }
+            >
+              {item}
+            </ListGroupItem>
           );
         })}
-        {/* 
-            <FormGroup check key={item + group}>
-              <Label check>
-                <Input
-                  type="radio"
-                  name="graphics_method_radio"
+      </ListGroup>
+    );
+  }
+
+  render() {
+    // Set the dropdown title based on state
+    let dropdownTitle = "Select Plot Type";
+    /*if (this.state.selectedMethod != "") {
+      if (this.state.tempGroup == "") {
+        if (this.state.enterName) {
+          dropdownTitle = `${this.state.selectedGroup}`;
+        } else {
+          dropdownTitle = `${this.state.selectedGroup} (${
+            this.state.selectedMethod
+          })`;
+        }
+      } else if (this.state.tempGroup == this.state.selectedGroup) {
+        if (this.state.enterName) {
+          dropdownTitle = `${this.state.tempGroup}`;
+        } else {
+          dropdownTitle = `${this.state.tempGroup} (${
+            this.state.selectedMethod
+          })`;
+        }
+      } else {
+        dropdownTitle = `${this.state.tempGroup}`;
+      }
+    } else if (this.state.tempGroup != "") {
+      dropdownTitle = `${this.state.tempGroup}`;
+    }*/
+    if (this.state.tempGroup != "") {
+      if (this.state.tempGroup == this.state.selectedGroup) {
+        dropdownTitle = `${this.state.tempGroup} (${
+          this.state.selectedMethod
+        })`;
+      } else {
+        dropdownTitle = `${this.state.tempGroup}`;
+      }
+    } else if (this.state.selectedMethod != "") {
+      dropdownTitle = `${this.state.selectedGroup} (${
+        this.state.selectedMethod
+      })`;
+    }
+    // Set the input color as v
+    let validInputColor = "success";
+    if (this.state.invalidName) {
+      validInputColor = "danger";
+    }
+    return (
+      <div>
+        <Card>
+          <CardBody>
+            <CardTitle>Graphics Options</CardTitle>
+            <CardSubtitle className="clearfix">
+              <Dropdown
+                className="float-left"
+                isOpen={this.state.showDropdown}
+                toggle={this.toggleDropdown}
+              >
+                <DropdownToggle disabled={!this.state.plotReady} caret>
+                  {dropdownTitle}
+                </DropdownToggle>
+                {/*FOR FUTURE FUCNTIONALITY <Button
+                  className="float-right"
+                  hidden={
+                    this.state.selectedMethod == "" ||
+                    this.state.showMenu ||
+                    this.state.showDropdown ||
+                    this.state.enterName ||
+                    this.state.selectedGroup == ""
+                  }
                   onClick={() => {
-                    this.selectItem(item);
+                    this.props.editGraphicsMethod();
                   }}
-                />{" "}
-                {item}
-              </Label>
-            </FormGroup>
-        <FormGroup className={"jp-vcsWidget-apply-buttons"}>
-          <Button onClick={this.selectFalse} color="danger">
-            cancel
-          </Button>
-        </FormGroup>*/}
-      </Card>
+                  outline
+                  color="danger"
+                >
+                  Edit
+                </Button>*/}
+
+                <DropdownMenu style={dropdownMenuStyle}>
+                  {Object.keys(this.props.getGraphicsList()).map(item => {
+                    return (
+                      <DropdownItem
+                        onClick={() => {
+                          this.setState({
+                            tempGroup: item,
+                            showDropdown: false,
+                            showMenu: true
+                          });
+                        }}
+                        key={item}
+                      >
+                        {item}
+                      </DropdownItem>
+                    );
+                  })}
+                </DropdownMenu>
+              </Dropdown>
+              <Button
+                className="float-left"
+                hidden={!this.state.showMenu || this.state.enterName}
+                style={{ marginLeft: "5px" }}
+                onClick={() => {
+                  this.setState({
+                    showMenu: false,
+                    showDropdown: false,
+                    tempGroup: this.state.selectedGroup
+                  });
+                }}
+                color="danger"
+              >
+                X
+              </Button>
+              <Button
+                className="float-right"
+                hidden={
+                  !this.state.plotReady ||
+                  this.state.showMenu ||
+                  this.state.enterName ||
+                  this.state.selectedGroup == ""
+                }
+                outline
+                onClick={() => {
+                  this.setState({ enterName: true });
+                }}
+                color="info"
+              >
+                Copy
+              </Button>
+              <Button
+                className="float-right"
+                hidden={!this.state.enterName}
+                onClick={() => {
+                  this.setState({
+                    enterName: false,
+                    nameValue: "",
+                    invalidName: false
+                  });
+                }}
+                color="danger"
+              >
+                Cancel
+              </Button>
+            </CardSubtitle>
+            <InputGroup
+              hidden={!this.state.enterName}
+              style={{ marginTop: "5px" }}
+            >
+              <Input
+                onChange={this.handleNameInput}
+                className="float-left"
+                value={this.state.nameValue}
+                placeholder="Enter new name here."
+                ref={loader => (this.nameInputRef = loader)}
+              />
+              <InputGroupAddon addonType="append">
+                <Button
+                  className="float-right"
+                  onClick={async () => {
+                    if (this.state.nameValue != "" && !this.state.invalidName) {
+                      try {
+                        await this.props.copyGraphicsMethod(
+                          this.state.selectedGroup,
+                          this.state.selectedMethod,
+                          this.state.nameValue
+                        );
+                        this.setState({
+                          selectedMethod: this.state.nameValue,
+                          invalidName: false,
+                          enterName: false,
+                          nameValue: ""
+                        });
+                      } catch (error) {
+                        alert(error);
+                      }
+                    } else {
+                      alert("Name cannot be empty.");
+                      this.setState({ invalidName: true });
+                    }
+                  }}
+                  color={validInputColor}
+                  disabled={this.state.invalidName}
+                >
+                  {this.state.invalidName ? "Invalid!" : "Enter"}
+                </Button>
+              </InputGroupAddon>
+            </InputGroup>
+            <Card
+              style={{ marginTop: "5px" }}
+              hidden={
+                this.state.tempGroup == "" ||
+                !this.state.showMenu ||
+                this.state.enterName
+              }
+            >
+              <Collapse
+                style={dropdownMenuStyle}
+                isOpen={
+                  this.state.tempGroup != "" &&
+                  this.state.showMenu &&
+                  !this.state.enterName
+                }
+              >
+                {this.state.tempGroup != "" &&
+                  this.graphicsOptions(this.state.tempGroup)}
+              </Collapse>
+            </Card>
+          </CardBody>
+        </Card>
+      </div>
     );
   }
 }
