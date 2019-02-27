@@ -1,3 +1,4 @@
+// Dependencies
 import * as React from "react";
 import {
   Collapse,
@@ -10,12 +11,13 @@ import {
   Card,
   CardBody,
   Input,
-  Button
+  Button,
+  ListGroup,
+  ListGroupItem,
+  InputGroup,
+  InputGroupAddon
 } from "reactstrap";
-import ListGroup from "reactstrap/lib/ListGroup";
-import ListGroupItem from "reactstrap/lib/ListGroupItem";
-import InputGroup from "reactstrap/lib/InputGroup";
-import InputGroupAddon from "reactstrap/lib/InputGroupAddon";
+
 const dropdownMenuStyle: React.CSSProperties = {
   maxHeight: "200px",
   padding: "2px",
@@ -159,29 +161,6 @@ export default class GraphicsMenu extends React.Component<
   render() {
     // Set the dropdown title based on state
     let dropdownTitle = "Select Plot Type";
-    /*if (this.state.selectedMethod != "") {
-      if (this.state.tempGroup == "") {
-        if (this.state.enterName) {
-          dropdownTitle = `${this.state.selectedGroup}`;
-        } else {
-          dropdownTitle = `${this.state.selectedGroup} (${
-            this.state.selectedMethod
-          })`;
-        }
-      } else if (this.state.tempGroup == this.state.selectedGroup) {
-        if (this.state.enterName) {
-          dropdownTitle = `${this.state.tempGroup}`;
-        } else {
-          dropdownTitle = `${this.state.tempGroup} (${
-            this.state.selectedMethod
-          })`;
-        }
-      } else {
-        dropdownTitle = `${this.state.tempGroup}`;
-      }
-    } else if (this.state.tempGroup != "") {
-      dropdownTitle = `${this.state.tempGroup}`;
-    }*/
     if (this.state.tempGroup != "") {
       if (this.state.tempGroup == this.state.selectedGroup) {
         dropdownTitle = `${this.state.tempGroup} (${
