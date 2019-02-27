@@ -9,9 +9,9 @@ import AxisInfo from "./AxisInfo";
 import { MAX_SLABS } from "../constants";
 
 type VarLoaderProps = {
-  loadFileVariable: any; // function to call when user hits load
+  loadFileVariable: Function; // function to call when user hits load
   variables: Array<Variable>; // list of all currently available variables
-  updateSelectedVariables: any; // update the list of selected variables
+  updateSelectedVariables: Function; // update the list of selected variables
 };
 type VarLoaderState = {
   show: boolean; // should the modal be shown
@@ -88,8 +88,26 @@ export default class VarLoader extends React.Component<
    * @param variable The Variable the user has selected to get loaded
    */
   selectVariableForLoad(variableName: string): void {
+    console.log(`Variable ${variableName} selected and added`);
     this.setState({
       selectedVariables: this.state.selectedVariables.concat([variableName])
+    });
+  }
+
+  /**
+   *
+   * @param variable Remove a variable from the list to be loaded
+   */
+  deselectVariableForLoad(variableName: string) {
+    console.log(`Variable ${variableName} deselected`);
+    let ind: number = this.state.selectedVariables.indexOf(variableName);
+    let selectedVars: Array<string> = this.state.selectedVariables;
+    if (ind >= 0) {
+      selectedVars.splice(ind, 1);
+      console.log("Removed from selected");
+    }
+    this.setState({
+      selectedVariables: selectedVars
     });
   }
 
@@ -100,20 +118,6 @@ export default class VarLoader extends React.Component<
     } else {
       return false;
     }
-  }
-
-  /**
-   *
-   * @param variable Remove a variable from the list to be loaded
-   */
-  deselectVariableForLoad(variableName: string) {
-    let selectedVars: Array<string> = this.state.selectedVariables.splice(
-      this.state.selectedVariables.indexOf(variableName),
-      1
-    );
-    this.setState({
-      selectedVariables: selectedVars
-    });
   }
 
   /**

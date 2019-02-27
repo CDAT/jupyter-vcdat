@@ -46,6 +46,7 @@ type VarCardState = {
   isLoaded: boolean;
   hidden: boolean;
   isChanged: boolean;
+  isDerived: boolean;
 };
 
 export default class VarCard extends React.Component<
@@ -61,10 +62,10 @@ export default class VarCard extends React.Component<
       isLoaded: this.props.isLoaded,
       showAxis: false,
       hidden: props.hidden,
-      isChanged: false
+      isChanged: false,
+      isDerived: this.props.variable.name != this.props.variable.cdmsID
     };
     this.varName = this.props.variable.name;
-    this.toggleMenu = this.toggleMenu.bind(this);
     this.openMenu = this.openMenu.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
@@ -74,42 +75,38 @@ export default class VarCard extends React.Component<
   /**
    * @description sets the isSelected attribute, and propagates up the selection action to the parent
    */
-  selectVariable() {
-    console.log("Select clicked");
+  async selectVariable(): Promise<void> {
     if (this.state.isLoaded) {
       alert("This variable is already loaded.");
-      this.props.deselectVariable(this.varName);
+      await this.props.deselectVariable(this.varName);
       return;
-    }
-    if (!this.props.isSelected() && !this.state.hidden) {
-      this.toggleMenu();
-    }
-    if (this.state.showAxis && this.props.isSelected) {
-      this.setState({
-        showAxis: false
-      });
     }
 
     if (this.props.isSelected(this.varName)) {
-      this.props.deselectVariable(this.varName);
-    } else {
-      this.props.selectVariable(this.varName);
-    }
-  }
+      await this.props.deselectVariable(this.varName);
 
-  /**
-   * @description toggle the menu state
-   */
-  toggleMenu() {
-    this.setState({
-      showAxis: !this.state.showAxis
-    });
+      console.log("Deselect");
+    } else {
+      await this.props.selectVariable(this.varName);
+
+      console.log("Select");
+    }
+
+    if (this.props.isSelected(this.varName)) {
+      this.setState({
+        hidden: false
+      });
+    } else {
+      this.setState({
+        hidden: true
+      });
+    }
   }
 
   /**
    * @description open the menu if its closed
    */
-  openMenu() {
+  openMenu(): void {
     if (!this.state.showAxis && !this.state.hidden) {
       this.setState({
         showAxis: true
@@ -117,7 +114,7 @@ export default class VarCard extends React.Component<
     }
   }
 
-  updateDimInfo(newInfo: any, varName: string) {
+  updateDimInfo(newInfo: any, varName: string): void {
     if (this.props.allowReload) {
       this.setState({
         isChanged: true
@@ -126,19 +123,11 @@ export default class VarCard extends React.Component<
     this.props.updateDimInfo(newInfo, varName);
   }
 
-  handleStatusChange(status: any) {
+  handleStatusChange(status: any): void {
     console.log(status);
   }
 
   render() {
-    let buttonString = "Select";
-    if (this.props.isSelected) {
-      buttonString = "Unselect";
-    }
-    let hideString = "Axes";
-    if (this.state.hidden) {
-      hideString = "Axes";
-    }
     let color = "success";
     if (this.state.isLoaded) {
       color = "warning";
@@ -165,9 +154,15 @@ export default class VarCard extends React.Component<
                     {(this.state.showAxis ||
                       this.props.isSelected(this.varName)) && (
                       <Button
+                        title={
+                          this.state.isDerived
+                            ? "Editing of custom variables coming soon."
+                            : ""
+                        }
                         outline
-                        color={"danger"}
+                        color={this.state.isDerived ? "dark" : "danger"}
                         active={this.state.showAxis}
+                        disabled={this.state.isDerived}
                         onClick={() => {
                           this.setState({
                             showAxis: !this.state.showAxis,
@@ -176,7 +171,7 @@ export default class VarCard extends React.Component<
                         }}
                         style={buttonsStyle}
                       >
-                        {hideString}
+                        Axes
                       </Button>
                     )}
                   </Col>
@@ -212,10 +207,7 @@ export default class VarCard extends React.Component<
                   <div key={item.name} style={axisStyle}>
                     <Card>
                       <CardBody>
-                        <DimensionSlider
-                          {...item}
-                          varName={this.varName}
-                        />
+                        <DimensionSlider {...item} varName={this.varName} />
                       </CardBody>
                     </Card>
                   </div>

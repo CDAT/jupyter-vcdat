@@ -91,32 +91,36 @@ export default class VarMenu extends React.Component<
    * @description toggles the varLoaders menu
    */
   async launchVarLoader(fileVariables: Array<Variable>) {
-    // Look through current loaded variable names to see if any haven't been loaded
-    let unloaded: Array<string> = new Array<string>();
-    let loadedVars: Array<string> = this.state.variables.map(
-      (variable: Variable) => {
-        return variable.name;
-      }
-    );
-    fileVariables.forEach((fileVar: Variable) => {
-      if (loadedVars.indexOf(fileVar.name) < 0) {
-        unloaded.push(fileVar.name);
-      }
-    });
-
-    // Only launch loader if there are unloaed variables
-    if (unloaded.length > 0) {
-      await this.varLoaderRef.setState(
-        {
-          fileVariables: fileVariables,
-          unloadedVariables: unloaded
-        },
-        () => {
-          this.varLoaderRef.setState({ show: true });
+    try {
+      // Look through current loaded variable names to see if any haven't been loaded
+      let unloaded: Array<string> = new Array<string>();
+      let loadedVars: Array<string> = this.state.variables.map(
+        (variable: Variable) => {
+          return variable.name;
         }
       );
-    } else {
-      alert("All the variables in this file have already been loaded.");
+      fileVariables.forEach((fileVar: Variable) => {
+        if (loadedVars.indexOf(fileVar.name) < 0) {
+          unloaded.push(fileVar.name);
+        }
+      });
+
+      // Only launch loader if there are unloaed variables
+      if (unloaded.length > 0) {
+        await this.varLoaderRef.setState(
+          {
+            fileVariables: fileVariables,
+            unloadedVariables: unloaded
+          },
+          () => {
+            this.varLoaderRef.setState({ show: true });
+          }
+        );
+      } else {
+        alert("All the variables in this file have already been loaded.");
+      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -124,36 +128,43 @@ export default class VarMenu extends React.Component<
    *
    * @param variable the variable to load
    */
-  async loadFileVariable(variable: Variable): Promise<any> {
-    // if the variable ISNT already loaded, add it to the loaded list
-    let newVariables: Array<Variable> = this.state.variables;
-    if (newVariables.indexOf(variable) == -1) {
-      newVariables.push(variable);
+  async loadFileVariable(variable: Variable): Promise<void> {
+    try {
+      // if the variable ISNT already loaded, add it to the loaded list
+      let newVariables: Array<Variable> = this.state.variables;
+      if (newVariables.indexOf(variable) == -1) {
+        await Promise.all([
+          this.props.updateVariables(newVariables),
+          this.props.loadVariable(variable)
+        ]);
 
-      return await Promise.all([
-        this.props.updateVariables(newVariables),
-        this.props.loadVariable(variable)
-      ]);
+        newVariables.push(variable);
+      }
+    } catch (error) {
+      throw error;
     }
   }
 
   async selectVariable(variableName: string): Promise<void> {
-    let ind: number = this.state.selectedVariables.indexOf(variableName);
+    try {
+      let ind: number = this.state.selectedVariables.indexOf(variableName);
 
-    if (ind >= 0) {
-      console.log(`Item already selected: ${this.state.selectedVariables}`);
-    } else {
-      // Limit number of variables selected by deselecting last element
-      let selection = this.state.selectedVariables;
-      if (selection.length >= MAX_SLABS) {
-        console.log(
-          `Variable deselected: ${selection.pop()} before selecting another.`
-        );
+      if (ind >= 0) {
+        console.log(`Item already selected: ${this.state.selectedVariables}`);
+      } else {
+        // Limit number of variables selected by deselecting last element
+        let selection = this.state.selectedVariables;
+        if (selection.length >= MAX_SLABS) {
+          console.log(
+            `Variable deselected: ${selection.pop()} before selecting another.`
+          );
+        }
+        selection.push(variableName);
+
+        await this.props.updateSelectedVariables(selection);
       }
-      selection.push(variableName);
-      await this.props.updateSelectedVariables(selection);
-
-      console.log("Variable was added to selected list.");
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -161,24 +172,26 @@ export default class VarMenu extends React.Component<
    * @description removes a variable from the state.selectedVariables list
    * @param variable the variable to remove from the selected list
    */
-  deselectVariable(variableName: string) {
-    let ind: number = this.state.selectedVariables.indexOf(variableName);
+  async deselectVariable(variableName: string) {
+    try {
+      let ind: number = this.state.selectedVariables.indexOf(variableName);
 
-    if (ind >= 0) {
-      let newSelection = this.state.selectedVariables;
-      newSelection.splice(ind, 1);
-      this.setState(
-        {
-          selectedVariables: newSelection
-        },
-        () => {
-          this.props.updateSelectedVariables(this.state.selectedVariables);
-        }
-      );
-
-      console.log("Value was deselected.");
-    } else {
-      console.log("Value was NOT deselected");
+      if (ind >= 0) {
+        let newSelection = this.state.selectedVariables;
+        newSelection.splice(ind, 1);
+        await this.setState(
+          {
+            selectedVariables: newSelection
+          },
+          () => {
+            this.props.updateSelectedVariables(this.state.selectedVariables);
+          }
+        );
+      } else {
+        console.log("Value was NOT deselected");
+      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -192,18 +205,22 @@ export default class VarMenu extends React.Component<
    * @param varName the name of the variable to update
    */
   async updateDimInfo(newInfo: any, varName: string) {
-    this.state.variables.forEach((variable: Variable, varIndex: number) => {
-      if (variable.name != varName) {
-        return;
-      }
-      variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-        if (axis.name != newInfo.name) {
+    try {
+      this.state.variables.forEach((variable: Variable, varIndex: number) => {
+        if (variable.name != varName) {
           return;
         }
-        this.state.variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-        this.state.variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
+        variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
+          if (axis.name != newInfo.name) {
+            return;
+          }
+          this.state.variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
+          this.state.variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
+        });
       });
-    });
+    } catch (error) {
+      throw error;
+    }
   }
 
   reloadVariable(variable: Variable) {
