@@ -40,7 +40,7 @@ export type VCSMenuProps = {
 type VCSMenuState = {
   plotReady: boolean; // are we ready to plot
   variables: Array<Variable>; // All the variables, loaded from files and derived by users
-  selectedVariables: Array<string>; // Unique names of all the variables that are currently selected
+  selected_variables: Array<string>; // Unique names of all the variables that are currently selected
   selected_gm: string;
   selected_gm_group: string;
   selected_template: string;
@@ -56,7 +56,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.state = {
       plotReady: this.props.plotReady,
       variables: new Array<Variable>(),
-      selectedVariables: new Array<string>(),
+      selected_variables: new Array<string>(),
       selected_gm: "",
       selected_gm_group: "",
       selected_template: "",
@@ -176,8 +176,11 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
   plot() {
-    if (this.state.selectedVariables.length == 0) {
-      alert("Please select a variable from the left panel");
+    if (this.state.selected_variables.length == 0) {
+      notebook_utils.showMessage(
+        "Test",
+        "Please select a variable from the left panel"
+      );
     } else {
       let gm = this.state.selected_gm;
       let temp = this.state.selected_template;
@@ -188,7 +191,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         temp = '"default"';
       }
       let plotString = "canvas.clear()\ncanvas.plot(";
-      let selection: Array<string> = this.state.selectedVariables;
+      let selection: Array<string> = this.state.selected_variables;
 
       if (selection.length > MAX_SLABS) {
         selection = selection.slice(0, MAX_SLABS);
@@ -238,7 +241,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   async updateSelectedVariables(selection: Array<string>): Promise<any> {
     this.props.updateSelectedVariables(selection);
     await Promise.all([
-      this.setState({ selectedVariables: selection }),
+      this.setState({ selected_variables: selection }),
       this.varMenuRef.setState({ selectedVariables: selection })
     ]);
   }
@@ -253,7 +256,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       commands: this.props.commands,
       loadVariable: this.loadVariable,
       variables: this.state.variables,
-      selectedVariables: this.state.selectedVariables,
+      selectedVariables: this.state.selected_variables,
       updateVariables: this.updateLoadedVariables,
       updateSelectedVariables: this.updateSelectedVariables
     };
