@@ -1,8 +1,10 @@
+const MAX_SLABS = 2;
 const BASE_URL = "/vcs";
 const READY_KEY = "vcdat_ready";
 const FILE_PATH_KEY = "vcdat_file_path";
 const IMPORT_CELL_KEY = "vcdat_imports";
 const GRAPHICS_METHOD_KEY = "graphics_method_selected";
+const TEMPLATE_KEY = "template_selected";
 const VARIABLES_LOADED_KEY = "vcdat_variables_loaded";
 const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
 
@@ -30,6 +32,16 @@ def list_all():\n\
     return out\n\
 output = "{}|{}|{})".format(variables(),templates(),graphic_methods())';
 
+const REFRESH_NAMES_CMD =
+  "import __main__\n\
+def variables():\n\
+  out = []\n\
+  for nm, obj in __main__.__dict__.items():\n\
+    if isinstance(obj, cdms2.MV2.TransientVariable):\n\
+      out+=[nm]\n\
+  return out\n\
+output = variables()";
+
 const REFRESH_GRAPHICS_CMD =
   "import __main__\n\
 import json\n\
@@ -40,15 +52,9 @@ def graphic_methods():\n\
   return out\n\
 output = json.dumps(graphic_methods())";
 
-const REFRESH_VARS_CMD =
+const REFRESH_TEMPLATES_CMD =
   "import __main__\n\
-def variables():\n\
-  out = []\n\
-  for nm, obj in __main__.__dict__.items():\n\
-    if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-      out+=[nm]\n\
-  return out\n\
-output = variables()";
+output = vcs.listelements('template')";
 
 const CHECK_MODULES_CMD = `import types\n\
 required = [${REQUIRED_MODULES}]\n\
@@ -80,6 +86,11 @@ vars = variables()\n\
 outVars = {}\n\
 for vname in vars:\n\
   var = __main__.__dict__[vname]\n\
+  # Get cdmsID for the variable\n\
+  if hasattr(var, 'id'):\n\
+    cdmsID = var.id\n\
+  else:\n\
+    cdmsID = ""\n\
   # Get a displayable name for the variable\n\
   if hasattr(var, 'long_name'):\n\
     name = var.long_name\n\
@@ -126,6 +137,7 @@ for vname in vars:\n\
     gridType = None\n\
   if (vname not in outVars):\n\
     outVars[vname] = {}\n\
+  outVars[vname]['cdmsID'] = cdmsID\n\
   outVars[vname]['name'] = name\n\
   outVars[vname]['shape'] = var.shape\n\
   outVars[vname]['units'] = units\n\
@@ -167,6 +179,11 @@ const GET_FILE_VARIABLES = `import json\n\
 outVars = {}\n\
 for vname in reader.variables:\n\
   var = reader.variables[vname]\n\
+  # Get cdmsID for the variable\n\
+  if hasattr(var, 'id'):\n\
+    cdmsID = var.id\n\
+  else:\n\
+    cdmsID = ""\n\
   # Get a displayable name for the variable\n\
   if hasattr(var, 'long_name'):\n\
     name = var.long_name\n\
@@ -213,6 +230,7 @@ for vname in reader.variables:\n\
     gridType = None\n\
   if (vname not in outVars):\n\
     outVars[vname] = {}\n\
+  outVars[vname]['cdmsID'] = cdmsID\n\
   outVars[vname]['name'] = name\n\
   outVars[vname]['shape'] = var.shape\n\
   outVars[vname]['units'] = units\n\
@@ -335,6 +353,51 @@ const BASE_GRAPHICS: any = {
   scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"]
 };
 
+const BASE_TEMPLATES: Array<string> = [
+  "default",
+  "ASD",
+  "ASD_dud",
+  "BL_of6_1legend",
+  "BLof6",
+  "BR_of6_1legend",
+  "BRof6",
+  "LLof4",
+  "LLof4_dud",
+  "LRof4",
+  "LRof4_dud",
+  "ML_of6",
+  "ML_of6_1legend",
+  "MR_of6",
+  "MR_of6_1legend",
+  "UL_of6_1legend",
+  "ULof4",
+  "ULof4_dud",
+  "ULof6",
+  "UR_of6",
+  "UR_of6_1legend",
+  "URof4",
+  "URof4_dud",
+  "bold_mid_of3",
+  "bold_top_of3",
+  "boldbot_of3_l",
+  "boldmid_of3_l",
+  "boldtop_of3_l",
+  "bot_of2",
+  "deftaylor",
+  "hovmuller",
+  "mollweide2",
+  "no_legend",
+  "polar",
+  "por_botof3",
+  "por_botof3_dud",
+  "por_midof3",
+  "por_midof3_dud",
+  "por_topof3",
+  "por_topof3_dud",
+  "quick",
+  "top_of2"
+];
+
 enum NOTEBOOK_STATE {
   Unknown, // The current state of the notebook is unknown and should be updated.
   NoOpenNotebook, // JupyterLab has no notebook opened
@@ -346,8 +409,10 @@ enum NOTEBOOK_STATE {
 }
 
 export {
+  MAX_SLABS,
   BASE_URL,
   READY_KEY,
+  TEMPLATE_KEY,
   FILE_PATH_KEY,
   IMPORT_CELL_KEY,
   GRAPHICS_METHOD_KEY,
@@ -355,8 +420,10 @@ export {
   REQUIRED_MODULES,
   GET_VARS_CMD,
   BASE_GRAPHICS,
+  REFRESH_NAMES_CMD,
+  BASE_TEMPLATES,
   REFRESH_GRAPHICS_CMD,
-  REFRESH_VARS_CMD,
+  REFRESH_TEMPLATES_CMD,
   REFRESH_VAR_INFO,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,

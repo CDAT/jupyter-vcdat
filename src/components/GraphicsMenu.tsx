@@ -19,7 +19,7 @@ import {
 } from "reactstrap";
 
 const dropdownMenuStyle: React.CSSProperties = {
-  maxHeight: "200px",
+  maxHeight: "250px",
   padding: "2px",
   marginTop: "5px",
   overflow: "auto"
@@ -102,8 +102,7 @@ export default class GraphicsMenu extends React.Component<
       tempGroup: "",
       enterName: false,
       nameValue: "",
-      invalidName: false,
-      plotReady: false
+      invalidName: false
     });
   }
 
