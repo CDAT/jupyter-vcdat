@@ -53,17 +53,17 @@ export default class GraphicsMenu extends React.Component<
     this.selectFalse = this.selectFalse.bind(this);
     this.selectTrue = this.selectTrue.bind(this);
   }
-  toggleMenu() {
+  toggleMenu(): void {
     this.setState({
       showMenu: !this.state.showMenu
     });
   }
-  toggleDropdown() {
+  toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
   }
-  render() {
+  render(): JSX.Element {
     return (
       <div>
         <Card
@@ -112,7 +112,7 @@ export default class GraphicsMenu extends React.Component<
       </div>
     );
   }
-  selectTrue() {
+  selectTrue(): void {
     this.setState({
       showMenu: false
     });
@@ -121,12 +121,12 @@ export default class GraphicsMenu extends React.Component<
       this.state.selectedMethod
     );
   }
-  selectFalse() {
+  selectFalse(): void {
     this.setState({
       showMenu: false
     });
   }
-  graphicsOptions(group: string) {
+  graphicsOptions(group: string): JSX.Element {
     return (
       <Form className={"jp-vcsWidget-Form"}>
         {data[group].map((item: string) => {

@@ -1,10 +1,6 @@
 import * as React from "react";
 import {
-  Collapse,
   Form,
-  FormGroup,
-  Label,
-  Input,
   CardTitle,
   CardSubtitle,
   Button,
@@ -19,7 +15,7 @@ import VarLoader from "./VarLoader";
 import AxisInfo from "./AxisInfo";
 import VarCard from "./VarCard";
 import { MAX_SLABS } from "../constants";
-// import { showDialog } from "@jupyterlab/apputils";
+import { notebook_utils } from "../notebook_utils";
 
 const labelStyle: React.CSSProperties = {
   paddingLeft: "1em"
@@ -37,12 +33,12 @@ const formOverflow: React.CSSProperties = {
 };
 
 type VarMenuProps = {
-  loadVariable: any; // a method to call when loading the variable
+  loadVariable: Function; // a method to call when loading the variable
   commands?: any; // the command executer
   variables: Array<Variable>; // an array of all current variables
   selectedVariables: Array<string>; // array of names for variables that have been selected
-  updateSelectedVariables: any; // update the list of selected variables
-  updateVariables: any; // update the list of all variables
+  updateSelectedVariables: Function; // update the list of selected variables
+  updateVariables: Function; // update the list of all variables
 };
 
 type VarMenuState = {
@@ -70,27 +66,24 @@ export default class VarMenu extends React.Component<
     this.isSelected = this.isSelected.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
-    this.handleStatusChange = this.handleStatusChange.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
   }
 
-  isSelected(varName: string) {
+  isSelected(varName: string): boolean {
     return this.state.selectedVariables.indexOf(varName) >= 0;
   }
 
   /**
    * @description launches the notebooks filebrowser so the user can select a data file
    */
-  launchFilebrowser() {
-    this.props.commands.execute("vcs:load-data").then(() => {
-      console.log("starting file select");
-    });
+  async launchFilebrowser(): Promise<void> {
+    await this.props.commands.execute("vcs:load-data");
   }
 
   /**
    * @description toggles the varLoaders menu
    */
-  async launchVarLoader(fileVariables: Array<Variable>) {
+  async launchVarLoader(fileVariables: Array<Variable>): Promise<void> {
     try {
       // Look through current loaded variable names to see if any haven't been loaded
       let unloaded: Array<string> = new Array<string>();
@@ -117,7 +110,10 @@ export default class VarMenu extends React.Component<
           }
         );
       } else {
-        alert("All the variables in this file have already been loaded.");
+        notebook_utils.showMessage(
+          "Notice",
+          "All the variables in this file have already been loaded."
+        );
       }
     } catch (error) {
       throw error;
@@ -143,25 +139,17 @@ export default class VarMenu extends React.Component<
   }
 
   async selectVariable(variableName: string): Promise<void> {
-    try {
-      let ind: number = this.state.selectedVariables.indexOf(variableName);
+    let ind: number = this.state.selectedVariables.indexOf(variableName);
 
-      if (ind >= 0) {
-        console.log(`Item already selected: ${this.state.selectedVariables}`);
-      } else {
-        // Limit number of variables selected by deselecting last element
-        let selection = this.state.selectedVariables;
-        if (selection.length >= MAX_SLABS) {
-          console.log(
-            `Variable deselected: ${selection.pop()} before selecting another.`
-          );
-        }
-        selection.push(variableName);
-
-        await this.props.updateSelectedVariables(selection);
+    if (ind < 0) {
+      // Limit number of variables selected by deselecting last element
+      let selection = this.state.selectedVariables;
+      if (selection.length >= MAX_SLABS) {
+        selection.pop();
       }
-    } catch (error) {
-      throw error;
+      selection.push(variableName);
+
+      await this.props.updateSelectedVariables(selection);
     }
   }
 
@@ -169,31 +157,21 @@ export default class VarMenu extends React.Component<
    * @description removes a variable from the state.selectedVariables list
    * @param variable the variable to remove from the selected list
    */
-  async deselectVariable(variableName: string) {
-    try {
-      let ind: number = this.state.selectedVariables.indexOf(variableName);
+  async deselectVariable(variableName: string): Promise<void> {
+    let ind: number = this.state.selectedVariables.indexOf(variableName);
 
-      if (ind >= 0) {
-        let newSelection = this.state.selectedVariables;
-        newSelection.splice(ind, 1);
-        await this.setState(
-          {
-            selectedVariables: newSelection
-          },
-          () => {
-            this.props.updateSelectedVariables(this.state.selectedVariables);
-          }
-        );
-      } else {
-        console.log("Value was NOT deselected");
-      }
-    } catch (error) {
-      throw error;
+    if (ind >= 0) {
+      let newSelection = this.state.selectedVariables;
+      newSelection.splice(ind, 1);
+      await this.setState(
+        {
+          selectedVariables: newSelection
+        },
+        () => {
+          this.props.updateSelectedVariables(this.state.selectedVariables);
+        }
+      );
     }
-  }
-
-  handleStatusChange(status: any) {
-    console.log(status);
   }
 
   /**
@@ -201,7 +179,7 @@ export default class VarMenu extends React.Component<
    * @param newInfo new dimension info for the variables axis
    * @param varName the name of the variable to update
    */
-  async updateDimInfo(newInfo: any, varName: string) {
+  async updateDimInfo(newInfo: any, varName: string): Promise<void> {
     try {
       this.state.variables.forEach((variable: Variable, varIndex: number) => {
         if (variable.name != varName) {
@@ -220,11 +198,11 @@ export default class VarMenu extends React.Component<
     }
   }
 
-  reloadVariable(variable: Variable) {
+  reloadVariable(variable: Variable): void {
     this.props.loadVariable(variable);
   }
 
-  render() {
+  render(): JSX.Element {
     return (
       <div>
         <Card>

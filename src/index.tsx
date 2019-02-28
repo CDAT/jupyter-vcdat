@@ -16,6 +16,7 @@ import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 import "../style/css/index.css";
+import { notebook_utils } from "./notebook_utils";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -40,7 +41,7 @@ export default extension;
 /**
  * Activate the vcs widget extension.
  */
-function activate(app: JupyterLab, tracker: NotebookTracker) {
+function activate(app: JupyterLab, tracker: NotebookTracker): void {
   commands = app.commands;
   shell = app.shell;
 
@@ -102,7 +103,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
 
       // Prepare the notebook for code injection
       sidebar.prepareNotebookPanel(context.session.name).catch(error => {
-        console.log(error);
+        notebook_utils.showMessage("Error!", error);
       });
     }
 
