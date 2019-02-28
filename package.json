@@ -51,7 +51,7 @@
 		"@types/query-string": "^6.1.0",
 		"@types/rc-slider": "^8.6.0",
 		"@types/react-bootstrap": "^0.32.14",
-		"@types/react-dom": "^16.0.9",
+		"@types/react-dom": "16.0.9",
 		"@types/react-list": "^0.8.4",
 		"@types/reactstrap": "^6.4.0",
 		"bootstrap": "^4.1.3",
