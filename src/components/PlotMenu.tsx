@@ -120,7 +120,7 @@ export default class PlotMenu extends React.Component<
       </div>
     );
   }
-  selectTrue() {
+  selectTrue(): void {
     if (this.state.plotOptions.save_img && !this.state.plotOptions.plot_name) {
       let msg =
         "A filename is required when saving plots or creating animations";
@@ -140,12 +140,12 @@ export default class PlotMenu extends React.Component<
       });
     }
   }
-  selectFalse() {
+  selectFalse(): void {
     this.setState({
       showMenu: false
     });
   }
-  plotOptions() {
+  plotOptions(): JSX.Element {
     if (this.state.selectedDropdownOption == "1D") {
       return <div>One Deee</div>;
     } else if (this.state.selectedDropdownOption == "2D") {

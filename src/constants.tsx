@@ -31,7 +31,6 @@ def list_all():\n\
     return out\n\
 output = "{}|{}|{})".format(variables(),templates(),graphic_methods())';
 
-<<<<<<< HEAD
 const REFRESH_GRAPHICS_CMD =
   "import __main__\n\
 import json\n\
@@ -42,10 +41,7 @@ def graphic_methods():\n\
   return out\n\
 output = json.dumps(graphic_methods())";
 
-const REFRESH_VARS_CMD =
-=======
 const REFRESH_NAMES_CMD =
->>>>>>> d303e6bc4652749749c3fe5b9cac5b9694a2a4a8
   "import __main__\n\
 def variables():\n\
   out = []\n\
@@ -372,13 +368,9 @@ export {
   VARIABLES_LOADED_KEY,
   REQUIRED_MODULES,
   GET_VARS_CMD,
-<<<<<<< HEAD
   BASE_GRAPHICS,
   REFRESH_GRAPHICS_CMD,
-  REFRESH_VARS_CMD,
-=======
   REFRESH_NAMES_CMD,
->>>>>>> d303e6bc4652749749c3fe5b9cac5b9694a2a4a8
   REFRESH_VAR_INFO,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,

@@ -7,16 +7,12 @@ import {
   DropdownItem,
   Form,
   FormGroup,
-  Label,
-  Input,
-  FormFeedback,
   CardTitle,
   CardSubtitle,
   Button,
   Card,
   CardBody
 } from "reactstrap";
-import CardText from "reactstrap/lib/CardText";
 
 const dropdownMenuStype: React.CSSProperties = {
   maxHeight: "250px",

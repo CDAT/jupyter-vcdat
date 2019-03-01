@@ -17,12 +17,6 @@ import VarCard from "./VarCard";
 import { MAX_SLABS } from "../constants";
 import { notebook_utils } from "../notebook_utils";
 
-const labelStyle: React.CSSProperties = {
-  paddingLeft: "1em"
-};
-const buttonStyle: React.CSSProperties = {
-  marginLeft: "1em"
-};
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
 };
@@ -84,39 +78,35 @@ export default class VarMenu extends React.Component<
    * @description toggles the varLoaders menu
    */
   async launchVarLoader(fileVariables: Array<Variable>): Promise<void> {
-    try {
-      // Look through current loaded variable names to see if any haven't been loaded
-      let unloaded: Array<string> = new Array<string>();
-      let loadedVars: Array<string> = this.state.variables.map(
-        (variable: Variable) => {
-          return variable.name;
+    // Look through current loaded variable names to see if any haven't been loaded
+    let unloaded: Array<string> = new Array<string>();
+    let loadedVars: Array<string> = this.state.variables.map(
+      (variable: Variable) => {
+        return variable.name;
+      }
+    );
+    fileVariables.forEach((fileVar: Variable) => {
+      if (loadedVars.indexOf(fileVar.name) < 0) {
+        unloaded.push(fileVar.name);
+      }
+    });
+
+    // Only launch loader if there are unloaed variables
+    if (unloaded.length > 0) {
+      await this.varLoaderRef.setState(
+        {
+          fileVariables: fileVariables,
+          unloadedVariables: unloaded
+        },
+        () => {
+          this.varLoaderRef.setState({ show: true });
         }
       );
-      fileVariables.forEach((fileVar: Variable) => {
-        if (loadedVars.indexOf(fileVar.name) < 0) {
-          unloaded.push(fileVar.name);
-        }
-      });
-
-      // Only launch loader if there are unloaed variables
-      if (unloaded.length > 0) {
-        await this.varLoaderRef.setState(
-          {
-            fileVariables: fileVariables,
-            unloadedVariables: unloaded
-          },
-          () => {
-            this.varLoaderRef.setState({ show: true });
-          }
-        );
-      } else {
-        notebook_utils.showMessage(
-          "Notice",
-          "All the variables in this file have already been loaded."
-        );
-      }
-    } catch (error) {
-      throw error;
+    } else {
+      notebook_utils.showMessage(
+        "Notice",
+        "All the variables in this file have already been loaded."
+      );
     }
   }
 
@@ -125,16 +115,12 @@ export default class VarMenu extends React.Component<
    * @param variable the variable to load
    */
   async loadFileVariable(variable: Variable): Promise<void> {
-    try {
-      // if the variable ISNT already loaded, add it to the loaded list
-      let newVariables: Array<Variable> = this.state.variables;
-      if (newVariables.indexOf(variable) == -1) {
-        await this.props.loadVariable(variable);
-        newVariables.push(variable);
-        await this.props.updateVariables(newVariables);
-      }
-    } catch (error) {
-      throw error;
+    // if the variable ISNT already loaded, add it to the loaded list
+    let newVariables: Array<Variable> = this.state.variables;
+    if (newVariables.indexOf(variable) == -1) {
+      await this.props.loadVariable(variable);
+      newVariables.push(variable);
+      await this.props.updateVariables(newVariables);
     }
   }
 
@@ -180,22 +166,18 @@ export default class VarMenu extends React.Component<
    * @param varName the name of the variable to update
    */
   async updateDimInfo(newInfo: any, varName: string): Promise<void> {
-    try {
-      this.state.variables.forEach((variable: Variable, varIndex: number) => {
-        if (variable.name != varName) {
+    this.state.variables.forEach((variable: Variable, varIndex: number) => {
+      if (variable.name != varName) {
+        return;
+      }
+      variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
+        if (axis.name != newInfo.name) {
           return;
         }
-        variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-          if (axis.name != newInfo.name) {
-            return;
-          }
-          this.state.variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-          this.state.variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
-        });
+        this.state.variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
+        this.state.variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
       });
-    } catch (error) {
-      throw error;
-    }
+    });
   }
 
   reloadVariable(variable: Variable): void {
