@@ -41,7 +41,7 @@ type DimensionSliderProps = {
   name: string; // the cdms2 name of the axis
   shape: Array<number>; // the shape of the axis
   units: string; // the units of the axis
-  updateDimInfo: any; // method to be called updating the parent when the slider values change
+  updateDimInfo: Function; // method to be called updating the parent when the slider values change
 };
 
 type DimensionSliderState = {
@@ -113,14 +113,14 @@ export default class DimensionSlider extends React.Component<
   }
 
   // default formatter
-  formatter(data: any) {
+  formatter(data: any): any {
     if (data.toFixed) {
       return data.toFixed(5);
     }
     return data;
   }
 
-  render() {
+  render(): JSX.Element {
     let step = 1;
     let tickCount = 10;
     return (
@@ -200,11 +200,11 @@ export default class DimensionSlider extends React.Component<
       </div>
     );
   }
-  handleSliderChange(e: any) {
+  handleSliderChange(e: any): void {
     if (e.length != 2) {
       return;
     }
-    //console.log(e);
+
     this.setState({
       values: e,
       min: e[0],
@@ -220,5 +220,3 @@ export default class DimensionSlider extends React.Component<
     );
   }
 }
-
-// export default DimensionSlider;
