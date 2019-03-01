@@ -39,5 +39,13 @@ If applicable, add screenshots to help explain your problem.
 
 
 
+<details open><summary><code>`conda list`</code></summary><p>
+<!-- between the ticks below, paste the output of 'conda list' -->
+
+```
+
+```
+</p></details>
+
 **Additional context**
 Add any other context about the problem here.
