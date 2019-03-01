@@ -390,8 +390,13 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     console.log("plotFileFormat:", this.state.plotFileFormat)
     let fileFormat = this.state.plotFileFormat
     if(fileFormat === "png"){
+      console.log("open spinner")
       this.setState({ savePlotAlert: true })
-      await this.props.inject(`canvas.png('${this.state.plotName}')`);
+      let output = this.props.inject(`canvas.png('${this.state.plotName}')`);
+      output.then(function(result: Promise<any>) {
+         console.log("result:", result)
+      })
+      console.log("close spinner")
       this.setState({ savePlotAlert: false })
     } else if (fileFormat == "pdf") {
       await this.props.inject(`canvas.pdf('${this.state.plotName}')`);
@@ -539,8 +544,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         </Modal>
         <div>
         <Alert color="info" isOpen={this.state.savePlotAlert} toggle={this.dismissSavePlotAlert}>
-          `Saving {this.state.plotName} `
-          <Spinner color="info" />
+          {"Saving " + this.state.plotName + "." + this.state.plotFileFormat + "  "}
+          {"  "}<Spinner color="info" />
         </Alert>
           <Alert color="primary" isOpen={this.state.alertVisible} toggle={this.onDismiss}>
             `Exported {this.state.plotName}`
