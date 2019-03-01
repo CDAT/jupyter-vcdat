@@ -22,16 +22,6 @@ For a development install:
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
-    # GITHUB EXTENSION
-    jupyter labextension install @jupyterlab/github
-    # maybe?
-    pip install jupyterlab_github
-    jupyter serverextension enable --sys-prefix jupyterlab_github
-
-    # nbgitpuller
-    pip install nbgitpuller
-    jupyter serverextension enable --py nbgitpuller --sys-prefix
-
     # Install the extension
     cd ..
     git clone https://github.com/CDAT/jupyter-vcdat.git
@@ -48,11 +38,4 @@ To rebuild the package and the JupyterLab app:
 ```bash
 npm run build
 jupyter lab build
-```
-
-## Possible issues:
-
-If you get an FFMPEG import error, run the following command:
-```bash
-    conda install -c conda-forge "ffmpeg>4.0.1"
 ```

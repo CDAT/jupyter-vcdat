@@ -24,7 +24,7 @@ const dropdownMenuStype: React.CSSProperties = {
 };
 
 type TemplateMenuProps = {
-  updateTemplate: any; // a method to call when the user has seleted a template
+  updateTemplate: Function; // a method to call when the user has seleted a template
 };
 type TemplateMenuState = {
   showMenu: boolean;
@@ -52,17 +52,17 @@ export default class TemplateMenu extends React.Component<
     this.selectFalse = this.selectFalse.bind(this);
     this.selectTrue = this.selectTrue.bind(this);
   }
-  toggleMenu() {
+  toggleMenu(): void {
     this.setState({
       showMenu: !this.state.showMenu
     });
   }
-  toggleDropdown() {
+  toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
   }
-  selectTrue() {
+  selectTrue(): void {
     this.props.updateTemplate(this.state.selectedTemplate);
     this.setState({
       showDropdown: false,
@@ -70,13 +70,13 @@ export default class TemplateMenu extends React.Component<
       optionsChanged: false
     });
   }
-  selectFalse() {
+  selectFalse(): void {
     this.setState({
       showDropdown: false,
       showMenu: false
     });
   }
-  render() {
+  render(): JSX.Element {
     return (
       <div>
         <Card>

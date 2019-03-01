@@ -19,7 +19,7 @@ import Variable from "./Variable";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 
 type PlotMenuProps = {
-  updatePlotOptions: any; // the method to call when the users wants to update the plot options
+  updatePlotOptions: Function; // the method to call when the users wants to update the plot options
   varInfo: Variable; // variable information about the selected variable
 };
 type PlotMenuState = {
@@ -57,23 +57,23 @@ export default class PlotMenu extends React.Component<
     this.selectFalse = this.selectFalse.bind(this);
     this.selectTrue = this.selectTrue.bind(this);
   }
-  toggleMenu() {
+  toggleMenu(): void {
     this.setState({
       showMenu: !this.state.showMenu
     });
   }
-  toggleDropdown() {
+  toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
   }
-  setSelectedOption(option: string) {
+  setSelectedOption(option: string): void {
     this.setState({
       selectedDropdownOption: option,
       showMenu: true
     });
   }
-  render() {
+  render(): JSX.Element {
     return (
       <div>
         <Card

@@ -1,9 +1,30 @@
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 import { KernelMessage } from "@jupyterlab/services";
+import { Dialog, showDialog } from "@jupyterlab/apputils";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
 namespace notebook_utils {
+  /**
+   * Opens a pop-up dialog in JupyterLab to display a simple message.
+   * @param title The title for the message popup
+   * @param msg The message
+   * @param buttonLabel The label to use for the button. Default is 'OK'
+   * @returns Promise<void> - A promise once the message is closed.
+   */
+  export async function showMessage(
+    title: string,
+    msg: string,
+    buttonLabel: string = "OK"
+  ): Promise<void> {
+    let buttons: ReadonlyArray<Dialog.IButton> = [
+      Dialog.okButton({ label: buttonLabel })
+    ];
+    return showDialog({ title: title, body: msg, buttons: buttons }).then(
+      () => {}
+    );
+  }
+
   /**
    * @description Creates a new JupyterLab notebook for use by the application
    * @param command The command registry
@@ -34,7 +55,7 @@ namespace notebook_utils {
    * If the notebook is null, an error will occur.
    * @param notebook_panel The notebook to get meta data from.
    * @param key The key of the value.
-   * @returns any - The value of the metadata. Returns null if the key doesn't exist.
+   * @returns Promise<any> - The value of the metadata. Returns null if the key doesn't exist.
    */
   export async function getMetaData(
     notebook_panel: NotebookPanel,

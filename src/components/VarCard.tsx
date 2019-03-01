@@ -6,7 +6,6 @@ import AxisInfo from "./AxisInfo";
 import {
   Card,
   CardTitle,
-  CardSubtitle,
   CardBody,
   CardFooter,
   Button,
@@ -14,6 +13,7 @@ import {
   Row,
   Col
 } from "reactstrap";
+import { notebook_utils } from "../notebook_utils";
 
 const cardStyle: React.CSSProperties = {
   margin: ".5em"
@@ -30,85 +30,78 @@ const buttonsStyle: React.CSSProperties = {
 
 type VarCardProps = {
   variable: Variable;
-  selectVariable: any; // method to call to add this variable to the list to get loaded
-  deselectVariable: any; // method to call to remove a variable from the list
+  selectVariable: Function; // method to call to add this variable to the list to get loaded
+  deselectVariable: Function; // method to call to remove a variable from the list
   hidden: boolean; // should the axis be hidden by default
-  updateDimInfo: any; // method passed by the parent to update their copy of the variables dimension info
-  isSelected: boolean; // is this variable already selected
+  updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
+  isSelected: Function; // method to check if this variable is selected in parent
   allowReload: boolean;
-  reload: any;
+  reload: Function;
+  isLoaded: boolean;
 };
 type VarCardState = {
   showAxis: boolean;
   loadOrder: number;
   axisState: any;
-  isSelected: boolean;
+  isLoaded: boolean;
   hidden: boolean;
   isChanged: boolean;
+  isDerived: boolean;
 };
 
 export default class VarCard extends React.Component<
   VarCardProps,
   VarCardState
 > {
+  varName: string;
   constructor(props: VarCardProps) {
     super(props);
     this.state = {
       loadOrder: -1,
       axisState: [],
+      isLoaded: this.props.isLoaded,
       showAxis: false,
-      isSelected: this.props.isSelected,
       hidden: props.hidden,
-      isChanged: false
+      isChanged: false,
+      isDerived: this.props.variable.name != this.props.variable.cdmsID
     };
-
-    this.toggleMenu = this.toggleMenu.bind(this);
+    this.varName = this.props.variable.name;
     this.openMenu = this.openMenu.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
-    this.handleStatusChange = this.handleStatusChange.bind(this);
   }
 
   /**
    * @description sets the isSelected attribute, and propagates up the selection action to the parent
    */
-  selectVariable() {
-    if (!this.state.isSelected && !this.state.hidden) {
-      this.toggleMenu();
+  async selectVariable(): Promise<void> {
+    if (this.state.isLoaded) {
+      notebook_utils.showMessage("Notice","This variable is already loaded.");
+      await this.props.deselectVariable(this.varName);
+      return;
     }
-    if (this.state.showAxis && this.state.isSelected) {
+
+    if (this.props.isSelected(this.varName)) {
+      await this.props.deselectVariable(this.varName);
+    } else {
+      await this.props.selectVariable(this.varName);
+    }
+
+    if (this.props.isSelected(this.varName)) {
       this.setState({
-        showAxis: false
+        hidden: false
+      });
+    } else {
+      this.setState({
+        hidden: true
       });
     }
-
-    this.setState(
-      {
-        isSelected: !this.state.isSelected
-      },
-      () => {
-        if (this.state.isSelected) {
-          this.props.selectVariable(this.props.variable);
-        } else {
-          this.props.deselectVariable(this.props.variable);
-        }
-      }
-    );
-  }
-
-  /**
-   * @description toggle the menu state
-   */
-  toggleMenu() {
-    this.setState({
-      showAxis: !this.state.showAxis
-    });
   }
 
   /**
    * @description open the menu if its closed
    */
-  openMenu() {
+  openMenu(): void {
     if (!this.state.showAxis && !this.state.hidden) {
       this.setState({
         showAxis: true
@@ -116,7 +109,7 @@ export default class VarCard extends React.Component<
     }
   }
 
-  updateDimInfo(newInfo: any, varName: string) {
+  updateDimInfo(newInfo: any, varName: string): void {
     if (this.props.allowReload) {
       this.setState({
         isChanged: true
@@ -125,18 +118,10 @@ export default class VarCard extends React.Component<
     this.props.updateDimInfo(newInfo, varName);
   }
 
-  handleStatusChange(status: any) {
-    console.log(status);
-  }
-
-  render() {
-    let buttonString = "Select";
-    if (this.state.isSelected) {
-      buttonString = "Unselect";
-    }
-    let hideString = "Axes";
-    if (this.state.hidden) {
-      hideString = "Axes";
+  render(): JSX.Element {
+    let color = "success";
+    if (this.state.isLoaded) {
+      color = "warning";
     }
     return (
       <div>
@@ -148,19 +133,27 @@ export default class VarCard extends React.Component<
                   <Col xs="sm-5">
                     <Button
                       outline
-                      color="success"
+                      color={color}
                       onClick={this.selectVariable}
-                      active={this.state.isSelected == true}
+                      active={this.props.isSelected(this.varName)}
                       style={buttonsStyle}
                     >
                       {this.props.variable.name}
                     </Button>
                   </Col>
                   <Col xs="sm-4">
-                    {(this.state.showAxis || this.state.isSelected) && (
+                    {(this.state.showAxis ||
+                      this.props.isSelected(this.varName)) && (
                       <Button
+                        title={
+                          this.state.isDerived
+                            ? "Editing of custom variables coming soon."
+                            : ""
+                        }
                         outline
-                        color="danger"
+                        color={this.state.isDerived ? "dark" : "danger"}
+                        active={this.state.showAxis}
+                        disabled={this.state.isDerived}
                         onClick={() => {
                           this.setState({
                             showAxis: !this.state.showAxis,
@@ -169,7 +162,7 @@ export default class VarCard extends React.Component<
                         }}
                         style={buttonsStyle}
                       >
-                        {hideString}
+                        Axes
                       </Button>
                     )}
                   </Col>
@@ -205,10 +198,7 @@ export default class VarCard extends React.Component<
                   <div key={item.name} style={axisStyle}>
                     <Card>
                       <CardBody>
-                        <DimensionSlider
-                          {...item}
-                          varName={this.props.variable.name}
-                        />
+                        <DimensionSlider {...item} varName={this.varName} />
                       </CardBody>
                     </Card>
                   </div>
