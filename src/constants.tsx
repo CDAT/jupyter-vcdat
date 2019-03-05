@@ -3,9 +3,10 @@ const BASE_URL = "/vcs";
 const READY_KEY = "vcdat_ready";
 const FILE_PATH_KEY = "vcdat_file_path";
 const IMPORT_CELL_KEY = "vcdat_imports";
+const VARIABLES_KEY = "selected_variables";
 const GRAPHICS_METHOD_KEY = "graphics_method_selected";
 const TEMPLATE_KEY = "template_selected";
-const VARIABLES_LOADED_KEY = "vcdat_variables_loaded";
+const VARIABLES_LOADED_KEY = "vcdat_loaded_variables";
 const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
 
 const GET_VARS_CMD =
@@ -412,18 +413,19 @@ export {
   MAX_SLABS,
   BASE_URL,
   READY_KEY,
-  TEMPLATE_KEY,
   FILE_PATH_KEY,
   IMPORT_CELL_KEY,
+  VARIABLES_KEY,
   GRAPHICS_METHOD_KEY,
+  TEMPLATE_KEY,
   VARIABLES_LOADED_KEY,
   REQUIRED_MODULES,
   GET_VARS_CMD,
   BASE_GRAPHICS,
-  REFRESH_NAMES_CMD,
   BASE_TEMPLATES,
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD,
+  REFRESH_NAMES_CMD,
   REFRESH_VAR_INFO,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,

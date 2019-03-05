@@ -21,8 +21,7 @@ import {
   REFRESH_GRAPHICS_CMD,
   BASE_GRAPHICS,
   REFRESH_TEMPLATES_CMD,
-  BASE_TEMPLATES,
-  REFRESH_NAMES_CMD
+  BASE_TEMPLATES
 } from "./constants";
 import { VCSMenu } from "./components/VCSMenu";
 import { notebook_utils } from "./notebook_utils";
@@ -40,14 +39,12 @@ export class LeftSideBarWidget extends Widget {
   application: JupyterLab; //The JupyterLab application object
   VCSMenuRef: VCSMenu; // the LeftSidebar component
   loading_data: boolean;
+  variable_data: Array<Variable>; // An array containing information about the variables
   graphics_methods: any; // The current available graphics methods
   templates_list: Array<string>; // The list of current templates
-  using_kernel: boolean; // The widgets is running a kernel command
+  using_kernel: boolean; // The widgets is running a ker nel command
 
-  private variable_names: string[]; // The list of vcdat variables the current notebook has as string names
   private _ready_kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
-  private _variable_data: Array<Variable>; // An array containing information about the variables
-  private _selected_variables: Array<string>; // An array that tracks which variable(s) is/are currently selected
   private _current_file: string; // The current filepath of the data file being used for variables and data
   private _notebook_panel: NotebookPanel; // The notebook this widget is interacting with
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
@@ -65,9 +62,7 @@ export class LeftSideBarWidget extends Widget {
     this.using_kernel = false;
     this._current_file = "";
     this._notebook_panel = null;
-    this.variable_names = [];
-    this._variable_data = new Array<Variable>();
-    this._selected_variables = new Array<string>();
+    this.variable_data = new Array<Variable>();
     this.graphics_methods = BASE_GRAPHICS;
     this.templates_list = BASE_TEMPLATES;
     this._ready_kernels = [];
@@ -77,7 +72,6 @@ export class LeftSideBarWidget extends Widget {
     this.setNotebookPanel = this.setNotebookPanel.bind(this);
     this.updateNotebookState = this.updateNotebookState.bind(this);
     this.handleStateChanged = this.handleStateChanged.bind(this);
-    this.refreshVarInfo = this.refreshVarInfo.bind(this);
     this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
     this.getFileVariables = this.getFileVariables.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
@@ -102,13 +96,9 @@ export class LeftSideBarWidget extends Widget {
             return this.templates_list;
           }}
           updateVariables={(variables: Array<Variable>) => {
-            this._variable_data = variables;
-          }}
-          updateSelectedVariables={(variableNames: Array<string>) => {
-            this._selected_variables = variableNames;
+            this.variable_data = variables;
           }}
           refreshGraphicsList={this.refreshGraphicsList}
-          loadedVariables={this.variable_data}
           notebook_panel={this._notebook_panel}
         />
       </ErrorBoundary>,
@@ -124,24 +114,7 @@ export class LeftSideBarWidget extends Widget {
   }
 
   //=======GETTERS AND SETTERS=======
-  public get variable_data(): Array<Variable> {
-    return this._variable_data;
-  }
-
-  public set variable_data(var_info: Array<Variable>) {
-    this._variable_data = var_info;
-    this.VCSMenuRef.updateLoadedVariables(this._variable_data);
-  }
-
-  public get selected_variables(): Array<string> {
-    return this._selected_variables;
-  }
-
-  public set selected_variables(variables: Array<string>) {
-    this.VCSMenuRef.updateSelectedVariables(variables);
-  }
-
-  public get state() {
+  public get state(): NOTEBOOK_STATE {
     return this._state;
   }
 
@@ -174,18 +147,18 @@ export class LeftSideBarWidget extends Widget {
         notebook_panel: notebook_panel
       });
 
-      //console.log(`Previous variable list: ${this.variable_names}`);
       //Exit early if no change needed
       if (this._notebook_panel == notebook_panel) {
-        console.log("The current notebook didn't change.");
         return;
       }
+
       // Disconnect handlers from previous notebook_panel (if exists)
       if (this._notebook_panel) {
         this._notebook_panel.content.stateChanged.disconnect(
           this.handleStateChanged
         );
       }
+
       // Update current notebook
       this._notebook_panel = notebook_panel;
 
@@ -210,7 +183,6 @@ export class LeftSideBarWidget extends Widget {
         } else {
           await this.setCurrentFile("", false);
         }
-        console.log(`Current file is now: ${last_file_opened}`);
 
         // Run imports if cell isn't vcs ready, to make it vcs ready
         if (this.state == NOTEBOOK_STATE.ImportsReady) {
@@ -220,7 +192,6 @@ export class LeftSideBarWidget extends Widget {
             IMPORT_CELL_KEY
           );
           if (imports_cell[0] >= 0) {
-            console.log("Import meta data found, running code.");
             // If found, run the imports code
             await notebook_utils.sendSimpleKernelRequest(
               this.notebook_panel,
@@ -237,10 +208,13 @@ export class LeftSideBarWidget extends Widget {
             this.state = NOTEBOOK_STATE.VCS_Ready;
           }
         }
+
         // Update the selected graphics method, variable list, templates and loaded variables
-        this.refreshVarList();
-        this.refreshGraphicsList();
-        this.refreshTemplatesList();
+        await this.refreshGraphicsList();
+        await this.refreshTemplatesList();
+        await this.refreshVarList();
+
+        this.VCSMenuRef.getVariableSelections();
         this.VCSMenuRef.getGraphicsSelections();
         this.VCSMenuRef.getTemplateSelection();
 
@@ -248,16 +222,22 @@ export class LeftSideBarWidget extends Widget {
         this.notebook_panel.content.stateChanged.connect(
           this.handleStateChanged
         );
-        //this._notebook_panel.disposed.connect(this.handleNotebookDisposed);
       } else {
-        // Refresh the UI lists (will become empty)
-        this.refreshVarList();
-        this.refreshGraphicsList();
-        this.refreshTemplatesList();
+        // Leave notebook alone if its not vcs ready, refresh var list for UI
+        await this.refreshVarList();
         this.setCurrentFile("", false);
       }
     } catch (error) {
-      console.log(error);
+      if (error.status == "error") {
+        notebook_utils.showMessage(error.ename, error.evalue);
+      } else if (error.message != null) {
+        notebook_utils.showMessage("Error", error.message);
+      } else {
+        notebook_utils.showMessage(
+          "Error",
+          "An error occurred when setting the notebook panel."
+        );
+      }
     }
   }
 
@@ -266,49 +246,37 @@ export class LeftSideBarWidget extends Widget {
    * @param file_path The new file path to set
    * @param save Whether the file path should be saved to the notebook's meta data.
    */
-  async setCurrentFile(file_path: string, save: boolean) {
-    try {
-      this._current_file = file_path;
-      // If notebook panel exists, set the notebook meta data to store current file path
-      if (this.notebook_panel && save) {
-        // Ensure notebook session is ready before setting metadata
-        await this.notebook_panel.session.ready;
-        await notebook_utils.setMetaDataNow(
-          this.notebook_panel,
-          FILE_PATH_KEY,
-          file_path
-        );
-        // Update component, no variable retrieval
-        let result = notebook_utils.getMetaDataNow(
-          this.notebook_panel,
-          VARIABLES_LOADED_KEY
-        );
-        //console.log(`Variable data found in notebook: ${result}`);
-        if (result) {
-          this.VCSMenuRef.updateLoadedVariables(result);
+  async setCurrentFile(file_path: string, save: boolean): Promise<void> {
+    this._current_file = file_path;
+    // If notebook panel exists, set the notebook meta data to store current file path
+    if (this.notebook_panel && save) {
+      // Ensure notebook session is ready before setting metadata
+      await this.notebook_panel.session.ready;
+      await notebook_utils.setMetaDataNow(
+        this.notebook_panel,
+        FILE_PATH_KEY,
+        file_path
+      );
+      // Update component, no variable retrieval
+      let result = notebook_utils.getMetaDataNow(
+        this.notebook_panel,
+        VARIABLES_LOADED_KEY
+      );
+      if (result) {
+        this.VCSMenuRef.updateVariables(result);
+      } else {
+        let file_vars = await this.getFileVariables(file_path);
+        if (file_vars.length > 0) {
+          await this.VCSMenuRef.launchVarSelect(file_vars);
         } else {
-          //console.log(`Launching var loader with filepath: ${file_path}`);
-          let file_vars = await this.getFileVariables(file_path);
-          if (file_vars.length > 0) {
-            await this.VCSMenuRef.launchVarSelect(file_vars);
-          } else {
-            alert(
-              "There was an issue reading the file. Please choose another file."
-            );
-            this._current_file = "";
-            throw new Error(
-              "There was an issue getting variables from the file."
-            );
-          }
+          this._current_file = "";
         }
-        // Save the notebook to preserve the cell metadata
-        await this.notebook_panel.context.save();
-        console.log(`Filepath to ${file_path} saved.`);
-        await this.refreshVarList();
       }
-    } catch (error) {
-      console.log(error);
+
+      // Save the notebook to preserve the cell metadata
+      await this.notebook_panel.context.save();
     }
+    await this.refreshVarList();
   }
 
   //=======WIDGET SIGNAL HANDLERS=======
@@ -321,19 +289,8 @@ export class LeftSideBarWidget extends Widget {
     tracker: NotebookTracker,
     notebook_panel: NotebookPanel
   ): Promise<void> {
-    try {
-      if (notebook_panel) {
-        console.log(
-          `======== Notebook is now: ${notebook_panel.title.label} ========`
-        );
-      } else {
-        console.log("======== No notebook detected ========");
-      }
-      // Set the current notebook and wait for the session to be ready
-      await this.setNotebookPanel(notebook_panel);
-    } catch (error) {
-      console.log(error);
-    }
+    // Set the current notebook and wait for the session to be ready
+    await this.setNotebookPanel(notebook_panel);
   }
 
   /** This handles when the state of the notebook changes, like when a cell is modified, or run etc.
@@ -343,13 +300,12 @@ export class LeftSideBarWidget extends Widget {
   async handleStateChanged(
     notebook: Notebook,
     state_change: IChangedArgs<any>
-  ) {
+  ): Promise<void> {
     // Perform actions when the notebook state has a command run and the notebook is vcs ready
     if (
       this.state == NOTEBOOK_STATE.VCS_Ready &&
       state_change.newValue == "command"
     ) {
-      console.log("Refreshing notebook data.");
       this.refreshVarList();
       this.refreshGraphicsList();
       this.refreshTemplatesList();
@@ -374,10 +330,19 @@ export class LeftSideBarWidget extends Widget {
         true
       );
       this.notebook_panel.content.activeCellIndex = result[0] + 1;
+      this.notebook_panel.context.save();
       return result;
     } catch (error) {
-      console.log(error);
-      alert(error);
+      if (error.status == "error") {
+        notebook_utils.showMessage(error.ename, error.evalue);
+      } else if (error.message != null) {
+        notebook_utils.showMessage("Error", error.message);
+      } else {
+        notebook_utils.showMessage(
+          "Error",
+          "An error occurred when injecting the code."
+        );
+      }
     }
   }
 
@@ -395,9 +360,19 @@ export class LeftSideBarWidget extends Widget {
         code,
         false
       );
+      this.notebook_panel.context.save();
       return result;
     } catch (error) {
-      console.log(error);
+      if (error.status == "error") {
+        notebook_utils.showMessage(error.ename, error.evalue);
+      } else if (error.message != null) {
+        notebook_utils.showMessage("Error", error.message);
+      } else {
+        notebook_utils.showMessage(
+          "Error",
+          "An error occurred when injecting the code."
+        );
+      }
     }
   }
 
@@ -408,49 +383,34 @@ export class LeftSideBarWidget extends Widget {
    * The status of the notebook is set and the notebook switching handler is connected.
    */
   async initialize(): Promise<void> {
-    try {
-      // Check the active widget is a notebook panel
-      if (this.application.shell.currentWidget instanceof NotebookPanel) {
-        console.log("======== Currently open notebook selected ========");
-
-        // Set the current notebook and wait for the session to be ready
-        await this.setNotebookPanel(this.application.shell.currentWidget);
-      } else {
-        // There is no active notebook widget
-        console.log("======== No active notebook ========");
-        await this.setNotebookPanel(null);
-      }
-
-      // Notebook tracker will signal when a notebook is changed
-      this.notebook_tracker.currentChanged.connect(this.handleNotebooksChanged);
-    } catch (error) {
-      console.log(error);
+    // Check the active widget is a notebook panel
+    if (this.application.shell.currentWidget instanceof NotebookPanel) {
+      await this.setNotebookPanel(this.application.shell.currentWidget);
+    } else {
+      // There is no active notebook widget
+      await this.setNotebookPanel(null);
     }
+
+    // Notebook tracker will signal when a notebook is changed
+    this.notebook_tracker.currentChanged.connect(this.handleNotebooksChanged);
   }
 
   /**
    * This updates the current graphics methods list by sending a command to the kernel directly.
    */
   async refreshGraphicsList(): Promise<void> {
-    try {
-      if (this.state == NOTEBOOK_STATE.VCS_Ready) {
-        //Refresh the graphic methods
-        this.using_kernel = true;
-        let output: string = await notebook_utils.sendSimpleKernelRequest(
-          this.notebook_panel,
-          REFRESH_GRAPHICS_CMD
-        );
-        //Update the list of latest variables and data
-        this.graphics_methods = JSON.parse(output.slice(1, output.length - 1));
-        //console.log(`Updated graphics method list:`);
-        //console.log(this.graphic_methods);
-        this.using_kernel = false;
-      } else {
-        this.graphics_methods = BASE_GRAPHICS;
-        console.log(`No graphics list for this notebook.`);
-      }
-    } catch (error) {
-      console.log(error);
+    if (this.state == NOTEBOOK_STATE.VCS_Ready) {
+      //Refresh the graphic methods
+      this.using_kernel = true;
+      let output: string = await notebook_utils.sendSimpleKernelRequest(
+        this.notebook_panel,
+        REFRESH_GRAPHICS_CMD
+      );
+      //Update the list of latest variables and data
+      this.graphics_methods = JSON.parse(output.slice(1, output.length - 1));
+      this.using_kernel = false;
+    } else {
+      this.graphics_methods = BASE_GRAPHICS;
     }
   }
 
@@ -468,12 +428,9 @@ export class LeftSideBarWidget extends Widget {
         );
         //Update the list of latest variables and data
         this.templates_list = eval(output);
-        console.log(`Updated templates list:`);
-        console.log(this.templates_list);
         this.using_kernel = false;
       } else {
         this.templates_list = BASE_TEMPLATES;
-        console.log(`No templates added for this notebook.`);
       }
     } catch (error) {
       console.log(error);
@@ -484,76 +441,39 @@ export class LeftSideBarWidget extends Widget {
    * This updates the current variable list by sending a command to the kernel directly.
    */
   async refreshVarList(): Promise<void> {
-    try {
-      if (this.state == NOTEBOOK_STATE.VCS_Ready) {
-        //Refresh the variables
-        this.using_kernel = true;
-        let output: string = await notebook_utils.sendSimpleKernelRequest(
-          this.notebook_panel,
-          REFRESH_NAMES_CMD
-        );
-        //Update the list of latest variables and data
-        this.variable_names = eval(output);
-        //console.log(`Updated variable name list: ${output}`);
-        await this.refreshVarInfo();
-        if (this.variable_names.length > 0) {
-          this.selected_variables = [this.variable_names[0]];
-        } else {
-          this.selected_variables = new Array<string>();
-        }
-        console.log(`Selected variables: ${this.selected_variables}`);
-        this.using_kernel = false;
-      } else {
-        this.selected_variables = new Array<string>();
-        this.variable_data = new Array<Variable>();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  // Refreshes the variables array
-  async refreshVarInfo(): Promise<void> {
-    try {
-      if (this.state == NOTEBOOK_STATE.VCS_Ready && this.current_file != "") {
-        console.log("Updating variable data...");
-        // Open the file reader first
-        let result: string = await notebook_utils.sendSimpleKernelRequest(
-          this.notebook_panel,
-          REFRESH_VAR_INFO
-        );
-
-        // Parse the resulting output into an object
-        let variableAxes: any = JSON.parse(result.slice(1, result.length - 1));
-        let newVars = new Array<Variable>();
-        Object.keys(variableAxes.vars).map((item: string) => {
-          let v = new Variable();
-          v.name = item;
-          v.cdmsID = variableAxes.vars[item].cdmsID;
-          v.longName = variableAxes.vars[item].name;
-          v.axisList = variableAxes.vars[item].axisList;
-          v.axisInfo = new Array<AxisInfo>();
-          variableAxes.vars[item].axisList.map((item: any) => {
-            variableAxes.axes[item].min = variableAxes.axes[item].data[0];
-            variableAxes.axes[item].max =
-              variableAxes.axes[item].data[
-                variableAxes.axes[item].data.length - 1
-              ];
-            v.axisInfo.push(variableAxes.axes[item]);
-          });
-          v.units = variableAxes.vars[item].units;
-
-          newVars.push(v);
+    if (this.state == NOTEBOOK_STATE.VCS_Ready && this.current_file != "") {
+      this.using_kernel = true;
+      // Open the file reader first
+      let result: string = await notebook_utils.sendSimpleKernelRequest(
+        this.notebook_panel,
+        REFRESH_VAR_INFO
+      );
+      this.using_kernel = false;
+      // Parse the resulting output into an object
+      let variableAxes: any = JSON.parse(result.slice(1, result.length - 1));
+      let newVars = new Array<Variable>();
+      Object.keys(variableAxes.vars).map((item: string) => {
+        let v = new Variable();
+        v.name = item;
+        v.cdmsID = variableAxes.vars[item].cdmsID;
+        v.longName = variableAxes.vars[item].name;
+        v.axisList = variableAxes.vars[item].axisList;
+        v.axisInfo = new Array<AxisInfo>();
+        variableAxes.vars[item].axisList.map((item: any) => {
+          variableAxes.axes[item].min = variableAxes.axes[item].data[0];
+          variableAxes.axes[item].max =
+            variableAxes.axes[item].data[
+              variableAxes.axes[item].data.length - 1
+            ];
+          v.axisInfo.push(variableAxes.axes[item]);
         });
-        this.variable_data = newVars;
-        console.log("Variable list updated.");
-        //console.log(newVars);
-      } else {
-        console.log("Var list is empty.");
-        this.variable_data = new Array<Variable>();
-      }
-    } catch (error) {
-      console.log(error);
+        v.units = variableAxes.vars[item].units;
+
+        newVars.push(v);
+      });
+      this.VCSMenuRef.updateVariables(newVars);
+    } else {
+      this.VCSMenuRef.updateVariables(new Array<Variable>());
     }
   }
 
@@ -564,50 +484,41 @@ export class LeftSideBarWidget extends Widget {
    * that were found in the file.
    */
   async getFileVariables(file_path: string): Promise<Array<Variable>> {
-    try {
-      if (file_path != "") {
-        console.log("Reading file for variable data.");
-        // Open the file reader first
-        await notebook_utils.sendSimpleKernelRequest(
-          this.notebook_panel,
-          `import cdms2\nreader = cdms2.open('${file_path}')`
-        );
-        // Get file variables
-        let result: string = await notebook_utils.sendSimpleKernelRequest(
-          this.notebook_panel,
-          GET_FILE_VARIABLES
-        );
+    if (file_path != "") {
+      // Open the file reader first
+      await notebook_utils.sendSimpleKernelRequest(
+        this.notebook_panel,
+        `import cdms2\nreader = cdms2.open('${file_path}')`
+      );
+      // Get file variables
+      let result: string = await notebook_utils.sendSimpleKernelRequest(
+        this.notebook_panel,
+        GET_FILE_VARIABLES
+      );
 
-        // Parse the resulting output into an object
-        let variableAxes: any = JSON.parse(result.slice(1, result.length - 1));
-        let newVars = new Array<Variable>();
-        Object.keys(variableAxes.vars).map((item: string) => {
-          let v = new Variable();
-          v.name = item;
-          v.cdmsID = variableAxes.vars[item].cdmsID; // Loaded variables have same cdmsName
-          v.longName = variableAxes.vars[item].name;
-          v.axisList = variableAxes.vars[item].axisList;
-          v.axisInfo = new Array<AxisInfo>();
-          variableAxes.vars[item].axisList.map((item: any) => {
-            variableAxes.axes[item].min = variableAxes.axes[item].data[0];
-            variableAxes.axes[item].max =
-              variableAxes.axes[item].data[
-                variableAxes.axes[item].data.length - 1
-              ];
-            v.axisInfo.push(variableAxes.axes[item]);
-          });
-          v.units = variableAxes.vars[item].units;
-          newVars.push(v);
+      // Parse the resulting output into an object
+      let variableAxes: any = JSON.parse(result.slice(1, result.length - 1));
+      let newVars = new Array<Variable>();
+      Object.keys(variableAxes.vars).map((item: string) => {
+        let v = new Variable();
+        v.name = item;
+        v.cdmsID = variableAxes.vars[item].cdmsID; // Loaded variables have same cdmsName
+        v.longName = variableAxes.vars[item].name;
+        v.axisList = variableAxes.vars[item].axisList;
+        v.axisInfo = new Array<AxisInfo>();
+        variableAxes.vars[item].axisList.map((item: any) => {
+          variableAxes.axes[item].min = variableAxes.axes[item].data[0];
+          variableAxes.axes[item].max =
+            variableAxes.axes[item].data[
+              variableAxes.axes[item].data.length - 1
+            ];
+          v.axisInfo.push(variableAxes.axes[item]);
         });
-        //console.log("File variables obtained!");
-        //console.log(newVars);
-        return newVars;
-      } else {
-        console.log("Filename was blank!");
-        return new Array<Variable>();
-      }
-    } catch (error) {
-      console.log(error);
+        v.units = variableAxes.vars[item].units;
+        newVars.push(v);
+      });
+      return newVars;
+    } else {
       return new Array<Variable>();
     }
   }
@@ -633,7 +544,6 @@ export class LeftSideBarWidget extends Widget {
           ) {
             // Ready kernel identified, so the notebook is ready for injection
             this.state = NOTEBOOK_STATE.VCS_Ready;
-            //console.log("The notebook is VCS ready!");
           } else {
             // Search for a cell containing the imports key
             let find = cell_utils.findCellWithMetaKey(
@@ -643,28 +553,22 @@ export class LeftSideBarWidget extends Widget {
             if (find[0] >= 0) {
               // The imports cell was found, but wasn't run yet
               this.state = NOTEBOOK_STATE.ImportsReady;
-              //console.log("Notebook imports are ready!");
             } else {
               // No import cell was found, but the notebook is active
               this.state = NOTEBOOK_STATE.ActiveNotebook;
-              //console.log("Notebook is active.");
             }
           }
         } else {
           // No notebook is currently open
           this.state = NOTEBOOK_STATE.InactiveNotebook;
-          //console.log("No notebook is active.");
         }
       } else {
         // No notebook is open (tracker was empty)
         this.state = NOTEBOOK_STATE.NoOpenNotebook;
-        //console.log("No notebook opened.");
       }
     } catch (error) {
       this.state = NOTEBOOK_STATE.Unknown;
-      console.log(error);
     }
-    console.log(`State changed to: ${NOTEBOOK_STATE[this.state]}`);
   }
 
   /**
@@ -708,75 +612,77 @@ export class LeftSideBarWidget extends Widget {
    * imported and any that are will be skipped (not added) in the import statements of the required code.
    */
   async injectRequiredCode(skip: boolean = false): Promise<number> {
-    console.log("Injecting required modules.");
     // Check if required modules are imported in notebook
-    var prom: Promise<number> = new Promise(async (resolve, reject) => {
-      try {
-        let cmd =
-          "#These imports are required for vcdat. To avoid issues, do not delete or modify.\n";
+    try {
+      let cmd =
+        "#These imports are required for vcdat. To avoid issues, do not delete or modify.\n";
 
-        if (skip) {
-          // Check if necessary modules are loaded
-          let output: string = await notebook_utils.sendSimpleKernelRequest(
-            this.notebook_panel,
-            CHECK_MODULES_CMD
-          );
-
-          // Create import string based on missing dependencies
-          let missing_modules: string[] = eval(output);
-          cmd += this.buildImportCommand(missing_modules, true);
-        } else {
-          cmd += this.buildImportCommand(eval(`[${REQUIRED_MODULES}]`), true);
-        }
-
-        // Inject imports in a new cell
-        let result: [number, string] = await cell_utils.insertRunShow(
+      if (skip) {
+        // Check if necessary modules are loaded
+        let output: string = await notebook_utils.sendSimpleKernelRequest(
           this.notebook_panel,
-          this.commands,
-          -1,
-          cmd,
-          true
+          CHECK_MODULES_CMD
         );
 
-        // Set cell meta data to identify it as containing imports
-        cell_utils.setCellMetaData(
-          this.notebook_panel,
-          result[0],
-          IMPORT_CELL_KEY,
-          "saved",
-          true
-        );
-
-        // Run code that creates a canvas and opens the current selected .nc file
-        cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${
-          this.current_file
-        }\")`;
-        cell_utils.insertRunShow(
-          this.notebook_panel,
-          this.commands,
-          result[0] + 1,
-          cmd,
-          true
-        );
-
-        // Select the last cell
-        this.notebook_panel.content.activeCellIndex =
-          this.notebook_panel.content.model.cells.length - 1;
-
-        // Update kernel list to identify this kernel is ready
-        this._ready_kernels.push(this.notebook_panel.session.kernel.id);
-
-        // Save the notebook to preserve the cell metadata, update state
-        this.state = NOTEBOOK_STATE.VCS_Ready;
-        await this.notebook_panel.context.save();
-        console.log("Meta data added and notebook saved.");
-        resolve(result[0] + 2);
-      } catch (error) {
-        reject(error);
+        // Create import string based on missing dependencies
+        let missing_modules: string[] = eval(output);
+        cmd += this.buildImportCommand(missing_modules, true);
+      } else {
+        cmd += this.buildImportCommand(eval(`[${REQUIRED_MODULES}]`), true);
       }
-    });
 
-    return prom;
+      // Inject imports in a new cell
+      let result: [number, string] = await cell_utils.insertRunShow(
+        this.notebook_panel,
+        this.commands,
+        -1,
+        cmd,
+        true
+      );
+
+      // Run code that creates a canvas and opens the current selected .nc file
+      cmd = `canvas = vcs.init()\ndata = cdms2.open(\"${this.current_file}\")`;
+      cell_utils.insertRunShow(
+        this.notebook_panel,
+        this.commands,
+        result[0] + 1,
+        cmd,
+        true
+      );
+
+      // Select the last cell
+      this.notebook_panel.content.activeCellIndex =
+        this.notebook_panel.content.model.cells.length - 1;
+
+      // Update kernel list to identify this kernel is ready
+      this._ready_kernels.push(this.notebook_panel.session.kernel.id);
+
+      // Save the notebook to preserve the cell metadata, update state
+      this.state = NOTEBOOK_STATE.VCS_Ready;
+
+      // Set cell meta data to identify it as containing imports
+      cell_utils.setCellMetaData(
+        this.notebook_panel,
+        result[0],
+        IMPORT_CELL_KEY,
+        "saved",
+        true
+      );
+
+      await this.notebook_panel.context.save();
+      return result[0] + 2;
+    } catch (error) {
+      if (error.status == "error") {
+        notebook_utils.showMessage(error.ename, error.evalue);
+      } else if (error.message != null) {
+        notebook_utils.showMessage("Error", error.message);
+      } else {
+        notebook_utils.showMessage(
+          "Error",
+          "An error occurred when importing dependencies."
+        );
+      }
+    }
   }
 
   /**
@@ -784,61 +690,39 @@ export class LeftSideBarWidget extends Widget {
    * @param current_file The file_path to set for the variable loading. If left blank, an error will occur.
    */
   async prepareNotebookPanel(current_file: string): Promise<void> {
-    let prom: Promise<void> = new Promise(async (resolve, reject) => {
-      try {
-        if (current_file == "") {
-          this.state = NOTEBOOK_STATE.Unknown;
-          // Reject initilization if no file has been selected
-          reject(new Error("No file has been set for obtaining variables."));
-        } else if (this.state == NOTEBOOK_STATE.VCS_Ready) {
-          // Set the current file and save the file path as meta data
-          await this.setCurrentFile(current_file, true);
-          console.log("No code injection needed. Already vcs_ready!");
-          let file_vars: Array<Variable> = await this.getFileVariables(
-            current_file
-          );
-          if (file_vars.length > 0) {
-            await this.VCSMenuRef.launchVarSelect(file_vars);
-          } else {
-            alert(
-              "There was an issue reading the file. Please choose another file."
-            );
-            this._current_file = "";
-            throw new Error(
-              "There was an issue getting variables from the file."
-            );
-          }
-        } else {
-          console.log("Getting a vcs ready notebook.");
-          // Grab a notebook panel
-          let new_notebook_panel = await this.getNotebookPanel();
-          // Set as current notebook (if not already)
-          await this.setNotebookPanel(new_notebook_panel);
-          console.log("Notebook set.");
-
-          // Set the current file and save the file path as meta data
-          await this.setCurrentFile(current_file, true);
-          if (this.current_file != "") {
-            this.notebook_panel.content.activeCellIndex = await this.injectRequiredCode();
-          } else {
-            reject(new Error("The file varaibles could not be read."));
-          }
-        }
-
-        // Activate current notebook
-        this.application.shell.activateById(this.notebook_panel.id);
-
-        // Connect the handler specific to current notebook
-        this._notebook_panel.content.stateChanged.connect(
-          this.handleStateChanged
-        );
-
-        resolve();
-      } catch (error) {
-        reject(error);
+    if (current_file == "") {
+      this.state = NOTEBOOK_STATE.Unknown;
+      // Reject initilization if no file has been selected
+      throw new Error("No file has been set for obtaining variables.");
+    } else if (this.state == NOTEBOOK_STATE.VCS_Ready) {
+      // Set the current file and save the file path as meta data
+      await this.setCurrentFile(current_file, true);
+      let file_vars: Array<Variable> = await this.getFileVariables(
+        current_file
+      );
+      if (file_vars.length > 0) {
+        await this.VCSMenuRef.launchVarSelect(file_vars);
+      } else {
+        this._current_file = "";
       }
-    });
-    return prom;
+    } else {
+      // Grab a notebook panel
+      let new_notebook_panel = await this.getNotebookPanel();
+      // Set as current notebook (if not already)
+      await this.setNotebookPanel(new_notebook_panel);
+
+      // Set the current file and save the file path as meta data
+      await this.setCurrentFile(current_file, true);
+      if (this.current_file != "") {
+        this.notebook_panel.content.activeCellIndex = await this.injectRequiredCode();
+      }
+    }
+
+    // Activate current notebook
+    this.application.shell.activateById(this.notebook_panel.id);
+
+    // Connect the handler specific to current notebook
+    this._notebook_panel.content.stateChanged.connect(this.handleStateChanged);
   }
 
   /**
@@ -851,7 +735,6 @@ export class LeftSideBarWidget extends Widget {
           resolve(this.notebook_panel);
         } else {
           // Create new notebook if one doesn't exist
-          console.log("New notebook created");
           resolve(notebook_utils.createNewNotebook(this.commands));
         }
       } catch (error) {

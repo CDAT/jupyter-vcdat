@@ -6,7 +6,6 @@ import AxisInfo from "./AxisInfo";
 import {
   Card,
   CardTitle,
-  CardSubtitle,
   CardBody,
   CardFooter,
   Button,
@@ -14,6 +13,7 @@ import {
   Row,
   Col
 } from "reactstrap";
+import { notebook_utils } from "../notebook_utils";
 
 const cardStyle: React.CSSProperties = {
   margin: ".5em"
@@ -30,13 +30,13 @@ const buttonsStyle: React.CSSProperties = {
 
 type VarCardProps = {
   variable: Variable;
-  selectVariable: any; // method to call to add this variable to the list to get loaded
-  deselectVariable: any; // method to call to remove a variable from the list
+  selectVariable: Function; // method to call to add this variable to the list to get loaded
+  deselectVariable: Function; // method to call to remove a variable from the list
   hidden: boolean; // should the axis be hidden by default
-  updateDimInfo: any; // method passed by the parent to update their copy of the variables dimension info
+  updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
   isSelected: Function; // method to check if this variable is selected in parent
   allowReload: boolean;
-  reload: any;
+  reload: Function;
   isLoaded: boolean;
 };
 type VarCardState = {
@@ -69,7 +69,6 @@ export default class VarCard extends React.Component<
     this.openMenu = this.openMenu.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
-    this.handleStatusChange = this.handleStatusChange.bind(this);
   }
 
   /**
@@ -77,19 +76,15 @@ export default class VarCard extends React.Component<
    */
   async selectVariable(): Promise<void> {
     if (this.state.isLoaded) {
-      alert("This variable is already loaded.");
+      notebook_utils.showMessage("Notice","This variable is already loaded.");
       await this.props.deselectVariable(this.varName);
       return;
     }
 
     if (this.props.isSelected(this.varName)) {
       await this.props.deselectVariable(this.varName);
-
-      console.log("Deselect");
     } else {
       await this.props.selectVariable(this.varName);
-
-      console.log("Select");
     }
 
     if (this.props.isSelected(this.varName)) {
@@ -123,11 +118,7 @@ export default class VarCard extends React.Component<
     this.props.updateDimInfo(newInfo, varName);
   }
 
-  handleStatusChange(status: any): void {
-    console.log(status);
-  }
-
-  render() {
+  render(): JSX.Element {
     let color = "success";
     if (this.state.isLoaded) {
       color = "warning";

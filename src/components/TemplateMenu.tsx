@@ -36,45 +36,42 @@ export default class TemplateMenu extends React.Component<
     this.state = {
       showMenu: false,
       showDropdown: false,
-      selectedTemplate: "Select a template",
+      selectedTemplate: "",
       optionsChanged: false,
       plotReady: false
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
-    this.selectFalse = this.selectFalse.bind(this);
-    this.selectTrue = this.selectTrue.bind(this);
+    this.resetTemplateMenuState = this.resetTemplateMenuState.bind(this);
   }
 
   // Resets the graphics menu to initial, (for when a new notebook is selected)
-  resetTemplateMenuState() {
-    console.log("Graphics selections reset.");
+  resetTemplateMenuState(): void {
     this.setState({
       showMenu: false,
       showDropdown: false,
-      selectedTemplate: "Select a template",
+      selectedTemplate: "",
       optionsChanged: false
     });
   }
 
-  toggleMenu() {
+  toggleMenu(): void {
     this.setState({
       showMenu: !this.state.showMenu
     });
   }
-  toggleDropdown() {
+
+  toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
   }
-  selectTrue() {}
-  selectFalse() {
-    this.setState({
-      showDropdown: false,
-      showMenu: false
-    });
-  }
-  render() {
+
+  render(): JSX.Element {
+    let dropDownTitle: string = this.state.selectedTemplate;
+    if (this.state.selectedTemplate == "") {
+      dropDownTitle = "Select A Template";
+    }
     return (
       <div>
         <Card>
@@ -86,7 +83,7 @@ export default class TemplateMenu extends React.Component<
                 toggle={this.toggleDropdown}
               >
                 <DropdownToggle disabled={!this.state.plotReady} caret>
-                  {this.state.selectedTemplate}
+                  {dropDownTitle}
                 </DropdownToggle>
                 <DropdownMenu style={dropdownMenuStype}>
                   {this.props.getTemplatesList().map((item: string) => {

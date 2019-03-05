@@ -19,7 +19,7 @@ import Variable from "./Variable";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 
 type PlotMenuProps = {
-  updatePlotOptions: any; // the method to call when the users wants to update the plot options
+  updatePlotOptions: Function; // the method to call when the users wants to update the plot options
   varInfo: Variable; // variable information about the selected variable
 };
 type PlotMenuState = {
@@ -57,23 +57,23 @@ export default class PlotMenu extends React.Component<
     this.selectFalse = this.selectFalse.bind(this);
     this.selectTrue = this.selectTrue.bind(this);
   }
-  toggleMenu() {
+  toggleMenu(): void {
     this.setState({
       showMenu: !this.state.showMenu
     });
   }
-  toggleDropdown() {
+  toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
   }
-  setSelectedOption(option: string) {
+  setSelectedOption(option: string): void {
     this.setState({
       selectedDropdownOption: option,
       showMenu: true
     });
   }
-  render() {
+  render(): JSX.Element {
     return (
       <div>
         <Card
@@ -120,7 +120,7 @@ export default class PlotMenu extends React.Component<
       </div>
     );
   }
-  selectTrue() {
+  selectTrue(): void {
     if (this.state.plotOptions.save_img && !this.state.plotOptions.plot_name) {
       let msg =
         "A filename is required when saving plots or creating animations";
@@ -140,12 +140,12 @@ export default class PlotMenu extends React.Component<
       });
     }
   }
-  selectFalse() {
+  selectFalse(): void {
     this.setState({
       showMenu: false
     });
   }
-  plotOptions() {
+  plotOptions(): JSX.Element {
     if (this.state.selectedDropdownOption == "1D") {
       return <div>One Deee</div>;
     } else if (this.state.selectedDropdownOption == "2D") {

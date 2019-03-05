@@ -17,6 +17,7 @@ import {
   InputGroup,
   InputGroupAddon
 } from "reactstrap";
+import { notebook_utils } from "../notebook_utils";
 
 const dropdownMenuStyle: React.CSSProperties = {
   maxHeight: "250px",
@@ -32,8 +33,7 @@ const listItemStyle: React.CSSProperties = {
 type GraphicsMenuProps = {
   getGraphicsList: Function; // a method that gets the current list of graphics methods
   updateGraphicsOptions: Function; // a method to call when the user has selected their desired graphics method
-  editGraphicsMethod: Function;
-  copyGraphicsMethod: Function;
+  copyGraphicsMethod: Function; // a method that will create a copy of the currently selected graphics method.
 };
 type GraphicsMenuState = {
   showMenu: boolean;
@@ -65,22 +65,22 @@ export default class GraphicsMenu extends React.Component<
       invalidName: false,
       plotReady: false
     };
+    this.handleNameInput = this.handleNameInput.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.graphicsOptions = this.graphicsOptions.bind(this);
     this.resetGraphicsState = this.resetGraphicsState.bind(this);
-    this.handleNameInput = this.handleNameInput.bind(this);
     this.selectItem = this.selectItem.bind(this);
     this.nameInputRef = (React as any).createRef();
   }
 
-  handleNameInput(event: React.ChangeEvent<HTMLInputElement>) {
+  handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
     // Regex filter for unallowed name characters
     let forbidden: RegExp = /^[^A-z_]|[^A-z0-9]+/;
     let invalid: boolean = forbidden.test(event.target.value);
     this.setState({ nameValue: event.target.value, invalidName: invalid });
   }
 
-  toggleDropdown() {
+  toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
@@ -92,8 +92,7 @@ export default class GraphicsMenu extends React.Component<
   }
 
   // Resets the graphics menu to initial, (for when a new notebook is selected)
-  resetGraphicsState() {
-    console.log("Graphics selections reset.");
+  async resetGraphicsState(): Promise<void> {
     this.setState({
       showMenu: false,
       showDropdown: false,
@@ -106,30 +105,24 @@ export default class GraphicsMenu extends React.Component<
     });
   }
 
-  async selectItem(item: string) {
-    try {
-      if (
-        this.state.tempGroup != this.state.selectedGroup ||
-        this.state.selectedMethod != item
-      ) {
-        await this.props.updateGraphicsOptions(this.state.tempGroup, item);
+  async selectItem(item: string): Promise<void> {
+    if (
+      this.state.tempGroup != this.state.selectedGroup ||
+      this.state.selectedMethod != item
+    ) {
+      await this.props.updateGraphicsOptions(this.state.tempGroup, item);
 
-        this.setState({
-          showMenu: false,
-          selectedMethod: item,
-          selectedGroup: this.state.tempGroup
-        });
-        console.log(`Updated graphics to: ${item}`);
-      } else {
-        this.setState({ showMenu: false });
-        console.log(`No change in graphics method.`);
-      }
-    } catch (error) {
-      console.log(error);
+      this.setState({
+        showMenu: false,
+        selectedMethod: item,
+        selectedGroup: this.state.tempGroup
+      });
+    } else {
+      this.setState({ showMenu: false });
     }
   }
 
-  graphicsOptions(group: string) {
+  graphicsOptions(group: string): JSX.Element {
     return (
       <ListGroup flush>
         {this.props.getGraphicsList()[group].map((item: string) => {
@@ -157,7 +150,7 @@ export default class GraphicsMenu extends React.Component<
     );
   }
 
-  render() {
+  render(): JSX.Element {
     // Set the dropdown title based on state
     let dropdownTitle = "Select Plot Type";
     if (this.state.tempGroup != "") {
@@ -304,10 +297,13 @@ export default class GraphicsMenu extends React.Component<
                           nameValue: ""
                         });
                       } catch (error) {
-                        alert(error);
+                        console.log(error);
                       }
                     } else {
-                      alert("Name cannot be empty.");
+                      notebook_utils.showMessage(
+                        "Notice",
+                        "Name cannot be empty."
+                      );
                       this.setState({ invalidName: true });
                     }
                   }}
