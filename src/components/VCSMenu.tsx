@@ -56,6 +56,8 @@ type VCSMenuState = {
   plotFileFormat: string;
   alertVisible: boolean;
   savePlotAlert: boolean;
+  validateExportName: boolean;
+  validateFileFormat: boolean;
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
@@ -77,6 +79,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       plotFileFormat: "",
       alertVisible: false,
       savePlotAlert: false,
+      validateExportName: false,
+      validateFileFormat: false,
 
     };
     this.varMenuRef = (React as any).createRef();
@@ -93,9 +97,19 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updatePlotReady = this.updatePlotReady.bind(this);
     this.updateVariables = this.updateVariables.bind(this);
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
-    this.toggle = this.toggle.bind(this);
+    this.toggleModal = this.toggleModal.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
+    this.dismissExportValidation = this.dismissExportValidation.bind(this);
+    this.dismissFileFormatValidation = this.dismissFileFormatValidation.bind(this);
+  }
+
+  dismissFileFormatValidation(){
+    this.setState({ validateFileFormat: false });
+  }
+
+  dismissExportValidation(){
+    this.setState({ validateExportName: false });
   }
 
   onDismiss() {
@@ -106,10 +120,13 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    this.setState({ savePlotAlert: false });
  }
 
-  toggle() {
+  toggleModal() {
+    this.setState({ validateExportName : false })
+    this.setState({ validateFileFormat : false })
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
+    this.setState({ plotName : "" })
   }
 
   onFormSubmit() {
@@ -384,29 +401,39 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   }
 
   async save() {
-    if(this.state.plotName == null || this.state.plotName == ""){
-      alert("Invalid plot name.");
+    let plotName = this.state.plotName
+    if(plotName == null || plotName == ""){
+      this.setState({ validateExportName : true })
+      return
     }
-    console.log("plotFileFormat:", this.state.plotFileFormat)
+    else{
+      this.setState({ validateExportName : false })
+    }
     let fileFormat = this.state.plotFileFormat
+    console.log("fileFormat: ", fileFormat)
+    if(fileFormat == null || fileFormat == ""){
+      this.setState({ validateFileFormat : true })
+      return
+    }
+    else {
+      this.setState({ validateFileFormat : false })
+    }
     if(fileFormat === "png"){
-      console.log("open spinner")
-      this.setState({ savePlotAlert: true })
-      let output = this.props.inject(`canvas.png('${this.state.plotName}')`);
-      output.then(function(result: Promise<any>) {
-         console.log("result:", result)
-      })
-      console.log("close spinner")
-      this.setState({ savePlotAlert: false })
+      await this.props.inject(`canvas.png('${plotName}')`);
     } else if (fileFormat == "pdf") {
-      await this.props.inject(`canvas.pdf('${this.state.plotName}')`);
+      await this.props.inject(`canvas.pdf('${plotName}')`);
     } else if (fileFormat == "svg") {
-      await this.props.inject(`canvas.svg('${this.state.plotName}')`);
+      await this.props.inject(`canvas.svg('${plotName}')`);
     }
 
-    this.setState({ alertVisible : true }, () => {
+    this.setState({ savePlotAlert : true }, () => {
       window.setTimeout(() => {
-        this.setState({ alertVisible : false })
+        this.setState({ savePlotAlert : false })
+        this.setState({ alertVisible : true }, () => {
+          window.setTimeout(() => {
+            this.setState({ alertVisible : false })
+          }, 5000)
+        })
       }, 5000)
     });
     this.setState({ modal: false });
@@ -490,7 +517,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                 color="primary"
                 className="col-sm-3"
                 style={btnStyle}
-                onClick={this.toggle}
+                onClick={this.toggleModal}
                 disabled={!this.state.plotReady}
               >
                 Save
@@ -517,8 +544,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           {...TemplateMenuProps}
           ref={loader => (this.templateMenuRef = loader)}
         />
-        <Modal isOpen={this.state.modal} toggle={this.toggle} >
-          <ModalHeader toggle={this.toggle}>Save Plot</ModalHeader>
+        <Modal isOpen={this.state.modal} toggle={this.toggleModal} >
+          <ModalHeader toggle={this.toggleModal}>Save Plot</ModalHeader>
           <ModalBody>
              <Label>Name:</Label>
              <Input
@@ -529,17 +556,19 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                onChange={e => this.setState({ plotName: e.target.value })}
              />
              <br />
+             <Alert color="danger" isOpen={this.state.validateExportName} toggle={this.dismissExportValidation}>The export name can not be blank</Alert>
              <div>
                <ButtonGroup>
                  <Button color="primary" onClick={() => this.onRadioBtnClick("png")} active={this.state.plotFileFormat === "png"}>PNG</Button>
                  <Button color="primary" onClick={() => this.onRadioBtnClick("svg")} active={this.state.plotFileFormat === "svg"}>SVG</Button>
                  <Button color="primary" onClick={() => this.onRadioBtnClick("pdf")} active={this.state.plotFileFormat === "pdf"}>PDF</Button>
                </ButtonGroup>
+               <Alert color="danger" isOpen={this.state.validateFileFormat} toggle={this.dismissFileFormatValidation}>You must choose a file format</Alert>
              </div>
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={this.save}>Export</Button>{' '}
-            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+            <Button color="secondary" onClick={this.toggleModal}>Cancel</Button>
           </ModalFooter>
         </Modal>
         <div>
@@ -548,7 +577,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           {"  "}<Spinner color="info" />
         </Alert>
           <Alert color="primary" isOpen={this.state.alertVisible} toggle={this.onDismiss}>
-            `Exported {this.state.plotName}`
+          {"Exported " + this.state.plotName + "." + this.state.plotFileFormat}
           </Alert>
       </div>
       </div>
