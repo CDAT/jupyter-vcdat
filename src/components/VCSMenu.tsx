@@ -196,6 +196,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    */
   async loadVariable(variable: Variable): Promise<any> {
     return new Promise((resolve, reject) => {
+
       // inject the code to load the variable into the notebook
       let var_string = `${variable.name} = data("${variable.cdmsID}"`;
       variable.axisInfo.forEach((axis: AxisInfo) => {
@@ -203,6 +204,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       });
       var_string += ")";
       this.props.inject(var_string);
+
+      // update the notebook metadata with the new variable info
       notebook_utils
         .getMetaData(this.state.notebook_panel, VARIABLES_LOADED_KEY)
         .then((res: any) => {

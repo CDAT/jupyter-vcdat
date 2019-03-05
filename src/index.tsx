@@ -101,9 +101,10 @@ export class NCViewerFactory extends ABCWidgetFactory<
       // Activate sidebar widget
       shell.activateById(sidebar.id);
 
-      // Prepare the notebook for code injection
+      // // Prepare the notebook for code injection
       sidebar.prepareNotebookPanel(context.session.name).catch(error => {
-        notebook_utils.showMessage("Error!", error);
+        console.log(error);
+        notebook_utils.showMessage("Error", "Error setting up notebook!");
       });
     }
 

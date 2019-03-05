@@ -1,21 +1,22 @@
 import * as React from "react";
+import Variable from "./Variable";
+import VarLoader from "./VarLoader";
+import AxisInfo from "./AxisInfo";
+import VarMini from "./VarMini";
+import { MAX_SLABS } from "../constants";
+import { notebook_utils } from "../notebook_utils";
 import {
-  Form,
   CardTitle,
   CardSubtitle,
   Button,
   Card,
   CardBody,
   Row,
-  Col
+  Col,
+  ListGroup, 
+  ListGroupItem,
 } from "reactstrap";
 
-import Variable from "./Variable";
-import VarLoader from "./VarLoader";
-import AxisInfo from "./AxisInfo";
-import VarCard from "./VarCard";
-import { MAX_SLABS } from "../constants";
-import { notebook_utils } from "../notebook_utils";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -204,11 +205,11 @@ export default class VarMenu extends React.Component<
               </Row>
             </CardSubtitle>
             {this.state.variables.length > 0 && (
-              <Form style={formOverflow}>
+              <ListGroup style={formOverflow}>
                 {this.state.variables.map(item => {
                   return (
-                    <div key={item.name}>
-                      <VarCard
+                    <ListGroupItem key={item.name}>
+                      <VarMini
                         reload={() => {
                           this.reloadVariable(item);
                         }}
@@ -216,15 +217,13 @@ export default class VarMenu extends React.Component<
                         isSelected={this.isSelected}
                         updateDimInfo={this.updateDimInfo}
                         variable={item}
-                        isLoaded={false}
                         selectVariable={this.selectVariable}
                         deselectVariable={this.deselectVariable}
-                        hidden={true}
                       />
-                    </div>
+                    </ListGroupItem>
                   );
                 })}
-              </Form>
+              </ListGroup>
             )}
           </CardBody>
         </Card>
