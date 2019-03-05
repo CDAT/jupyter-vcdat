@@ -17,7 +17,7 @@ import {
   InputGroup,
   InputGroupAddon
 } from "reactstrap";
-import { notebook_utils } from "../notebook_utils";
+import { NotebookUtilities } from "../NotebookUtilities";
 
 const dropdownMenuStyle: React.CSSProperties = {
   maxHeight: "250px",
@@ -300,7 +300,7 @@ export default class GraphicsMenu extends React.Component<
                         console.log(error);
                       }
                     } else {
-                      notebook_utils.showMessage(
+                      NotebookUtilities.showMessage(
                         "Notice",
                         "Name cannot be empty."
                       );

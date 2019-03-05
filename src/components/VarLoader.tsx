@@ -60,8 +60,8 @@ export default class VarLoader extends React.Component<
   async loadSelectedVariables(): Promise<void> {
     // Once the load button is clicked, load only the files that were selected.
     this.state.fileVariables.forEach(async (variable: Variable) => {
-      let ind = this.state.selectedVariables.indexOf(variable.cdmsID);
-      if (ind >= 0) {
+      let idx = this.state.selectedVariables.indexOf(variable.cdmsID);
+      if (idx >= 0) {
         // Add the variable
         await this.props.loadFileVariable(variable);
       }
@@ -93,10 +93,10 @@ export default class VarLoader extends React.Component<
    * @param variable Remove a variable from the list to be loaded
    */
   deselectVariableForLoad(variableName: string): void {
-    let ind: number = this.state.selectedVariables.indexOf(variableName);
+    let idx: number = this.state.selectedVariables.indexOf(variableName);
     let selectedVars: Array<string> = this.state.selectedVariables;
-    if (ind >= 0) {
-      selectedVars.splice(ind, 1);
+    if (idx >= 0) {
+      selectedVars.splice(idx, 1);
     }
     this.setState({
       selectedVariables: selectedVars

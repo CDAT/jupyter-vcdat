@@ -1,12 +1,12 @@
 const MAX_SLABS = 2;
 const BASE_URL = "/vcs";
-const READY_KEY = "vcdat_ready";
-const FILE_PATH_KEY = "vcdat_file_path";
-const IMPORT_CELL_KEY = "vcdat_imports";
-const VARIABLES_KEY = "selected_variables";
-const GRAPHICS_METHOD_KEY = "graphics_method_selected";
-const TEMPLATE_KEY = "template_selected";
-const VARIABLES_LOADED_KEY = "vcdat_loaded_variables";
+const READY_KEY = "vcdatReady";
+const FILE_PATH_KEY = "vcdatFilePath";
+const IMPORT_CELL_KEY = "vcdatImports";
+const VARIABLES_KEY = "selectedVariables";
+const GRAPHICS_METHOD_KEY = "selectedGraphicsMethod";
+const TEMPLATE_KEY = "selectedTemplate";
+const VARIABLES_LOADED_KEY = "vcdatLoadedVariables";
 const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
 
 const GET_VARS_CMD =

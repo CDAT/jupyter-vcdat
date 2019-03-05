@@ -15,7 +15,7 @@ import VarLoader from "./VarLoader";
 import AxisInfo from "./AxisInfo";
 import VarCard from "./VarCard";
 import { MAX_SLABS } from "../constants";
-import { notebook_utils } from "../notebook_utils";
+import { NotebookUtilities } from "../NotebookUtilities";
 import { CommandRegistry } from "@phosphor/commands";
 
 const varButtonStyle: React.CSSProperties = {
@@ -112,7 +112,7 @@ export default class VarMenu extends React.Component<
         }
       );
     } else {
-      notebook_utils.showMessage(
+      NotebookUtilities.showMessage(
         "Notice",
         "All the variables in this file have already been loaded."
       );
@@ -134,9 +134,9 @@ export default class VarMenu extends React.Component<
   }
 
   async selectVariable(variableName: string): Promise<void> {
-    let ind: number = this.state.selectedVariables.indexOf(variableName);
+    let idx: number = this.state.selectedVariables.indexOf(variableName);
 
-    if (ind < 0) {
+    if (idx < 0) {
       // Limit number of variables selected by deselecting last element
       let selection = this.state.selectedVariables;
       if (selection.length >= MAX_SLABS) {
@@ -153,11 +153,11 @@ export default class VarMenu extends React.Component<
    * @param variable the variable to remove from the selected list
    */
   async deselectVariable(variableName: string): Promise<void> {
-    let ind: number = this.state.selectedVariables.indexOf(variableName);
+    let idx: number = this.state.selectedVariables.indexOf(variableName);
 
-    if (ind >= 0) {
+    if (idx >= 0) {
       let newSelection = this.state.selectedVariables;
-      newSelection.splice(ind, 1);
+      newSelection.splice(idx, 1);
       await this.setState(
         {
           selectedVariables: newSelection

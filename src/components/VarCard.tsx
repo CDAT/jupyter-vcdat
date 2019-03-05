@@ -13,7 +13,7 @@ import {
   Row,
   Col
 } from "reactstrap";
-import { notebook_utils } from "../notebook_utils";
+import { NotebookUtilities } from "../NotebookUtilities";
 
 const cardStyle: React.CSSProperties = {
   margin: ".5em"
@@ -76,7 +76,7 @@ export default class VarCard extends React.Component<
    */
   async selectVariable(): Promise<void> {
     if (this.state.isLoaded) {
-      notebook_utils.showMessage("Notice","This variable is already loaded.");
+      NotebookUtilities.showMessage("Notice","This variable is already loaded.");
       await this.props.deselectVariable(this.varName);
       return;
     }

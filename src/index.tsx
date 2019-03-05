@@ -15,7 +15,7 @@ import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 import "../style/css/index.css";
-import { notebook_utils } from "./notebook_utils";
+import { NotebookUtilities } from "./NotebookUtilities";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -103,11 +103,11 @@ export class NCViewerFactory extends ABCWidgetFactory<
     // Prepare the notebook for code injection
     sidebar.prepareNotebookPanel(context.session.name).catch(error => {
       if (error.status == "error") {
-        notebook_utils.showMessage(error.ename, error.evalue);
+        NotebookUtilities.showMessage(error.ename, error.evalue);
       } else if (error.message != null) {
-        notebook_utils.showMessage("Error", error.message);
+        NotebookUtilities.showMessage("Error", error.message);
       } else {
-        notebook_utils.showMessage(
+        NotebookUtilities.showMessage(
           "Error",
           "An error occurred when preparing the notebook."
         );
