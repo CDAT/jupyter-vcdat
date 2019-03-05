@@ -16,6 +16,7 @@ import AxisInfo from "./AxisInfo";
 import VarCard from "./VarCard";
 import { MAX_SLABS } from "../constants";
 import { notebook_utils } from "../notebook_utils";
+import { CommandRegistry } from "@phosphor/commands";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -28,7 +29,7 @@ const formOverflow: React.CSSProperties = {
 
 type VarMenuProps = {
   loadVariable: Function; // a method to call when loading the variable
-  commands?: any; // the command executer
+  commands?: CommandRegistry; // the command executer
   variables: Array<Variable>; // an array of all current variables
   selectedVariables: Array<string>; // array of names for variables that have been selected
   updateSelectedVariables: Function; // update the list of selected variables

@@ -38,7 +38,6 @@ export class LeftSideBarWidget extends Widget {
   notebook_tracker: NotebookTracker; // This is to track current notebooks
   application: JupyterLab; //The JupyterLab application object
   VCSMenuRef: VCSMenu; // the LeftSidebar component
-  loading_data: boolean;
   variable_data: Array<Variable>; // An array containing information about the variables
   graphics_methods: any; // The current available graphics methods
   templates_list: Array<string>; // The list of current templates
@@ -58,7 +57,6 @@ export class LeftSideBarWidget extends Widget {
     this.commands = app.commands;
     this.notebook_tracker = tracker;
     this._state = NOTEBOOK_STATE.Unknown;
-    this.loading_data = false;
     this.using_kernel = false;
     this._current_file = "";
     this._notebook_panel = null;
@@ -107,7 +105,6 @@ export class LeftSideBarWidget extends Widget {
 
     this.commands.addCommand("vcs:load-data", {
       execute: args => {
-        this.loading_data = true;
         this.commands.execute("filebrowser:activate");
       }
     });

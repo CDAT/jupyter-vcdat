@@ -17,6 +17,7 @@ import TemplateMenu from "./TemplateMenu";
 import Variable from "./Variable";
 import AxisInfo from "./AxisInfo";
 import { NotebookPanel } from "@jupyterlab/notebook";
+import { CommandRegistry } from "@phosphor/commands";
 
 const btnStyle: React.CSSProperties = {
   margin: "5px"
@@ -33,10 +34,10 @@ const sidebarOverflow: React.CSSProperties = {
 
 export type VCSMenuProps = {
   inject: Function; // a method to inject code into the controllers notebook
-  commands: any; // the command executor
+  commands: CommandRegistry; // the command executor
   notebook_panel: NotebookPanel;
   plotReady: boolean;
-  getGraphicsList: any; // function that reads the current graphics list
+  getGraphicsList: Function; // function that reads the current graphics list
   refreshGraphicsList: Function; // function that refreshes the graphics method list
   getTemplatesList: Function; // function that reads the widget's current template list
   getFileVariables: Function; // Function that reads the current notebook file and retrieves variable data
@@ -45,7 +46,7 @@ export type VCSMenuProps = {
 type VCSMenuState = {
   plotReady: boolean; // are we ready to plot
   variables: Array<Variable>; // All the variables, loaded from files and derived by users
-  selected_variables: Array<string>; // Unique names of all the variables that are currently selected
+  selectedVariables: Array<string>; // Unique names of all the variables that are currently selected
   selected_gm: string;
   selected_gm_group: string;
   selected_template: string;
@@ -61,7 +62,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.state = {
       plotReady: this.props.plotReady,
       variables: new Array<Variable>(),
-      selected_variables: new Array<string>(),
+      selectedVariables: new Array<string>(),
       selected_gm: "",
       selected_gm_group: "",
       selected_template: "",
@@ -91,7 +92,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.setState({
       plotReady: false,
       variables: new Array<Variable>(),
-      selected_variables: new Array<string>(),
+      selectedVariables: new Array<string>(),
       selected_gm: "",
       selected_gm_group: "",
       selected_template: ""
@@ -109,13 +110,13 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     if (selection == null) {
       this.varMenuRef.resetVarMenuState();
       this.setState({
-        selected_variables: new Array<string>()
+        selectedVariables: new Array<string>()
       });
       return;
     }
 
     // Set state based on meta data from notebook
-    this.setState({ selected_variables: selection });
+    this.setState({ selectedVariables: selection });
     this.varMenuRef.setState({ selectedVariables: selection });
   }
 
@@ -310,7 +311,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
   plot(): void {
-    if (this.state.selected_variables.length == 0) {
+    if (this.state.selectedVariables.length == 0) {
       notebook_utils.showMessage(
         "Notice",
         "Please select a variable from the left panel"
@@ -329,7 +330,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         temp = '"default"';
       }
       let plotString = "canvas.clear()\ncanvas.plot(";
-      let selection: Array<string> = this.state.selected_variables;
+      let selection: Array<string> = this.state.selectedVariables;
 
       if (selection.length > MAX_SLABS) {
         selection = selection.slice(0, MAX_SLABS);
@@ -385,7 +386,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       selection
     );
     await Promise.all([
-      this.setState({ selected_variables: selection }),
+      this.setState({ selectedVariables: selection }),
       this.varMenuRef.setState({ selectedVariables: selection })
     ]);
   }
@@ -402,7 +403,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       commands: this.props.commands,
       loadVariable: this.loadVariable,
       variables: this.state.variables,
-      selectedVariables: this.state.selected_variables,
+      selectedVariables: this.state.selectedVariables,
       updateVariables: this.updateVariables,
       updateSelectedVariables: this.updateSelectedVariables
     };
