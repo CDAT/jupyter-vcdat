@@ -30,6 +30,9 @@ For a development install:
 
     # To run, got to jupyter-vcdat repo
     jupyter lab
+    npm install
+    npm run build
+    jupyter lab build
 
 ```
 
