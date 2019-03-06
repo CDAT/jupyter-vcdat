@@ -44,6 +44,9 @@ aliases:
 
        python setup.py install
        rm -rf node_modules
+       npm install
+       npm run build
+       jupyter lab build
        jupyter labextension install . 
 
   - &run_jupyter_vcdat_tests

@@ -66,9 +66,3 @@ setup(name="jupyter_vcdat",
       zip_safe=True,
       #data_files=[('share/vcs', ('Share/wmo_symbols.json',))]
 )
-
-call_binary("pip", ["install", "sidecar"])
-call_binary("npm", ["install",])
-call_binary("jupyter", ["labextension", "install", "."])
-call_binary("pip", ["install", "nbgitpuller"])
-call_binary("jupyter", ["serverextension", "enable", "--py", "nbgitpuller", "--sys-prefix"])
