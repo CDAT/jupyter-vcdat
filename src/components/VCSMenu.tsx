@@ -296,8 +296,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         VARIABLES_LOADED_KEY,
         newVariableArray
       );
-      // Save notebook state
-      this.props.notebook_panel.context.save();
     }
   }
 
