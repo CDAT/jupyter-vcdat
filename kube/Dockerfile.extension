@@ -1,5 +1,4 @@
-FROM db46baf26766
-#FROM cdoutrix/vcdat:core
+FROM cdoutrix/vcdat:core
 # Get the setup image
 ENV CDAT_ANONYMOUS_LOG false
 # extension
