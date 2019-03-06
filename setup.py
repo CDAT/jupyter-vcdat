@@ -68,6 +68,7 @@ setup(name="jupyter_vcdat",
 )
 
 call_binary("pip", ["install", "sidecar"])
+call_binary("npm", ["install",])
 call_binary("jupyter", ["labextension", "install", "."])
 call_binary("pip", ["install", "nbgitpuller"])
 call_binary("jupyter", ["serverextension", "enable", "--py", "nbgitpuller", "--sys-prefix"])
