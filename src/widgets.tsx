@@ -597,7 +597,7 @@ export class LeftSideBarWidget extends Widget {
       }
       // Import other modules using lazy import syntax
       tmp_modules.forEach(module => {
-        cmd += `\n${module} = lazy_object_proxy.Proxy("${module}")`;
+        cmd += `\n${module} = lazy_object_proxy.Proxy(lambda:${module})`;
       });
     } else {
       // Remove lazy_imports from required modules if it is there
