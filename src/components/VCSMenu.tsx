@@ -1,6 +1,6 @@
 // Dependencies
 import * as React from "react";
-import { Alert, Button, ButtonGroup, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Input, Label } from "reactstrap";
+import { Alert, Button, ButtonGroup, Card, CardBody, Collapse, CustomInput, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Input, Label } from "reactstrap";
 import { Spinner } from "reactstrap";
 // Project Components
 import { notebook_utils } from "../notebook_utils";
@@ -58,6 +58,10 @@ type VCSMenuState = {
   savePlotAlert: boolean;
   validateExportName: boolean;
   validateFileFormat: boolean;
+  captureProvenance: boolean;
+  displayDimensions: boolean;
+  width: string;
+  height: string;
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
@@ -81,6 +85,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       savePlotAlert: false,
       validateExportName: false,
       validateFileFormat: false,
+      captureProvenance: false,
+      displayDimensions: false,
+      width: "",
+      height: "",
 
     };
     this.varMenuRef = (React as any).createRef();
@@ -102,6 +110,18 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.onDismiss = this.onDismiss.bind(this);
     this.dismissExportValidation = this.dismissExportValidation.bind(this);
     this.dismissFileFormatValidation = this.dismissFileFormatValidation.bind(this);
+    this.toggleCaptureProvenance = this.toggleCaptureProvenance.bind(this);
+    this.toggleDimensionsDisplay = this.toggleDimensionsDisplay.bind(this);
+  }
+
+  toggleDimensionsDisplay(){
+    this.setState(prevState => ({ displayDimensions: !prevState.displayDimensions }));
+  }
+
+  toggleCaptureProvenance(){
+    this.setState(prevState => ({
+      captureProvenance: !prevState.captureProvenance
+    }));
   }
 
   dismissFileFormatValidation(){
@@ -418,6 +438,22 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     else {
       this.setState({ validateFileFormat : false })
     }
+
+    let capture = null
+    if(this.state.captureProvenance){
+      capture = 1
+    }
+    else{
+      capture = 0
+    }
+    console.log("capture:", capture)
+    let canvasInfo = await this.props.inject(`canvas.canvasinfo()`);
+    let canvasInfoObject = JSON.parse(canvasInfo[1])
+    console.log("canvasInfo:", canvasInfo)
+    console.log("canvasInfoObject:", canvasInfoObject)
+    // width.then((result : any) => {
+    //   console.log("width result:", result)
+    // })
     if(fileFormat === "png"){
       await this.props.inject(`canvas.png('${plotName}')`);
     } else if (fileFormat == "pdf") {
@@ -564,7 +600,28 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                  <Button color="primary" onClick={() => this.onRadioBtnClick("pdf")} active={this.state.plotFileFormat === "pdf"}>PDF</Button>
                </ButtonGroup>
                <Alert color="danger" isOpen={this.state.validateFileFormat} toggle={this.dismissFileFormatValidation}>You must choose a file format</Alert>
+               <br />
+               <CustomInput type="switch" id="dimensionsSwitch" name="dimensionsSwitch" label="Custom dimensions" checked={this.state.displayDimensions} onChange={this.toggleDimensionsDisplay} />
+               <br />
+               <Collapse isOpen={this.state.displayDimensions}>
+               <Input
+                 type="text"
+                 name="text"
+                 placeholder="Width"
+                 value={this.state.width}
+                 onChange={e => this.setState({ width: e.target.value })}
+               />
+               <Input
+                 type="text"
+                 name="text"
+                 placeholder="Height"
+                 value={this.state.height}
+                 onChange={e => this.setState({ height: e.target.value })}
+               />
+               </Collapse>
              </div>
+             <br />
+             {/* <CustomInput type="switch" id="exampleCustomSwitch" name="customSwitch" label="Capture Provenance" checked={this.state.captureProvenance} onChange={this.toggleCaptureProvenance} /> */}
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={this.save}>Export</Button>{' '}
