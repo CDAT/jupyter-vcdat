@@ -16,13 +16,13 @@ aliases:
     name: create_conda_env
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
-       PKGS: "nodejs 'python>3' vcs jupyterlab pip nb_conda nb_conda_kernels"
+       PKGS: "nodejs vcs jupyterlab pip nb_conda nb_conda_kernels plumbum lazy-object-proxy"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -q conda
        conda config --set anaconda_upload no
-       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" nbsphinx easydev $COVERAGE_PKGS
+       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" $COVERAGE_PKGS
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat

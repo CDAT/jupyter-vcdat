@@ -5,7 +5,7 @@ const FILE_PATH_KEY = "vcdat_file_path";
 const IMPORT_CELL_KEY = "vcdat_imports";
 const GRAPHICS_METHOD_KEY = "graphics_method_selected";
 const VARIABLES_LOADED_KEY = "vcdat_variables_loaded";
-const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
+const REQUIRED_MODULES = "'lazy_object_proxy','cdms2','vcs'";
 
 const GET_VARS_CMD =
   'import __main__\n\

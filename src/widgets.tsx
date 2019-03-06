@@ -587,17 +587,17 @@ export class LeftSideBarWidget extends Widget {
     let cmd: string = "";
     //Check for lazy_imports modules first
     let tmp_modules = modules;
-    let ind = modules.indexOf("lazy_import");
+    let ind = modules.indexOf("lazy_object_proxy");
 
     if (lazy) {
       // Import lazy_imports if it's missing, before doing other imports
       if (ind >= 0) {
         tmp_modules.splice(ind, 1);
-        cmd = "import lazy_import";
+        cmd = "import lazy_object_proxy";
       }
       // Import other modules using lazy import syntax
       tmp_modules.forEach(module => {
-        cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
+        cmd += `\n${module} = lazy_object_proxy.Proxy("${module}")`;
       });
     } else {
       // Remove lazy_imports from required modules if it is there
