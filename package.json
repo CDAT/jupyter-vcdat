@@ -39,6 +39,7 @@
 		"@jupyterlab/console": "^0.19.1",
 		"@jupyterlab/coreutils": "^2.2.1",
 		"@jupyterlab/filebrowser": "^0.19.1",
+		"@jupyterlab/mainmenu": "^0.8.1",
 		"@jupyterlab/notebook": "^0.19.2",
 		"@jupyterlab/outputarea": "^0.19.1",
 		"@phosphor/commands": "^1.6.1",

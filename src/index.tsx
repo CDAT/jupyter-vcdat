@@ -16,6 +16,7 @@ import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 import "../style/css/index.css";
 import { NotebookUtilities } from "./NotebookUtilities";
+import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -23,6 +24,7 @@ const FACTORY_NAME = "vcs";
 // Declare the widget variables
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
 let shell: ApplicationShell;
+let mainMenu: MainMenu;
 
 /**
  * Initialization data for the jupyter-vcdat extension.
@@ -30,7 +32,7 @@ let shell: ApplicationShell;
 const extension: JupyterLabPlugin<void> = {
   id: "jupyter-vcdat",
   autoStart: true,
-  requires: [INotebookTracker],
+  requires: [INotebookTracker, IMainMenu],
   activate: activate
 };
 
@@ -39,8 +41,13 @@ export default extension;
 /**
  * Activate the vcs widget extension.
  */
-function activate(app: JupyterLab, tracker: NotebookTracker): void {
+function activate(
+  app: JupyterLab,
+  tracker: NotebookTracker,
+  menu: MainMenu
+): void {
   shell = app.shell;
+  mainMenu = menu;
 
   const factory = new NCViewerFactory({
     name: FACTORY_NAME,
@@ -77,7 +84,26 @@ function activate(app: JupyterLab, tracker: NotebookTracker): void {
   // Initializes the sidebar widget once the application shell has been restored
   // and all the widgets have been added to the notebooktracker
   app.shell.restored.then(() => {
+    addHelpReference(
+      mainMenu,
+      "VCS Reference",
+      "https://cdat-vcs.readthedocs.io/en/latest/"
+    );
+    addHelpReference(
+      mainMenu,
+      "CDMS Reference",
+      "https://cdms.readthedocs.io/en/latest/"
+    );
     sidebar.initialize();
+  });
+}
+
+// Adds a reference link to the help menu in JupyterLab
+function addHelpReference(mainMenu: MainMenu, text: string, url: string): void {
+  // Add item to help menu
+  mainMenu.helpMenu.menu.addItem({
+    args: { text: text, url: url },
+    command: "help:open"
   });
 }
 
