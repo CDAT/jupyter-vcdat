@@ -15,13 +15,14 @@ import {
   CHECK_MODULES_CMD,
   REQUIRED_MODULES,
   GET_FILE_VARIABLES,
-  REFRESH_VAR_INFO,
   VARIABLES_LOADED_KEY,
   NOTEBOOK_STATE,
   REFRESH_GRAPHICS_CMD,
   BASE_GRAPHICS,
   REFRESH_TEMPLATES_CMD,
-  BASE_TEMPLATES
+  BASE_TEMPLATES,
+  REFRESH_VAR_INFO_A,
+  REFRESH_VAR_INFO_B
 } from "./constants";
 import { VCSMenu } from "./components/VCSMenu";
 import { notebook_utils } from "./notebook_utils";
@@ -35,12 +36,12 @@ import AxisInfo from "./components/AxisInfo";
 export class LeftSideBarWidget extends Widget {
   div: HTMLDivElement; // The div container for this widget
   commands: CommandRegistry; // Jupyter app CommandRegistry
-  notebook_tracker: NotebookTracker; // This is to track current notebooks
+  notebookTracker: NotebookTracker; // This is to track current notebooks
   application: JupyterLab; //The JupyterLab application object
   VCSMenuRef: VCSMenu; // the LeftSidebar component
-  variable_data: Array<Variable>; // An array containing information about the variables
-  graphics_methods: any; // The current available graphics methods
-  templates_list: Array<string>; // The list of current templates
+  variableData: Array<Variable>; // An array containing information about the variables
+  graphicsMethods: any; // The current available graphics methods
+  templatesList: Array<string>; // The list of current templates
   using_kernel: boolean; // The widgets is running a ker nel command
 
   private _ready_kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
@@ -55,14 +56,14 @@ export class LeftSideBarWidget extends Widget {
     this.node.appendChild(this.div);
     this.application = app;
     this.commands = app.commands;
-    this.notebook_tracker = tracker;
+    this.notebookTracker = tracker;
     this._state = NOTEBOOK_STATE.Unknown;
     this.using_kernel = false;
     this._current_file = "";
     this._notebook_panel = null;
-    this.variable_data = new Array<Variable>();
-    this.graphics_methods = BASE_GRAPHICS;
-    this.templates_list = BASE_TEMPLATES;
+    this.variableData = new Array<Variable>();
+    this.graphicsMethods = BASE_GRAPHICS;
+    this.templatesList = BASE_TEMPLATES;
     this._ready_kernels = [];
     this.initialize = this.initialize.bind(this);
     this.refreshVarList = this.refreshVarList.bind(this);
@@ -88,13 +89,13 @@ export class LeftSideBarWidget extends Widget {
           plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
           getFileVariables={this.getFileVariables}
           getGraphicsList={() => {
-            return this.graphics_methods;
+            return this.graphicsMethods;
           }}
           getTemplatesList={() => {
-            return this.templates_list;
+            return this.templatesList;
           }}
           updateVariables={(variables: Array<Variable>) => {
-            this.variable_data = variables;
+            this.variableData = variables;
           }}
           refreshGraphicsList={this.refreshGraphicsList}
           notebook_panel={this._notebook_panel}
@@ -389,7 +390,7 @@ export class LeftSideBarWidget extends Widget {
     }
 
     // Notebook tracker will signal when a notebook is changed
-    this.notebook_tracker.currentChanged.connect(this.handleNotebooksChanged);
+    this.notebookTracker.currentChanged.connect(this.handleNotebooksChanged);
   }
 
   /**
@@ -404,10 +405,10 @@ export class LeftSideBarWidget extends Widget {
         REFRESH_GRAPHICS_CMD
       );
       //Update the list of latest variables and data
-      this.graphics_methods = JSON.parse(output.slice(1, output.length - 1));
+      this.graphicsMethods = JSON.parse(output.slice(1, output.length - 1));
       this.using_kernel = false;
     } else {
-      this.graphics_methods = BASE_GRAPHICS;
+      this.graphicsMethods = BASE_GRAPHICS;
     }
   }
 
@@ -424,10 +425,10 @@ export class LeftSideBarWidget extends Widget {
           REFRESH_TEMPLATES_CMD
         );
         //Update the list of latest variables and data
-        this.templates_list = eval(output);
+        this.templatesList = eval(output);
         this.using_kernel = false;
       } else {
-        this.templates_list = BASE_TEMPLATES;
+        this.templatesList = BASE_TEMPLATES;
       }
     } catch (error) {
       console.log(error);
@@ -443,7 +444,9 @@ export class LeftSideBarWidget extends Widget {
       // Open the file reader first
       let result: string = await notebook_utils.sendSimpleKernelRequest(
         this.notebook_panel,
-        REFRESH_VAR_INFO
+        REFRESH_VAR_INFO_A +
+          `reader = cdms2.open(${this.current_file})` +
+          REFRESH_VAR_INFO_B
       );
       this.using_kernel = false;
       // Parse the resulting output into an object
@@ -527,7 +530,7 @@ export class LeftSideBarWidget extends Widget {
   async updateNotebookState(): Promise<void> {
     try {
       // Check whether there is a notebook opened
-      if (this.notebook_tracker.size > 0) {
+      if (this.notebookTracker.size > 0) {
         // Check if notebook is active widget
         if (this.notebook_panel instanceof NotebookPanel) {
           // Ensure notebook session is ready before checking for metadata
