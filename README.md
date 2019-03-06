@@ -29,10 +29,10 @@ For a development install:
     python setup.py install
 
     # To run, got to jupyter-vcdat repo
-    jupyter lab
     npm install
     npm run build
     jupyter lab build
+    jupyter lab
 
 ```
 
