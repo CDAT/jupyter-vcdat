@@ -32,6 +32,7 @@ For a development install:
     npm install
     npm run build
     jupyter lab build
+    jupyter-labextension install .
     jupyter lab
 
 ```
