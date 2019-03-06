@@ -2,5 +2,5 @@ FROM cdoutrix/vcdat:core
 # Get the setup image
 ENV CDAT_ANONYMOUS_LOG false
 # extension
-RUN git clone https://github.com/CDAT/jupyter-vcdat.git && cd jupyter-vcdat && git checkout next && python setup.py install && rm -rf node_modules && npm install && npm run build && jupyter lab build && jupyter-labextension install . && cd .. && rm -rf jupyter-vcdat
+RUN git clone https://github.com/CDAT/jupyter-vcdat.git && cd jupyter-vcdat && git checkout next && npm install && npm run build && jupyter lab build && jupyter-labextension install . && cd .. && rm -rf jupyter-vcdat
 

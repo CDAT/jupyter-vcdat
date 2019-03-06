@@ -27,6 +27,8 @@ For a development install:
     git clone https://github.com/CDAT/jupyter-vcdat.git
     cd jupyter-vcdat
     python setup.py install
+    npm run build
+    jupyter lab build
 
     # To run, got to jupyter-vcdat repo
     jupyter lab
