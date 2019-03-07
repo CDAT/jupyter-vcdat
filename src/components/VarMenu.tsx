@@ -13,11 +13,10 @@ import {
   CardBody,
   Row,
   Col,
-  ListGroup, 
-  ListGroupItem,
+  ListGroup,
+  ListGroupItem
 } from "reactstrap";
 import { CommandRegistry } from "@phosphor/commands";
-
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -30,7 +29,7 @@ const formOverflow: React.CSSProperties = {
 
 type VarMenuProps = {
   loadVariable: Function; // a method to call when loading the variable
-  commands?: CommandRegistry; // the command executer
+  commands?: any; // the command executer
   variables: Array<Variable>; // an array of all current variables
   selectedVariables: Array<string>; // array of names for variables that have been selected
   updateSelectedVariables: Function; // update the list of selected variables
@@ -39,7 +38,7 @@ type VarMenuProps = {
 
 type VarMenuState = {
   variables: Array<Variable>; // all variables for list (derived and loaded)
-  selectedVariables: Array<string>; // the variable the user has selected
+  selectedVariables: Array<string>; // the names of the variables the user has selected
 };
 
 export default class VarMenu extends React.Component<
@@ -71,6 +70,7 @@ export default class VarMenu extends React.Component<
       selectedVariables: this.props.selectedVariables,
       variables: this.props.variables
     });
+    this.isPrimaryVariable = this.isPrimaryVariable.bind(this);
   }
 
   isSelected(varName: string): boolean {
@@ -194,6 +194,13 @@ export default class VarMenu extends React.Component<
     this.props.loadVariable(variable);
   }
 
+  isPrimaryVariable(varName: string): boolean {
+    if (this.state.selectedVariables.length == 0) {
+      return false;
+    }
+    return this.state.selectedVariables[0] == varName;
+  }
+
   render(): JSX.Element {
     return (
       <div>
@@ -222,6 +229,7 @@ export default class VarMenu extends React.Component<
                         reload={() => {
                           this.reloadVariable(item);
                         }}
+                        isPrimaryVariable={this.isPrimaryVariable}
                         allowReload={true}
                         isSelected={this.isSelected}
                         updateDimInfo={this.updateDimInfo}
