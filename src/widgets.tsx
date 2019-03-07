@@ -42,7 +42,11 @@ export class LeftSideBarWidget extends Widget {
   variableData: Array<Variable>; // An array containing information about the variables
   graphicsMethods: any; // The current available graphics methods
   templatesList: Array<string>; // The list of current templates
+<<<<<<< HEAD
   usingKernel: boolean; // The widgets is running a ker nel command
+=======
+  using_kernel: boolean; // The widgets is running a ker nel command
+>>>>>>> a9ec371f63ec9552fdaf6bf716f4728273a0d1de
 
   private _readyKernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
   private _currentFile: string; // The current filepath of the data file being used for variables and data
@@ -58,6 +62,7 @@ export class LeftSideBarWidget extends Widget {
     this.commands = app.commands;
     this.notebookTracker = tracker;
     this._state = NOTEBOOK_STATE.Unknown;
+<<<<<<< HEAD
     this.usingKernel = false;
     this._currentFile = "";
     this._notebookPanel = null;
@@ -65,6 +70,15 @@ export class LeftSideBarWidget extends Widget {
     this.graphicsMethods = BASE_GRAPHICS;
     this.templatesList = BASE_TEMPLATES;
     this._readyKernels = [];
+=======
+    this.using_kernel = false;
+    this._current_file = "";
+    this._notebook_panel = null;
+    this.variableData = new Array<Variable>();
+    this.graphicsMethods = BASE_GRAPHICS;
+    this.templatesList = BASE_TEMPLATES;
+    this._ready_kernels = [];
+>>>>>>> a9ec371f63ec9552fdaf6bf716f4728273a0d1de
     this.initialize = this.initialize.bind(this);
     this.refreshVarList = this.refreshVarList.bind(this);
     this.setCurrentFile = this.setCurrentFile.bind(this);
