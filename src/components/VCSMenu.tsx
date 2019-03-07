@@ -415,8 +415,14 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
       let temp = this.state.selected_template;
       if (!gm) {
-        // Paste fix here
-        gm = '"default"';
+        if (this.state.selectedVariables.length > 1){
+          gm = '"vector"'
+          this.setState({ selected_gm: '"vector"' })
+        }
+        else {
+            gm = '"boxfill"'
+            this.setState({ selected_gm: '"boxfill"' })
+          }
       }
       if (!temp) {
         temp = '"default"';
@@ -432,6 +438,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         plotString += variableName + ", ";
       });
       plotString += `${gm}, ${temp})`;
+      console.log("plotString:", plotString)
       this.props.inject(plotString);
     }
   }
