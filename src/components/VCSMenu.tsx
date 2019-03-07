@@ -473,10 +473,12 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         console.log("exporting png with custom dimensions")
         // TODO:  Wrap in try/catch
         try {
+            console.log("command: ", `canvas.png('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`)
             await this.props.inject(`canvas.png('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
         }
         catch(error){
           console.log("Failed to export with custom dimensions")
+          console.log("error:", error)
           return
         }
       } else {
@@ -486,6 +488,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       await this.props.inject(`canvas.pdf('${plotName}')`);
     } else if (fileFormat == "svg") {
       await this.props.inject(`canvas.svg('${plotName}')`);
+    } else if (fileFormat == "ps") {
+      await this.props.inject(`canvas.postscript('${plotName}')`);
     }
 
     this.setState({ savePlotAlert : true }, () => {
@@ -624,6 +628,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                  <Button color="primary" onClick={() => this.onRadioBtnClick("png")} active={this.state.plotFileFormat === "png"}>PNG</Button>
                  <Button color="primary" onClick={() => this.onRadioBtnClick("svg")} active={this.state.plotFileFormat === "svg"}>SVG</Button>
                  <Button color="primary" onClick={() => this.onRadioBtnClick("pdf")} active={this.state.plotFileFormat === "pdf"}>PDF</Button>
+                 <Button color="primary" onClick={() => this.onRadioBtnClick("ps")} active={this.state.plotFileFormat === "ps"}>PS</Button>
                </ButtonGroup>
                <Alert color="danger" isOpen={this.state.validateFileFormat} toggle={this.dismissFileFormatValidation}>You must choose a file format</Alert>
                <br />
