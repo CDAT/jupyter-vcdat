@@ -139,13 +139,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
     // Set state based on meta data from notebook
     this.setState({
-<<<<<<< HEAD
-      selectedGM: gmData[0],
-      selectedGMgroup: gmData[1]
-=======
-      selected_gm_group: gm_data[0],
-      selected_gm: gm_data[1]
->>>>>>> a9ec371f63ec9552fdaf6bf716f4728273a0d1de
+      selectedGMgroup: gmData[0],
+      selectedGM: gmData[1]
     });
     this.graphicsMenuRef.setState({
       selectedGroup: gmData[0],
@@ -301,11 +296,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         VARIABLES_LOADED_KEY,
         newVariableArray
       );
-<<<<<<< HEAD
-      // Save notebook state
-      this.props.notebookPanel.context.save();
-=======
->>>>>>> a9ec371f63ec9552fdaf6bf716f4728273a0d1de
     }
   }
 
