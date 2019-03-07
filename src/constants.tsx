@@ -1,12 +1,12 @@
 const MAX_SLABS = 2;
 const BASE_URL = "/vcs";
-const READY_KEY = "vcdatReady";
-const FILE_PATH_KEY = "vcdatFilePath";
-const IMPORT_CELL_KEY = "vcdatImports";
-const VARIABLES_KEY = "selectedVariables";
-const GRAPHICS_METHOD_KEY = "selectedGraphicsMethod";
-const TEMPLATE_KEY = "selectedTemplate";
-const VARIABLES_LOADED_KEY = "vcdatLoadedVariables";
+const READY_KEY = "vcdat_ready";
+const FILE_PATH_KEY = "vcdat_file_path";
+const IMPORT_CELL_KEY = "vcdat_imports";
+const VARIABLES_KEY = "selected_variables";
+const GRAPHICS_METHOD_KEY = "graphics_method_selected";
+const TEMPLATE_KEY = "template_selected";
+const VARIABLES_LOADED_KEY = "vcdat_loaded_variables";
 const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
 
 const GET_VARS_CMD =
@@ -75,7 +75,7 @@ def canvases():\n\
   return out\n\
 output = canvases()`;
 
-const REFRESH_VAR_INFO = `import __main__\n\
+const REFRESH_VAR_INFO_A = `import __main__\n\
 import json\n\
 def variables():\n\
   out = []\n\
@@ -148,7 +148,9 @@ for vname in vars:\n\
   if ('bounds' not in outVars[vname]):\n\
     outVars[vname]['bounds'] = None\n\
 outAxes = {}\n\
-reader = cdms2.open('clt.nc')\n\
+`;
+
+const REFRESH_VAR_INFO_B = `
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
   # Get a displayable name for the variable\n\
@@ -426,7 +428,8 @@ export {
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD,
   REFRESH_NAMES_CMD,
-  REFRESH_VAR_INFO,
+  REFRESH_VAR_INFO_A,
+  REFRESH_VAR_INFO_B,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,
   GET_FILE_VARIABLES,

@@ -15,13 +15,14 @@ import {
   CHECK_MODULES_CMD,
   REQUIRED_MODULES,
   GET_FILE_VARIABLES,
-  REFRESH_VAR_INFO,
   VARIABLES_LOADED_KEY,
   NOTEBOOK_STATE,
   REFRESH_GRAPHICS_CMD,
   BASE_GRAPHICS,
   REFRESH_TEMPLATES_CMD,
-  BASE_TEMPLATES
+  BASE_TEMPLATES,
+  REFRESH_VAR_INFO_A,
+  REFRESH_VAR_INFO_B
 } from "./constants";
 import { VCSMenu } from "./components/VCSMenu";
 import { NotebookUtilities } from "./NotebookUtilities";
@@ -443,7 +444,9 @@ export class LeftSideBarWidget extends Widget {
       // Open the file reader first
       let result: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        REFRESH_VAR_INFO
+        REFRESH_VAR_INFO_A +
+          `reader = cdms2.open('${this.currentFile}')` +
+          REFRESH_VAR_INFO_B
       );
       this.usingKernel = false;
       // Parse the resulting output into an object
@@ -535,9 +538,8 @@ export class LeftSideBarWidget extends Widget {
           // Check if there is a kernel listed as vcs_ready
           if (
             this._readyKernels.length > 0 &&
-            this._readyKernels.indexOf(
-              this.notebookPanel.session.kernel.id
-            ) >= 0
+            this._readyKernels.indexOf(this.notebookPanel.session.kernel.id) >=
+              0
           ) {
             // Ready kernel identified, so the notebook is ready for injection
             this.state = NOTEBOOK_STATE.VCS_Ready;
@@ -694,9 +696,7 @@ export class LeftSideBarWidget extends Widget {
     } else if (this.state == NOTEBOOK_STATE.VCS_Ready) {
       // Set the current file and save the file path as meta data
       await this.setCurrentFile(currentFile, true);
-      let fileVars: Array<Variable> = await this.getFileVariables(
-        currentFile
-      );
+      let fileVars: Array<Variable> = await this.getFileVariables(currentFile);
       if (fileVars.length > 0) {
         await this.VCSMenuRef.launchVarSelect(fileVars);
       } else {

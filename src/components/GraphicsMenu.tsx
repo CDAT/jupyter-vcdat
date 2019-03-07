@@ -182,7 +182,10 @@ export default class GraphicsMenu extends React.Component<
                 isOpen={this.state.showDropdown}
                 toggle={this.toggleDropdown}
               >
-                <DropdownToggle disabled={!this.state.plotReady} caret>
+                <DropdownToggle
+                  disabled={!this.state.plotReady || this.state.enterName}
+                  caret
+                >
                   {dropdownTitle}
                 </DropdownToggle>
                 {/*FOR FUTURE FUCNTIONALITY <Button
