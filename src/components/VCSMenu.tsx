@@ -477,10 +477,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
     if(fileFormat === "png"){
       if(this.state.width && this.state.height){
-        console.log("exporting png with custom dimensions")
-        // TODO:  Wrap in try/catch
         try {
-            console.log("command: ", `canvas.png('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`)
             await this.props.inject(`canvas.png('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
         }
         catch(error){
@@ -492,11 +489,47 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           await this.props.inject(`canvas.png('${plotName}')`);
       }
     } else if (fileFormat == "pdf") {
-      await this.props.inject(`canvas.pdf('${plotName}')`);
+      if(this.state.width && this.state.height){
+        try {
+            await this.props.inject(`canvas.pdf('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
+        }
+        catch(error){
+          console.log("Failed to export with custom dimensions")
+          console.log("error:", error)
+          return
+        }
+      }
+      else {
+          await this.props.inject(`canvas.pdf('${plotName}')`);
+      }
     } else if (fileFormat == "svg") {
-      await this.props.inject(`canvas.svg('${plotName}')`);
+      if(this.state.width && this.state.height){
+        try {
+            await this.props.inject(`canvas.svg('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
+        }
+        catch(error){
+          console.log("Failed to export with custom dimensions")
+          console.log("error:", error)
+          return
+        }
+      }
+      else {
+          await this.props.inject(`canvas.svg('${plotName}')`);
+      }
     } else if (fileFormat == "ps") {
-      await this.props.inject(`canvas.postscript('${plotName}')`);
+      if(this.state.width && this.state.height){
+        try {
+            await this.props.inject(`canvas.postscript('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
+        }
+        catch(error){
+          console.log("Failed to export with custom dimensions")
+          console.log("error:", error)
+          return
+        }
+      }
+      else{
+        await this.props.inject(`canvas.postscript('${plotName}')`);
+      }
     }
 
     this.setState({ savePlotAlert : true }, () => {
