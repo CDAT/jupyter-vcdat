@@ -341,6 +341,7 @@ export class LeftSideBarWidget extends Widget {
           "An error occurred when injecting the code."
         );
       }
+      throw(error);
     }
   }
 
