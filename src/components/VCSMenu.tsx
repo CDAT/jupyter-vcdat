@@ -437,7 +437,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       selection.forEach(variableName => {
         plotString += variableName + ", ";
       });
-      plotString += `${gm}, ${temp})`;
+      plotString += `${temp}, ${gm})`;
       console.log("plotString:", plotString)
       this.props.inject(plotString);
     }
