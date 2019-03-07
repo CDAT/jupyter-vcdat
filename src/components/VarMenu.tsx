@@ -16,7 +16,6 @@ import {
   ListGroup,
   ListGroupItem
 } from "reactstrap";
-import { CommandRegistry } from "@phosphor/commands";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -224,7 +223,16 @@ export default class VarMenu extends React.Component<
               <ListGroup style={formOverflow}>
                 {this.state.variables.map(item => {
                   return (
-                    <ListGroupItem key={item.name}>
+                    <ListGroupItem
+                      key={item.name}
+                      onClick={() => {
+                        if (this.isSelected(item.name)) {
+                          this.deselectVariable(item.name);
+                        } else {
+                          this.selectVariable(item.name);
+                        }
+                      }}
+                    >
                       <VarMini
                         reload={() => {
                           this.reloadVariable(item);
@@ -234,8 +242,6 @@ export default class VarMenu extends React.Component<
                         isSelected={this.isSelected}
                         updateDimInfo={this.updateDimInfo}
                         variable={item}
-                        selectVariable={this.selectVariable}
-                        deselectVariable={this.deselectVariable}
                       />
                     </ListGroupItem>
                   );
