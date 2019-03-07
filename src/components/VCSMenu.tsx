@@ -62,6 +62,7 @@ type VCSMenuState = {
   displayDimensions: boolean;
   width: string;
   height: string;
+  plotUnits: string;
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
@@ -89,6 +90,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       displayDimensions: false,
       width: "",
       height: "",
+      plotUnits: "pixels",
 
     };
     this.varMenuRef = (React as any).createRef();
@@ -114,7 +116,16 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.toggleDimensionsDisplay = this.toggleDimensionsDisplay.bind(this);
   }
 
-  toggleDimensionsDisplay(){
+  async toggleDimensionsDisplay(){
+    console.log("state before toggle:", this.state.displayDimensions)
+    if(!this.state.displayDimensions){
+      console.log("dimensions currently hidden so will need to get dimensions")
+      let width = await this.props.inject(`canvas.width`);
+      let height = await this.props.inject(`canvas.height`);
+      // let canvasInfoObject = JSON.parse(canvasInfo[1])
+      this.setState({ width : width[1] })
+      this.setState({ height: height[1] })
+    }
     this.setState(prevState => ({ displayDimensions: !prevState.displayDimensions }));
   }
 
@@ -157,6 +168,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   onRadioBtnClick(rSelected: string) {
    this.setState({ plotFileFormat: rSelected });
  }
+
+ onUnitRadioBtnClick(rSelected: string) {
+  this.setState({ plotUnits: rSelected });
+}
 
   update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {
     console.log(vars, gms, templates);
@@ -400,6 +415,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
       let temp = this.state.selected_template;
       if (!gm) {
+        // Paste fix here
         gm = '"default"';
       }
       if (!temp) {
@@ -447,15 +463,25 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       capture = 0
     }
     console.log("capture:", capture)
-    let canvasInfo = await this.props.inject(`canvas.canvasinfo()`);
-    let canvasInfoObject = JSON.parse(canvasInfo[1])
-    console.log("canvasInfo:", canvasInfo)
-    console.log("canvasInfoObject:", canvasInfoObject)
-    // width.then((result : any) => {
-    //   console.log("width result:", result)
-    // })
+
+    console.log("height in save:", this.state.height)
+    console.log("width in save:", this.state.width)
+    console.log("plotUnits in save:", this.state.plotUnits)
+
     if(fileFormat === "png"){
-      await this.props.inject(`canvas.png('${plotName}')`);
+      if(this.state.width && this.state.height){
+        console.log("exporting png with custom dimensions")
+        // TODO:  Wrap in try/catch
+        try {
+            await this.props.inject(`canvas.png('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
+        }
+        catch(error){
+          console.log("Failed to export with custom dimensions")
+          return
+        }
+      } else {
+          await this.props.inject(`canvas.png('${plotName}')`);
+      }
     } else if (fileFormat == "pdf") {
       await this.props.inject(`canvas.pdf('${plotName}')`);
     } else if (fileFormat == "svg") {
@@ -603,22 +629,34 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                <br />
                <CustomInput type="switch" id="dimensionsSwitch" name="dimensionsSwitch" label="Custom dimensions" checked={this.state.displayDimensions} onChange={this.toggleDimensionsDisplay} />
                <br />
-               <Collapse isOpen={this.state.displayDimensions}>
-               <Input
-                 type="text"
-                 name="text"
-                 placeholder="Width"
-                 value={this.state.width}
-                 onChange={e => this.setState({ width: e.target.value })}
-               />
-               <Input
-                 type="text"
-                 name="text"
-                 placeholder="Height"
-                 value={this.state.height}
-                 onChange={e => this.setState({ height: e.target.value })}
-               />
-               </Collapse>
+               <div>
+                 <Collapse isOpen={this.state.displayDimensions}>
+                   <ButtonGroup>
+                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("pixels")} active={this.state.plotUnits === "pixels"}>px</Button>
+                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("in")} active={this.state.plotUnits === "in"}>in</Button>
+                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("cm")} active={this.state.plotUnits === "cm"}>cm</Button>
+                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("mm")} active={this.state.plotUnits === "mm"}>mm</Button>
+                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("dot")} active={this.state.plotUnits === "dot"}>dot</Button>
+                   </ButtonGroup>
+                   <br />
+                   <Label for="width">Width</Label>
+                   <Input
+                     type="text"
+                     name="width"
+                     placeholder="Width"
+                     value={this.state.width}
+                     onChange={e => this.setState({ width: e.target.value })}
+                   />
+                   <Label for="height">Height</Label>
+                   <Input
+                     type="text"
+                     name="height"
+                     placeholder="Height"
+                     value={this.state.height}
+                     onChange={e => this.setState({ height: e.target.value })}
+                   />
+                 </Collapse>
+               </div>
              </div>
              <br />
              {/* <CustomInput type="switch" id="exampleCustomSwitch" name="customSwitch" label="Capture Provenance" checked={this.state.captureProvenance} onChange={this.toggleCaptureProvenance} /> */}
