@@ -445,7 +445,7 @@ export class LeftSideBarWidget extends Widget {
       let result: string = await notebook_utils.sendSimpleKernelRequest(
         this.notebook_panel,
         REFRESH_VAR_INFO_A +
-          `reader = cdms2.open(${this.current_file})` +
+          `reader = cdms2.open('${this.current_file}')` +
           REFRESH_VAR_INFO_B
       );
       this.using_kernel = false;
