@@ -28,18 +28,18 @@ const formOverflow: React.CSSProperties = {
 };
 
 type VarMenuProps = {
-  loadVariable: Function; // a method to call when loading the variable
-  commands?: any; // the command executer
-  variables: Array<Variable>; // an array of all current variables
-  selectedVariables: Array<string>; // array of names for variables that have been selected
-  updateSelectedVariables: Function; // update the list of selected variables
-  updateVariables: Function; // update the list of all variables
+  loadVariable: Function;             // a method to call when loading the variable
+  commands?: any;                     // the command executer
+  variables: Array<Variable>;         // an array of all current variables
+  selectedVariables: Array<string>;   // array of names for variables that have been selected
+  updateSelectedVariables: Function;  // update the list of selected variables
+  updateVariables: Function;          // update the list of all variables
 };
 
 type VarMenuState = {
-  showModal: boolean; // should we show the axis select/subset modal
-  variables: Array<Variable>; // all variables for list (derived and loaded)
-  selectedVariables: Array<string>; // the variable the user has selected
+  showModal: boolean;               // should we show the axis select/subset modal
+  variables: Array<Variable>;       // all variables for list (derived and loaded)
+  selectedVariables: Array<string>; // the names of the variables the user has selected
 };
 
 export default class VarMenu extends React.Component<
@@ -62,6 +62,7 @@ export default class VarMenu extends React.Component<
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
+    this.isPrimaryVariable = this.isPrimaryVariable.bind(this);
   }
 
   isSelected(varName: string): boolean {
@@ -185,6 +186,13 @@ export default class VarMenu extends React.Component<
     this.props.loadVariable(variable);
   }
 
+  isPrimaryVariable(varName: string): boolean {
+    if(this.state.selectedVariables.length == 0){
+      return false;
+    }
+    return this.state.selectedVariables[0] == varName;
+  }
+
   render(): JSX.Element {
     return (
       <div>
@@ -213,6 +221,7 @@ export default class VarMenu extends React.Component<
                         reload={() => {
                           this.reloadVariable(item);
                         }}
+                        isPrimaryVariable={this.isPrimaryVariable}
                         allowReload={true}
                         isSelected={this.isSelected}
                         updateDimInfo={this.updateDimInfo}
