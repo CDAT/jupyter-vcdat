@@ -20,7 +20,7 @@ import {
 import { notebook_utils } from "../notebook_utils";
 
 const dropdownMenuStyle: React.CSSProperties = {
-  maxHeight: "200px",
+  maxHeight: "250px",
   padding: "2px",
   marginTop: "5px",
   overflow: "auto"
@@ -33,8 +33,7 @@ const listItemStyle: React.CSSProperties = {
 type GraphicsMenuProps = {
   getGraphicsList: Function; // a method that gets the current list of graphics methods
   updateGraphicsOptions: Function; // a method to call when the user has selected their desired graphics method
-  editGraphicsMethod: Function;
-  copyGraphicsMethod: Function;
+  copyGraphicsMethod: Function; // a method that will create a copy of the currently selected graphics method.
 };
 type GraphicsMenuState = {
   showMenu: boolean;
@@ -66,10 +65,10 @@ export default class GraphicsMenu extends React.Component<
       invalidName: false,
       plotReady: false
     };
+    this.handleNameInput = this.handleNameInput.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.graphicsOptions = this.graphicsOptions.bind(this);
     this.resetGraphicsState = this.resetGraphicsState.bind(this);
-    this.handleNameInput = this.handleNameInput.bind(this);
     this.selectItem = this.selectItem.bind(this);
     this.nameInputRef = (React as any).createRef();
   }
@@ -102,8 +101,7 @@ export default class GraphicsMenu extends React.Component<
       tempGroup: "",
       enterName: false,
       nameValue: "",
-      invalidName: false,
-      plotReady: false
+      invalidName: false
     });
   }
 
@@ -184,7 +182,10 @@ export default class GraphicsMenu extends React.Component<
                 isOpen={this.state.showDropdown}
                 toggle={this.toggleDropdown}
               >
-                <DropdownToggle disabled={!this.state.plotReady} caret>
+                <DropdownToggle
+                  disabled={!this.state.plotReady || this.state.enterName}
+                  caret
+                >
                   {dropdownTitle}
                 </DropdownToggle>
                 {/*FOR FUTURE FUCNTIONALITY <Button
@@ -299,7 +300,7 @@ export default class GraphicsMenu extends React.Component<
                           nameValue: ""
                         });
                       } catch (error) {
-                        notebook_utils.showMessage("Error", error);
+                        console.log(error);
                       }
                     } else {
                       notebook_utils.showMessage(

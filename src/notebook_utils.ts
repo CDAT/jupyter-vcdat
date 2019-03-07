@@ -33,20 +33,13 @@ namespace notebook_utils {
   export async function createNewNotebook(
     command: CommandRegistry
   ): Promise<NotebookPanel> {
-    let prom: Promise<NotebookPanel> = new Promise(async (resolve, reject) => {
-      try {
-        let notebook: any = await command.execute("notebook:create-new", {
-          activate: true,
-          path: "",
-          preferredLanguage: ""
-        });
-        await notebook.session.ready;
-        resolve(notebook);
-      } catch (error) {
-        reject(error);
-      }
+    let notebook: any = await command.execute("notebook:create-new", {
+      activate: true,
+      path: "",
+      preferredLanguage: ""
     });
-    return prom;
+    await notebook.session.ready;
+    return notebook;
   }
 
   /**
@@ -61,28 +54,18 @@ namespace notebook_utils {
     notebook_panel: NotebookPanel,
     key: string
   ): Promise<any> {
-    let prom: Promise<any> = new Promise(async (resolve, reject) => {
-      try {
-        if (notebook_panel) {
-          await notebook_panel.activated;
-          await notebook_panel.session.ready;
-          if (notebook_panel.content.model.metadata.has(key)) {
-            resolve(notebook_panel.content.model.metadata.get(key));
-          } else {
-            resolve(null);
-          }
-        } else {
-          reject(
-            new Error(
-              "The notebook is null or undefined. No meta data available."
-            )
-          );
-        }
-      } catch (error) {
-        reject(error);
-      }
-    });
-    return prom;
+    if (notebook_panel == null) {
+      throw new Error(
+        "The notebook is null or undefined. No meta data available."
+      );
+    }
+    await notebook_panel.activated;
+    await notebook_panel.session.ready;
+    if (notebook_panel.content.model.metadata.has(key)) {
+      return notebook_panel.content.model.metadata.get(key);
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -95,14 +78,15 @@ namespace notebook_utils {
     notebook_panel: NotebookPanel,
     key: string
   ): any {
-    try {
-      if (notebook_panel.content.model.metadata.has(key)) {
-        return notebook_panel.content.model.metadata.get(key);
-      } else {
-        return null;
-      }
-    } catch (error) {
-      throw error;
+    if (notebook_panel == null) {
+      throw new Error(
+        "The notebook is null or undefined. No meta data available."
+      );
+    }
+    if (notebook_panel.content.model.metadata.has(key)) {
+      return notebook_panel.content.model.metadata.get(key);
+    } else {
+      return null;
     }
   }
 
@@ -115,30 +99,23 @@ namespace notebook_utils {
    * @param save Default is false. Whether the notebook should be saved after the meta data is set.
    * @returns The old value for the key, or undefined if it did not exist.
    */
-  export function setMetaData(
+  export async function setMetaData(
     notebook_panel: NotebookPanel,
     key: string,
     value: any,
     save: boolean = false
   ): Promise<any> {
-    let prom: Promise<any> = new Promise(async (resolve, reject) => {
-      try {
-        await notebook_panel.session.ready;
-        let old_val: any = notebook_panel.content.model.metadata.set(
-          key,
-          value
-        );
-        if (save) {
-          await notebook_panel.context.save().catch(error => {
-            reject(error);
-          });
-        }
-        resolve(old_val);
-      } catch (error) {
-        reject(error);
-      }
-    });
-    return prom;
+    if (notebook_panel == null) {
+      throw new Error(
+        "The notebook is null or undefined. No meta data available."
+      );
+    }
+    await notebook_panel.session.ready;
+    let old_val: any = notebook_panel.content.model.metadata.set(key, value);
+    if (save) {
+      await notebook_panel.context.save();
+    }
+    return old_val;
   }
 
   /**
@@ -157,17 +134,11 @@ namespace notebook_utils {
     value: any,
     save: boolean = false
   ): any {
-    try {
-      let old_val = notebook_panel.content.model.metadata.set(key, value);
-      if (save) {
-        notebook_panel.context.save().catch(error => {
-          throw error;
-        });
-      }
-      return old_val;
-    } catch (error) {
-      throw error;
+    let old_val = notebook_panel.content.model.metadata.set(key, value);
+    if (save) {
+      notebook_panel.context.save();
     }
+    return old_val;
   }
 
   /**
@@ -188,46 +159,28 @@ namespace notebook_utils {
     code: string,
     store_history: boolean = false
   ): Promise<string> {
-    let prom: Promise<string> = new Promise(async (resolve, reject) => {
-      // Check notebook panel is ready
-      if (notebook_panel) {
-        try {
-          // Wait for kernel to be ready before sending request
-          await notebook_panel.session.ready;
-          await notebook_panel.session.kernel.ready;
-          let message: KernelMessage.IShellMessage = await notebook_panel.session.kernel.requestExecute(
-            {
-              code: code,
-              silent: false,
-              store_history: store_history,
-              user_expressions: { result: "output" },
-              allow_stdin: false,
-              stop_on_error: false
-            }
-          ).done;
+    // Send request to kernel with pre-filled parameters
+    let result: any = await sendKernelRequest(
+      notebook_panel,
+      code,
+      { result: "output" },
+      false,
+      store_history,
+      false,
+      false
+    );
 
-          let content: any = message.content;
-          if (content["status"] == "ok") {
-            let output = content["user_expressions"]["result"];
-            if (output && output.data !== undefined) {
-              //Output has data
-              let execResult: string = output["data"]["text/plain"];
-              resolve(execResult);
-            } else {
-              //Output was empty
-              resolve("");
-            }
-          } else {
-            reject(content);
-          }
-        } catch (error) {
-          reject(error);
-        }
-      } else {
-        reject(new Error("The notebook panel is null or undefined."));
-      }
-    });
-    return prom;
+    // Get results from the request for validation
+    let output: any = result["result"];
+
+    if (output == null || output.data == undefined) {
+      //Output was empty
+      return "";
+    }
+
+    //Output has data, return it
+    let execResult: string = output["data"]["text/plain"];
+    return execResult;
   }
 
   /**
@@ -271,38 +224,34 @@ namespace notebook_utils {
     allow_stdin: boolean = false,
     stop_on_error: boolean = false
   ): Promise<any> {
-    let prom: Promise<any> = new Promise(async (resolve, reject) => {
-      // Check notebook panel is ready
-      if (notebook_panel) {
-        try {
-          // Wait for kernel to be ready before sending request
-          await notebook_panel.activated;
-          await notebook_panel.session.ready;
-          await notebook_panel.session.kernel.ready;
-          let message: KernelMessage.IShellMessage = await notebook_panel.session.kernel.requestExecute(
-            {
-              code: code,
-              silent: silent,
-              store_history: store_history,
-              user_expressions: user_expressions,
-              allow_stdin: allow_stdin,
-              stop_on_error: stop_on_error
-            }
-          ).done;
-          let content: any = message.content;
-          if (content["status"] == "ok") {
-            resolve(content.user_expressions);
-          } else {
-            reject(content);
-          }
-        } catch (error) {
-          reject(error);
-        }
-      } else {
-        reject(new Error("The notebook panel is null or undefined."));
+    // Check notebook panel is ready
+    if (notebook_panel == null) {
+      throw new Error(
+        "The notebook is null or undefined. No meta data available."
+      );
+    }
+    // Wait for kernel to be ready before sending request
+    await notebook_panel.activated;
+    await notebook_panel.session.ready;
+    await notebook_panel.session.kernel.ready;
+    let message: KernelMessage.IShellMessage = await notebook_panel.session.kernel.requestExecute(
+      {
+        code: code,
+        silent: silent,
+        store_history: store_history,
+        user_expressions: user_expressions,
+        allow_stdin: allow_stdin,
+        stop_on_error: stop_on_error
       }
-    });
-    return prom;
+    ).done;
+
+    let content: any = message.content;
+
+    if (content["status"] != "ok") {
+      throw content; // If response is not 'ok', throw response contents as error
+    }
+    // Return user_expressions of the content
+    return content.user_expressions;
   }
 }
 

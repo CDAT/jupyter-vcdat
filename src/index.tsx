@@ -11,7 +11,6 @@ import {
   ApplicationShell
 } from "@jupyterlab/application";
 
-import { CommandRegistry } from "@phosphor/commands";
 import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
@@ -22,7 +21,6 @@ const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
 
 // Declare the widget variables
-let commands: CommandRegistry;
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
 let shell: ApplicationShell;
 
@@ -42,7 +40,6 @@ export default extension;
  * Activate the vcs widget extension.
  */
 function activate(app: JupyterLab, tracker: NotebookTracker): void {
-  commands = app.commands;
   shell = app.shell;
 
   const factory = new NCViewerFactory({
@@ -65,7 +62,6 @@ function activate(app: JupyterLab, tracker: NotebookTracker): void {
 
   // Creates the left side bar widget once the app has fully started
   app.started.then(() => {
-    // Create the left side bar
     sidebar = new LeftSideBarWidget(app, tracker);
     sidebar.id = "vcdat-left-side-bar";
     sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";
@@ -97,15 +93,26 @@ export class NCViewerFactory extends ABCWidgetFactory<
     const content = new NCViewerWidget(context);
     const ncWidget = new DocumentWidget({ content, context });
 
-    if (sidebar) {
-      // Activate sidebar widget
-      shell.activateById(sidebar.id);
-
-      // Prepare the notebook for code injection
-      sidebar.prepareNotebookPanel(context.session.name).catch(error => {
-        notebook_utils.showMessage("Error!", error);
-      });
+    if (sidebar == null || context == null) {
+      return;
     }
+
+    // Activate sidebar widget
+    shell.activateById(sidebar.id);
+
+    // Prepare the notebook for code injection
+    sidebar.prepareNotebookPanel(context.session.name).catch(error => {
+      if (error.status == "error") {
+        notebook_utils.showMessage(error.ename, error.evalue);
+      } else if (error.message != null) {
+        notebook_utils.showMessage("Error", error.message);
+      } else {
+        notebook_utils.showMessage(
+          "Error",
+          "An error occurred when preparing the notebook."
+        );
+      }
+    });
 
     return ncWidget;
   }

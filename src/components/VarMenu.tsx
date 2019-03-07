@@ -16,6 +16,7 @@ import AxisInfo from "./AxisInfo";
 import VarCard from "./VarCard";
 import { MAX_SLABS } from "../constants";
 import { notebook_utils } from "../notebook_utils";
+import { CommandRegistry } from "@phosphor/commands";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -28,7 +29,7 @@ const formOverflow: React.CSSProperties = {
 
 type VarMenuProps = {
   loadVariable: Function; // a method to call when loading the variable
-  commands?: any; // the command executer
+  commands?: CommandRegistry; // the command executer
   variables: Array<Variable>; // an array of all current variables
   selectedVariables: Array<string>; // array of names for variables that have been selected
   updateSelectedVariables: Function; // update the list of selected variables
@@ -36,7 +37,6 @@ type VarMenuProps = {
 };
 
 type VarMenuState = {
-  showModal: boolean; // should we show the axis select/subset modal
   variables: Array<Variable>; // all variables for list (derived and loaded)
   selectedVariables: Array<string>; // the variable the user has selected
 };
@@ -49,7 +49,6 @@ export default class VarMenu extends React.Component<
   constructor(props: VarMenuProps) {
     super(props);
     this.state = {
-      showModal: false,
       selectedVariables: this.props.selectedVariables,
       variables: this.props.variables
     };
@@ -61,6 +60,16 @@ export default class VarMenu extends React.Component<
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
+    this.reloadVariable = this.reloadVariable.bind(this);
+    this.resetVarMenuState = this.resetVarMenuState.bind(this);
+  }
+
+  // Resets the graphics menu to initial, (for when a new notebook is selected)
+  async resetVarMenuState(): Promise<void> {
+    this.setState({
+      selectedVariables: this.props.selectedVariables,
+      variables: this.props.variables
+    });
   }
 
   isSelected(varName: string): boolean {
