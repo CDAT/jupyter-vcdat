@@ -29,7 +29,6 @@ namespace cell_utils {
       return null;
     }
     let out = cell.outputs.toJSON().pop();
-    console.log("out:", out)
     if (nbformat.isExecuteResult(out)) {
       let exec_data: nbformat.IExecuteResult = out;
       return exec_data.data["text/plain"];

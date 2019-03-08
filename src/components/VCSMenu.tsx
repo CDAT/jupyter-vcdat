@@ -108,7 +108,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updateVariables = this.updateVariables.bind(this);
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
-    this.onFormSubmit = this.onFormSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
     this.dismissExportValidation = this.dismissExportValidation.bind(this);
     this.dismissFileFormatValidation = this.dismissFileFormatValidation.bind(this);
@@ -117,12 +116,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   }
 
   async toggleDimensionsDisplay(){
-    console.log("state before toggle:", this.state.displayDimensions)
     if(!this.state.displayDimensions){
-      console.log("dimensions currently hidden so will need to get dimensions")
       let width = await this.props.inject(`canvas.width`);
       let height = await this.props.inject(`canvas.height`);
-      // let canvasInfoObject = JSON.parse(canvasInfo[1])
       this.setState({ width : width[1] })
       this.setState({ height: height[1] })
     }
@@ -158,11 +154,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       modal: !prevState.modal
     }));
     this.setState({ plotName : "" })
-  }
-
-  onFormSubmit() {
-    // alert(JSON.stringify(this.state, null, '  '));
-    console.log(this.state.plotName)
   }
 
   onRadioBtnClick(rSelected: string) {
@@ -453,7 +444,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       this.setState({ validateExportName : false })
     }
     let fileFormat = this.state.plotFileFormat
-    console.log("fileFormat: ", fileFormat)
     if(fileFormat == null || fileFormat == ""){
       this.setState({ validateFileFormat : true })
       return
@@ -469,11 +459,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     else{
       capture = 0
     }
-    console.log("capture:", capture)
-
-    console.log("height in save:", this.state.height)
-    console.log("width in save:", this.state.width)
-    console.log("plotUnits in save:", this.state.plotUnits)
 
     if(fileFormat === "png"){
       if(this.state.width && this.state.height){
@@ -488,7 +473,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       } else {
           await this.props.inject(`canvas.png('${plotName}')`);
       }
-    } else if (fileFormat == "pdf") {
+    } else if (fileFormat === "pdf") {
       if(this.state.width && this.state.height){
         try {
             await this.props.inject(`canvas.pdf('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
@@ -502,7 +487,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       else {
           await this.props.inject(`canvas.pdf('${plotName}')`);
       }
-    } else if (fileFormat == "svg") {
+    } else if (fileFormat === "svg") {
       if(this.state.width && this.state.height){
         try {
             await this.props.inject(`canvas.svg('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
@@ -516,7 +501,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       else {
           await this.props.inject(`canvas.svg('${plotName}')`);
       }
-    } else if (fileFormat == "ps") {
+    } else if (fileFormat === "ps") {
       if(this.state.width && this.state.height){
         try {
             await this.props.inject(`canvas.postscript('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
