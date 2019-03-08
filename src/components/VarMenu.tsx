@@ -3,7 +3,6 @@ import Variable from "./Variable";
 import VarLoader from "./VarLoader";
 import AxisInfo from "./AxisInfo";
 import VarMini from "./VarMini";
-import { MAX_SLABS } from "../constants";
 import { notebook_utils } from "../notebook_utils";
 import {
   CardTitle,
@@ -58,6 +57,7 @@ export default class VarMenu extends React.Component<
     this.isSelected = this.isSelected.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
+    this.getSelectionRank = this.getSelectionRank.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.reloadVariable = this.reloadVariable.bind(this);
     this.resetVarMenuState = this.resetVarMenuState.bind(this);
@@ -138,11 +138,7 @@ export default class VarMenu extends React.Component<
 
     if (ind < 0) {
       // Limit number of variables selected by deselecting last element
-      let selection = this.state.selectedVariables;
-      if (selection.length >= MAX_SLABS) {
-        selection.pop();
-      }
-      selection.push(variableName);
+      let selection = this.state.selectedVariables.push(variableName);
 
       await this.props.updateSelectedVariables(selection);
     }
@@ -200,6 +196,14 @@ export default class VarMenu extends React.Component<
     return this.state.selectedVariables[0] == varName;
   }
 
+  getSelectionRank(varName: string): number {
+    if (this.state.selectedVariables.length > 0) {
+      console.log(this.state.selectedVariables);
+      return this.state.selectedVariables.indexOf(varName);
+    }
+    console.log();
+  }
+
   render(): JSX.Element {
     return (
       <div>
@@ -237,9 +241,9 @@ export default class VarMenu extends React.Component<
                         reload={() => {
                           this.reloadVariable(item);
                         }}
-                        isPrimaryVariable={this.isPrimaryVariable}
                         allowReload={true}
                         isSelected={this.isSelected}
+                        selectionRank={this.getSelectionRank(item.name)}
                         updateDimInfo={this.updateDimInfo}
                         variable={item}
                       />

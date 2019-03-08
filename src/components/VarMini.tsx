@@ -25,10 +25,11 @@ const centered: React.CSSProperties = {
 };
 
 type VarMiniProps = {
-  isPrimaryVariable: Function; // a method to test if the variable for this component is the primary
+  //isPrimaryVariable: Function; // a method to test if the variable for this component is the primary
   variable: Variable; // the variable this component will show
   updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
   isSelected: Function; // method to check if this variable is selected in parent
+  selectionRank: number; // The order that the variable was selected
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: Function; // a function to reload the variable
 };
@@ -80,7 +81,7 @@ export default class VarMini extends React.Component<
     let color = "secondary";
     let badge = "";
     if (this.props.isSelected(this.varName)) {
-      if (this.props.isPrimaryVariable(this.varName)) {
+      if (this.props.selectionRank == 1) {
         color = "success";
         badge = "primary";
       } else {
