@@ -12,6 +12,7 @@ import {
   CardBody,
   Badge
 } from "reactstrap";
+import { MiscUtilities } from "../Utilities";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
@@ -25,11 +26,11 @@ const centered: React.CSSProperties = {
 };
 
 type VarMiniProps = {
-  //isPrimaryVariable: Function; // a method to test if the variable for this component is the primary
+  buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
   updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
   isSelected: Function; // method to check if this variable is selected in parent
-  selectionRank: number; // The order that the variable was selected
+  selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: Function; // a function to reload the variable
 };
@@ -78,31 +79,25 @@ export default class VarMini extends React.Component<
   }
 
   render(): JSX.Element {
-    let color = "secondary";
-    let badge = "";
-    if (this.props.isSelected(this.varName)) {
-      if (this.props.selectionRank == 1) {
-        color = "success";
-        badge = "primary";
-      } else {
-        color = "info";
-        badge = "secondary";
-      }
-    }
     return (
       <div>
         <div className="clearfix">
           <Button
             outline
+            color={this.props.isSelected ? "success" : "secondary"}
+            style={
+              this.props.isSelected && {
+                backgroundColor: this.props.buttonColor
+              }
+            }
             active={this.props.isSelected(this.varName)}
-            color={color}
           >
             {this.props.variable.name}
           </Button>
           <Button
             outline
             style={axisStyle}
-            color="secondary"
+            color="danger"
             onClick={(clickEvent: React.MouseEvent<HTMLButtonElement>) => {
               this.setState({
                 showAxis: !this.state.showAxis
@@ -113,8 +108,13 @@ export default class VarMini extends React.Component<
             edit
           </Button>
           {this.props.isSelected(this.varName) && (
-            <Badge color={color} style={badgeStyle}>
-              {badge}
+            <Badge
+              style={{
+                ...badgeStyle,
+                ...{ backgroundColor: this.props.buttonColor }
+              }}
+            >
+              {MiscUtilities.numToOrdStr(this.props.selectOrder)} Variable
             </Badge>
           )}
         </div>

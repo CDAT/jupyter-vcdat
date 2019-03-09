@@ -15,6 +15,7 @@ import {
   ListGroup,
   ListGroupItem
 } from "reactstrap";
+import { ColorFunctions } from "../Utilities";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -57,7 +58,6 @@ export default class VarMenu extends React.Component<
     this.isSelected = this.isSelected.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
-    this.getSelectionRank = this.getSelectionRank.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.reloadVariable = this.reloadVariable.bind(this);
     this.resetVarMenuState = this.resetVarMenuState.bind(this);
@@ -69,7 +69,6 @@ export default class VarMenu extends React.Component<
       selectedVariables: this.props.selectedVariables,
       variables: this.props.variables
     });
-    this.isPrimaryVariable = this.isPrimaryVariable.bind(this);
   }
 
   isSelected(varName: string): boolean {
@@ -137,8 +136,8 @@ export default class VarMenu extends React.Component<
     let ind: number = this.state.selectedVariables.indexOf(variableName);
 
     if (ind < 0) {
-      // Limit number of variables selected by deselecting last element
-      let selection = this.state.selectedVariables.push(variableName);
+      let selection = this.state.selectedVariables;
+      selection.push(variableName);
 
       await this.props.updateSelectedVariables(selection);
     }
@@ -189,22 +188,19 @@ export default class VarMenu extends React.Component<
     this.props.loadVariable(variable);
   }
 
-  isPrimaryVariable(varName: string): boolean {
+  getOrder(varName: string): number {
     if (this.state.selectedVariables.length == 0) {
-      return false;
+      return -1;
     }
-    return this.state.selectedVariables[0] == varName;
-  }
-
-  getSelectionRank(varName: string): number {
-    if (this.state.selectedVariables.length > 0) {
-      console.log(this.state.selectedVariables);
-      return this.state.selectedVariables.indexOf(varName);
-    }
-    console.log();
+    return this.state.selectedVariables.indexOf(varName) + 1;
   }
 
   render(): JSX.Element {
+    let Colors: string[] = ColorFunctions.createGradient(
+      this.state.selectedVariables.length,
+      "#28a745",
+      "#17a2b8"
+    );
     return (
       <div>
         <Card>
@@ -241,9 +237,10 @@ export default class VarMenu extends React.Component<
                         reload={() => {
                           this.reloadVariable(item);
                         }}
+                        buttonColor={Colors[this.getOrder(item.name) - 1]}
                         allowReload={true}
                         isSelected={this.isSelected}
-                        selectionRank={this.getSelectionRank(item.name)}
+                        selectOrder={this.getOrder(item.name)}
                         updateDimInfo={this.updateDimInfo}
                         variable={item}
                       />
