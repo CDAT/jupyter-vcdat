@@ -1,6 +1,6 @@
 // Dependencies
 import * as React from "react";
-import { Button, Card, CardBody } from "reactstrap";
+import { Button, Card, CardBody, Row, Col } from "reactstrap";
 
 // Project Components
 import { notebook_utils } from "../notebook_utils";
@@ -20,7 +20,7 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 
 const btnStyle: React.CSSProperties = {
-  margin: "5px"
+  width: "100%"
 };
 const centered: React.CSSProperties = {
   margin: "auto"
@@ -28,7 +28,7 @@ const centered: React.CSSProperties = {
 
 const sidebarOverflow: React.CSSProperties = {
   maxHeight: "100vh",
-  minWidth: "375px",
+  minWidth: "320px",
   overflow: "auto"
 };
 
@@ -416,36 +416,41 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         <Card>
           <CardBody>
             <div style={centered}>
-              <Button
-                type="button"
-                color="primary"
-                className="col-sm-3"
-                style={btnStyle}
-                onClick={this.plot}
-                disabled={!this.state.plotReady}
-              >
-                Plot
-              </Button>
-              <Button
-                type="button"
-                color="primary"
-                className="col-sm-3"
-                style={btnStyle}
-                onClick={this.save}
-                disabled={!this.state.plotReady}
-              >
-                Save
-              </Button>
-              <Button
-                type="button"
-                color="primary"
-                className="col-sm-3"
-                style={btnStyle}
-                onClick={this.clear}
-                disabled={!this.state.plotReady}
-              >
-                Clear
-              </Button>
+              <Row>
+                <Col>
+                  <Button
+                    type="button"
+                    color="primary"
+                    style={btnStyle}
+                    onClick={this.plot}
+                    disabled={!this.state.plotReady}
+                  >
+                    Plot
+                  </Button>
+                </Col>
+                <Col>
+                  <Button
+                    type="button"
+                    color="primary"
+                    style={btnStyle}
+                    onClick={this.save}
+                    disabled={!this.state.plotReady}
+                  >
+                    Save
+                  </Button>
+                </Col>
+                <Col>
+                  <Button
+                    type="button"
+                    color="primary"
+                    style={btnStyle}
+                    onClick={this.clear}
+                    disabled={!this.state.plotReady}
+                  >
+                    Clear
+                  </Button>
+                </Col>
+              </Row>
             </div>
           </CardBody>
         </Card>

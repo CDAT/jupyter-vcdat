@@ -208,20 +208,43 @@ export default class GraphicsMenu extends React.Component<
 
                 <DropdownMenu style={dropdownMenuStyle}>
                   {Object.keys(this.props.getGraphicsList()).map(item => {
-                    return (
-                      <DropdownItem
-                        onClick={() => {
-                          this.setState({
-                            tempGroup: item,
-                            showDropdown: false,
-                            showMenu: true
-                          });
-                        }}
-                        key={item}
-                      >
-                        {item}
-                      </DropdownItem>
-                    );
+                    let methods: any = this.props.getGraphicsList()[item];
+                    if (methods.length > 1) {
+                      return (
+                        <DropdownItem
+                          onClick={() => {
+                            this.setState({
+                              tempGroup: item,
+                              showDropdown: false,
+                              showMenu: true
+                            });
+                          }}
+                          key={item}
+                        >
+                          {item}
+                        </DropdownItem>
+                      );
+                    } else {
+                      return (
+                        <DropdownItem
+                          onClick={() => {
+                            this.setState(
+                              {
+                                tempGroup: item,
+                                showDropdown: false,
+                                showMenu: false
+                              },
+                              () => {
+                                this.selectItem(methods[0]);
+                              }
+                            );
+                          }}
+                          key={item}
+                        >
+                          {item} ({methods[0]})
+                        </DropdownItem>
+                      );
+                    }
                   })}
                 </DropdownMenu>
               </Dropdown>

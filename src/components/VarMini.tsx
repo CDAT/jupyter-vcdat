@@ -109,6 +109,7 @@ export default class VarMini extends React.Component<
           </Button>
           {this.props.isSelected(this.varName) && (
             <Badge
+              className="float-right"
               style={{
                 ...badgeStyle,
                 ...{ backgroundColor: this.props.buttonColor }
