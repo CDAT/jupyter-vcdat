@@ -15,37 +15,34 @@ namespace cell_utils {
    * @throws An error message if there are issues in getting the output
    */
   export function readOutput(notebook: Notebook, index: number): any {
-    let msg: string = "Notebook was null!"; // For error tracking
-    if (notebook) {
-      if (index >= 0 && index < notebook.model.cells.length) {
-        let cell: ICellModel = notebook.model.cells.get(index);
-        if (isCodeCellModel(cell)) {
-          let codeCell = cell;
-          if (codeCell.outputs.length < 1) {
-            return null;
-          } else {
-            let out = codeCell.outputs.toJSON().pop();
-            if (nbformat.isExecuteResult(out)) {
-              let exec_data: nbformat.IExecuteResult = out;
-              return exec_data.data["text/plain"];
-            } else if (nbformat.isError(out)) {
-              let err_data: nbformat.IError = out;
-              err_data.evalue;
-              msg = `Code resulted in errors. Error name: ${
-                err_data.ename
-              }.\nMessage: ${err_data.evalue}.`;
-            } else {
-              msg = "The cell output is not expected format.";
-            }
-          }
-        } else {
-          msg = "cell is not a code cell.";
-        }
-      } else {
-        msg = "Cell index out of range.";
-      }
+    if (notebook == null) {
+      throw new Error("Notebook was null!");
     }
-    throw new Error(msg);
+    if (index < 0 || index >= notebook.model.cells.length) {
+      throw new Error("Cell index out of range.");
+    }
+    let cell: ICellModel = notebook.model.cells.get(index);
+    if (!isCodeCellModel(cell)) {
+      throw new Error("cell is not a code cell.");
+    }
+    if (cell.outputs.length < 1) {
+      return null;
+    }
+    let out = cell.outputs.toJSON().pop();
+    if (nbformat.isExecuteResult(out)) {
+      let exec_data: nbformat.IExecuteResult = out;
+      return exec_data.data["text/plain"];
+    }
+    if (nbformat.isError(out)) {
+      let err_data: nbformat.IError = out;
+      err_data.evalue;
+      throw new Error(
+        `Code resulted in errors. Error name: ${err_data.ename}.\nMessage: ${
+          err_data.evalue
+        }.`
+      );
+    }
+    throw new Error("The cell output is not expected format.");
   }
 
   /**
@@ -60,24 +57,18 @@ namespace cell_utils {
     index: number,
     key: string
   ): any {
-    let msg: string = "Notebook was null!"; // For error tracking
-    if (notebook) {
-      if (index >= 0 && index < notebook.model.cells.length) {
-        try {
-          let cell: ICellModel = notebook.model.cells.get(index);
-          if (cell.metadata.has(key)) {
-            return cell.metadata.get(key);
-          } else {
-            return null;
-          }
-        } catch (error) {
-          throw error;
-        }
-      } else {
-        msg = "Cell index out of range.";
-      }
+    if (notebook == null) {
+      throw new Error("Notebook was null!");
     }
-    throw new Error(msg);
+    if (index < 0 || index >= notebook.model.cells.length) {
+      throw new Error("Cell index out of range.");
+    }
+    let cell: ICellModel = notebook.model.cells.get(index);
+    if (cell.metadata.has(key)) {
+      return cell.metadata.get(key);
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -97,24 +88,22 @@ namespace cell_utils {
     value: any,
     save: boolean = false
   ): any {
-    let msg: string = "Notebook was null!"; // For error tracking
-    if (notebook_panel) {
-      if (index >= 0 && index < notebook_panel.model.cells.length) {
-        try {
-          let cell: ICellModel = notebook_panel.model.cells.get(index);
-          let old_val: any = cell.metadata.set(key, value);
-          if (save) {
-            notebook_panel.context.save();
-          }
-          return old_val;
-        } catch (error) {
-          throw error;
-        }
-      } else {
-        msg = "Cell index out of range.";
-      }
+    if (notebook_panel == null) {
+      throw new Error("Notebook was null!");
     }
-    throw new Error(msg);
+    if (index < 0 || index >= notebook_panel.model.cells.length) {
+      throw new Error("Cell index out of range.");
+    }
+    try {
+      let cell: ICellModel = notebook_panel.model.cells.get(index);
+      let old_val: any = cell.metadata.set(key, value);
+      if (save) {
+        notebook_panel.context.save();
+      }
+      return old_val;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -167,39 +156,28 @@ namespace cell_utils {
     notebook_panel: NotebookPanel,
     index: number
   ): Promise<string> {
-    let prom: Promise<string> = new Promise(async (resolve, reject) => {
-      if (command && notebook_panel) {
-        try {
-          await notebook_panel.session.ready;
-          let notebook = notebook_panel.content;
-          if (index >= 0 && index < notebook.widgets.length) {
-            //Save the old index, then set the current active cell
-            let oldIndex = notebook.activeCellIndex;
-            notebook.activeCellIndex = index;
-            try {
-              await command.execute("notebook:run-cell");
-              let output = readOutput(notebook, index);
-              notebook.activeCellIndex = oldIndex;
-              resolve(output);
-            } catch (error) {
-              notebook.activeCellIndex = oldIndex;
-              reject(error);
-            }
-          } else {
-            reject(new Error("The index was out of range."));
-          }
-        } catch (error) {
-          reject(error);
-        }
-      } else {
-        reject(
-          new Error(
-            "Null or undefined parameter was given for command or notebook argument."
-          )
-        );
-      }
-    });
-    return prom;
+    if (command == null || notebook_panel == null) {
+      throw new Error(
+        "Null or undefined parameter was given for command or notebook argument."
+      );
+    }
+    await notebook_panel.session.ready;
+    let notebook = notebook_panel.content;
+    if (index < 0 || index >= notebook.widgets.length) {
+      throw new Error("The index was out of range.");
+    }
+    //Save the old index, then set the current active cell
+    let oldIndex = notebook.activeCellIndex;
+    notebook.activeCellIndex = index;
+    try {
+      await command.execute("notebook:run-cell");
+      let output = readOutput(notebook, index);
+      notebook.activeCellIndex = oldIndex;
+      return output;
+    } catch (error) {
+      notebook.activeCellIndex = oldIndex;
+      throw error;
+    }
   }
 
   /**
@@ -212,36 +190,29 @@ namespace cell_utils {
     notebook_panel: NotebookPanel,
     index: number
   ): void {
-    try {
-      if (notebook_panel) {
-        let notebook = notebook_panel.content;
-
-        if (index >= 0 && index < notebook.widgets.length) {
-          //Save the old index, then set the current active cell
-          let oldIndex = notebook.activeCellIndex;
-          notebook.model.cells.remove(index);
-          //Adjust old index to account for deleted cell.
-          if (oldIndex == index) {
-            if (oldIndex > 0) {
-              oldIndex -= 1;
-            } else {
-              oldIndex = 0;
-            }
-          } else if (oldIndex > index) {
-            oldIndex -= 1;
-          }
-          notebook.activeCellIndex = oldIndex;
-        } else {
-          throw new Error("The index was out of range.");
-        }
-      } else {
-        throw new Error(
-          "Null or undefined parameter was given for notebook argument."
-        );
-      }
-    } catch (error) {
-      throw error;
+    if (notebook_panel == null) {
+      throw new Error(
+        "Null or undefined parameter was given for notebook argument."
+      );
     }
+    let notebook = notebook_panel.content;
+    if (index < 0 || index >= notebook.widgets.length) {
+      throw new Error("The index was out of range.");
+    }
+    //Save the old index, then set the current active cell
+    let oldIndex = notebook.activeCellIndex;
+    notebook.model.cells.remove(index);
+    //Adjust old index to account for deleted cell.
+    if (oldIndex == index) {
+      if (oldIndex > 0) {
+        oldIndex -= 1;
+      } else {
+        oldIndex = 0;
+      }
+    } else if (oldIndex > index) {
+      oldIndex -= 1;
+    }
+    notebook.activeCellIndex = oldIndex;
   }
 
   /**
@@ -256,34 +227,30 @@ namespace cell_utils {
     notebook_panel: NotebookPanel,
     index: number
   ): number {
-    try {
-      let notebook = notebook_panel.content;
+    let notebook = notebook_panel.content;
 
-      //Create a new cell
-      let cell = notebook.model.contentFactory.createCodeCell({});
+    //Create a new cell
+    let cell = notebook.model.contentFactory.createCodeCell({});
 
-      //Save the old index, then set the current active cell
-      let oldIndex = notebook.activeCellIndex;
+    //Save the old index, then set the current active cell
+    let oldIndex = notebook.activeCellIndex;
 
-      //Adjust old index for cells inserted above active cell.
-      if (oldIndex >= index) {
-        oldIndex++;
-      }
-      if (index <= 0) {
-        notebook.model.cells.insert(0, cell);
-        notebook.activeCellIndex = oldIndex;
-        return 0;
-      } else if (index >= notebook.widgets.length) {
-        notebook.model.cells.insert(notebook.widgets.length - 1, cell);
-        notebook.activeCellIndex = oldIndex;
-        return notebook.widgets.length - 1;
-      } else {
-        notebook.model.cells.insert(index, cell);
-        notebook.activeCellIndex = oldIndex;
-        return index;
-      }
-    } catch (error) {
-      throw error;
+    //Adjust old index for cells inserted above active cell.
+    if (oldIndex >= index) {
+      oldIndex++;
+    }
+    if (index <= 0) {
+      notebook.model.cells.insert(0, cell);
+      notebook.activeCellIndex = oldIndex;
+      return 0;
+    } else if (index >= notebook.widgets.length) {
+      notebook.model.cells.insert(notebook.widgets.length - 1, cell);
+      notebook.activeCellIndex = oldIndex;
+      return notebook.widgets.length - 1;
+    } else {
+      notebook.model.cells.insert(index, cell);
+      notebook.activeCellIndex = oldIndex;
+      return index;
     }
   }
 
@@ -301,23 +268,19 @@ namespace cell_utils {
     index: number,
     code: string
   ): void {
-    let msg: string = ""; // For error tracking
-    if (notebook) {
-      if (index >= 0 && index < notebook.model.cells.length) {
-        let cell: ICellModel = notebook.model.cells.get(index);
-        if (isCodeCellModel(cell)) {
-          cell.value.text = code;
-          return;
-        } else {
-          msg = "Cell is not a code cell.";
-        }
-      } else {
-        msg = "Cell index out of range.";
-      }
-    } else {
-      msg = "Notebook was null or undefined.";
+    if (notebook == null) {
+      throw new Error("Notebook was null or undefined.");
     }
-    throw new Error(msg);
+    if (index < 0 || index >= notebook.model.cells.length) {
+      throw new Error("Cell index out of range.");
+    }
+    let cell: ICellModel = notebook.model.cells.get(index);
+    if (isCodeCellModel(cell)) {
+      cell.value.text = code;
+      return;
+    } else {
+      throw new Error("Cell is not a code cell.");
+    }
   }
 
   /**
@@ -334,13 +297,9 @@ namespace cell_utils {
     index: number,
     code: string
   ): number {
-    try {
-      let newIndex = insertCellAtIndex(notebook_panel, index);
-      injectCodeAtIndex(notebook_panel.content, newIndex, code);
-      return newIndex;
-    } catch (error) {
-      throw error;
-    }
+    let newIndex = insertCellAtIndex(notebook_panel, index);
+    injectCodeAtIndex(notebook_panel.content, newIndex, code);
+    return newIndex;
   }
 
   /**
@@ -361,32 +320,21 @@ namespace cell_utils {
     code: string,
     deleteOnError: boolean
   ): Promise<[number, string]> {
-    let prom: Promise<[number, string]> = new Promise(
-      async (resolve, reject) => {
-        let insertionIndex;
-        try {
-          insertionIndex = insertInjectCode(notebook_panel, index, code);
-          let output: string = await notebook_utils.sendSimpleKernelRequest(
-            notebook_panel,
-            code,
-            false
-          );
-          resolve([insertionIndex, output]);
-        } catch (error) {
-          if (deleteOnError) {
-            try {
-              deleteCellAtIndex(notebook_panel, insertionIndex);
-              reject(error);
-            } catch (error) {
-              reject(error);
-            }
-          } else {
-            reject(error);
-          }
-        }
+    let insertionIndex;
+    try {
+      insertionIndex = insertInjectCode(notebook_panel, index, code);
+      let output: string = await notebook_utils.sendSimpleKernelRequest(
+        notebook_panel,
+        code,
+        false
+      );
+      return [insertionIndex, output];
+    } catch (error) {
+      if (deleteOnError) {
+        deleteCellAtIndex(notebook_panel, insertionIndex);
       }
-    );
-    return prom;
+      throw error;
+    }
   }
 
   /**
@@ -409,32 +357,21 @@ namespace cell_utils {
     code: string,
     deleteOnError: boolean
   ): Promise<[number, string]> {
-    let prom: Promise<[number, string]> = new Promise(
-      async (resolve, reject) => {
-        let insertionIndex;
-        try {
-          insertionIndex = insertInjectCode(notebook_panel, index, code);
-          let output: string = await runCellAtIndex(
-            command,
-            notebook_panel,
-            insertionIndex
-          );
-          resolve([insertionIndex, output]);
-        } catch (error) {
-          if (deleteOnError) {
-            try {
-              deleteCellAtIndex(notebook_panel, insertionIndex);
-              reject(error);
-            } catch (error) {
-              reject(error);
-            }
-          } else {
-            reject(error);
-          }
-        }
+    let insertionIndex;
+    try {
+      insertionIndex = insertInjectCode(notebook_panel, index, code);
+      let output: string = await runCellAtIndex(
+        command,
+        notebook_panel,
+        insertionIndex
+      );
+      return [insertionIndex, output];
+    } catch (error) {
+      if (deleteOnError) {
+        deleteCellAtIndex(notebook_panel, insertionIndex);
       }
-    );
-    return prom;
+      throw error;
+    }
   }
 
   /**
@@ -453,25 +390,18 @@ namespace cell_utils {
     code: string,
     insertAtEnd = true
   ): Promise<string> {
-    let prom: Promise<string> = new Promise(async (resolve, reject) => {
-      let index: number = -1;
-      try {
-        if (insertAtEnd) {
-          index = notebook_panel.content.model.cells.length;
-        }
-        let result: [number, string] = await insertAndRun(
-          notebook_panel,
-          index,
-          code,
-          true
-        );
-        deleteCellAtIndex(notebook_panel, result[0]);
-        resolve(result[1]);
-      } catch (error) {
-        reject(error);
-      }
-    });
-    return prom;
+    let index: number = -1;
+    if (insertAtEnd) {
+      index = notebook_panel.content.model.cells.length;
+    }
+    let result: [number, string] = await insertAndRun(
+      notebook_panel,
+      index,
+      code,
+      true
+    );
+    deleteCellAtIndex(notebook_panel, result[0]);
+    return result[1];
   }
 }
 

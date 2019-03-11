@@ -1,21 +1,22 @@
 import * as React from "react";
+import Variable from "./Variable";
+import VarLoader from "./VarLoader";
+import AxisInfo from "./AxisInfo";
+import VarMini from "./VarMini";
+import { MAX_SLABS } from "../constants";
+import { notebook_utils } from "../notebook_utils";
 import {
-  Form,
   CardTitle,
   CardSubtitle,
   Button,
   Card,
   CardBody,
   Row,
-  Col
+  Col,
+  ListGroup,
+  ListGroupItem
 } from "reactstrap";
-
-import Variable from "./Variable";
-import VarLoader from "./VarLoader";
-import AxisInfo from "./AxisInfo";
-import VarCard from "./VarCard";
-import { MAX_SLABS } from "../constants";
-import { notebook_utils } from "../notebook_utils";
+import { CommandRegistry } from "@phosphor/commands";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -36,9 +37,8 @@ type VarMenuProps = {
 };
 
 type VarMenuState = {
-  showModal: boolean; // should we show the axis select/subset modal
   variables: Array<Variable>; // all variables for list (derived and loaded)
-  selectedVariables: Array<string>; // the variable the user has selected
+  selectedVariables: Array<string>; // the names of the variables the user has selected
 };
 
 export default class VarMenu extends React.Component<
@@ -49,7 +49,6 @@ export default class VarMenu extends React.Component<
   constructor(props: VarMenuProps) {
     super(props);
     this.state = {
-      showModal: false,
       selectedVariables: this.props.selectedVariables,
       variables: this.props.variables
     };
@@ -61,6 +60,17 @@ export default class VarMenu extends React.Component<
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
+    this.reloadVariable = this.reloadVariable.bind(this);
+    this.resetVarMenuState = this.resetVarMenuState.bind(this);
+  }
+
+  // Resets the graphics menu to initial, (for when a new notebook is selected)
+  async resetVarMenuState(): Promise<void> {
+    this.setState({
+      selectedVariables: this.props.selectedVariables,
+      variables: this.props.variables
+    });
+    this.isPrimaryVariable = this.isPrimaryVariable.bind(this);
   }
 
   isSelected(varName: string): boolean {
@@ -184,6 +194,13 @@ export default class VarMenu extends React.Component<
     this.props.loadVariable(variable);
   }
 
+  isPrimaryVariable(varName: string): boolean {
+    if (this.state.selectedVariables.length == 0) {
+      return false;
+    }
+    return this.state.selectedVariables[0] == varName;
+  }
+
   render(): JSX.Element {
     return (
       <div>
@@ -204,27 +221,26 @@ export default class VarMenu extends React.Component<
               </Row>
             </CardSubtitle>
             {this.state.variables.length > 0 && (
-              <Form style={formOverflow}>
+              <ListGroup style={formOverflow}>
                 {this.state.variables.map(item => {
                   return (
-                    <div key={item.name}>
-                      <VarCard
+                    <ListGroupItem key={item.name}>
+                      <VarMini
                         reload={() => {
                           this.reloadVariable(item);
                         }}
+                        isPrimaryVariable={this.isPrimaryVariable}
                         allowReload={true}
                         isSelected={this.isSelected}
                         updateDimInfo={this.updateDimInfo}
                         variable={item}
-                        isLoaded={false}
                         selectVariable={this.selectVariable}
                         deselectVariable={this.deselectVariable}
-                        hidden={true}
                       />
-                    </div>
+                    </ListGroupItem>
                   );
                 })}
-              </Form>
+              </ListGroup>
             )}
           </CardBody>
         </Card>
