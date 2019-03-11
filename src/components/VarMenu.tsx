@@ -1,10 +1,5 @@
+// Dependencies
 import * as React from "react";
-import Variable from "./Variable";
-import VarLoader from "./VarLoader";
-import AxisInfo from "./AxisInfo";
-import VarMini from "./VarMini";
-import { MAX_SLABS } from "../constants";
-import { notebook_utils } from "../notebook_utils";
 import {
   CardTitle,
   CardSubtitle,
@@ -16,17 +11,15 @@ import {
   ListGroup,
   ListGroupItem
 } from "reactstrap";
-<<<<<<< HEAD
+import { CommandRegistry } from "@phosphor/commands";
 
+// Project Components
 import Variable from "./Variable";
 import VarLoader from "./VarLoader";
 import AxisInfo from "./AxisInfo";
-import VarCard from "./VarCard";
+import VarMini from "./VarMini";
 import { MAX_SLABS } from "../constants";
 import { notebook_utils } from "../notebook_utils";
-=======
->>>>>>> 50120a70cf4a30c76f32e0ebecfc044e4ac98b9d
-import { CommandRegistry } from "@phosphor/commands";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -80,10 +73,7 @@ export default class VarMenu extends React.Component<
       selectedVariables: this.props.selectedVariables,
       variables: this.props.variables
     });
-<<<<<<< HEAD
-=======
     this.isPrimaryVariable = this.isPrimaryVariable.bind(this);
->>>>>>> 50120a70cf4a30c76f32e0ebecfc044e4ac98b9d
   }
 
   isSelected(varName: string): boolean {
