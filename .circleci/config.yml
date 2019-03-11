@@ -33,6 +33,7 @@ aliases:
        source activate $PY_VER
        # for running tests
        pip install selenium
+       pip install pyvirtualdisplay
        # LAZY_IMPORT
        python -m pip install lazy_import
        # SIDECAR
@@ -131,7 +132,8 @@ jobs:
 
   linux_jupyter_vcdat_py3:
     machine:
-      image: circleci/classic:latest
+      #image: circleci/classic:latest
+      image: selenium/standalone-chrome:3.1.0
     environment:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       OS: "linux-64"
@@ -157,7 +159,7 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - macos_jupyter_vcdat_py3
+      #- macos_jupyter_vcdat_py3
       - linux_jupyter_vcdat_py3
 
 
