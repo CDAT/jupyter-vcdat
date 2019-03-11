@@ -437,7 +437,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   }
 
   render(): JSX.Element {
-    // TODO: Create props object for ExportPlotModal
     let GraphicsMenuProps = {
       getGraphicsList: this.props.getGraphicsList,
       updateGraphicsOptions: this.updateGraphicsOptions,
@@ -457,6 +456,13 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       plotReady: this.state.plotReady,
       getTemplatesList: this.props.getTemplatesList,
       updateTemplateOptions: this.updateTemplateOptions
+    };
+    let ExportPlotModalProps = {
+      isOpen: this.state.isModalOpen,
+      toggle: this.toggleModal,
+      inject: this.props.inject,
+      exportAlerts: this.exportPlotAlerts,
+      setPlotInfo: this.setPlotInfo
     };
 
     return (
@@ -507,11 +513,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           ref={loader => (this.templateMenuRef = loader)}
         />
         <ExportPlotModal
-        isOpen={this.state.isModalOpen}
-        toggle={this.toggleModal}
-        inject={this.props.inject}
-        exportAlerts={this.exportPlotAlerts}
-        setPlotInfo={this.setPlotInfo}
+          {...ExportPlotModalProps}
         />
         <div>
           <Alert color="info" isOpen={this.state.savePlotAlert} toggle={this.dismissSavePlotSpinnerAlert}>
