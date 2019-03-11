@@ -63,6 +63,4 @@ setup(name="jupyter_vcdat",
       description="Jupyter lab extension to cdat",
       url="http://github.com/cdat/jupyter-vcdat",
       packages=find_packages(),
-      zip_safe=True,
-      #data_files=[('share/vcs', ('Share/wmo_symbols.json',))]
-)
+      zip_safe=True)

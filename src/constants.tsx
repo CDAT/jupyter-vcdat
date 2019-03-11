@@ -3,9 +3,11 @@ const BASE_URL = "/vcs";
 const READY_KEY = "vcdat_ready";
 const FILE_PATH_KEY = "vcdat_file_path";
 const IMPORT_CELL_KEY = "vcdat_imports";
+const VARIABLES_KEY = "selected_variables";
 const GRAPHICS_METHOD_KEY = "graphics_method_selected";
-const VARIABLES_LOADED_KEY = "vcdat_variables_loaded";
-const REQUIRED_MODULES = "'lazy_object_proxy','cdms2','vcs'";
+const TEMPLATE_KEY = "template_selected";
+const VARIABLES_LOADED_KEY = "vcdat_loaded_variables";
+const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
 
 const GET_VARS_CMD =
   'import __main__\n\
@@ -31,6 +33,16 @@ def list_all():\n\
     return out\n\
 output = "{}|{}|{})".format(variables(),templates(),graphic_methods())';
 
+const REFRESH_NAMES_CMD =
+  "import __main__\n\
+def variables():\n\
+  out = []\n\
+  for nm, obj in __main__.__dict__.items():\n\
+    if isinstance(obj, cdms2.MV2.TransientVariable):\n\
+      out+=[nm]\n\
+  return out\n\
+output = variables()";
+
 const REFRESH_GRAPHICS_CMD =
   "import __main__\n\
 import json\n\
@@ -41,15 +53,9 @@ def graphic_methods():\n\
   return out\n\
 output = json.dumps(graphic_methods())";
 
-const REFRESH_NAMES_CMD =
+const REFRESH_TEMPLATES_CMD =
   "import __main__\n\
-def variables():\n\
-  out = []\n\
-  for nm, obj in __main__.__dict__.items():\n\
-    if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-      out+=[nm]\n\
-  return out\n\
-output = variables()";
+output = vcs.listelements('template')";
 
 const CHECK_MODULES_CMD = `import types\n\
 required = [${REQUIRED_MODULES}]\n\
@@ -69,7 +75,7 @@ def canvases():\n\
   return out\n\
 output = canvases()`;
 
-const REFRESH_VAR_INFO = `import __main__\n\
+const REFRESH_VAR_INFO_A = `import __main__\n\
 import json\n\
 def variables():\n\
   out = []\n\
@@ -142,7 +148,9 @@ for vname in vars:\n\
   if ('bounds' not in outVars[vname]):\n\
     outVars[vname]['bounds'] = None\n\
 outAxes = {}\n\
-reader = cdms2.open('clt.nc')\n\
+`;
+
+const REFRESH_VAR_INFO_B = `
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
   # Get a displayable name for the variable\n\
@@ -348,6 +356,51 @@ const BASE_GRAPHICS: any = {
   scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"]
 };
 
+const BASE_TEMPLATES: Array<string> = [
+  "default",
+  "ASD",
+  "ASD_dud",
+  "BL_of6_1legend",
+  "BLof6",
+  "BR_of6_1legend",
+  "BRof6",
+  "LLof4",
+  "LLof4_dud",
+  "LRof4",
+  "LRof4_dud",
+  "ML_of6",
+  "ML_of6_1legend",
+  "MR_of6",
+  "MR_of6_1legend",
+  "UL_of6_1legend",
+  "ULof4",
+  "ULof4_dud",
+  "ULof6",
+  "UR_of6",
+  "UR_of6_1legend",
+  "URof4",
+  "URof4_dud",
+  "bold_mid_of3",
+  "bold_top_of3",
+  "boldbot_of3_l",
+  "boldmid_of3_l",
+  "boldtop_of3_l",
+  "bot_of2",
+  "deftaylor",
+  "hovmuller",
+  "mollweide2",
+  "no_legend",
+  "polar",
+  "por_botof3",
+  "por_botof3_dud",
+  "por_midof3",
+  "por_midof3_dud",
+  "por_topof3",
+  "por_topof3_dud",
+  "quick",
+  "top_of2"
+];
+
 enum NOTEBOOK_STATE {
   Unknown, // The current state of the notebook is unknown and should be updated.
   NoOpenNotebook, // JupyterLab has no notebook opened
@@ -364,14 +417,19 @@ export {
   READY_KEY,
   FILE_PATH_KEY,
   IMPORT_CELL_KEY,
+  VARIABLES_KEY,
   GRAPHICS_METHOD_KEY,
+  TEMPLATE_KEY,
   VARIABLES_LOADED_KEY,
   REQUIRED_MODULES,
   GET_VARS_CMD,
   BASE_GRAPHICS,
+  BASE_TEMPLATES,
   REFRESH_GRAPHICS_CMD,
+  REFRESH_TEMPLATES_CMD,
   REFRESH_NAMES_CMD,
-  REFRESH_VAR_INFO,
+  REFRESH_VAR_INFO_A,
+  REFRESH_VAR_INFO_B,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,
   GET_FILE_VARIABLES,
