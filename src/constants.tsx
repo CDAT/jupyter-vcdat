@@ -75,7 +75,7 @@ def canvases():\n\
   return out\n\
 output = canvases()`;
 
-const REFRESH_VAR_INFO = `import __main__\n\
+const REFRESH_VAR_INFO_A = `import __main__\n\
 import json\n\
 def variables():\n\
   out = []\n\
@@ -148,7 +148,9 @@ for vname in vars:\n\
   if ('bounds' not in outVars[vname]):\n\
     outVars[vname]['bounds'] = None\n\
 outAxes = {}\n\
-reader = cdms2.open('clt.nc')\n\
+`;
+
+const REFRESH_VAR_INFO_B = `
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
   # Get a displayable name for the variable\n\
@@ -426,7 +428,8 @@ export {
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD,
   REFRESH_NAMES_CMD,
-  REFRESH_VAR_INFO,
+  REFRESH_VAR_INFO_A,
+  REFRESH_VAR_INFO_B,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,
   GET_FILE_VARIABLES,
