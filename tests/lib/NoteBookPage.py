@@ -17,7 +17,7 @@ class NoteBookPage(BasePage):
 
     _wait_timeout = 10
     _delay = 3
-    _nb_tab_locator = "//div[@class='p-TabBar-tabLabel' and contains(text(), 'Untitled.ipynb')]" 
+    _nb_tab_locator = "//li[@class='p-TabBar-tab jp-mod-current p-mod-closable p-mod-current']//div[@class='p-TabBar-tabIcon jp-NotebookIcon']"
     _nb_code_area_locator = "//div[@class='CodeMirror-code' and @role='presentation']//pre[@class=' CodeMirror-line ']//span[@role='presentation']//span[@cm-text='']"
     
     def __init__(self, driver, server):
@@ -25,10 +25,45 @@ class NoteBookPage(BasePage):
         super(NoteBookPage, self).__init__(driver, server)
 
     def _validate_page(self):
-        # validate Main page is displaying a 'Home' tab
+        # NO OP for now...it is okay since notebook may or may not be present.
         print("...NoteBookPage.validatePage()")
-        nb_tab_element = self.driver.find_element_by_xpath(self._nb_tab_locator)
 
+    def close(self):
+        print("...closing a note book...")
+        nb_locator = "//div[@class='p-TabBar-tabIcon jp-NotebookIcon']"
+        try:
+            nb = self.driver.find_element_by_xpath(nb_locator)
+            print("FOUND a notebook")
+            if nb.is_displayed():
+                print("notebooks is displayed!")
+        except NoSuchElementException:
+            print("NOT FINDING a notebook")
+
+        nb_divs = "//li[contains(@class, 'p-TabBar-tab') and contains(@title, 'Name: Untitled')]//div[starts-with(@class, 'p-TabBar')]"
+        print("nb_divs:{n}".format(n=nb_divs))
+        try:
+            elems = self.driver.find_elements_by_xpath(nb_divs)
+            print("FOUND elems")
+            for e in elems:
+                print("FOUND e")
+                attr = e.get_attribute("class")
+                print(attr)
+                if e.is_displayed():
+                    print("...displayed")
+                if e.is_enabled():
+                    print("...enabled")
+                if attr == 'p-TabBar-tabCloseIcon':
+                    print("...click on note book close icon..., attr: {a}".format(a=attr))
+                    action_chains = ActionChains(self.driver)
+                    #action_chains.move_to_element(e)
+                    action_chains.click(e).perform()
+                    ##e.click()
+                    time.sleep(10)
+
+
+        except NoSuchElementException as e:
+            print("Not finding divs")
+            print("No notebook")
 
     def load_page(self, server, expected_element=(By.TAG_NAME, 'html'), 
                   timeout=_wait_timeout):

@@ -29,6 +29,11 @@ class MainPage(BasePage):
     _file_load_error_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
     #_file_load_error_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']//div[@class='jp-Dialog-buttonIcon']"
 
+    #
+    #
+    #
+    _load_variables_locator = "//button[@class='btn btn-info'][contains(text(), 'Load Variables')]"
+
     def __init__(self, driver, server):
         super(MainPage, self).__init__(driver, server)
         #self.load_page(server)
@@ -37,6 +42,14 @@ class MainPage(BasePage):
         # validate Main page is displaying a 'Home' tab
         print("...MainPage.validatePage()")
         logo_element = self.driver.find_element_by_id(self._logo_locator)
+
+    def click_on_load_variables(self):
+        load_variables_element = self.driver.find_element_by_xpath(self._load_variables_locator)
+        print("FOUND element")
+        load_variables_element.click()
+        time.sleep(self._delay)
+
+
 
     def load_file(self, fname):        
         ## THIS WORKS when run 2nd time

@@ -15,8 +15,8 @@ aliases:
   - &create_conda_env
     name: create_conda_env
     environment:
-       CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
-       PKGS: "nodejs vcs jupyterlab pip nb_conda nb_conda_kernels plumbum"
+       CHANNELS: "-c cdat/label/v81 -c conda-forge"
+       PKGS: "nodejs 'python>3' vcs jupyterlab pip nb_conda nb_conda_kernels plumbum testsrunner"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
@@ -31,6 +31,8 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
+       # for running tests
+       pip install selenium
        # LAZY_IMPORT
        python -m pip install lazy_import
        # SIDECAR
@@ -57,7 +59,10 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
+       export BROWSER_TYPE='chrome'
+       export BROWSER_MODE='--headless'
        source activate $PY_VER
+       python run_tests.py
        #python run_tests.py -H -v2 -n 2 --checkout-baseline --no-vtk-ui $COVERAGE
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
@@ -139,7 +144,7 @@ jobs:
       - run: *create_conda_env
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
-      - run: *run_coveralls
+      #- run: *run_coveralls
       - run: *conda_upload
       - store_artifacts:
           path: tests_html
