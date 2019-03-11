@@ -14,11 +14,13 @@ For a development install:
 ```bash
 
     #Create the environment
-    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum lazy-object-proxy
+    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum
     source activate jupyter-vcdat
 
+    # Install azy_import
+    python -m pip install lazy_import
     # Install sidecar
-    python -m pip install --no-deps --ignore-installed sidecar
+    python -m pip install sidecar
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
