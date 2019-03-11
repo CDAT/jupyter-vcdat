@@ -131,9 +131,9 @@ jobs:
           destination: tests_png
 
   linux_jupyter_vcdat_py3:
-    machine:
+    docker:
       #image: circleci/classic:latest
-      image: selenium/standalone-chrome:latest
+      - image: selenium/standalone-chrome:latest
     environment:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       OS: "linux-64"
