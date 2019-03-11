@@ -33,12 +33,17 @@ const sidebarOverflow: React.CSSProperties = {
   overflow: "auto"
 };
 
+// The defaults export size to use if the canvas dimensions weren't obtained
+const DEFAULT_WIDTH: number = 800;
+const DEFAULT_HEIGHT: number = 600;
+
 export type VCSMenuProps = {
   inject: Function; // a method to inject code into the controllers notebook
   commands: CommandRegistry; // the command executor
   notebook_panel: NotebookPanel;
   plotReady: boolean; // The notebook is ready for code injection an plots
   plotExists: boolean; // whether a plot already exists
+  plotExistTrue: Function; // sets the widget's plotExist state to true (called by plot function)
   getGraphicsList: Function; // function that reads the current graphics list
   refreshGraphicsList: Function; // function that refreshes the graphics method list
   getTemplatesList: Function; // function that reads the widget's current template list
@@ -105,11 +110,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.setPlotInfo = this.setPlotInfo.bind(this);
   }
 
-  update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {
-    console.log(vars, gms, templates);
-    this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
-  }
-
   setPlotInfo(plotName: string, plotFormat: string) {
     this.setState({ plotName: plotName, plotFormat: plotFormat });
   }
@@ -157,16 +157,19 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
   async getCanvasDimensions(): Promise<{ width: number; height: number }> {
     try {
-      // Check the dimensions of the current canvas object
-      let output: string = await notebook_utils.sendSimpleKernelRequest(
-        this.state.notebook_panel,
-        "output=[canvas.width,canvas.height]"
-      );
-      let dimensions: [number, number] = eval(output);
-      return { width: dimensions[0], height: dimensions[1] };
+      if (this.state.plotReady) {
+        // Check the dimensions of the current canvas object
+        let output: string = await notebook_utils.sendSimpleKernelRequest(
+          this.state.notebook_panel,
+          "output=[canvas.width,canvas.height]"
+        );
+        let dimensions: [number, number] = eval(output);
+        return { width: dimensions[0], height: dimensions[1] };
+      }
+      return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
     } catch (error) {
       console.log(error);
-      throw error;
+      return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
     }
   }
 
@@ -395,10 +398,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       if (!gm) {
         if (this.state.selectedVariables.length > 1) {
           gm = '"vector"';
-          this.setState({ selected_gm: '"vector"' });
         } else {
           gm = '"boxfill"';
-          this.setState({ selected_gm: '"boxfill"' });
         }
       }
       if (!temp) {
@@ -415,8 +416,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         plotString += variableName + ", ";
       });
       plotString += `${temp}, ${gm})`;
-      console.log("plotString:", plotString);
       this.props.inject(plotString);
+      this.props.plotExistTrue();
     }
   }
 

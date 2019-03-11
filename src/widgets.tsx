@@ -91,6 +91,9 @@ export class LeftSideBarWidget extends Widget {
           inject={this.inject}
           plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
           plotExists={this.plotExists}
+          plotExistTrue={() => {
+            this.plotExists = true;
+          }}
           getFileVariables={this.getFileVariables}
           getGraphicsList={() => {
             return this.graphicsMethods;
@@ -319,7 +322,7 @@ export class LeftSideBarWidget extends Widget {
     ) {
       this.refreshVarList();
       this.refreshGraphicsList();
-      this.refreshTemplatesList();
+      await this.refreshTemplatesList();
       this.plotExists = await this.checkPlotExists();
     }
   }
@@ -355,7 +358,7 @@ export class LeftSideBarWidget extends Widget {
           "An error occurred when injecting the code."
         );
       }
-      throw error;
+      console.log(error);
     }
   }
 
@@ -409,17 +412,20 @@ export class LeftSideBarWidget extends Widget {
   }
 
   async checkPlotExists(): Promise<boolean> {
-    if (this.state == NOTEBOOK_STATE.VCS_Ready) {
-      //Get the list of display elements in the canvas
-      this.using_kernel = true;
-      let output: string = await notebook_utils.sendSimpleKernelRequest(
-        this.notebook_panel,
-        `output = canvas.listelements("display")`
-      );
-      this.using_kernel = false;
-      console.log(output);
-      return eval(output).length > 1;
-    } else {
+    try {
+      if (this.state == NOTEBOOK_STATE.VCS_Ready) {
+        //Get the list of display elements in the canvas
+        this.using_kernel = true;
+        let output: string = await notebook_utils.sendSimpleKernelRequest(
+          this.notebook_panel,
+          "output = canvas.listelements('display')"
+        );
+        this.using_kernel = false;
+        return eval(output).length > 1;
+      } else {
+        return false;
+      }
+    } catch (error) {
       return false;
     }
   }
