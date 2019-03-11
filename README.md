@@ -17,7 +17,7 @@ For a development install:
     conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum
     source activate jupyter-vcdat
 
-    # Install azy_import
+    # Install lazy_import
     python -m pip install lazy_import
     # Install sidecar
     python -m pip install sidecar
