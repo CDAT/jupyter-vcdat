@@ -16,6 +16,7 @@ import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import Variable from "./Variable";
 import AxisInfo from "./AxisInfo";
+import ExportPlotModal from "./ExportPlotModal";
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 
@@ -51,18 +52,11 @@ type VCSMenuState = {
   selected_gm_group: string;
   selected_template: string;
   notebook_panel: any;
-  modal: boolean;
-  plotName: string;
-  plotFileFormat: string;
-  alertVisible: boolean;
+  isModalOpen: boolean;
   savePlotAlert: boolean;
-  validateExportName: boolean;
-  validateFileFormat: boolean;
-  captureProvenance: boolean;
-  displayDimensions: boolean;
-  width: string;
-  height: string;
-  plotUnits: string;
+  exportSuccessAlert: boolean;
+  plotName: string;
+  plotFormat: string;
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
@@ -79,24 +73,15 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       selected_gm_group: "",
       selected_template: "",
       notebook_panel: this.props.notebook_panel,
-      modal: false,
-      plotName: "",
-      plotFileFormat: "",
-      alertVisible: false,
+      isModalOpen: false,
       savePlotAlert: false,
-      validateExportName: false,
-      validateFileFormat: false,
-      captureProvenance: false,
-      displayDimensions: false,
-      width: "",
-      height: "",
-      plotUnits: "pixels",
-
+      exportSuccessAlert: false,
+      plotName: "",
+      plotFormat: "",
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
     this.plot = this.plot.bind(this);
-    this.save = this.save.bind(this);
     this.clear = this.clear.bind(this);
     this.resetState = this.resetState.bind(this);
     this.copyGraphicsMethod = this.copyGraphicsMethod.bind(this);
@@ -108,65 +93,46 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updateVariables = this.updateVariables.bind(this);
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
-    this.onDismiss = this.onDismiss.bind(this);
-    this.dismissExportValidation = this.dismissExportValidation.bind(this);
-    this.dismissFileFormatValidation = this.dismissFileFormatValidation.bind(this);
-    this.toggleCaptureProvenance = this.toggleCaptureProvenance.bind(this);
-    this.toggleDimensionsDisplay = this.toggleDimensionsDisplay.bind(this);
+    this.exportPlotAlerts = this.exportPlotAlerts.bind(this);
+    this.dismissSavePlotSpinnerAlert = this.dismissSavePlotSpinnerAlert.bind(this);
+    this.dismissExportSuccessAlert = this.dismissExportSuccessAlert.bind(this);
+    this.setPlotInfo = this.setPlotInfo.bind(this);
   }
-
-  async toggleDimensionsDisplay(){
-    if(!this.state.displayDimensions){
-      let width = await this.props.inject(`canvas.width`);
-      let height = await this.props.inject(`canvas.height`);
-      this.setState({ width : width[1] })
-      this.setState({ height: height[1] })
-    }
-    this.setState(prevState => ({ displayDimensions: !prevState.displayDimensions }));
-  }
-
-  toggleCaptureProvenance(){
-    this.setState(prevState => ({
-      captureProvenance: !prevState.captureProvenance
-    }));
-  }
-
-  dismissFileFormatValidation(){
-    this.setState({ validateFileFormat: false });
-  }
-
-  dismissExportValidation(){
-    this.setState({ validateExportName: false });
-  }
-
-  onDismiss() {
-   this.setState({ alertVisible: false });
- }
-
- dismissSavePlotAlert(){
-   this.setState({ savePlotAlert: false });
- }
-
-  toggleModal() {
-    this.setState({ validateExportName : false })
-    this.setState({ validateFileFormat : false })
-    this.setState(prevState => ({
-      modal: !prevState.modal
-    }));
-    this.setState({ plotName : "" })
-  }
-
-  onRadioBtnClick(rSelected: string) {
-   this.setState({ plotFileFormat: rSelected });
- }
-
- onUnitRadioBtnClick(rSelected: string) {
-  this.setState({ plotUnits: rSelected });
-}
 
   update(vars: Array<string>, gms: Array<any>, templates: Array<any>) {
     console.log(vars, gms, templates);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
+  }
+
+  setPlotInfo(plotName: string, plotFormat: string){
+    this.setState({ plotName: plotName, plotFormat: plotFormat });
+  }
+
+  dismissSavePlotSpinnerAlert(){
+    this.setState({ savePlotAlert: false });
+  }
+
+  dismissExportSuccessAlert(){
+    this.setState({ exportSuccessAlert: false });
+  }
+
+  exportPlotAlerts(){
+    this.setState({ savePlotAlert : true }, () => {
+      window.setTimeout(() => {
+        this.setState({ savePlotAlert : false })
+        this.setState({ exportSuccessAlert : true }, () => {
+          window.setTimeout(() => {
+            this.setState({ exportSuccessAlert : false })
+          }, 5000)
+        })
+      }, 5000)
+    });
+  }
+
+  toggleModal(){
+    this.setState(prevState => ({
+      isModalOpen: !prevState.isModalOpen
+    }));
   }
 
   async resetState() {
@@ -434,102 +400,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     }
   }
 
-  async save() {
-    let plotName = this.state.plotName
-    if(plotName == null || plotName == ""){
-      this.setState({ validateExportName : true })
-      return
-    }
-    else{
-      this.setState({ validateExportName : false })
-    }
-    let fileFormat = this.state.plotFileFormat
-    if(fileFormat == null || fileFormat == ""){
-      this.setState({ validateFileFormat : true })
-      return
-    }
-    else {
-      this.setState({ validateFileFormat : false })
-    }
-
-    let capture = null
-    if(this.state.captureProvenance){
-      capture = 1
-    }
-    else{
-      capture = 0
-    }
-
-    if(fileFormat === "png"){
-      if(this.state.width && this.state.height){
-        try {
-            await this.props.inject(`canvas.png('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
-        }
-        catch(error){
-          console.log("Failed to export with custom dimensions")
-          console.log("error:", error)
-          return
-        }
-      } else {
-          await this.props.inject(`canvas.png('${plotName}')`);
-      }
-    } else if (fileFormat === "pdf") {
-      if(this.state.width && this.state.height){
-        try {
-            await this.props.inject(`canvas.pdf('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
-        }
-        catch(error){
-          console.log("Failed to export with custom dimensions")
-          console.log("error:", error)
-          return
-        }
-      }
-      else {
-          await this.props.inject(`canvas.pdf('${plotName}')`);
-      }
-    } else if (fileFormat === "svg") {
-      if(this.state.width && this.state.height){
-        try {
-            await this.props.inject(`canvas.svg('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
-        }
-        catch(error){
-          console.log("Failed to export with custom dimensions")
-          console.log("error:", error)
-          return
-        }
-      }
-      else {
-          await this.props.inject(`canvas.svg('${plotName}')`);
-      }
-    } else if (fileFormat === "ps") {
-      if(this.state.width && this.state.height){
-        try {
-            await this.props.inject(`canvas.postscript('${plotName}', height=float('${this.state.height}'), width=float('${this.state.width}'), units='${this.state.plotUnits}')`);
-        }
-        catch(error){
-          console.log("Failed to export with custom dimensions")
-          console.log("error:", error)
-          return
-        }
-      }
-      else{
-        await this.props.inject(`canvas.postscript('${plotName}')`);
-      }
-    }
-
-    this.setState({ savePlotAlert : true }, () => {
-      window.setTimeout(() => {
-        this.setState({ savePlotAlert : false })
-        this.setState({ alertVisible : true }, () => {
-          window.setTimeout(() => {
-            this.setState({ alertVisible : false })
-          }, 5000)
-        })
-      }, 5000)
-    });
-    this.setState({ modal: false });
-  }
-
   clear(): void {
     this.props.inject("canvas.clear()");
   }
@@ -567,6 +437,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   }
 
   render(): JSX.Element {
+    // TODO: Create props object for ExportPlotModal
     let GraphicsMenuProps = {
       getGraphicsList: this.props.getGraphicsList,
       updateGraphicsOptions: this.updateGraphicsOptions,
@@ -635,76 +506,22 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           {...TemplateMenuProps}
           ref={loader => (this.templateMenuRef = loader)}
         />
-        <Modal isOpen={this.state.modal} toggle={this.toggleModal} >
-          <ModalHeader toggle={this.toggleModal}>Save Plot</ModalHeader>
-          <ModalBody>
-             <Label>Name:</Label>
-             <Input
-               type="text"
-               name="text"
-               placeholder="Name"
-               value={this.state.plotName}
-               onChange={e => this.setState({ plotName: e.target.value })}
-             />
-             <br />
-             <Alert color="danger" isOpen={this.state.validateExportName} toggle={this.dismissExportValidation}>The export name can not be blank</Alert>
-             <div>
-               <ButtonGroup>
-                 <Button color="primary" onClick={() => this.onRadioBtnClick("png")} active={this.state.plotFileFormat === "png"}>PNG</Button>
-                 <Button color="primary" onClick={() => this.onRadioBtnClick("svg")} active={this.state.plotFileFormat === "svg"}>SVG</Button>
-                 <Button color="primary" onClick={() => this.onRadioBtnClick("pdf")} active={this.state.plotFileFormat === "pdf"}>PDF</Button>
-                 <Button color="primary" onClick={() => this.onRadioBtnClick("ps")} active={this.state.plotFileFormat === "ps"}>PS</Button>
-               </ButtonGroup>
-               <Alert color="danger" isOpen={this.state.validateFileFormat} toggle={this.dismissFileFormatValidation}>You must choose a file format</Alert>
-               <br />
-               <CustomInput type="switch" id="dimensionsSwitch" name="dimensionsSwitch" label="Custom dimensions" checked={this.state.displayDimensions} onChange={this.toggleDimensionsDisplay} />
-               <br />
-               <div>
-                 <Collapse isOpen={this.state.displayDimensions}>
-                   <ButtonGroup>
-                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("pixels")} active={this.state.plotUnits === "pixels"}>px</Button>
-                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("in")} active={this.state.plotUnits === "in"}>in</Button>
-                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("cm")} active={this.state.plotUnits === "cm"}>cm</Button>
-                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("mm")} active={this.state.plotUnits === "mm"}>mm</Button>
-                     <Button color="primary" onClick={() => this.onUnitRadioBtnClick("dot")} active={this.state.plotUnits === "dot"}>dot</Button>
-                   </ButtonGroup>
-                   <br />
-                   <Label for="width">Width</Label>
-                   <Input
-                     type="text"
-                     name="width"
-                     placeholder="Width"
-                     value={this.state.width}
-                     onChange={e => this.setState({ width: e.target.value })}
-                   />
-                   <Label for="height">Height</Label>
-                   <Input
-                     type="text"
-                     name="height"
-                     placeholder="Height"
-                     value={this.state.height}
-                     onChange={e => this.setState({ height: e.target.value })}
-                   />
-                 </Collapse>
-               </div>
-             </div>
-             <br />
-             {/* <CustomInput type="switch" id="exampleCustomSwitch" name="customSwitch" label="Capture Provenance" checked={this.state.captureProvenance} onChange={this.toggleCaptureProvenance} /> */}
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={this.save}>Export</Button>{' '}
-            <Button color="secondary" onClick={this.toggleModal}>Cancel</Button>
-          </ModalFooter>
-        </Modal>
+        <ExportPlotModal
+        isOpen={this.state.isModalOpen}
+        toggle={this.toggleModal}
+        inject={this.props.inject}
+        exportAlerts={this.exportPlotAlerts}
+        setPlotInfo={this.setPlotInfo}
+        />
         <div>
-        <Alert color="info" isOpen={this.state.savePlotAlert} toggle={this.dismissSavePlotAlert}>
-          {"Saving " + this.state.plotName + "." + this.state.plotFileFormat + "  "}
-          {"  "}<Spinner color="info" />
-        </Alert>
-          <Alert color="primary" isOpen={this.state.alertVisible} toggle={this.onDismiss}>
-          {"Exported " + this.state.plotName + "." + this.state.plotFileFormat}
+          <Alert color="info" isOpen={this.state.savePlotAlert} toggle={this.dismissSavePlotSpinnerAlert}>
+            {"Saving " + this.state.plotName + "." + this.state.plotFormat + "  "}
+            {"  "}<Spinner color="info" />
           </Alert>
-      </div>
+          <Alert color="primary" isOpen={this.state.exportSuccessAlert} toggle={this.dismissExportSuccessAlert}>
+            {"Exported " + this.state.plotName + "." + this.state.plotFormat}
+          </Alert>
+        </div>
       </div>
     );
   }
