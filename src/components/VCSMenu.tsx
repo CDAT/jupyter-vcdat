@@ -1,6 +1,6 @@
 // Dependencies
 import * as React from "react";
-import { Button, Card, CardBody } from "reactstrap";
+import { Button, Card, CardBody, CustomInput, Input } from "reactstrap";
 
 // Project Components
 import { notebook_utils } from "../notebook_utils";
@@ -51,6 +51,7 @@ type VCSMenuState = {
   selected_gm_group: string;
   selected_template: string;
   notebook_panel: NotebookPanel;
+  overlayMode: boolean;
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
@@ -66,7 +67,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       selected_gm: "",
       selected_gm_group: "",
       selected_template: "",
-      notebook_panel: this.props.notebook_panel
+      notebook_panel: this.props.notebook_panel,
+      overlayMode: false,
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
@@ -83,6 +85,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updateVariables = this.updateVariables.bind(this);
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
+    this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
   }
 
   async resetState() {
@@ -327,7 +330,15 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       if (!temp) {
         temp = '"default"';
       }
-      let plotString = "canvas.clear()\ncanvas.plot(";
+      let plotString: string = ""
+      if (this.state.overlayMode){
+        plotString = "canvas.plot(";
+      }
+      else {
+          plotString = "canvas.clear()\ncanvas.plot(";
+      }
+
+      console.log("plotString:", plotString)
       let selection: Array<string> = this.state.selectedVariables;
 
       if (selection.length > MAX_SLABS) {
@@ -355,6 +366,13 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
   clear(): void {
     this.props.inject("canvas.clear()");
+  }
+
+  toggleOverlayMode(){
+    console.log("toggling overlayMode")
+    this.setState(prevState => ({
+      overlayMode: !prevState.overlayMode
+    }));
   }
 
   /**
@@ -446,6 +464,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
               >
                 Clear
               </Button>
+              <br />
+              <CustomInput type="switch" id="overlayModeSwitch" name="overlayModeSwitch" label="Overlay Mode" checked={this.state.overlayMode} onChange={this.toggleOverlayMode} />
             </div>
           </CardBody>
         </Card>
