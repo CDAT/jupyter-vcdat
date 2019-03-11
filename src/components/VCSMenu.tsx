@@ -1,6 +1,8 @@
 // Dependencies
 import * as React from "react";
 import { Button, Card, CardBody } from "reactstrap";
+import { NotebookPanel } from "@jupyterlab/notebook";
+import { CommandRegistry } from "@phosphor/commands";
 
 // Project Components
 import { NotebookUtilities } from "../NotebookUtilities";
@@ -16,8 +18,6 @@ import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import Variable from "./Variable";
 import AxisInfo from "./AxisInfo";
-import { NotebookPanel } from "@jupyterlab/notebook";
-import { CommandRegistry } from "@phosphor/commands";
 
 const btnStyle: React.CSSProperties = {
   margin: "5px"

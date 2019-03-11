@@ -42,11 +42,7 @@ export class LeftSideBarWidget extends Widget {
   variableData: Array<Variable>; // An array containing information about the variables
   graphicsMethods: any; // The current available graphics methods
   templatesList: Array<string>; // The list of current templates
-<<<<<<< HEAD
   usingKernel: boolean; // The widgets is running a ker nel command
-=======
-  using_kernel: boolean; // The widgets is running a ker nel command
->>>>>>> a9ec371f63ec9552fdaf6bf716f4728273a0d1de
 
   private _readyKernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
   private _currentFile: string; // The current filepath of the data file being used for variables and data
@@ -62,7 +58,6 @@ export class LeftSideBarWidget extends Widget {
     this.commands = app.commands;
     this.notebookTracker = tracker;
     this._state = NOTEBOOK_STATE.Unknown;
-<<<<<<< HEAD
     this.usingKernel = false;
     this._currentFile = "";
     this._notebookPanel = null;
@@ -70,15 +65,6 @@ export class LeftSideBarWidget extends Widget {
     this.graphicsMethods = BASE_GRAPHICS;
     this.templatesList = BASE_TEMPLATES;
     this._readyKernels = [];
-=======
-    this.using_kernel = false;
-    this._current_file = "";
-    this._notebook_panel = null;
-    this.variableData = new Array<Variable>();
-    this.graphicsMethods = BASE_GRAPHICS;
-    this.templatesList = BASE_TEMPLATES;
-    this._ready_kernels = [];
->>>>>>> a9ec371f63ec9552fdaf6bf716f4728273a0d1de
     this.initialize = this.initialize.bind(this);
     this.refreshVarList = this.refreshVarList.bind(this);
     this.setCurrentFile = this.setCurrentFile.bind(this);
@@ -497,44 +483,54 @@ export class LeftSideBarWidget extends Widget {
    * @returns Promise<Array<Variable>> -- A promise contianing an array of variables
    * that were found in the file.
    */
-  async getFileVariables(filePath: string): Promise<Array<Variable>> {
-    if (filePath != "") {
-      // Open the file reader first
+  async getFileVariables(file_path: string): Promise<Array<Variable>> {
+    if (file_path == "") {
+      return new Array<Variable>();
+    }
+
+    // Open the file reader first
+    try {
       await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        `import cdms2\nreader = cdms2.open('${filePath}')`
+        `import cdms2\nreader = cdms2.open('${file_path}')`
       );
-      // Get file variables
-      let result: string = await NotebookUtilities.sendSimpleKernelRequest(
+    } catch (error) {
+      console.log(error);
+      return new Array<Variable>();
+    }
+
+    // Get file variables
+    let result: string;
+    try {
+      result = await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
         GET_FILE_VARIABLES
       );
-
-      // Parse the resulting output into an object
-      let variableAxes: any = JSON.parse(result.slice(1, result.length - 1));
-      let newVars = new Array<Variable>();
-      Object.keys(variableAxes.vars).map((item: string) => {
-        let v = new Variable();
-        v.name = item;
-        v.cdmsID = variableAxes.vars[item].cdmsID; // Loaded variables have same cdmsName
-        v.longName = variableAxes.vars[item].name;
-        v.axisList = variableAxes.vars[item].axisList;
-        v.axisInfo = new Array<AxisInfo>();
-        variableAxes.vars[item].axisList.map((item: any) => {
-          variableAxes.axes[item].min = variableAxes.axes[item].data[0];
-          variableAxes.axes[item].max =
-            variableAxes.axes[item].data[
-              variableAxes.axes[item].data.length - 1
-            ];
-          v.axisInfo.push(variableAxes.axes[item]);
-        });
-        v.units = variableAxes.vars[item].units;
-        newVars.push(v);
-      });
-      return newVars;
-    } else {
+    } catch (error) {
+      console.log(error);
       return new Array<Variable>();
     }
+
+    // Parse the resulting output into an object
+    let variableAxes: any = JSON.parse(result.slice(1, result.length - 1));
+    let newVars = new Array<Variable>();
+    Object.keys(variableAxes.vars).map((item: string) => {
+      let v = new Variable();
+      v.name = item;
+      v.cdmsID = variableAxes.vars[item].cdmsID; // Loaded variables have same cdmsName
+      v.longName = variableAxes.vars[item].name;
+      v.axisList = variableAxes.vars[item].axisList;
+      v.axisInfo = new Array<AxisInfo>();
+      variableAxes.vars[item].axisList.map((item: any) => {
+        variableAxes.axes[item].min = variableAxes.axes[item].data[0];
+        variableAxes.axes[item].max =
+          variableAxes.axes[item].data[variableAxes.axes[item].data.length - 1];
+        v.axisInfo.push(variableAxes.axes[item]);
+      });
+      v.units = variableAxes.vars[item].units;
+      newVars.push(v);
+    });
+    return newVars;
   }
 
   /**

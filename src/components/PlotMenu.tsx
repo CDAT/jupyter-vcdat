@@ -1,3 +1,4 @@
+// Dependencies
 import * as React from "react";
 import {
   Collapse,
@@ -15,8 +16,10 @@ import {
   Card,
   CardBody
 } from "reactstrap";
-import Variable from "./Variable";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
+
+// Project components
+import Variable from "./Variable";
 
 type PlotMenuProps = {
   updatePlotOptions: Function; // the method to call when the users wants to update the plot options

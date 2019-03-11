@@ -63,12 +63,4 @@ setup(name="jupyter_vcdat",
       description="Jupyter lab extension to cdat",
       url="http://github.com/cdat/jupyter-vcdat",
       packages=find_packages(),
-      zip_safe=True,
-      #data_files=[('share/vcs', ('Share/wmo_symbols.json',))]
-)
-
-call_binary("pip", ["install", "sidecar"])
-call_binary("pip", ["install", "lazy_import"])
-call_binary("jupyter", ["labextension", "install", "."])
-call_binary("pip", ["install", "nbgitpuller"])
-call_binary("jupyter", ["serverextension", "enable", "--py", "nbgitpuller", "--sys-prefix"])
+      zip_safe=True)

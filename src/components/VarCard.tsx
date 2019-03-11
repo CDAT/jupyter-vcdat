@@ -1,8 +1,5 @@
+// Dependencies
 import * as React from "react";
-import Variable from "./Variable";
-import DimensionSlider from "./DimensionSlider";
-import AxisInfo from "./AxisInfo";
-
 import {
   Card,
   CardTitle,
@@ -13,6 +10,11 @@ import {
   Row,
   Col
 } from "reactstrap";
+
+// Project components
+import Variable from "./Variable";
+import DimensionSlider from "./DimensionSlider";
+import AxisInfo from "./AxisInfo";
 import { NotebookUtilities } from "../NotebookUtilities";
 
 const cardStyle: React.CSSProperties = {

@@ -1,3 +1,4 @@
+// Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 import { KernelMessage } from "@jupyterlab/services";

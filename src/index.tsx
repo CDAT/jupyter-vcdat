@@ -1,3 +1,4 @@
+// Dependencies
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -11,12 +12,13 @@ import {
   ApplicationShell
 } from "@jupyterlab/application";
 
-import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
+import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
+// Project Components
 import "../style/css/index.css";
+import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
 import { NotebookUtilities } from "./NotebookUtilities";
-import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
