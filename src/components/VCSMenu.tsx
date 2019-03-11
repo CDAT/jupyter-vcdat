@@ -1,7 +1,8 @@
 // Dependencies
 import * as React from "react";
-import { Alert, Button, Card, CardBody } from "reactstrap";
-import { Spinner } from "reactstrap";
+import { CommandRegistry } from "@phosphor/commands";
+import { Alert, Button, Card, CardBody, Spinner } from "reactstrap";
+
 // Project Components
 import { notebook_utils } from "../notebook_utils";
 import {
@@ -18,7 +19,6 @@ import Variable from "./Variable";
 import AxisInfo from "./AxisInfo";
 import ExportPlotModal from "./ExportPlotModal";
 import { NotebookPanel } from "@jupyterlab/notebook";
-import { CommandRegistry } from "@phosphor/commands";
 
 const btnStyle: React.CSSProperties = {
   margin: "5px"
