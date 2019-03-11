@@ -1,4 +1,4 @@
-FROM cdoutrix/vcdat:core
+FROM cdoutrix/vcdat:lab-extensions
 # Get the setup image
 ENV CDAT_ANONYMOUS_LOG false
 # extension
