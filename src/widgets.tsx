@@ -44,6 +44,7 @@ export class LeftSideBarWidget extends Widget {
   templatesList: Array<string>; // The list of current templates
   using_kernel: boolean; // The widgets is running a ker nel command
 
+  private _plotExists: boolean; // True if there exists a plot that can be exported, false if not.
   private _ready_kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
   private _current_file: string; // The current filepath of the data file being used for variables and data
   private _notebook_panel: NotebookPanel; // The notebook this widget is interacting with
@@ -65,6 +66,7 @@ export class LeftSideBarWidget extends Widget {
     this.graphicsMethods = BASE_GRAPHICS;
     this.templatesList = BASE_TEMPLATES;
     this._ready_kernels = [];
+    this._plotExists = false;
     this.initialize = this.initialize.bind(this);
     this.refreshVarList = this.refreshVarList.bind(this);
     this.setCurrentFile = this.setCurrentFile.bind(this);
@@ -75,6 +77,7 @@ export class LeftSideBarWidget extends Widget {
     this.getFileVariables = this.getFileVariables.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
     this.inject = this.inject.bind(this);
+    this.checkPlotExists = this.checkPlotExists.bind(this);
     this.injectAndDisplay = this.injectAndDisplay.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.injectRequiredCode = this.injectRequiredCode.bind(this);
@@ -87,6 +90,7 @@ export class LeftSideBarWidget extends Widget {
           commands={this.commands}
           inject={this.inject}
           plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
+          plotExists={this.plotExists}
           getFileVariables={this.getFileVariables}
           getGraphicsList={() => {
             return this.graphicsMethods;
@@ -132,6 +136,11 @@ export class LeftSideBarWidget extends Widget {
 
   public get notebook_panel(): NotebookPanel {
     return this._notebook_panel;
+  }
+
+  public set plotExists(value: boolean) {
+    this._plotExists = value;
+    this.VCSMenuRef.setState({ plotExists: value });
   }
 
   //=======ASYNC SETTER FUNCTIONS=======
@@ -216,6 +225,9 @@ export class LeftSideBarWidget extends Widget {
         this.VCSMenuRef.getGraphicsSelections();
         this.VCSMenuRef.getTemplateSelection();
 
+        // Update whether a plot exists
+        this.plotExists = await this.checkPlotExists();
+
         // Set up notebook's handlers to keep track of notebook status
         this.notebook_panel.content.stateChanged.connect(
           this.handleStateChanged
@@ -224,6 +236,7 @@ export class LeftSideBarWidget extends Widget {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
         await this.refreshVarList();
         this.setCurrentFile("", false);
+        this.plotExists = false;
       }
     } catch (error) {
       if (error.status == "error") {
@@ -307,6 +320,7 @@ export class LeftSideBarWidget extends Widget {
       this.refreshVarList();
       this.refreshGraphicsList();
       this.refreshTemplatesList();
+      this.plotExists = await this.checkPlotExists();
     }
   }
 
@@ -341,7 +355,7 @@ export class LeftSideBarWidget extends Widget {
           "An error occurred when injecting the code."
         );
       }
-      throw(error);
+      throw error;
     }
   }
 
@@ -392,6 +406,22 @@ export class LeftSideBarWidget extends Widget {
 
     // Notebook tracker will signal when a notebook is changed
     this.notebookTracker.currentChanged.connect(this.handleNotebooksChanged);
+  }
+
+  async checkPlotExists(): Promise<boolean> {
+    if (this.state == NOTEBOOK_STATE.VCS_Ready) {
+      //Get the list of display elements in the canvas
+      this.using_kernel = true;
+      let output: string = await notebook_utils.sendSimpleKernelRequest(
+        this.notebook_panel,
+        `output = canvas.listelements("display")`
+      );
+      this.using_kernel = false;
+      console.log(output);
+      return eval(output).length > 1;
+    } else {
+      return false;
+    }
   }
 
   /**
