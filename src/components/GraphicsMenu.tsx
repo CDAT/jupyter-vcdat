@@ -191,24 +191,6 @@ export default class GraphicsMenu extends React.Component<
                 >
                   {dropdownTitle}
                 </DropdownToggle>
-                {/*FOR FUTURE FUCNTIONALITY <Button
-                  className="float-right"
-                  hidden={
-                    this.state.selectedMethod == "" ||
-                    this.state.showMenu ||
-                    this.state.showDropdown ||
-                    this.state.enterName ||
-                    this.state.selectedGroup == ""
-                  }
-                  onClick={() => {
-                    this.props.editGraphicsMethod();
-                  }}
-                  outline
-                  color="danger"
-                >
-                  Edit
-                </Button>*/}
-
                 <DropdownMenu style={dropdownMenuStyle}>
                   {Object.keys(this.props.getGraphicsList()).map(item => {
                     let methods: any = this.props.getGraphicsList()[item];
