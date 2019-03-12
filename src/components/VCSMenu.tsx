@@ -424,7 +424,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         plotString = "canvas.clear()\ncanvas.plot(";
       }
 
-      console.log("plotString:", plotString);
       let selection: Array<string> = this.state.selectedVariables;
 
       if (selection.length > MAX_SLABS) {
