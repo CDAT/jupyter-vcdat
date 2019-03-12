@@ -34,6 +34,9 @@ namespace CellUtilities {
       let execData: nbformat.IExecuteResult = out;
       return execData.data["text/plain"];
     }
+    if (nbformat.isStream(out)){
+        return out["text"];
+    }
     if (nbformat.isError(out)) {
       let errData: nbformat.IError = out;
       errData.evalue;
@@ -43,7 +46,6 @@ namespace CellUtilities {
         }.`
       );
     }
-    throw new Error("The cell output is not expected format.");
   }
 
   /**

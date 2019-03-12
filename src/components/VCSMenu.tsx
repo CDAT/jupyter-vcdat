@@ -1,8 +1,14 @@
 // Dependencies
 import * as React from "react";
-import { Button, Card, CardBody, CustomInput } from "reactstrap";
-import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  Spinner,
+  CustomInput
+} from "reactstrap";
 
 // Project Components
 import { NotebookUtilities } from "../NotebookUtilities";
@@ -18,6 +24,8 @@ import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import Variable from "./Variable";
 import AxisInfo from "./AxisInfo";
+import ExportPlotModal from "./ExportPlotModal";
+import { NotebookPanel } from "@jupyterlab/notebook";
 
 const btnStyle: React.CSSProperties = {
   margin: "5px"
@@ -32,11 +40,17 @@ const sidebarOverflow: React.CSSProperties = {
   overflow: "auto"
 };
 
+// The defaults export size to use if the canvas dimensions weren't obtained
+const DEFAULT_WIDTH: number = 800;
+const DEFAULT_HEIGHT: number = 600;
+
 export type VCSMenuProps = {
   inject: Function; // a method to inject code into the controllers notebook
   commands: CommandRegistry; // the command executor
   notebookPanel: NotebookPanel;
-  plotReady: boolean;
+  plotReady: boolean; // The notebook is ready for code injection an plots
+  plotExists: boolean; // whether a plot already exists
+  plotExistTrue: Function; // sets the widget's plotExist state to true (called by plot function)
   getGraphicsList: Function; // function that reads the current graphics list
   refreshGraphicsList: Function; // function that refreshes the graphics method list
   getTemplatesList: Function; // function that reads the widget's current template list
@@ -45,12 +59,18 @@ export type VCSMenuProps = {
 };
 type VCSMenuState = {
   plotReady: boolean; // are we ready to plot
+  plotExists: boolean; // whether a plot already exists
   variables: Array<Variable>; // All the variables, loaded from files and derived by users
   selectedVariables: Array<string>; // Unique names of all the variables that are currently selected
   selectedGM: string;
   selectedGMgroup: string;
   selectedTemplate: string;
   notebookPanel: NotebookPanel;
+  isModalOpen: boolean;
+  savePlotAlert: boolean;
+  exportSuccessAlert: boolean;
+  plotName: string;
+  plotFormat: string;
   overlayMode: boolean;
 };
 
@@ -62,20 +82,26 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     super(props);
     this.state = {
       plotReady: this.props.plotReady,
+      plotExists: this.props.plotExists,
       variables: new Array<Variable>(),
       selectedVariables: new Array<string>(),
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: "",
       notebookPanel: this.props.notebookPanel,
+      isModalOpen: false,
+      savePlotAlert: false,
+      exportSuccessAlert: false,
+      plotName: "",
+      plotFormat: "",
       overlayMode: false
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
     this.plot = this.plot.bind(this);
-    this.save = this.save.bind(this);
     this.clear = this.clear.bind(this);
     this.resetState = this.resetState.bind(this);
+    this.getCanvasDimensions = this.getCanvasDimensions.bind(this);
     this.copyGraphicsMethod = this.copyGraphicsMethod.bind(this);
     this.getGraphicsSelections = this.getGraphicsSelections.bind(this);
     this.getTemplateSelection = this.getTemplateSelection.bind(this);
@@ -84,8 +110,47 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updatePlotReady = this.updatePlotReady.bind(this);
     this.updateVariables = this.updateVariables.bind(this);
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
-    this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
+    this.toggleModal = this.toggleModal.bind(this);
     this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
+    this.exportPlotAlerts = this.exportPlotAlerts.bind(this);
+    this.dismissSavePlotSpinnerAlert = this.dismissSavePlotSpinnerAlert.bind(
+      this
+    );
+    this.dismissExportSuccessAlert = this.dismissExportSuccessAlert.bind(this);
+    this.setPlotInfo = this.setPlotInfo.bind(this);
+  }
+
+  setPlotInfo(plotName: string, plotFormat: string) {
+    this.setState({ plotName: plotName, plotFormat: plotFormat });
+  }
+
+  dismissSavePlotSpinnerAlert() {
+    this.setState({ savePlotAlert: false });
+  }
+
+  dismissExportSuccessAlert() {
+    this.setState({ exportSuccessAlert: false });
+  }
+
+  exportPlotAlerts() {
+    this.setState({ savePlotAlert: true }, () => {
+      window.setTimeout(() => {
+        this.setState({ savePlotAlert: false });
+        this.setState({ exportSuccessAlert: true }, () => {
+          window.setTimeout(() => {
+            this.setState({ exportSuccessAlert: false });
+          }, 5000);
+        });
+      }, 5000);
+    });
+  }
+
+  toggleModal() {
+    this.setState({ isModalOpen: !this.state.isModalOpen });
+  }
+
+  toggleOverlayMode() {
+    this.setState({ overlayMode: !this.state.overlayMode });
   }
 
   async resetState() {
@@ -100,6 +165,24 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       selectedGMgroup: "",
       selectedTemplate: ""
     });
+  }
+
+  async getCanvasDimensions(): Promise<{ width: number; height: number }> {
+    try {
+      if (this.state.plotReady) {
+        // Check the dimensions of the current canvas object
+        let output: string = await NotebookUtilities.sendSimpleKernelRequest(
+          this.state.notebookPanel,
+          "output=[canvas.width,canvas.height]"
+        );
+        let dimensions: [number, number] = eval(output);
+        return { width: dimensions[0], height: dimensions[1] };
+      }
+      return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
+    } catch (error) {
+      console.log(error);
+      return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
+    }
   }
 
   getVariableSelections(): void {
@@ -324,8 +407,12 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       }
 
       let temp = this.state.selectedTemplate;
-      if (gm == null) {
-        gm = '"default"';
+      if (!gm) {
+        if (this.state.selectedVariables.length > 1) {
+          gm = '"vector"';
+        } else {
+          gm = '"boxfill"';
+        }
       }
       if (temp == null) {
         temp = '"default"';
@@ -347,31 +434,14 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       selection.forEach(variableName => {
         plotString += variableName + ", ";
       });
-      plotString += `${gm}, ${temp})`;
+      plotString += `${temp}, ${gm})`;
       this.props.inject(plotString);
-    }
-  }
-
-  save(): void {
-    let response: string | null = prompt(
-      "Please enter the name to save the plot as."
-    );
-    if (response == null || response == "") {
-      NotebookUtilities.showMessage("Notice", "Injection cancelled.");
-    } else {
-      this.props.inject(`canvas.png('${response}')`);
+      this.props.plotExistTrue();
     }
   }
 
   clear(): void {
     this.props.inject("canvas.clear()");
-  }
-
-  toggleOverlayMode() {
-    console.log("toggling overlayMode");
-    this.setState(prevState => ({
-      overlayMode: !prevState.overlayMode
-    }));
   }
 
   /**
@@ -427,6 +497,14 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       getTemplatesList: this.props.getTemplatesList,
       updateTemplateOptions: this.updateTemplateOptions
     };
+    let ExportPlotModalProps = {
+      isOpen: this.state.isModalOpen,
+      toggle: this.toggleModal,
+      inject: this.props.inject,
+      exportAlerts: this.exportPlotAlerts,
+      setPlotInfo: this.setPlotInfo,
+      getCanvasDimensions: this.getCanvasDimensions
+    };
 
     return (
       <div style={{ ...centered, ...sidebarOverflow }}>
@@ -448,8 +526,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                 color="primary"
                 className="col-sm-3"
                 style={btnStyle}
-                onClick={this.save}
-                disabled={!this.state.plotReady}
+                onClick={this.toggleModal}
+                disabled={!this.state.plotReady || !this.state.plotExists}
               >
                 Save
               </Button>
@@ -484,6 +562,29 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           {...TemplateMenuProps}
           ref={loader => (this.templateMenuRef = loader)}
         />
+        <ExportPlotModal {...ExportPlotModalProps} />
+        <div>
+          <Alert
+            color="info"
+            isOpen={this.state.savePlotAlert}
+            toggle={this.dismissSavePlotSpinnerAlert}
+          >
+            {"Saving " +
+              this.state.plotName +
+              "." +
+              this.state.plotFormat +
+              "  "}
+            {"  "}
+            <Spinner color="info" />
+          </Alert>
+          <Alert
+            color="primary"
+            isOpen={this.state.exportSuccessAlert}
+            toggle={this.dismissExportSuccessAlert}
+          >
+            {"Exported " + this.state.plotName + "." + this.state.plotFormat}
+          </Alert>
+        </div>
       </div>
     );
   }
