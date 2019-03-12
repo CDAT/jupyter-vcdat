@@ -1,12 +1,12 @@
+// Dependencies
 import * as React from "react";
-
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+// Project Components
 import Variable from "./Variable";
 import VarCard from "./VarCard";
 import AxisInfo from "./AxisInfo";
-import { MAX_SLABS } from "../constants";
 
 type VarLoaderProps = {
   loadFileVariable: Function; // function to call when user hits load
@@ -60,19 +60,15 @@ export default class VarLoader extends React.Component<
   async loadSelectedVariables(): Promise<void> {
     // Once the load button is clicked, load only the files that were selected.
     this.state.fileVariables.forEach(async (variable: Variable) => {
-      let ind = this.state.selectedVariables.indexOf(variable.cdmsID);
-      if (ind >= 0) {
+      let idx = this.state.selectedVariables.indexOf(variable.cdmsID);
+      if (idx >= 0) {
         // Add the variable
         await this.props.loadFileVariable(variable);
       }
     });
-    // Select only the max number of slabs allowed for plot injection
-    let selection = this.state.selectedVariables;
-    if (selection.length > MAX_SLABS) {
-      selection = selection.slice(0, MAX_SLABS);
-    }
+
     // Update the main widget's current selected variables
-    await this.props.updateSelectedVariables(selection);
+    await this.props.updateSelectedVariables(this.state.selectedVariables);
     // Reset the selected files in the var loader when done
     this.setState({ selectedVariables: new Array<string>() });
   }
@@ -93,10 +89,10 @@ export default class VarLoader extends React.Component<
    * @param variable Remove a variable from the list to be loaded
    */
   deselectVariableForLoad(variableName: string): void {
-    let ind: number = this.state.selectedVariables.indexOf(variableName);
+    let idx: number = this.state.selectedVariables.indexOf(variableName);
     let selectedVars: Array<string> = this.state.selectedVariables;
-    if (ind >= 0) {
-      selectedVars.splice(ind, 1);
+    if (idx >= 0) {
+      selectedVars.splice(idx, 1);
     }
     this.setState({
       selectedVariables: selectedVars

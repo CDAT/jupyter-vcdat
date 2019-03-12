@@ -1,9 +1,10 @@
+// Dependencies
 import * as React from "react";
 import * as _ from "lodash";
 import * as moment from "moment";
-
 import { Row, Col } from "reactstrap";
 
+// Project Components
 import { Slider, Rail, Handles, Tracks, Ticks } from "react-compound-slider";
 import { Handle, Track, Tick } from "./Tracks";
 
@@ -59,7 +60,7 @@ export default class DimensionSlider extends React.Component<
   constructor(props: DimensionSliderProps) {
     super(props);
     let format: any;
-    let possible_values = props.data;
+    let possibleValues = props.data;
     this.handleSliderChange = this.handleSliderChange.bind(this);
     this.formatter = this.formatter.bind(this);
 
@@ -91,16 +92,16 @@ export default class DimensionSlider extends React.Component<
       this.formatter.bind(this);
     }
     if (props.modulo) {
-      let new_possible_values = [];
+      let newPossibleValues = [];
       let step = Math.abs(props.data[0] - props.data[1]);
       for (let i = -props.modulo; i <= props.modulo; i += step) {
-        new_possible_values.push(i);
+        newPossibleValues.push(i);
       }
-      possible_values = new_possible_values;
+      possibleValues = newPossibleValues;
     }
     this.singleValue = props.data.length == 1;
 
-    let pValues = possible_values.map((item: any) => {
+    let pValues = possibleValues.map((item: any) => {
       return Math.floor(item);
     });
 
