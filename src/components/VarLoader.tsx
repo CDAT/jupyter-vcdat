@@ -7,7 +7,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Variable from "./Variable";
 import VarCard from "./VarCard";
 import AxisInfo from "./AxisInfo";
-import { MAX_SLABS } from "../constants";
 
 type VarLoaderProps = {
   loadFileVariable: Function; // function to call when user hits load
@@ -67,13 +66,9 @@ export default class VarLoader extends React.Component<
         await this.props.loadFileVariable(variable);
       }
     });
-    // Select only the max number of slabs allowed for plot injection
-    let selection = this.state.selectedVariables;
-    if (selection.length > MAX_SLABS) {
-      selection = selection.slice(0, MAX_SLABS);
-    }
+
     // Update the main widget's current selected variables
-    await this.props.updateSelectedVariables(selection);
+    await this.props.updateSelectedVariables(this.state.selectedVariables);
     // Reset the selected files in the var loader when done
     this.setState({ selectedVariables: new Array<string>() });
   }

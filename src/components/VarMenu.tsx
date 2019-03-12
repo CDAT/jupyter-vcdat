@@ -11,13 +11,13 @@ import {
   ListGroup,
   ListGroupItem
 } from "reactstrap";
+import { ColorFunctions } from "../Utilities";
 
 // Project components
 import Variable from "./Variable";
 import VarLoader from "./VarLoader";
 import AxisInfo from "./AxisInfo";
 import VarMini from "./VarMini";
-import { MAX_SLABS } from "../constants";
 import { NotebookUtilities } from "../NotebookUtilities";
 
 const varButtonStyle: React.CSSProperties = {
@@ -72,7 +72,6 @@ export default class VarMenu extends React.Component<
       selectedVariables: this.props.selectedVariables,
       variables: this.props.variables
     });
-    this.isPrimaryVariable = this.isPrimaryVariable.bind(this);
   }
 
   isSelected(varName: string): boolean {
@@ -142,9 +141,6 @@ export default class VarMenu extends React.Component<
     if (idx < 0) {
       // Limit number of variables selected by deselecting last element
       let selection = this.state.selectedVariables;
-      if (selection.length >= MAX_SLABS) {
-        selection.pop();
-      }
       selection.push(variableName);
 
       await this.props.updateSelectedVariables(selection);
@@ -196,14 +192,19 @@ export default class VarMenu extends React.Component<
     this.props.loadVariable(variable);
   }
 
-  isPrimaryVariable(varName: string): boolean {
+  getOrder(varName: string): number {
     if (this.state.selectedVariables.length == 0) {
-      return false;
+      return -1;
     }
-    return this.state.selectedVariables[0] == varName;
+    return this.state.selectedVariables.indexOf(varName) + 1;
   }
 
   render(): JSX.Element {
+    let Colors: string[] = ColorFunctions.createGradient(
+      this.state.selectedVariables.length,
+      "#28a745",
+      "#17a2b8"
+    );
     return (
       <div>
         <Card>
@@ -226,18 +227,26 @@ export default class VarMenu extends React.Component<
               <ListGroup style={formOverflow}>
                 {this.state.variables.map(item => {
                   return (
-                    <ListGroupItem key={item.name}>
+                    <ListGroupItem
+                      key={item.name}
+                      onClick={() => {
+                        if (this.isSelected(item.name)) {
+                          this.deselectVariable(item.name);
+                        } else {
+                          this.selectVariable(item.name);
+                        }
+                      }}
+                    >
                       <VarMini
                         reload={() => {
                           this.reloadVariable(item);
                         }}
-                        isPrimaryVariable={this.isPrimaryVariable}
+                        buttonColor={Colors[this.getOrder(item.name) - 1]}
                         allowReload={true}
                         isSelected={this.isSelected}
+                        selectOrder={this.getOrder(item.name)}
                         updateDimInfo={this.updateDimInfo}
                         variable={item}
-                        selectVariable={this.selectVariable}
-                        deselectVariable={this.deselectVariable}
                       />
                     </ListGroupItem>
                   );

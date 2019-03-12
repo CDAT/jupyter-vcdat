@@ -378,7 +378,7 @@ namespace CellUtilities {
   }
 
   /**
-   * @deprecated Using notebook_utils.sendSimpleKernelRequest or notebook_utils.sendKernelRequest
+   * @deprecated Using NotebookUtilities.sendSimpleKernelRequest or NotebookUtilities.sendKernelRequest
    * will execute code directly in the kernel without the need to create a cell and delete it.
    * @description This will insert a cell with specified code at the top and run the code.
    * Once the code is run and output received, the cell is deleted, giving back cell's output.

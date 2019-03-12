@@ -146,6 +146,10 @@ export class LeftSideBarWidget extends Widget {
     this.VCSMenuRef.setState({ plotExists: value });
   }
 
+  public get plotExists(): boolean {
+    return this._plotExists;
+  }
+
   //=======ASYNC SETTER FUNCTIONS=======
 
   /**
@@ -520,8 +524,8 @@ export class LeftSideBarWidget extends Widget {
    * @returns Promise<Array<Variable>> -- A promise contianing an array of variables
    * that were found in the file.
    */
-  async getFileVariables(file_path: string): Promise<Array<Variable>> {
-    if (file_path == "") {
+  async getFileVariables(filePath: string): Promise<Array<Variable>> {
+    if (filePath == "") {
       return new Array<Variable>();
     }
 
@@ -529,7 +533,7 @@ export class LeftSideBarWidget extends Widget {
     try {
       await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        `import cdms2\nreader = cdms2.open('${file_path}')`
+        `import cdms2\nreader = cdms2.open('${filePath}')`
       );
     } catch (error) {
       console.log(error);
@@ -582,7 +586,7 @@ export class LeftSideBarWidget extends Widget {
         if (this.notebookPanel instanceof NotebookPanel) {
           // Ensure notebook session is ready before checking for metadata
           await this._notebookPanel.session.ready;
-          // Check if there is a kernel listed as vcs_ready
+          // Check if there is a kernel listed as vcsReady
           if (
             this._readyKernels.length > 0 &&
             this._readyKernels.indexOf(this.notebookPanel.session.kernel.id) >=
@@ -732,8 +736,8 @@ export class LeftSideBarWidget extends Widget {
   }
 
   /**
-   * Prepares the current widget notebook to be a vcs_ready notebook. Will create a new one if none exists.
-   * @param currentFile The file_path to set for the variable loading. If left blank, an error will occur.
+   * Prepares the current widget notebook to be a vcsReady notebook. Will create a new one if none exists.
+   * @param currentFile The file path to set for the variable loading. If left blank, an error will occur.
    */
   async prepareNotebookPanel(currentFile: string): Promise<void> {
     if (currentFile == "") {
@@ -770,7 +774,7 @@ export class LeftSideBarWidget extends Widget {
   }
 
   /**
-   * @returns Promise<NotebookPanel> - The widget's current notebook_panel or a new one if none exists.
+   * @returns Promise<NotebookPanel> - The widget's current notebookPanel or a new one if none exists.
    */
   async getNotebookPanel(): Promise<NotebookPanel> {
     let prom: Promise<NotebookPanel> = new Promise(async (resolve, reject) => {

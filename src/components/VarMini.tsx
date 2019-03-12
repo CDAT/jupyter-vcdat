@@ -10,6 +10,7 @@ import {
   CardBody,
   Badge
 } from "reactstrap";
+import { MiscUtilities } from "../Utilities";
 
 // Project components
 import Variable from "./Variable";
@@ -28,12 +29,11 @@ const centered: React.CSSProperties = {
 };
 
 type VarMiniProps = {
-  isPrimaryVariable: Function; // a method to test if the variable for this component is the primary
+  buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
-  selectVariable: Function; // method to call to add this variable to the list to get loaded
-  deselectVariable: Function; // method to call to remove a variable from the list
   updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
   isSelected: Function; // method to check if this variable is selected in parent
+  selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: Function; // a function to reload the variable
 };
@@ -53,20 +53,8 @@ export default class VarMini extends React.Component<
     };
     this.varName = this.props.variable.name;
     this.openMenu = this.openMenu.bind(this);
-    this.selectVariable = this.selectVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
-  }
-
-  /**
-   * @description sets the isSelected attribute, and propagates up the selection action to the parent
-   */
-  async selectVariable(): Promise<void> {
-    if (this.props.isSelected(this.varName)) {
-      await this.props.deselectVariable(this.varName);
-    } else {
-      await this.props.selectVariable(this.varName);
-    }
   }
 
   /**
@@ -94,43 +82,43 @@ export default class VarMini extends React.Component<
   }
 
   render(): JSX.Element {
-    let color = "secondary";
-    let badge = "";
-    if (this.props.isSelected(this.varName)) {
-      if (this.props.isPrimaryVariable(this.varName)) {
-        color = "success";
-        badge = "primary";
-      } else {
-        color = "info";
-        badge = "secondary";
-      }
-    }
     return (
       <div>
         <div className="clearfix">
           <Button
             outline
+            color={this.props.isSelected ? "success" : "secondary"}
+            style={
+              this.props.isSelected && {
+                backgroundColor: this.props.buttonColor
+              }
+            }
             active={this.props.isSelected(this.varName)}
-            color={color}
-            onClick={this.selectVariable}
           >
             {this.props.variable.name}
           </Button>
           <Button
             outline
             style={axisStyle}
-            color="secondary"
-            onClick={() => {
+            color="danger"
+            onClick={(clickEvent: React.MouseEvent<HTMLButtonElement>) => {
               this.setState({
                 showAxis: !this.state.showAxis
               });
+              clickEvent.stopPropagation();
             }}
           >
             edit
           </Button>
           {this.props.isSelected(this.varName) && (
-            <Badge color={color} style={badgeStyle}>
-              {badge}
+            <Badge
+              className="float-right"
+              style={{
+                ...badgeStyle,
+                ...{ backgroundColor: this.props.buttonColor }
+              }}
+            >
+              {MiscUtilities.numToOrdStr(this.props.selectOrder)} Variable
             </Badge>
           )}
         </div>

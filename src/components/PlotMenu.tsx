@@ -50,8 +50,8 @@ export default class PlotMenu extends React.Component<
       optionsChanged: false,
       plotOptions: {
         animation: false,
-        save_img: false,
-        plot_name: ""
+        saveImg: false,
+        plotName: ""
       }
     };
     this.toggleMenu = this.toggleMenu.bind(this);
@@ -124,7 +124,7 @@ export default class PlotMenu extends React.Component<
     );
   }
   selectTrue(): void {
-    if (this.state.plotOptions.save_img && !this.state.plotOptions.plot_name) {
+    if (this.state.plotOptions.saveImg && !this.state.plotOptions.plotName) {
       let msg =
         "A filename is required when saving plots or creating animations";
       showDialog({
@@ -183,11 +183,11 @@ export default class PlotMenu extends React.Component<
                   onClick={() => {
                     if (
                       this.state.plotOptions.animation != true ||
-                      this.state.plotOptions.save_img
+                      this.state.plotOptions.saveImg
                     ) {
                       let newPlotOptions = this.state.plotOptions;
                       newPlotOptions.animation = true;
-                      newPlotOptions.save_img = true;
+                      newPlotOptions.saveImg = true;
                       this.setState({
                         plotOptions: newPlotOptions,
                         optionsChanged: true
@@ -202,11 +202,11 @@ export default class PlotMenu extends React.Component<
               <Label check>
                 <Input
                   type="checkbox"
-                  checked={this.state.plotOptions.save_img}
+                  checked={this.state.plotOptions.saveImg}
                   onChange={() => {}}
                   onClick={() => {
                     let newPlotOptions = this.state.plotOptions;
-                    newPlotOptions.save_img = !newPlotOptions.save_img;
+                    newPlotOptions.saveImg = !newPlotOptions.saveImg;
                     this.setState({
                       plotOptions: newPlotOptions,
                       optionsChanged: true
@@ -216,7 +216,7 @@ export default class PlotMenu extends React.Component<
                 Save Image to Disc
               </Label>
             </FormGroup>
-            {this.state.plotOptions.save_img && (
+            {this.state.plotOptions.saveImg && (
               <FormGroup>
                 <Input
                   type="text"
@@ -224,7 +224,7 @@ export default class PlotMenu extends React.Component<
                   placeholder="Plot Name"
                   onChange={event => {
                     let newPlotOptions = this.state.plotOptions;
-                    newPlotOptions.plot_name = event.target.value;
+                    newPlotOptions.plotName = event.target.value;
                     this.setState({
                       plotOptions: newPlotOptions,
                       optionsChanged: true

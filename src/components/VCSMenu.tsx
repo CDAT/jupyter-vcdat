@@ -7,7 +7,9 @@ import {
   Card,
   CardBody,
   Spinner,
-  CustomInput
+  CustomInput,
+  Row,
+  Col
 } from "reactstrap";
 
 // Project Components
@@ -28,7 +30,7 @@ import ExportPlotModal from "./ExportPlotModal";
 import { NotebookPanel } from "@jupyterlab/notebook";
 
 const btnStyle: React.CSSProperties = {
-  margin: "5px"
+  width: "100%"
 };
 const centered: React.CSSProperties = {
   margin: "auto"
@@ -36,7 +38,7 @@ const centered: React.CSSProperties = {
 
 const sidebarOverflow: React.CSSProperties = {
   maxHeight: "100vh",
-  minWidth: "375px",
+  minWidth: "320px",
   overflow: "auto"
 };
 
@@ -104,9 +106,12 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.getCanvasDimensions = this.getCanvasDimensions.bind(this);
     this.copyGraphicsMethod = this.copyGraphicsMethod.bind(this);
     this.getGraphicsSelections = this.getGraphicsSelections.bind(this);
+    this.getVariableSelections = this.getVariableSelections.bind(this);
     this.getTemplateSelection = this.getTemplateSelection.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
+    this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
+    this.launchVarSelect = this.launchVarSelect.bind(this);
     this.updatePlotReady = this.updatePlotReady.bind(this);
     this.updateVariables = this.updateVariables.bind(this);
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
@@ -395,48 +400,56 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
   plot(): void {
-    if (this.state.selectedVariables.length == 0) {
-      NotebookUtilities.showMessage(
-        "Notice",
-        "Please select a variable from the left panel"
-      );
-    } else {
-      let gm: string = this.state.selectedGM;
-      if (gm.indexOf(this.state.selectedGMgroup) < 0) {
-        gm += `_${this.state.selectedGMgroup}`;
-      }
-
-      let temp = this.state.selectedTemplate;
-      if (!gm) {
-        if (this.state.selectedVariables.length > 1) {
-          gm = '"vector"';
-        } else {
-          gm = '"boxfill"';
-        }
-      }
-      if (temp == null) {
-        temp = '"default"';
-      }
-      let plotString: string = "";
-      if (this.state.overlayMode) {
-        plotString = "canvas.plot(";
+    try {
+      if (this.state.selectedVariables.length == 0) {
+        NotebookUtilities.showMessage(
+          "Notice",
+          "Please select a variable from the left panel."
+        );
       } else {
-        plotString = "canvas.clear()\ncanvas.plot(";
-      }
+        // Limit selection to MAX_SLABS
+        let selection: Array<string> = this.state.selectedVariables;
+        console.log(`Selected variables: ${selection}`);
+        if (selection.length > MAX_SLABS) {
+          selection = selection.slice(0, MAX_SLABS);
+          this.updateSelectedVariables(selection);
+        }
 
-      console.log("plotString:", plotString);
-      let selection: Array<string> = this.state.selectedVariables;
+        let gm: string = this.state.selectedGM;
 
-      if (selection.length > MAX_SLABS) {
-        selection = selection.slice(0, MAX_SLABS);
-        this.updateSelectedVariables(selection);
+        if (!gm) {
+          if (selection.length > 1) {
+            gm = '"vector"';
+          } else {
+            gm = '"boxfill"';
+          }
+        } else if (gm.indexOf(this.state.selectedGMgroup) < 0) {
+          gm += `_${this.state.selectedGMgroup}`;
+        }
+
+        let temp = this.state.selectedTemplate;
+        if (temp == null || temp == "") {
+          temp = '"default"';
+        }
+
+        // Create plot injection string
+        let plotString: string = "";
+        if (this.state.overlayMode) {
+          plotString = "canvas.plot(";
+        } else {
+          plotString = "canvas.clear()\ncanvas.plot(";
+        }
+
+        selection.forEach(variableName => {
+          plotString += variableName + ", ";
+        });
+        plotString += `${temp}, ${gm})`;
+        console.log(`Plot cmd: ${plotString}`);
+        this.props.inject(plotString);
+        this.props.plotExistTrue();
       }
-      selection.forEach(variableName => {
-        plotString += variableName + ", ";
-      });
-      plotString += `${temp}, ${gm})`;
-      this.props.inject(plotString);
-      this.props.plotExistTrue();
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -511,37 +524,41 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         <Card>
           <CardBody>
             <div style={centered}>
-              <Button
-                type="button"
-                color="primary"
-                className="col-sm-3"
-                style={btnStyle}
-                onClick={this.plot}
-                disabled={!this.state.plotReady}
-              >
-                Plot
-              </Button>
-              <Button
-                type="button"
-                color="primary"
-                className="col-sm-3"
-                style={btnStyle}
-                onClick={this.toggleModal}
-                disabled={!this.state.plotReady || !this.state.plotExists}
-              >
-                Save
-              </Button>
-              <Button
-                type="button"
-                color="primary"
-                className="col-sm-3"
-                style={btnStyle}
-                onClick={this.clear}
-                disabled={!this.state.plotReady}
-              >
-                Clear
-              </Button>
-              <br />
+              <Row>
+                <Col>
+                  <Button
+                    type="button"
+                    color="primary"
+                    style={btnStyle}
+                    onClick={this.plot}
+                    disabled={!this.state.plotReady}
+                  >
+                    Plot
+                  </Button>
+                </Col>
+                <Col>
+                  <Button
+                    type="button"
+                    color="primary"
+                    style={btnStyle}
+                    onClick={this.toggleModal}
+                    disabled={!this.state.plotReady || !this.state.plotExists}
+                  >
+                    Save
+                  </Button>
+                </Col>
+                <Col>
+                  <Button
+                    type="button"
+                    color="primary"
+                    style={btnStyle}
+                    onClick={this.clear}
+                    disabled={!this.state.plotReady}
+                  >
+                    Clear
+                  </Button>
+                </Col>
+              </Row>
               <CustomInput
                 type="switch"
                 id="overlayModeSwitch"
