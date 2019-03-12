@@ -115,11 +115,11 @@ aliases:
 jobs:
   macos_jupyter_vcdat_py3:
     macos:
-      xcode: "9.2.0"
+      xcode: "10.2.0"
     environment:
       WORKDIR: "workspace/test_macos_jupyter_vcdat_py3"
       PY_VER: "py3"
-      TEMP_PKGS: "'ffmpeg>4' 'libpng>1.6.34'" 
+      #TEMP_PKGS: "'ffmpeg>4' 'libpng>1.6.34'" 
     steps:
       - checkout
       - run: *setup_miniconda
@@ -132,11 +132,12 @@ jobs:
     environment:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
-      TEMP_PKGS: 'ffmpeg' 
+      #TEMP_PKGS: 'ffmpeg' 
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
     steps:
       - checkout
+      - run: uname -a
       - run: *setup_miniconda
       - run: *create_conda_env
       - run: *setup_jupyter_vcdat
@@ -149,12 +150,13 @@ jobs:
     environment:
       WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
-      TEMP_PKGS: 'ffmpeg' 
+      #TEMP_PKGS: 'ffmpeg' 
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: "firefox"
     steps:
       - checkout
+      - run: uname -a
       - run: which firefox
       - run: which geckodriver
       - run: *setup_miniconda
@@ -176,7 +178,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
-      TEMP_PKGS: 'ffmpeg' 
+      #TEMP_PKGS: 'ffmpeg' 
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: "chrome"
