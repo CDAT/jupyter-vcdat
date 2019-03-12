@@ -22,23 +22,23 @@ const axisStyle: React.CSSProperties = {
 const badgeStyle: React.CSSProperties = {
   margin: "auto",
   marginLeft: "0.5em"
-}
+};
 const centered: React.CSSProperties = {
   margin: "auto"
 };
 
 type VarMiniProps = {
-  isPrimaryVariable: Function;  // a method to test if the variable for this component is the primary
-  variable: Variable;           // the variable this component will show
-  selectVariable: Function;     // method to call to add this variable to the list to get loaded
-  deselectVariable: Function;   // method to call to remove a variable from the list
-  updateDimInfo: Function;      // method passed by the parent to update their copy of the variables dimension info
-  isSelected: Function;         // method to check if this variable is selected in parent
-  allowReload: boolean;         // is this variable allowed to be reloaded
-  reload: Function;             // a function to reload the variable
+  isPrimaryVariable: Function; // a method to test if the variable for this component is the primary
+  variable: Variable; // the variable this component will show
+  selectVariable: Function; // method to call to add this variable to the list to get loaded
+  deselectVariable: Function; // method to call to remove a variable from the list
+  updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
+  isSelected: Function; // method to check if this variable is selected in parent
+  allowReload: boolean; // is this variable allowed to be reloaded
+  reload: Function; // a function to reload the variable
 };
 type VarMiniState = {
-  showAxis: boolean;            // should the edit axis modal be shown
+  showAxis: boolean; // should the edit axis modal be shown
 };
 
 export default class VarMini extends React.Component<
