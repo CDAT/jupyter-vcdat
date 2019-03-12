@@ -1,7 +1,14 @@
 // Dependencies
 import * as React from "react";
 import { CommandRegistry } from "@phosphor/commands";
-import { Alert, Button, Card, CardBody, Spinner } from "reactstrap";
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  Spinner,
+  CustomInput
+} from "reactstrap";
 
 // Project Components
 import { notebook_utils } from "../notebook_utils";
@@ -58,12 +65,13 @@ type VCSMenuState = {
   selected_gm: string;
   selected_gm_group: string;
   selected_template: string;
-  notebook_panel: any;
   isModalOpen: boolean;
   savePlotAlert: boolean;
   exportSuccessAlert: boolean;
   plotName: string;
   plotFormat: string;
+  notebook_panel: NotebookPanel;
+  overlayMode: boolean;
 };
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
@@ -85,7 +93,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       savePlotAlert: false,
       exportSuccessAlert: false,
       plotName: "",
-      plotFormat: ""
+      plotFormat: "",
+      overlayMode: false
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
@@ -102,6 +111,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.updateVariables = this.updateVariables.bind(this);
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
+    this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
     this.exportPlotAlerts = this.exportPlotAlerts.bind(this);
     this.dismissSavePlotSpinnerAlert = this.dismissSavePlotSpinnerAlert.bind(
       this
@@ -136,9 +146,11 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   }
 
   toggleModal() {
-    this.setState(prevState => ({
-      isModalOpen: !prevState.isModalOpen
-    }));
+    this.setState({ isModalOpen: !this.state.isModalOpen });
+  }
+
+  toggleOverlayMode() {
+    this.setState({ overlayMode: !this.state.overlayMode });
   }
 
   async resetState() {
@@ -213,8 +225,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
     // Set state based on meta data from notebook
     this.setState({
-      selected_gm: gm_data[0],
-      selected_gm_group: gm_data[1]
+      selected_gm_group: gm_data[0],
+      selected_gm: gm_data[1]
     });
     this.graphicsMenuRef.setState({
       selectedGroup: gm_data[0],
@@ -405,7 +417,14 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       if (!temp) {
         temp = '"default"';
       }
-      let plotString = "canvas.clear()\ncanvas.plot(";
+      let plotString: string = "";
+      if (this.state.overlayMode) {
+        plotString = "canvas.plot(";
+      } else {
+        plotString = "canvas.clear()\ncanvas.plot(";
+      }
+
+      console.log("plotString:", plotString);
       let selection: Array<string> = this.state.selectedVariables;
 
       if (selection.length > MAX_SLABS) {
@@ -522,6 +541,15 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
               >
                 Clear
               </Button>
+              <br />
+              <CustomInput
+                type="switch"
+                id="overlayModeSwitch"
+                name="overlayModeSwitch"
+                label="Overlay Mode"
+                checked={this.state.overlayMode}
+                onChange={this.toggleOverlayMode}
+              />
             </div>
           </CardBody>
         </Card>

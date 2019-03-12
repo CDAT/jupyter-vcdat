@@ -521,43 +521,53 @@ export class LeftSideBarWidget extends Widget {
    * that were found in the file.
    */
   async getFileVariables(file_path: string): Promise<Array<Variable>> {
-    if (file_path != "") {
-      // Open the file reader first
+    if (file_path == "") {
+      return new Array<Variable>();
+    }
+
+    // Open the file reader first
+    try {
       await notebook_utils.sendSimpleKernelRequest(
         this.notebook_panel,
         `import cdms2\nreader = cdms2.open('${file_path}')`
       );
-      // Get file variables
-      let result: string = await notebook_utils.sendSimpleKernelRequest(
+    } catch (error) {
+      console.log(error);
+      return new Array<Variable>();
+    }
+
+    // Get file variables
+    let result: string;
+    try {
+      result = await notebook_utils.sendSimpleKernelRequest(
         this.notebook_panel,
         GET_FILE_VARIABLES
       );
-
-      // Parse the resulting output into an object
-      let variableAxes: any = JSON.parse(result.slice(1, result.length - 1));
-      let newVars = new Array<Variable>();
-      Object.keys(variableAxes.vars).map((item: string) => {
-        let v = new Variable();
-        v.name = item;
-        v.cdmsID = variableAxes.vars[item].cdmsID; // Loaded variables have same cdmsName
-        v.longName = variableAxes.vars[item].name;
-        v.axisList = variableAxes.vars[item].axisList;
-        v.axisInfo = new Array<AxisInfo>();
-        variableAxes.vars[item].axisList.map((item: any) => {
-          variableAxes.axes[item].min = variableAxes.axes[item].data[0];
-          variableAxes.axes[item].max =
-            variableAxes.axes[item].data[
-              variableAxes.axes[item].data.length - 1
-            ];
-          v.axisInfo.push(variableAxes.axes[item]);
-        });
-        v.units = variableAxes.vars[item].units;
-        newVars.push(v);
-      });
-      return newVars;
-    } else {
+    } catch (error) {
+      console.log(error);
       return new Array<Variable>();
     }
+
+    // Parse the resulting output into an object
+    let variableAxes: any = JSON.parse(result.slice(1, result.length - 1));
+    let newVars = new Array<Variable>();
+    Object.keys(variableAxes.vars).map((item: string) => {
+      let v = new Variable();
+      v.name = item;
+      v.cdmsID = variableAxes.vars[item].cdmsID; // Loaded variables have same cdmsName
+      v.longName = variableAxes.vars[item].name;
+      v.axisList = variableAxes.vars[item].axisList;
+      v.axisInfo = new Array<AxisInfo>();
+      variableAxes.vars[item].axisList.map((item: any) => {
+        variableAxes.axes[item].min = variableAxes.axes[item].data[0];
+        variableAxes.axes[item].max =
+          variableAxes.axes[item].data[variableAxes.axes[item].data.length - 1];
+        v.axisInfo.push(variableAxes.axes[item]);
+      });
+      v.units = variableAxes.vars[item].units;
+      newVars.push(v);
+    });
+    return newVars;
   }
 
   /**
