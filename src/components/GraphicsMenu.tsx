@@ -179,8 +179,10 @@ export default class GraphicsMenu extends React.Component<
             <CardSubtitle className="clearfix">
               <Dropdown
                 className="float-left"
+                style={{ maxWidth: "calc(100% - 70px)" }}
                 isOpen={this.state.showDropdown}
                 toggle={this.toggleDropdown}
+                id="graphics_dropdown"
               >
                 <DropdownToggle
                   disabled={!this.state.plotReady || this.state.enterName}

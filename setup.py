@@ -64,9 +64,3 @@ setup(name="jupyter_vcdat",
       url="http://github.com/cdat/jupyter-vcdat",
       packages=find_packages(),
       zip_safe=True)
-
-call_binary("pip", ["install", "sidecar"])
-call_binary("pip", ["install", "lazy_import"])
-call_binary("jupyter", ["labextension", "install", "."])
-call_binary("pip", ["install", "nbgitpuller"])
-call_binary("jupyter", ["serverextension", "enable", "--py", "nbgitpuller", "--sys-prefix"])

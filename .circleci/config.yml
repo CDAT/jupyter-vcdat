@@ -10,19 +10,19 @@ aliases:
     command: |
       mkdir -p workspace
       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
+      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3.7'
 
   - &create_conda_env
     name: create_conda_env
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
-       PKGS: "nodejs 'python>3' vcs jupyterlab pip nb_conda nb_conda_kernels"
+       PKGS: "nodejs vcs jupyterlab pip nb_conda nb_conda_kernels plumbum"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -q conda
        conda config --set anaconda_upload no
-       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" nbsphinx easydev $COVERAGE_PKGS
+       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" $COVERAGE_PKGS
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -31,8 +31,10 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
+       # LAZY_IMPORT
+       python -m pip install lazy_import
        # SIDECAR
-       python -m pip install --no-deps --ignore-installed sidecar
+       python -m pip install sidecar
        jupyter labextension install @jupyter-widgets/jupyterlab-manager
        jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
@@ -44,6 +46,9 @@ aliases:
 
        python setup.py install
        rm -rf node_modules
+       npm install
+       npm run build
+       jupyter lab build
        jupyter labextension install . 
 
   - &run_jupyter_vcdat_tests
