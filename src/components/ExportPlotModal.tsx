@@ -29,7 +29,6 @@ type ExportPlotModalState = {
   plotFileFormat: string;
   validateExportName: boolean;
   validateFileFormat: boolean;
-  captureProvenance: boolean;
   displayDimensions: boolean;
   width: string;
   height: string;
@@ -48,7 +47,6 @@ export class ExportPlotModal extends React.Component<
       plotFileFormat: "",
       validateExportName: false,
       validateFileFormat: false,
-      captureProvenance: false,
       displayDimensions: false,
       width: "",
       height: "",
@@ -60,7 +58,6 @@ export class ExportPlotModal extends React.Component<
     this.dismissFileFormatValidation = this.dismissFileFormatValidation.bind(
       this
     );
-    this.toggleCaptureProvenance = this.toggleCaptureProvenance.bind(this);
     this.toggleDimensionsDisplay = this.toggleDimensionsDisplay.bind(this);
   }
 
@@ -72,12 +69,6 @@ export class ExportPlotModal extends React.Component<
     }
     this.setState(prevState => ({
       displayDimensions: !prevState.displayDimensions
-    }));
-  }
-
-  toggleCaptureProvenance() {
-    this.setState(prevState => ({
-      captureProvenance: !prevState.captureProvenance
     }));
   }
 
@@ -120,12 +111,6 @@ export class ExportPlotModal extends React.Component<
       this.setState({ validateFileFormat: false });
     }
 
-    let capture = null;
-    if (this.state.captureProvenance) {
-      capture = 1;
-    } else {
-      capture = 0;
-    }
 
     if (fileFormat === "png") {
       if (this.state.width && this.state.height) {
@@ -334,8 +319,6 @@ export class ExportPlotModal extends React.Component<
               </Collapse>
             </div>
           </div>
-          <br />
-          {/* <CustomInput type="switch" id="exampleCustomSwitch" name="customSwitch" label="Capture Provenance" checked={this.state.captureProvenance} onChange={this.toggleCaptureProvenance} /> */}
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={this.save}>
