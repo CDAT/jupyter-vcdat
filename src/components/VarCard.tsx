@@ -11,7 +11,7 @@ import {
   Col
 } from "reactstrap";
 
-// Project components
+// Project Components
 import Variable from "./Variable";
 import DimensionSlider from "./DimensionSlider";
 import AxisInfo from "./AxisInfo";

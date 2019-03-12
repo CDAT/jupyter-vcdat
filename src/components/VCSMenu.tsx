@@ -409,7 +409,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       } else {
         // Limit selection to MAX_SLABS
         let selection: Array<string> = this.state.selectedVariables;
-        console.log(`Selected variables: ${selection}`);
         if (selection.length > MAX_SLABS) {
           selection = selection.slice(0, MAX_SLABS);
           this.updateSelectedVariables(selection);
@@ -444,7 +443,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           plotString += variableName + ", ";
         });
         plotString += `${temp}, ${gm})`;
-        console.log(`Plot cmd: ${plotString}`);
         this.props.inject(plotString);
         this.props.plotExistTrue();
       }

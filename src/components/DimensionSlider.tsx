@@ -4,7 +4,7 @@ import * as _ from "lodash";
 import * as moment from "moment";
 import { Row, Col } from "reactstrap";
 
-// Project components
+// Project Components
 import { Slider, Rail, Handles, Tracks, Ticks } from "react-compound-slider";
 import { Handle, Track, Tick } from "./Tracks";
 

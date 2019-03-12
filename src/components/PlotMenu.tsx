@@ -18,7 +18,7 @@ import {
 } from "reactstrap";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 
-// Project components
+// Project Components
 import Variable from "./Variable";
 
 type PlotMenuProps = {

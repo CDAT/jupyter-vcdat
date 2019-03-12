@@ -13,7 +13,7 @@ import {
 } from "reactstrap";
 import { ColorFunctions } from "../Utilities";
 
-// Project components
+// Project Components
 import Variable from "./Variable";
 import VarLoader from "./VarLoader";
 import AxisInfo from "./AxisInfo";

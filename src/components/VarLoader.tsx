@@ -3,7 +3,7 @@ import * as React from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// Project components
+// Project Components
 import Variable from "./Variable";
 import VarCard from "./VarCard";
 import AxisInfo from "./AxisInfo";

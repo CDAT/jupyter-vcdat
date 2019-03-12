@@ -18,7 +18,7 @@ import {
   InputGroupAddon
 } from "reactstrap";
 
-// Project components
+// Project Components
 import { NotebookUtilities } from "../NotebookUtilities";
 
 const dropdownMenuStyle: React.CSSProperties = {

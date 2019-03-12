@@ -12,7 +12,7 @@ import {
 } from "reactstrap";
 import { MiscUtilities } from "../Utilities";
 
-// Project components
+// Project Components
 import Variable from "./Variable";
 import AxisInfo from "./AxisInfo";
 import DimensionSlider from "./DimensionSlider";
