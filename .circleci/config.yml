@@ -130,7 +130,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       OS: "linux-64"
-      PY_VER: "py3"
+      PY_VER: "base"
       COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
     steps:
