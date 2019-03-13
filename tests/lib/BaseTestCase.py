@@ -38,6 +38,7 @@ class BaseTestCase(unittest.TestCase):
            display.start()
 
         if browser == 'chrome':
+            print("DEBUG browser is 'chrome'")
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument(mode)
             chrome_options.add_argument("--no-sandbox")

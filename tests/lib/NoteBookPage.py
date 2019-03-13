@@ -38,6 +38,7 @@ class NoteBookPage(BasePage):
                 print("notebooks is displayed!")
         except NoSuchElementException:
             print("NOT FINDING a notebook")
+            return
 
         #nb_divs = "//li[contains(@class, 'p-TabBar-tab') and contains(@title, 'Name: Untitled')]//div[starts-with(@class, 'p-TabBar')]"
         nb_divs = "//li[contains(@class, 'p-TabBar-tab')][contains(@title, 'Name: Untitled')]//div[starts-with(@class, 'p-TabBar')]"
@@ -56,7 +57,7 @@ class NoteBookPage(BasePage):
                 if attr == 'p-TabBar-tabCloseIcon':
                     print("...click on note book close icon..., attr: {a}".format(a=attr))
                     action_chains = ActionChains(self.driver)
-                    #action_chains.move_to_element(e)
+                    action_chains.move_to_element(e)
                     action_chains.click(e).perform()
                     ##e.click()
                     time.sleep(10)
