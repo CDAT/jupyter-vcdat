@@ -54,7 +54,7 @@ class NoteBookPage(BasePage):
                     print("...displayed")
                 if e.is_enabled():
                     print("...enabled")
-                if attr == 'p-TabBar-tabCloseIcon':
+                if e.is_displayed() and e.is_enabled() and attr == 'p-TabBar-tabCloseIcon':
                     print("...click on note book close icon..., attr: {a}".format(a=attr))
                     action_chains = ActionChains(self.driver)
                     action_chains.move_to_element(e)
