@@ -46,10 +46,11 @@ class BrowserTest(BaseTestCase):
 
         load_variable_pop_up = LoadVariablePopUp(self.driver)
         load_variable_pop_up.click_on_var('clt')
-        load_variable_pop_up.click_on_var('u')
-        load_variable_pop_up.click_on_var('v')
+        #load_variable_pop_up.click_on_var('u')
+        #load_variable_pop_up.click_on_var('v')
         load_variable_pop_up.load()
 
+        left_side_bar.click_on_plot()
 
 
         #main_page.load_file("clt.nc")

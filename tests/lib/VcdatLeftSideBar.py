@@ -57,4 +57,8 @@ class VcdatLeftSideBar(BasePage):
 
         time.sleep(self._delay)
 
-
+    def click_on_plot(self):
+        print("...click on 'Plot' button...")
+        plot_button_locator = "//button[contains(text(), 'Plot')]"
+        self.find_element_and_click(plot_button_locator, "'Plot' button")
+        time.sleep(self._delay)
