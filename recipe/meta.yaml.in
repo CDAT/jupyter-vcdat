@@ -18,6 +18,7 @@ requirements:
     - pip
     - jupyterlab
     - cdms2
+    - plumbum
   run:
     - python >3
     - vcs
