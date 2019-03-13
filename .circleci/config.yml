@@ -103,7 +103,7 @@ aliases:
        source deactivate
 
 jobs:
-  macos_jupyter_vcdat_py3:
+  macos_jupyter_vcdat:
     macos:
       xcode: "9.2.0"
     environment:
@@ -124,9 +124,9 @@ jobs:
           path: tests_png
           destination: tests_png
 
-  linux_jupyter_vcdat_py3:
+  linux_jupyter_vcdat:
     docker:
-        - image: cdoutrix/vcdat:core
+        - image: cdoutrix/vcdat:lab-extensions
     environment:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       OS: "linux-64"
@@ -152,7 +152,7 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-        #- macos_jupyter_vcdat_py3
-      - linux_jupyter_vcdat_py3
+        #- macos_jupyter_vcdat
+      - linux_jupyter_vcdat
 
 
