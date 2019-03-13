@@ -125,7 +125,7 @@ jobs:
           destination: tests_png
 
   linux_jupyter_vcdat_py3:
-    machine:
+    docker:
         image: cdoutrix/vcdat:core
     environment:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
