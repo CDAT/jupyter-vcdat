@@ -32,17 +32,17 @@ aliases:
        export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
        # LAZY_IMPORT
-       python -m pip install lazy_import
+       #   python -m pip install lazy_import
        # SIDECAR
-       python -m pip install sidecar
-       jupyter labextension install @jupyter-widgets/jupyterlab-manager
-       jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
+       #python -m pip install sidecar
+       #jupyter labextension install @jupyter-widgets/jupyterlab-manager
+       #jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
        # GITHUB EXTENSION
-       jupyter labextension install @jupyterlab/github
+       #jupyter labextension install @jupyterlab/github
        # maybe?
-       pip install jupyterlab_github
-       jupyter serverextension enable --sys-prefix jupyterlab_github
+       #pip install jupyterlab_github
+       #jupyter serverextension enable --sys-prefix jupyterlab_github
 
        python setup.py install
        rm -rf node_modules
@@ -126,7 +126,7 @@ jobs:
 
   linux_jupyter_vcdat_py3:
     machine:
-      image: circleci/classic:latest
+        image: cdoutrix/vcdat:core
     environment:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       OS: "linux-64"
@@ -135,8 +135,8 @@ jobs:
       COVERAGE_PKGS: "coverage coveralls"
     steps:
       - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
+        #      - run: *setup_miniconda
+        #- run: *create_conda_env
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
       - run: *run_coveralls
@@ -152,7 +152,7 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - macos_jupyter_vcdat_py3
+        #- macos_jupyter_vcdat_py3
       - linux_jupyter_vcdat_py3
 
 
