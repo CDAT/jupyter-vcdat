@@ -126,7 +126,7 @@ jobs:
 
   linux_jupyter_vcdat_py3:
     docker:
-        image: cdoutrix/vcdat:core
+        - image: cdoutrix/vcdat:core
     environment:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       OS: "linux-64"
