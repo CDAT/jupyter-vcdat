@@ -17,7 +17,9 @@ import {
   InputGroup,
   InputGroupAddon
 } from "reactstrap";
-import { notebook_utils } from "../notebook_utils";
+
+// Project Components
+import { NotebookUtilities } from "../NotebookUtilities";
 
 const dropdownMenuStyle: React.CSSProperties = {
   maxHeight: "250px",
@@ -179,6 +181,7 @@ export default class GraphicsMenu extends React.Component<
             <CardSubtitle className="clearfix">
               <Dropdown
                 className="float-left"
+                style={{ maxWidth: "calc(100% - 70px)" }}
                 isOpen={this.state.showDropdown}
                 toggle={this.toggleDropdown}
               >
@@ -188,40 +191,45 @@ export default class GraphicsMenu extends React.Component<
                 >
                   {dropdownTitle}
                 </DropdownToggle>
-                {/*FOR FUTURE FUCNTIONALITY <Button
-                  className="float-right"
-                  hidden={
-                    this.state.selectedMethod == "" ||
-                    this.state.showMenu ||
-                    this.state.showDropdown ||
-                    this.state.enterName ||
-                    this.state.selectedGroup == ""
-                  }
-                  onClick={() => {
-                    this.props.editGraphicsMethod();
-                  }}
-                  outline
-                  color="danger"
-                >
-                  Edit
-                </Button>*/}
-
                 <DropdownMenu style={dropdownMenuStyle}>
                   {Object.keys(this.props.getGraphicsList()).map(item => {
-                    return (
-                      <DropdownItem
-                        onClick={() => {
-                          this.setState({
-                            tempGroup: item,
-                            showDropdown: false,
-                            showMenu: true
-                          });
-                        }}
-                        key={item}
-                      >
-                        {item}
-                      </DropdownItem>
-                    );
+                    let methods: any = this.props.getGraphicsList()[item];
+                    if (methods.length > 1) {
+                      return (
+                        <DropdownItem
+                          onClick={() => {
+                            this.setState({
+                              tempGroup: item,
+                              showDropdown: false,
+                              showMenu: true
+                            });
+                          }}
+                          key={item}
+                        >
+                          {item}
+                        </DropdownItem>
+                      );
+                    } else {
+                      return (
+                        <DropdownItem
+                          onClick={() => {
+                            this.setState(
+                              {
+                                tempGroup: item,
+                                showDropdown: false,
+                                showMenu: false
+                              },
+                              () => {
+                                this.selectItem(methods[0]);
+                              }
+                            );
+                          }}
+                          key={item}
+                        >
+                          {item} ({methods[0]})
+                        </DropdownItem>
+                      );
+                    }
                   })}
                 </DropdownMenu>
               </Dropdown>
@@ -303,7 +311,7 @@ export default class GraphicsMenu extends React.Component<
                         console.log(error);
                       }
                     } else {
-                      notebook_utils.showMessage(
+                      NotebookUtilities.showMessage(
                         "Notice",
                         "Name cannot be empty."
                       );

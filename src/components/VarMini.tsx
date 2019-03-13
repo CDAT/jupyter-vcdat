@@ -1,7 +1,5 @@
+// Dependencies
 import * as React from "react";
-import Variable from "./Variable";
-import AxisInfo from "./AxisInfo";
-import DimensionSlider from "./DimensionSlider";
 import {
   Button,
   Modal,
@@ -12,6 +10,12 @@ import {
   CardBody,
   Badge
 } from "reactstrap";
+import { MiscUtilities } from "../Utilities";
+
+// Project Components
+import Variable from "./Variable";
+import AxisInfo from "./AxisInfo";
+import DimensionSlider from "./DimensionSlider";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
@@ -19,23 +23,22 @@ const axisStyle: React.CSSProperties = {
 const badgeStyle: React.CSSProperties = {
   margin: "auto",
   marginLeft: "0.5em"
-}
+};
 const centered: React.CSSProperties = {
   margin: "auto"
 };
 
 type VarMiniProps = {
-  isPrimaryVariable: Function;  // a method to test if the variable for this component is the primary
-  variable: Variable;           // the variable this component will show
-  selectVariable: Function;     // method to call to add this variable to the list to get loaded
-  deselectVariable: Function;   // method to call to remove a variable from the list
-  updateDimInfo: Function;      // method passed by the parent to update their copy of the variables dimension info
-  isSelected: Function;         // method to check if this variable is selected in parent
-  allowReload: boolean;         // is this variable allowed to be reloaded
-  reload: Function;             // a function to reload the variable
+  buttonColor: string; // The hex value for the color
+  variable: Variable; // the variable this component will show
+  updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
+  isSelected: Function; // method to check if this variable is selected in parent
+  selectOrder: number;
+  allowReload: boolean; // is this variable allowed to be reloaded
+  reload: Function; // a function to reload the variable
 };
 type VarMiniState = {
-  showAxis: boolean;            // should the edit axis modal be shown
+  showAxis: boolean; // should the edit axis modal be shown
 };
 
 export default class VarMini extends React.Component<
@@ -50,20 +53,8 @@ export default class VarMini extends React.Component<
     };
     this.varName = this.props.variable.name;
     this.openMenu = this.openMenu.bind(this);
-    this.selectVariable = this.selectVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
-  }
-
-  /**
-   * @description sets the isSelected attribute, and propagates up the selection action to the parent
-   */
-  async selectVariable(): Promise<void> {
-    if (this.props.isSelected(this.varName)) {
-      await this.props.deselectVariable(this.varName);
-    } else {
-      await this.props.selectVariable(this.varName);
-    }
   }
 
   /**
@@ -91,43 +82,43 @@ export default class VarMini extends React.Component<
   }
 
   render(): JSX.Element {
-    let color = "secondary";
-    let badge = "";
-    if (this.props.isSelected(this.varName)) {
-      if (this.props.isPrimaryVariable(this.varName)) {
-        color = "success";
-        badge = "primary";
-      } else {
-        color = "info";
-        badge = "secondary";
-      }
-    }
     return (
       <div>
         <div className="clearfix">
           <Button
             outline
+            color={this.props.isSelected ? "success" : "secondary"}
+            style={
+              this.props.isSelected && {
+                backgroundColor: this.props.buttonColor
+              }
+            }
             active={this.props.isSelected(this.varName)}
-            color={color}
-            onClick={this.selectVariable}
           >
             {this.props.variable.name}
           </Button>
           <Button
             outline
             style={axisStyle}
-            color="secondary"
-            onClick={() => {
+            color="danger"
+            onClick={(clickEvent: React.MouseEvent<HTMLButtonElement>) => {
               this.setState({
                 showAxis: !this.state.showAxis
               });
+              clickEvent.stopPropagation();
             }}
           >
             edit
           </Button>
           {this.props.isSelected(this.varName) && (
-            <Badge color={color} style={badgeStyle}>
-              {badge}
+            <Badge
+              className="float-right"
+              style={{
+                ...badgeStyle,
+                ...{ backgroundColor: this.props.buttonColor }
+              }}
+            >
+              {MiscUtilities.numToOrdStr(this.props.selectOrder)} Variable
             </Badge>
           )}
         </div>
