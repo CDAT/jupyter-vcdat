@@ -22,7 +22,7 @@ aliases:
        conda config --set always_yes yes --set changeps1 no
        conda update -q conda
        conda config --set anaconda_upload no
-       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" $COVERAGE_PKGS
+       conda create -q -n $PY_VER $CHANNELS $PKGS "python>3" $COVERAGE_PKGS
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -119,7 +119,6 @@ jobs:
     environment:
       WORKDIR: "workspace/test_macos_jupyter_vcdat_py3"
       PY_VER: "py3"
-      #TEMP_PKGS: "'ffmpeg>4' 'libpng>1.6.34'" 
     steps:
       - checkout
       - run: *setup_miniconda
@@ -132,9 +131,8 @@ jobs:
     environment:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
-      #TEMP_PKGS: 'ffmpeg' 
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-      COVERAGE_PKGS: "coverage coveralls"
+      #COVERAGE_PKGS: "coverage coveralls"
     steps:
       - checkout
       - run: uname -a
@@ -150,7 +148,6 @@ jobs:
     environment:
       WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
-      #TEMP_PKGS: 'ffmpeg' 
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: "firefox"
@@ -178,7 +175,6 @@ jobs:
     environment:
       WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
-      #TEMP_PKGS: 'ffmpeg' 
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: "chrome"
