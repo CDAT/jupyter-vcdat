@@ -14,6 +14,7 @@ from FileBrowser import FileBrowser
 from MainPage import MainPage
 from NoteBookPage import NoteBookPage
 from JupyterUtils import JupyterUtils
+from LoadVariablePopUp import LoadVariablePopUp
 from selenium.common.exceptions import NoSuchElementException
 
 
@@ -42,6 +43,14 @@ class BrowserTest(BaseTestCase):
         file_browser = FileBrowser(self.driver, None)
         file_browser.double_click_on_a_file("clt.nc")
         time.sleep(5)
+
+        load_variable_pop_up = LoadVariablePopUp(self.driver)
+        load_variable_pop_up.click_on_var('clt')
+        load_variable_pop_up.click_on_var('u')
+        load_variable_pop_up.click_on_var('v')
+        load_variable_pop_up.load()
+
+
 
         #main_page.load_file("clt.nc")
 

@@ -39,7 +39,8 @@ class NoteBookPage(BasePage):
         except NoSuchElementException:
             print("NOT FINDING a notebook")
 
-        nb_divs = "//li[contains(@class, 'p-TabBar-tab') and contains(@title, 'Name: Untitled')]//div[starts-with(@class, 'p-TabBar')]"
+        #nb_divs = "//li[contains(@class, 'p-TabBar-tab') and contains(@title, 'Name: Untitled')]//div[starts-with(@class, 'p-TabBar')]"
+        nb_divs = "//li[contains(@class, 'p-TabBar-tab')][contains(@title, 'Name: Untitled')]//div[starts-with(@class, 'p-TabBar')]"
         print("nb_divs:{n}".format(n=nb_divs))
         try:
             elems = self.driver.find_elements_by_xpath(nb_divs)
