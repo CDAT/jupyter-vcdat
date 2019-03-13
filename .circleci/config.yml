@@ -131,22 +131,22 @@ jobs:
       WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
       OS: "linux-64"
       PY_VER: "base"
-      COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-      COVERAGE_PKGS: "coverage coveralls"
+      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      #COVERAGE_PKGS: "coverage coveralls"
     steps:
       - checkout
         #      - run: *setup_miniconda
         #- run: *create_conda_env
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
-      - run: *run_coveralls
+        #- run: *run_coveralls
       - run: *conda_upload
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
-      - store_artifacts:
-          path: tests_png
-          destination: tests_png
+        #- store_artifacts:
+        #  path: tests_html
+        #  destination: tests_html
+        #- store_artifacts:
+        #  path: tests_png
+        #  destination: tests_png
 
 workflows:
   version: 2
