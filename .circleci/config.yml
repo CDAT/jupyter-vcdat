@@ -15,14 +15,14 @@ aliases:
   - &create_conda_env
     name: create_conda_env
     environment:
-       CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
-       PKGS: "nodejs vcs jupyterlab pip nb_conda nb_conda_kernels plumbum"
+       CHANNELS: "-c cdat/label/v81 -c conda-forge"
+       PKGS: "nodejs 'python>3' vcs jupyterlab pip nb_conda nb_conda_kernels plumbum testsrunner"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -q conda
        conda config --set anaconda_upload no
-       conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" $COVERAGE_PKGS
+       conda create -q -n $PY_VER $CHANNELS $PKGS "python>3" $COVERAGE_PKGS
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -31,6 +31,9 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
+       # for running tests
+       pip install selenium
+       pip install pyvirtualdisplay
        # LAZY_IMPORT
        python -m pip install lazy_import
        # SIDECAR
@@ -51,6 +54,18 @@ aliases:
        jupyter lab build
        jupyter labextension install . 
 
+
+  - &run_jupyter_vcdat
+    name: run_jupyter_vcdat
+    command: |
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       export CDAT_ANONYMOUS_LOG=False
+       export CDAT_SETUP_PATH=${HOME}
+       source activate $PY_VER
+       pwd
+       jupyter lab --ip='127.0.0.1'
+    background: true
+
   - &run_jupyter_vcdat_tests
     name: run_jupyter_vcdat_tests
     command: |
@@ -58,16 +73,11 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
-       #python run_tests.py -H -v2 -n 2 --checkout-baseline --no-vtk-ui $COVERAGE
+       pip install selenium
+       pip install pyvirtualdisplay
+       python run_tests.py -H -v2 -n 2 $COVERAGE
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
-       #if [[ $PY_VER = 'py3' ]]; then
-       #   cd docs
-       #   make doctest
-       #   DOC_RESULT=$?
-       #   echo "*** $PY_VER doc test result: "${DOC_RESULT}
-       #   RESULT=$(( $RESULT + $DOC_RESULT ))
-       #fi
        exit $RESULT
 
   - &conda_upload
@@ -105,17 +115,51 @@ aliases:
 jobs:
   macos_jupyter_vcdat_py3:
     macos:
-      xcode: "9.2.0"
+      xcode: "10.2.0"
     environment:
       WORKDIR: "workspace/test_macos_jupyter_vcdat_py3"
-      OS: "osx-64"
       PY_VER: "py3"
-      TEMP_PKGS: "'ffmpeg>4' 'libpng>1.6.34'" 
     steps:
       - checkout
       - run: *setup_miniconda
       - run: *create_conda_env
       - run: *setup_jupyter_vcdat
+
+  linux_jupyter_vcdat_py3:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
+      PY_VER: "py3"
+      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      #COVERAGE_PKGS: "coverage coveralls"
+    steps:
+      - checkout
+      - run: uname -a
+      - run: *setup_miniconda
+      - run: *create_conda_env
+      - run: *setup_jupyter_vcdat
+      #- run: *conda_upload
+
+  linux_docker_firefox_jupyter_vcdat_py3:
+    docker:
+      - image: circleci/node:jessie-browsers
+      - image: circleci/python:3.6.2-stretch-browsers
+    environment:
+      WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
+      PY_VER: "py3"
+      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      COVERAGE_PKGS: "coverage coveralls"
+      BROWSER_TYPE: "firefox"
+    steps:
+      - checkout
+      - run: uname -a
+      - run: which firefox
+      - run: which geckodriver
+      - run: *setup_miniconda
+      - run: *create_conda_env
+      - run: *setup_jupyter_vcdat
+      - run: *run_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
       - store_artifacts:
           path: tests_html
@@ -124,20 +168,22 @@ jobs:
           path: tests_png
           destination: tests_png
 
-  linux_jupyter_vcdat_py3:
-    machine:
-      image: circleci/classic:latest
+  linux_docker_chrome_jupyter_vcdat_py3:
+    docker:
+      - image: circleci/node:jessie-browsers
+      - image: circleci/python:3.6.2-stretch-browsers
     environment:
-      WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
-      OS: "linux-64"
+      WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
-      COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       COVERAGE_PKGS: "coverage coveralls"
+      BROWSER_TYPE: "chrome"
     steps:
       - checkout
       - run: *setup_miniconda
       - run: *create_conda_env
       - run: *setup_jupyter_vcdat
+      - run: *run_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
       - run: *run_coveralls
       - run: *conda_upload
@@ -152,7 +198,11 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - macos_jupyter_vcdat_py3
-      - linux_jupyter_vcdat_py3
+      #- macos_jupyter_vcdat_py3
+      #- linux_jupyter_vcdat_py3
+      - linux_docker_chrome_jupyter_vcdat_py3
+      #- linux_docker_firefox_jupyter_vcdat_py3
+
+
 
 
