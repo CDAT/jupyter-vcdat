@@ -199,6 +199,6 @@ workflows:
   jupyter_vcdat:
     jobs:
         #- macos_jupyter_vcdat
-      - linux_jupyter_vcdat
+      - linux_jupyter_vcdat_py3
 
 
