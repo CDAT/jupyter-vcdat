@@ -2,10 +2,9 @@
 
 Learning to make extensions for JupyterLab and incorporating React.
 
-
 ## Prerequisites
 
-* JupyterLab
+- JupyterLab
 
 ## Installation
 
@@ -23,6 +22,14 @@ For a development install:
     python -m pip install sidecar
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
+
+
+    # Install tslint (optional)
+      # For VSCode:
+       code --install-extension tslint
+
+      # For Atom:
+      apm install linter-tslint
 
     # Install the extension
     cd ..
