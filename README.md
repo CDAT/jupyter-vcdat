@@ -14,6 +14,14 @@ For a development install:
 
     #Create the environment
     ./install_script.sh
+
+    # Install tslint (optional)
+      # For VSCode:
+       code --install-extension tslint
+
+      # For Atom:
+      apm install linter-tslint
+
     cd jupyter-vcdat
     jupyter lab
 
