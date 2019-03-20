@@ -22,7 +22,7 @@ For a development install:
       # For Atom:
       apm install linter-tslint
 
-    cd jupyter-vcdat
+    conda activate jupyter-vcdat
     jupyter lab
 
 ```
