@@ -1,17 +1,18 @@
+// Dependencies
 import * as React from "react";
-
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+// Project Components
 import Variable from "./Variable";
 import VarCard from "./VarCard";
 import AxisInfo from "./AxisInfo";
-import { MAX_SLABS } from "../constants";
 
 type VarLoaderProps = {
   loadFileVariable: Function; // function to call when user hits load
   variables: Array<Variable>; // list of all currently available variables
   updateSelectedVariables: Function; // update the list of selected variables
+  saveNotebook: Function // function that saves the current notebook
 };
 type VarLoaderState = {
   show: boolean; // should the modal be shown
@@ -57,34 +58,40 @@ export default class VarLoader extends React.Component<
     return this.state.selectedVariables.indexOf(varName) >= 0;
   }
 
+  // Loads all the selected variables into the notebook, returns the number loaded
   async loadSelectedVariables(): Promise<void> {
-    // Once the load button is clicked, load only the files that were selected.
+    // Exit early if no variable selected for loading
+    if (this.state.selectedVariables.length == 0) {
+      this.setState({ selectedVariables: new Array<string>() });
+      return;
+    }
+    // Once the load button is clicked, load only the variables that were selected
     this.state.fileVariables.forEach(async (variable: Variable) => {
-      let ind = this.state.selectedVariables.indexOf(variable.cdmsID);
-      if (ind >= 0) {
+      let idx = this.state.selectedVariables.indexOf(variable.name);
+      if (idx >= 0) {
         // Add the variable
-        await this.props.loadFileVariable(variable);
+        this.props.loadFileVariable(variable);
       }
     });
-    // Select only the max number of slabs allowed for plot injection
-    let selection = this.state.selectedVariables;
-    if (selection.length > MAX_SLABS) {
-      selection = selection.slice(0, MAX_SLABS);
-    }
+
     // Update the main widget's current selected variables
-    await this.props.updateSelectedVariables(selection);
+    await this.props.updateSelectedVariables(this.state.selectedVariables);
+
     // Reset the selected files in the var loader when done
     this.setState({ selectedVariables: new Array<string>() });
+
+    // Save the notebook after variables have been added
+    this.props.saveNotebook();
   }
 
   /**
    *
    * @param variable The Variable the user has selected to get loaded
    */
-  selectVariableForLoad(variableName: string): void {
+  selectVariableForLoad(varName: string): void {
     // Update the state
     this.setState({
-      selectedVariables: this.state.selectedVariables.concat([variableName])
+      selectedVariables: this.state.selectedVariables.concat([varName])
     });
   }
 
@@ -92,11 +99,11 @@ export default class VarLoader extends React.Component<
    *
    * @param variable Remove a variable from the list to be loaded
    */
-  deselectVariableForLoad(variableName: string): void {
-    let ind: number = this.state.selectedVariables.indexOf(variableName);
+  deselectVariableForLoad(varName: string): void {
+    let idx: number = this.state.selectedVariables.indexOf(varName);
     let selectedVars: Array<string> = this.state.selectedVariables;
-    if (ind >= 0) {
-      selectedVars.splice(ind, 1);
+    if (idx >= 0) {
+      selectedVars.splice(idx, 1);
     }
     this.setState({
       selectedVariables: selectedVars
@@ -104,8 +111,8 @@ export default class VarLoader extends React.Component<
   }
 
   // Returns true if the variable name has already been loaded into vcdat
-  isLoaded(variableName: string): boolean {
-    return this.state.unloadedVariables.indexOf(variableName) < 0;
+  isLoaded(varName: string): boolean {
+    return this.state.unloadedVariables.indexOf(varName) < 0;
   }
 
   /**

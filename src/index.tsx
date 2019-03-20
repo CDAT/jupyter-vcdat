@@ -1,3 +1,4 @@
+// Dependencies
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -11,11 +12,13 @@ import {
   ApplicationShell
 } from "@jupyterlab/application";
 
-import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
+import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
+// Project Components
 import "../style/css/index.css";
-import { notebook_utils } from "./notebook_utils";
+import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
+import { NotebookUtilities } from "./NotebookUtilities";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -23,6 +26,7 @@ const FACTORY_NAME = "vcs";
 // Declare the widget variables
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
 let shell: ApplicationShell;
+let mainMenu: MainMenu;
 
 /**
  * Initialization data for the jupyter-vcdat extension.
@@ -30,7 +34,7 @@ let shell: ApplicationShell;
 const extension: JupyterLabPlugin<void> = {
   id: "jupyter-vcdat",
   autoStart: true,
-  requires: [INotebookTracker],
+  requires: [INotebookTracker, IMainMenu],
   activate: activate
 };
 
@@ -39,8 +43,13 @@ export default extension;
 /**
  * Activate the vcs widget extension.
  */
-function activate(app: JupyterLab, tracker: NotebookTracker): void {
+function activate(
+  app: JupyterLab,
+  tracker: NotebookTracker,
+  menu: MainMenu
+): void {
   shell = app.shell;
+  mainMenu = menu;
 
   const factory = new NCViewerFactory({
     name: FACTORY_NAME,
@@ -62,6 +71,7 @@ function activate(app: JupyterLab, tracker: NotebookTracker): void {
 
   // Creates the left side bar widget once the app has fully started
   app.started.then(() => {
+    
     sidebar = new LeftSideBarWidget(app, tracker);
     sidebar.id = "vcdat-left-side-bar";
     sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";
@@ -77,7 +87,26 @@ function activate(app: JupyterLab, tracker: NotebookTracker): void {
   // Initializes the sidebar widget once the application shell has been restored
   // and all the widgets have been added to the notebooktracker
   app.shell.restored.then(() => {
+    addHelpReference(
+      mainMenu,
+      "VCS Reference",
+      "https://cdat-vcs.readthedocs.io/en/latest/"
+    );
+    addHelpReference(
+      mainMenu,
+      "CDMS Reference",
+      "https://cdms.readthedocs.io/en/latest/"
+    );
     sidebar.initialize();
+  });
+}
+
+// Adds a reference link to the help menu in JupyterLab
+function addHelpReference(mainMenu: MainMenu, text: string, url: string): void {
+  // Add item to help menu
+  mainMenu.helpMenu.menu.addItem({
+    args: { text: text, url: url },
+    command: "help:open"
   });
 }
 
@@ -103,11 +132,11 @@ export class NCViewerFactory extends ABCWidgetFactory<
     // Prepare the notebook for code injection
     sidebar.prepareNotebookPanel(context.session.name).catch(error => {
       if (error.status == "error") {
-        notebook_utils.showMessage(error.ename, error.evalue);
+        NotebookUtilities.showMessage(error.ename, error.evalue);
       } else if (error.message != null) {
-        notebook_utils.showMessage("Error", error.message);
+        NotebookUtilities.showMessage("Error", error.message);
       } else {
-        notebook_utils.showMessage(
+        NotebookUtilities.showMessage(
           "Error",
           "An error occurred when preparing the notebook."
         );

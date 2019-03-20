@@ -1,15 +1,23 @@
-const MAX_SLABS = 2;
-const BASE_URL = "/vcs";
-const READY_KEY = "vcdat_ready";
-const FILE_PATH_KEY = "vcdat_file_path";
-const IMPORT_CELL_KEY = "vcdat_imports";
-const VARIABLES_KEY = "selected_variables";
-const GRAPHICS_METHOD_KEY = "graphics_method_selected";
-const TEMPLATE_KEY = "template_selected";
-const VARIABLES_LOADED_KEY = "vcdat_loaded_variables";
-const REQUIRED_MODULES = "'lazy_import','cdms2','vcs'";
+import { MiscUtilities } from "./Utilities";
 
-const GET_VARS_CMD =
+const MAX_SLABS: number = 2;
+const BASE_URL: string = "/vcs";
+const READY_KEY: string = "vcdat_ready";
+const EXTENSIONS: string[] = [".nc[34]?", ".ctl", ".dic", ".pp", ".cdf"];
+const EXTENSIONS_REGEX: RegExp = MiscUtilities.filenameFilter(EXTENSIONS);
+const FILE_PATH_KEY: string = "vcdat_file_path";
+const IMPORT_CELL_KEY: string = "vcdat_imports";
+const CANVAS_CELL_KEY: string = "vcdat_canvases";
+const READER_CELL_KEY: string = "vcdat_readers";
+const VARIABLES_KEY: string = "selected_variables";
+const DATA_LIST_KEY: string = "data_variable_file_paths";
+const VARIABLE_SOURCES_KEY: string = "variable_source_names";
+const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
+const TEMPLATE_KEY: string = "template_selected";
+const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
+const REQUIRED_MODULES: string = "'lazy_import','cdms2','vcs','sidecar'";
+
+const GET_VARS_CMD: string =
   'import __main__\n\
 import json\n\
 def variables():\n\
@@ -43,7 +51,7 @@ def variables():\n\
   return out\n\
 output = variables()";
 
-const REFRESH_GRAPHICS_CMD =
+const REFRESH_GRAPHICS_CMD: string =
   "import __main__\n\
 import json\n\
 def graphic_methods():\n\
@@ -53,11 +61,11 @@ def graphic_methods():\n\
   return out\n\
 output = json.dumps(graphic_methods())";
 
-const REFRESH_TEMPLATES_CMD =
+const REFRESH_TEMPLATES_CMD: string =
   "import __main__\n\
 output = vcs.listelements('template')";
 
-const CHECK_MODULES_CMD = `import types\n\
+const CHECK_MODULES_CMD: string = `import types\n\
 required = [${REQUIRED_MODULES}]\n\
 def imports():\n\
   for name, val in globals().items():\n\
@@ -66,7 +74,7 @@ def imports():\n\
 found = list(imports())\n\
 output = list(set(required)-set(found))`;
 
-const LIST_CANVASES_CMD = `import __main__\n
+const LIST_CANVASES_CMD: string = `import __main__\n
 def canvases():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
@@ -75,8 +83,9 @@ def canvases():\n\
   return out\n\
 output = canvases()`;
 
-const REFRESH_VAR_INFO_A = `import __main__\n\
+const REFRESH_VAR_INFO: string = `import __main__\n\
 import json\n\
+import cdms2\n\
 def variables():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
@@ -87,11 +96,6 @@ vars = variables()\n\
 outVars = {}\n\
 for vname in vars:\n\
   var = __main__.__dict__[vname]\n\
-  # Get cdmsID for the variable\n\
-  if hasattr(var, 'id'):\n\
-    cdmsID = var.id\n\
-  else:\n\
-    cdmsID = ""\n\
   # Get a displayable name for the variable\n\
   if hasattr(var, 'long_name'):\n\
     name = var.long_name\n\
@@ -138,8 +142,8 @@ for vname in vars:\n\
     gridType = None\n\
   if (vname not in outVars):\n\
     outVars[vname] = {}\n\
-  outVars[vname]['cdmsID'] = cdmsID\n\
   outVars[vname]['name'] = name\n\
+  outVars[vname]['pythonID'] = id(var)\n\
   outVars[vname]['shape'] = var.shape\n\
   outVars[vname]['units'] = units\n\
   outVars[vname]['axisList'] = axisList\n\
@@ -147,10 +151,11 @@ for vname in vars:\n\
   outVars[vname]['gridType'] = gridType\n\
   if ('bounds' not in outVars[vname]):\n\
     outVars[vname]['bounds'] = None\n\
-outAxes = {}\n\
-`;
+var = None\n\
+output = json.dumps(outVars)`;
 
-const REFRESH_VAR_INFO_B = `
+const GET_AXIS_INFO: string = `
+outAxes = {}\n\
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
   # Get a displayable name for the variable\n\
@@ -171,22 +176,12 @@ for aname in reader.axes:\n\
     'data': axis.getData().tolist(),\n\
     'isTime': axis.isTime()\n\
   }\n\
-reader.close()\n\
-var = None\n\
-output = json.dumps({\n\
-  'vars': outVars,\n\
-  'axes': outAxes\n\
-  })`;
+aname = None\n\
+output = json.dumps(outAxes)`;
 
-const GET_FILE_VARIABLES = `import json\n\
-outVars = {}\n\
+const GET_FILE_VARIABLES: string = `outVars = {}\n\
 for vname in reader.variables:\n\
   var = reader.variables[vname]\n\
-  # Get cdmsID for the variable\n\
-  if hasattr(var, 'id'):\n\
-    cdmsID = var.id\n\
-  else:\n\
-    cdmsID = ""\n\
   # Get a displayable name for the variable\n\
   if hasattr(var, 'long_name'):\n\
     name = var.long_name\n\
@@ -233,8 +228,8 @@ for vname in reader.variables:\n\
     gridType = None\n\
   if (vname not in outVars):\n\
     outVars[vname] = {}\n\
-  outVars[vname]['cdmsID'] = cdmsID\n\
   outVars[vname]['name'] = name\n\
+  outVars[vname]['pythonID'] = id(var)\n\
   outVars[vname]['shape'] = var.shape\n\
   outVars[vname]['units'] = units\n\
   outVars[vname]['axisList'] = axisList\n\
@@ -263,6 +258,7 @@ for aname in reader.axes:\n\
     'data': axis.getData().tolist(),\n\
     'isTime': axis.isTime()\n\
   }\n\
+  var = None\n\
 reader.close()\n\
 output = json.dumps({\n\
   'vars': outVars,\n\
@@ -407,7 +403,7 @@ enum NOTEBOOK_STATE {
   InactiveNotebook, // No notebook is currently active
   ActiveNotebook, // An active notebook, but needs imports cell
   NoSession, // The active notebook doesn't have a client session running
-  ImportsReady, // Has imports cell, but they need to be run
+  InitialCellsReady, // Has imports cell, but they need to be run
   VCS_Ready // The notebook is ready for code injection
 }
 
@@ -416,11 +412,17 @@ export {
   BASE_URL,
   READY_KEY,
   FILE_PATH_KEY,
+  EXTENSIONS,
+  EXTENSIONS_REGEX,
+  DATA_LIST_KEY,
   IMPORT_CELL_KEY,
+  CANVAS_CELL_KEY,
+  READER_CELL_KEY,
   VARIABLES_KEY,
   GRAPHICS_METHOD_KEY,
   TEMPLATE_KEY,
   VARIABLES_LOADED_KEY,
+  VARIABLE_SOURCES_KEY,
   REQUIRED_MODULES,
   GET_VARS_CMD,
   BASE_GRAPHICS,
@@ -428,8 +430,8 @@ export {
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD,
   REFRESH_NAMES_CMD,
-  REFRESH_VAR_INFO_A,
-  REFRESH_VAR_INFO_B,
+  REFRESH_VAR_INFO,
+  GET_AXIS_INFO,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,
   GET_FILE_VARIABLES,

@@ -1,10 +1,11 @@
+// Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 import { KernelMessage } from "@jupyterlab/services";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
-namespace notebook_utils {
+namespace NotebookUtilities {
   /**
    * Opens a pop-up dialog in JupyterLab to display a simple message.
    * @param title The title for the message popup
@@ -46,23 +47,23 @@ namespace notebook_utils {
    * @description Gets the value of a key from specified notebook's metadata.
    * This asynchronous version checks the notebook session is ready before getting metadata.
    * If the notebook is null, an error will occur.
-   * @param notebook_panel The notebook to get meta data from.
+   * @param notebookPanel The notebook to get meta data from.
    * @param key The key of the value.
    * @returns Promise<any> - The value of the metadata. Returns null if the key doesn't exist.
    */
   export async function getMetaData(
-    notebook_panel: NotebookPanel,
+    notebookPanel: NotebookPanel,
     key: string
   ): Promise<any> {
-    if (notebook_panel == null) {
+    if (notebookPanel == null) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
-    await notebook_panel.activated;
-    await notebook_panel.session.ready;
-    if (notebook_panel.content.model.metadata.has(key)) {
-      return notebook_panel.content.model.metadata.get(key);
+    await notebookPanel.activated;
+    await notebookPanel.session.ready;
+    if (notebookPanel.content.model.metadata.has(key)) {
+      return notebookPanel.content.model.metadata.get(key);
     } else {
       return null;
     }
@@ -70,21 +71,21 @@ namespace notebook_utils {
 
   /**
    * @description Gets the value of a key from specified notebook's metadata.
-   * @param notebook_panel The notebook to get meta data from.
+   * @param notebookPanel The notebook to get meta data from.
    * @param key The key of the value.
    * @returns any -The value of the metadata. Returns null if the key doesn't exist.
    */
   export function getMetaDataNow(
-    notebook_panel: NotebookPanel,
+    notebookPanel: NotebookPanel,
     key: string
   ): any {
-    if (notebook_panel == null) {
+    if (notebookPanel == null) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
-    if (notebook_panel.content.model.metadata.has(key)) {
-      return notebook_panel.content.model.metadata.get(key);
+    if (notebookPanel.content.model.metadata.has(key)) {
+      return notebookPanel.content.model.metadata.get(key);
     } else {
       return null;
     }
@@ -93,35 +94,35 @@ namespace notebook_utils {
   /**
    * @description Sets the key value pair in the notebook's metadata. If the key doesn't exists it will add one.
    * This asynchronous version checks the notebook session is ready before setting the metadata.
-   * @param notebook_panel The notebook to set meta data in.
+   * @param notebookPanel The notebook to set meta data in.
    * @param key The key of the value to create.
    * @param value The value to set.
    * @param save Default is false. Whether the notebook should be saved after the meta data is set.
    * @returns The old value for the key, or undefined if it did not exist.
    */
   export async function setMetaData(
-    notebook_panel: NotebookPanel,
+    notebookPanel: NotebookPanel,
     key: string,
     value: any,
     save: boolean = false
   ): Promise<any> {
-    if (notebook_panel == null) {
+    if (notebookPanel == null) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
-    await notebook_panel.session.ready;
-    let old_val: any = notebook_panel.content.model.metadata.set(key, value);
+    await notebookPanel.session.ready;
+    let oldVal: any = notebookPanel.content.model.metadata.set(key, value);
     if (save) {
-      await notebook_panel.context.save();
+      await notebookPanel.context.save();
     }
-    return old_val;
+    return oldVal;
   }
 
   /**
    * @description Sets the key value pair in the notebook's metadata.
    * If the key doesn't exists it will add one.
-   * @param notebook_panel The notebook to set meta data in.
+   * @param notebookPanel The notebook to set meta data in.
    * @param key The key of the value to create.
    * @param value The value to set.
    * @param save Default is false. Whether the notebook should be saved after the meta data is set.
@@ -129,43 +130,43 @@ namespace notebook_utils {
    * @returns The old value for the key, or undefined if it did not exist.
    */
   export function setMetaDataNow(
-    notebook_panel: NotebookPanel,
+    notebookPanel: NotebookPanel,
     key: string,
     value: any,
     save: boolean = false
   ): any {
-    let old_val = notebook_panel.content.model.metadata.set(key, value);
+    let oldVal = notebookPanel.content.model.metadata.set(key, value);
     if (save) {
-      notebook_panel.context.save();
+      notebookPanel.context.save();
     }
-    return old_val;
+    return oldVal;
   }
 
   /**
    * @description This function runs code directly in the notebook's kernel and then evaluates the
    * result and returns it as a promise.
-   * @param notebook_panel The notebook to run the code in
+   * @param notebookPanel The notebook to run the code in
    * @param code The code to run in the kernel, this code needs to evaluate to a variable named 'output'
    * Examples of valid code:
    *  Single line: "output=123+456"
    *  Multilines: "a = [1,2,3]\nb = [4,5,6]\nfor idx, val in enumerate(a):\n\tb[idx]+=val\noutput = b"
-   * @param store_history Default is false. If true, the code executed will be stored in the kernel's history
+   * @param storeHistory Default is false. If true, the code executed will be stored in the kernel's history
    * and the counter which is shown in the cells will be incremented to reflect code was run.
    * @returns Promise<string> - A promise containing the execution results of the code as a string.
    * Or an empty string if there were no results.
    */
   export async function sendSimpleKernelRequest(
-    notebook_panel: NotebookPanel,
+    notebookPanel: NotebookPanel,
     code: string,
-    store_history: boolean = false
+    storeHistory: boolean = false
   ): Promise<string> {
     // Send request to kernel with pre-filled parameters
     let result: any = await sendKernelRequest(
-      notebook_panel,
+      notebookPanel,
       code,
       { result: "output" },
       false,
-      store_history,
+      storeHistory,
       false,
       false
     );
@@ -186,16 +187,16 @@ namespace notebook_utils {
   /**
    * @description This function runs code directly in the notebook's kernel and then evaluates the
    * result and returns it as a promise.
-   * @param notebook_panel The notebook to run the code in.
+   * @param notebookPanel The notebook to run the code in.
    * @param code The code to run in the kernel.
-   * @param user_expressions The expressions used to capture the desired info from the executed code.
+   * @param userExpressions The expressions used to capture the desired info from the executed code.
    * @param silent Default is false. If true, kernel will execute as quietly as possible.
    * store_history will be set to false, and no broadcast on IOPUB channel will be made.
-   * @param store_history Default is false. If true, the code executed will be stored in the kernel's history
+   * @param storeHistory Default is false. If true, the code executed will be stored in the kernel's history
    * and the counter which is shown in the cells will be incremented to reflect code was run.
-   * @param allow_stdin Default is false. If true, code running in kernel can prompt user for input using
+   * @param allowStdIn Default is false. If true, code running in kernel can prompt user for input using
    * an input_request message.
-   * @param stop_on_error Default is false. If True, does not abort the execution queue, if an exception is encountered.
+   * @param stopOnError Default is false. If True, does not abort the execution queue, if an exception is encountered.
    * This allows the queued execution of multiple execute_requests, even if they generate exceptions.
    * @returns Promise<any> - A promise containing the execution results of the code as an object with
    * keys based on the user_expressions.
@@ -205,7 +206,7 @@ namespace notebook_utils {
    * //The user expressions
    * const expr = {sum: "sum",prod: "a*b",args:"[a,b,sum]"};
    * //Async function call (returns a promise)
-   * sendKernelRequest(notebook_panel, code, expr,false);
+   * sendKernelRequest(notebookPanel, code, expr,false);
    * //Result when promise resolves:
    * {
    *  sum:{status:"ok",data:{"text/plain":"579"},metadata:{}},
@@ -216,32 +217,32 @@ namespace notebook_utils {
    * https://jupyter-client.readthedocs.io/en/latest/messaging.html#execution-results
    */
   export async function sendKernelRequest(
-    notebook_panel: NotebookPanel,
+    notebookPanel: NotebookPanel,
     code: string,
-    user_expressions: any,
+    userExpressions: any,
     silent: boolean = false,
-    store_history: boolean = false,
-    allow_stdin: boolean = false,
-    stop_on_error: boolean = false
+    storeHistory: boolean = false,
+    allowStdIn: boolean = false,
+    stopOnError: boolean = false
   ): Promise<any> {
     // Check notebook panel is ready
-    if (notebook_panel == null) {
+    if (notebookPanel == null) {
       throw new Error(
-        "The notebook is null or undefined. No meta data available."
+        "The notebook is null or undefined."
       );
     }
     // Wait for kernel to be ready before sending request
-    await notebook_panel.activated;
-    await notebook_panel.session.ready;
-    await notebook_panel.session.kernel.ready;
-    let message: KernelMessage.IShellMessage = await notebook_panel.session.kernel.requestExecute(
+    await notebookPanel.activated;
+    await notebookPanel.session.ready;
+    await notebookPanel.session.kernel.ready;
+    let message: KernelMessage.IShellMessage = await notebookPanel.session.kernel.requestExecute(
       {
         code: code,
         silent: silent,
-        store_history: store_history,
-        user_expressions: user_expressions,
-        allow_stdin: allow_stdin,
-        stop_on_error: stop_on_error
+        store_history: storeHistory,
+        user_expressions: userExpressions,
+        allow_stdin: allowStdIn,
+        stop_on_error: stopOnError
       }
     ).done;
 
@@ -255,4 +256,4 @@ namespace notebook_utils {
   }
 }
 
-export { notebook_utils };
+export { NotebookUtilities };

@@ -1,8 +1,5 @@
+// Dependencies
 import * as React from "react";
-import Variable from "./Variable";
-import DimensionSlider from "./DimensionSlider";
-import AxisInfo from "./AxisInfo";
-
 import {
   Card,
   CardTitle,
@@ -13,7 +10,12 @@ import {
   Row,
   Col
 } from "reactstrap";
-import { notebook_utils } from "../notebook_utils";
+
+// Project Components
+import Variable from "./Variable";
+import DimensionSlider from "./DimensionSlider";
+import AxisInfo from "./AxisInfo";
+import { NotebookUtilities } from "../NotebookUtilities";
 
 const cardStyle: React.CSSProperties = {
   margin: ".5em"
@@ -46,7 +48,6 @@ type VarCardState = {
   isLoaded: boolean;
   hidden: boolean;
   isChanged: boolean;
-  isDerived: boolean;
 };
 
 export default class VarCard extends React.Component<
@@ -62,8 +63,7 @@ export default class VarCard extends React.Component<
       isLoaded: this.props.isLoaded,
       showAxis: false,
       hidden: props.hidden,
-      isChanged: false,
-      isDerived: this.props.variable.name != this.props.variable.cdmsID
+      isChanged: false
     };
     this.varName = this.props.variable.name;
     this.openMenu = this.openMenu.bind(this);
@@ -76,7 +76,10 @@ export default class VarCard extends React.Component<
    */
   async selectVariable(): Promise<void> {
     if (this.state.isLoaded) {
-      notebook_utils.showMessage("Notice","This variable is already loaded.");
+      NotebookUtilities.showMessage(
+        "Notice",
+        "This variable is already loaded."
+      );
       await this.props.deselectVariable(this.varName);
       return;
     }
@@ -145,15 +148,9 @@ export default class VarCard extends React.Component<
                     {(this.state.showAxis ||
                       this.props.isSelected(this.varName)) && (
                       <Button
-                        title={
-                          this.state.isDerived
-                            ? "Editing of custom variables coming soon."
-                            : ""
-                        }
                         outline
-                        color={this.state.isDerived ? "dark" : "danger"}
+                        color={"danger"}
                         active={this.state.showAxis}
-                        disabled={this.state.isDerived}
                         onClick={() => {
                           this.setState({
                             showAxis: !this.state.showAxis,
