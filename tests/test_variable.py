@@ -15,50 +15,104 @@ from MainPage import MainPage
 from NoteBookPage import NoteBookPage
 from JupyterUtils import JupyterUtils
 from LoadVariablePopUp import LoadVariablePopUp
+from PlotArea import PlotArea
 from selenium.common.exceptions import NoSuchElementException
 
 
 class BrowserTest(BaseTestCase):
 
-    def test_plot_variable1(self):
-        print("xxx test_vcdat_jupyter_lab xxx")
+    @classmethod
+    def setup_class(self):
+        print("...setup_class...")
         utils = JupyterUtils()
-        server = utils.get_server()
+        self.server = utils.get_server()        
 
-        main_page = MainPage(self.driver, server)
-
+    def do_setup(self):
+        main_page = MainPage(self.driver, self.server)
         try:
-            note_book = NoteBookPage(self.driver, None)
+            note_book = NoteBookPage(self.driver)
             note_book.close()
             time.sleep(5)
         except NoSuchElementException:
             print("No notebook opened")
             pass
 
+    def load_data_file(self, filename):
         left_side_bar = VcdatLeftSideBar(self.driver, None)
         left_side_bar.click_on_jp_vcdat_icon()
         time.sleep(5)
         left_side_bar.click_on_load_variables()
 
         file_browser = FileBrowser(self.driver, None)
-        file_browser.double_click_on_a_file("clt.nc")
+        file_browser.double_click_on_a_file(filename)
         time.sleep(5)
+
+        return left_side_bar
+
+    def ABCtest_plot_variable_1(self):
+        '''
+        load 'clt.nc', load 'clt' variable, and plot.
+        '''
+        print("...test_plot_variable_1...")
+
+        server = self.server
+        self.do_setup()
+
+        left_side_bar = self.load_data_file("clt.nc")
 
         load_variable_pop_up = LoadVariablePopUp(self.driver)
         load_variable_pop_up.click_on_var('clt')
-        #load_variable_pop_up.click_on_var('u')
-        #load_variable_pop_up.click_on_var('v')
         load_variable_pop_up.load()
 
         left_side_bar.click_on_plot()
 
+        plot_area = PlotArea(self.driver)
+        plot_area.check_plot()
 
-        #main_page.load_file("clt.nc")
+    def ABCtest_plot_variable_2(self):
+        '''
+        load 'clt.nc', load 'u' variable, load 'v' variable, and plot.
+        '''
+        print("...test_plot_variable_2...")
 
-        # validate that we get a notebook
-        #nb_page = NoteBookPage(self.driver, server)
-        #nb_page.enter_code("s=data('clt')")
-        #nb_page.enter_code("x.plot(s)")
+        server = self.server
+        self.do_setup()
+
+        left_side_bar = self.load_data_file("clt.nc")
+
+        load_variable_pop_up = LoadVariablePopUp(self.driver)
+        load_variable_pop_up.click_on_var('u')
+        load_variable_pop_up.click_on_var('v')
+        load_variable_pop_up.load()
+
+        left_side_bar.click_on_plot()
+
+        plot_area = PlotArea(self.driver)
+        plot_area.check_plot()
+
+    def test_plot_variable_3(self):
+        '''
+        load 'clt.nc', load 'clt' variable, and plot.
+        '''
+        print("...test_plot_variable_3...")
+
+        server = self.server
+        self.do_setup()
+
+        left_side_bar = self.load_data_file("clt.nc")
+
+        load_variable_pop_up = LoadVariablePopUp(self.driver)
+        load_variable_pop_up.click_on_var('u')
+        load_variable_pop_up.click_on_var_axes('u')
+        load_variable_pop_up.adjust_var_axes_slider('u', 'latitude1', 'min', -60)
+        time.sleep(5)
+        #load_variable_pop_up.load()
+
+        #left_side_bar.click_on_plot()
+
+        #plot_area = PlotArea(self.driver)
+        #plot_area.check_plot()
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

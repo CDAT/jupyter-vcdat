@@ -13,7 +13,7 @@ class BasePage(object):
     """ All page objects inherit from this """
 
     _wait_timeout = 10
-    _delay = 3
+    _delay = 2
 
     def __init__(self, driver, server):
         self.driver = driver
@@ -37,11 +37,13 @@ class BasePage(object):
     def find_element(self, xpath, descr):
         try:
             #elem = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
-            self.driver.find_element_by_xpath(xpath)
+            element = self.driver.find_element_by_xpath(xpath)
             print("FOUND {d}".format(d=descr))
         except NoSuchElementException as e:
             print("NoSuchElementException...not finding {d}".format(d=descr))
             raise e
+
+        return element
 
     def action_chains_find_element_and_click(self, xpath, descr):
         print("DEBUG...action_chains...xpath: {x}".format(x=xpath))

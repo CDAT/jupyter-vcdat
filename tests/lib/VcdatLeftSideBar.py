@@ -18,7 +18,7 @@ class VcdatLeftSideBar(BasePage):
     _variable_options_locator = "//div[@id='vcdat-left-side-bar']//h5[contains(text(), 'Variable Options')]"
     _load_variables_locator = "//div[@id='vcdat-left-side-bar']//button[@class='btn btn-info'][contains(text(), 'Load Variables')]"
 
-    def __init__(self, driver, server):
+    def __init__(self, driver, server=None):
         super(VcdatLeftSideBar, self).__init__(driver, server)
 
     def _validate_page(self):
@@ -40,6 +40,8 @@ class VcdatLeftSideBar(BasePage):
                 if load_variables_element.is_displayed():
                     print("...XXX XXX FOUND 'Load Variables' button XXX")
                     found_load_variables_element = True
+                else:
+                    print("...'Load Variables' button is not displayed")
             except NoSuchElementException:
                 print("...not seeing Load Variables button..")
 
