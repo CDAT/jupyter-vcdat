@@ -23,9 +23,6 @@ class VcdatLeftSideBar(BasePage):
 
     def _validate_page(self):
         print("...VcdatLeftSideBar.validate_page()...NO OP NOW")
-        #self.driver.find_element_by_xpath(self._variable_options_locator)
-        #time.sleep(self._delay)
-        print("...returning from validate_page...")
 
     def click_on_jp_vcdat_icon(self):
         
@@ -38,7 +35,7 @@ class VcdatLeftSideBar(BasePage):
             try:
                 load_variables_element = self.driver.find_element_by_xpath(self._load_variables_locator)
                 if load_variables_element.is_displayed():
-                    print("...XXX XXX FOUND 'Load Variables' button XXX")
+                    print("...FOUND 'Load Variables' button XXX")
                     found_load_variables_element = True
                 else:
                     print("...'Load Variables' button is not displayed")
@@ -53,10 +50,7 @@ class VcdatLeftSideBar(BasePage):
         actionChains = ActionChains(self.driver)
         actionChains.move_to_element(load_variables_element)
         print("...going to click on the load variables element")
-        actionChains.click(load_variables_element)
-        print("...going to perform...")
-        actionChains.perform()
-
+        actionChains.click(load_variables_element).perform()
         time.sleep(self._delay)
 
     def click_on_plot(self):
@@ -64,3 +58,34 @@ class VcdatLeftSideBar(BasePage):
         plot_button_locator = "//button[contains(text(), 'Plot')]"
         self.find_element_and_click(plot_button_locator, "'Plot' button")
         time.sleep(self._delay)
+
+    def select_plot_type(self, plot_type):
+        select_plot_button_locator = "//div[@id='vcdat-left-side-bar']//button[@class='dropdown-toggle btn btn-secondary'][contains(text(), 'Select Plot Type')]"
+        try:
+            select_plot_button = self.driver.find_element_by_xpath(select_plot_button_locator)
+            print("DEBUG DEBUG....clicking on 'Select Plot Type' button")
+            select_plot_button.click()
+            time.sleep(self._delay)
+            print("...click on the '{p}' from the drop down menu".format(p=plot_type))
+            button_elements_locator = "//div[@id='vcdat-left-side-bar']//button[@class='dropdown-item']"
+            button_elements = self.driver.find_elements_by_xpath(button_elements_locator)
+            for b in button_elements:
+                print("DEBUG...b.text: {button_text}".format(button_text=b.text))
+                if b.text == plot_type:
+                    print("FOUND the '{p}' from drop down menu".format(p=plot_type))
+                    time.sleep(self._delay)
+                    b.click()
+                    break
+
+        except NoSuchElementException as e:
+            print("Not finding 'Select Plot Type' button")
+            raise e
+
+        # validate that the Graphics Options button now shows the selected plot_type
+        #graphics_option_button_locator = "//div[@id='vcdat-left-side-bar']//button[@class='dropdown-toggle btn btn-secondary'][contains(text(), '{pt}')]".format(pt=plot_type)
+        #try:
+        #    graphics_option_button = self.driver.find_element_by_xpath(select_plot_button_locator)
+        #except NoSuchElementException as e:
+        #    print("Graphics Options button should be showing '{pt}'".format(pt=plot_type))
+        
+

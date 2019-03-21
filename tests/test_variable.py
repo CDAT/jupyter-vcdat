@@ -51,7 +51,7 @@ class BrowserTest(BaseTestCase):
 
     def ABCtest_plot_variable_1(self):
         '''
-        load 'clt.nc', load 'clt' variable, and plot.
+        load 'clt.nc', load 'clt' variable, load and plot.
         '''
         print("...test_plot_variable_1...")
 
@@ -71,7 +71,7 @@ class BrowserTest(BaseTestCase):
 
     def ABCtest_plot_variable_2(self):
         '''
-        load 'clt.nc', load 'u' variable, load 'v' variable, and plot.
+        load 'clt.nc', load 'u' variable, load 'v' variable, load and plot.
         '''
         print("...test_plot_variable_2...")
 
@@ -90,9 +90,9 @@ class BrowserTest(BaseTestCase):
         plot_area = PlotArea(self.driver)
         plot_area.check_plot()
 
-    def test_plot_variable_3(self):
+    def ABCtest_plot_variable_3(self):
         '''
-        load 'clt.nc', load 'clt' variable, and plot.
+        load 'clt.nc', load 'u' variable, adjust slider, load, and plot.
         '''
         print("...test_plot_variable_3...")
 
@@ -104,14 +104,42 @@ class BrowserTest(BaseTestCase):
         load_variable_pop_up = LoadVariablePopUp(self.driver)
         load_variable_pop_up.click_on_var('u')
         load_variable_pop_up.click_on_var_axes('u')
-        load_variable_pop_up.adjust_var_axes_slider('u', 'latitude1', 'min', -60)
-        time.sleep(5)
-        #load_variable_pop_up.load()
+        # adjust the min slider by 20 percent and max slider by 20 percent.
+        load_variable_pop_up.adjust_var_axes_slider('u', 'latitude1', 20, -20)
 
-        #left_side_bar.click_on_plot()
+        load_variable_pop_up.load()
+        left_side_bar.click_on_plot()
+        plot_area = PlotArea(self.driver)
+        plot_area.check_plot()
 
-        #plot_area = PlotArea(self.driver)
-        #plot_area.check_plot()
+    def test_plot_variable_4(self):
+        '''
+        load 'clt.nc', load 'u' variable, load 'v' variable, adjust sliders, load, and plot.
+        '''
+        print("...test_plot_variable_4...")
+
+        server = self.server
+        self.do_setup()
+
+        left_side_bar = self.load_data_file("clt.nc")
+
+        load_variable_pop_up = LoadVariablePopUp(self.driver)
+        load_variable_pop_up.click_on_var('u')
+        load_variable_pop_up.click_on_var_axes('u')
+        # adjust the min slider by 20 percent and max slider by 20 percent.
+        load_variable_pop_up.adjust_var_axes_slider('u', 'longitude1', 20, -20)
+
+        load_variable_pop_up.click_on_var('v')
+        load_variable_pop_up.click_on_var_axes('v')
+        # adjust the min slider by 20 percent and max slider by 20 percent.
+        load_variable_pop_up.adjust_var_axes_slider('v', 'longitude2', 20, -20)
+
+        load_variable_pop_up.load()
+        left_side_bar.select_plot_type("streamline (default)")
+
+        left_side_bar.click_on_plot()
+        plot_area = PlotArea(self.driver)
+        plot_area.check_plot()
 
 
 if __name__ == '__main__':

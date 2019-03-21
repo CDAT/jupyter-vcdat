@@ -26,7 +26,7 @@ class NoteBookPage(BasePage):
         print("...NoteBookPage.validatePage()")
 
     def close(self):
-        print("...closing a note book...")
+        print("...closing a note book if there is any...")
         nb_locator = "//div[@class='p-TabBar-tabIcon jp-NotebookIcon']"
         try:
             nb = self.driver.find_element_by_xpath(nb_locator)
