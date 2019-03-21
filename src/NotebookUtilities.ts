@@ -21,9 +21,7 @@ namespace NotebookUtilities {
     const buttons: ReadonlyArray<Dialog.IButton> = [
       Dialog.okButton({ label: buttonLabel })
     ];
-    return showDialog({ title, body: msg, buttons }).then(
-      () => {}
-    );
+    return showDialog({ title, body: msg, buttons }).then(() => {});
   }
 
   /**
@@ -64,9 +62,8 @@ namespace NotebookUtilities {
     await notebookPanel.session.ready;
     if (notebookPanel.content.model.metadata.has(key)) {
       return notebookPanel.content.model.metadata.get(key);
-    } 
-      return null;
-    
+    }
+    return null;
   }
 
   /**
@@ -86,9 +83,8 @@ namespace NotebookUtilities {
     }
     if (notebookPanel.content.model.metadata.has(key)) {
       return notebookPanel.content.model.metadata.get(key);
-    } 
-      return null;
-    
+    }
+    return null;
   }
 
   /**
@@ -227,9 +223,7 @@ namespace NotebookUtilities {
   ): Promise<any> {
     // Check notebook panel is ready
     if (notebookPanel == null) {
-      throw new Error(
-        "The notebook is null or undefined."
-      );
+      throw new Error("The notebook is null or undefined.");
     }
     // Wait for kernel to be ready before sending request
     await notebookPanel.activated;

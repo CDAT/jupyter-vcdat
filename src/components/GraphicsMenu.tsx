@@ -207,27 +207,26 @@ export default class GraphicsMenu extends React.Component<
                           {item}
                         </DropdownItem>
                       );
-                    } 
-                      return (
-                        <DropdownItem
-                          onClick={() => {
-                            this.setState(
-                              {
-                                tempGroup: item,
-                                showDropdown: false,
-                                showMenu: false
-                              },
-                              () => {
-                                this.selectItem(methods[0]);
-                              }
-                            );
-                          }}
-                          key={item}
-                        >
-                          {item} ({methods[0]})
-                        </DropdownItem>
-                      );
-                    
+                    }
+                    return (
+                      <DropdownItem
+                        onClick={() => {
+                          this.setState(
+                            {
+                              tempGroup: item,
+                              showDropdown: false,
+                              showMenu: false
+                            },
+                            () => {
+                              this.selectItem(methods[0]);
+                            }
+                          );
+                        }}
+                        key={item}
+                      >
+                        {item} ({methods[0]})
+                      </DropdownItem>
+                    );
                   })}
                 </DropdownMenu>
               </Dropdown>

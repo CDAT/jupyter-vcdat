@@ -151,7 +151,8 @@ export default class PlotMenu extends React.Component<
   public plotOptions(): JSX.Element {
     if (this.state.selectedDropdownOption == "1D") {
       return <div>One Deee</div>;
-    }  if (this.state.selectedDropdownOption == "2D") {
+    }
+    if (this.state.selectedDropdownOption == "2D") {
       return (
         <div>
           <Form className={"jp-vcsWidget-Form"}>
@@ -247,7 +248,8 @@ export default class PlotMenu extends React.Component<
           </Form>
         </div>
       );
-    }  if (this.state.selectedDropdownOption == "3D") {
+    }
+    if (this.state.selectedDropdownOption == "3D") {
       return <div>Three Deee</div>;
     }
   }

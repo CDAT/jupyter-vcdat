@@ -207,7 +207,9 @@ export class LeftSideBarWidget extends Widget {
         this.state == NOTEBOOK_STATE.InitialCellsReady
       ) {
         // Update current file
-        const lastFileOpened: string | null = await NotebookUtilities.getMetaData(
+        const lastFileOpened:
+          | string
+          | null = await NotebookUtilities.getMetaData(
           notebookPanel,
           FILE_PATH_KEY
         );
@@ -373,7 +375,6 @@ export class LeftSideBarWidget extends Widget {
     notebookPanel: NotebookPanel
   ): Promise<void> {
     // Set the current notebook and wait for the session to be ready
-    console.log("Notebook changed");
     await this.setNotebookPanel(notebookPanel);
   }
 
@@ -386,12 +387,10 @@ export class LeftSideBarWidget extends Widget {
     stateChange: IChangedArgs<any>
   ): Promise<void> {
     // Perform actions when the notebook state has a command run and the notebook is vcs ready
-    console.log("State changed more frequently");
     if (
       this.state == NOTEBOOK_STATE.VCS_Ready &&
       stateChange.newValue == "command"
     ) {
-      console.log("State changed");
       this.refreshVarList();
       this.refreshGraphicsList();
       await this.refreshTemplatesList();
@@ -492,9 +491,8 @@ export class LeftSideBarWidget extends Widget {
         );
         this.usingKernel = false;
         return eval(output).length > 1;
-      } 
-        return false;
-      
+      }
+      return false;
     } catch (error) {
       return false;
     }
@@ -824,8 +822,6 @@ export class LeftSideBarWidget extends Widget {
       IMPORT_CELL_KEY
     )[0];
 
-    console.log(`Index of import: ${idx}`);
-
     if (idx < 0) {
       // Inject imports in a new cell and run
       const result: [number, string] = await CellUtilities.insertRunShow(
@@ -836,7 +832,6 @@ export class LeftSideBarWidget extends Widget {
         true
       );
       idx = result[0];
-      console.log("Added new import cell");
     } else {
       // Inject code into existing imports cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
@@ -845,7 +840,6 @@ export class LeftSideBarWidget extends Widget {
         this.notebookPanel,
         idx
       );
-      console.log("Updated import cell");
     }
 
     // Set cell meta data to identify it as containing imports
@@ -885,7 +879,6 @@ export class LeftSideBarWidget extends Widget {
     let count: number = 1;
     while (Object.keys(this.dataReaderList).indexOf(dataName) >= 0) {
       dataName = `${dataName}${count}`;
-      console.log(this.dataReaderList);
       count++;
     }
 
@@ -897,7 +890,10 @@ export class LeftSideBarWidget extends Widget {
    * @param filePath The filepath of the new file to open
    * @param index The index to use for the cell containing the data variables
    */
-  public async injectDataReaders(filePath: string, index: number): Promise<number> {
+  public async injectDataReaders(
+    filePath: string,
+    index: number
+  ): Promise<number> {
     // If the data file doesn't have correct extension, exit
     if (filePath == "") {
       throw new Error("The file path was empty.");
@@ -913,8 +909,6 @@ export class LeftSideBarWidget extends Widget {
       this.notebookPanel,
       READER_CELL_KEY
     )[0];
-
-    console.log(`Index of readers: ${idx}`);
 
     // Get list of data files to open
     const dataVarNames: string[] = Object.keys(this.dataReaderList);
@@ -959,7 +953,6 @@ export class LeftSideBarWidget extends Widget {
         true
       );
       idx = result[0];
-      console.log("New reader cell inserted.");
     } else {
       // Inject code into existing data variables cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
@@ -968,7 +961,6 @@ export class LeftSideBarWidget extends Widget {
         this.notebookPanel,
         idx
       );
-      console.log("Reader cell updated");
     }
 
     // Update or add the file path to the data readers list
@@ -982,7 +974,6 @@ export class LeftSideBarWidget extends Widget {
       "saved",
       true
     );
-    console.log("Reader meta data saved");
     return idx;
   }
 
@@ -1017,8 +1008,6 @@ export class LeftSideBarWidget extends Widget {
       CANVAS_CELL_KEY
     )[0];
 
-    console.log(`Index of canvases: ${idx}`);
-
     if (idx < 0) {
       // Inject the code for starting the canvases
       const result: [number, string] = await CellUtilities.insertRunShow(
@@ -1029,7 +1018,6 @@ export class LeftSideBarWidget extends Widget {
         true
       );
       idx = result[0];
-      console.log("New canvas cell inserted.");
     } else {
       // Replace code in canvas cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
@@ -1038,7 +1026,6 @@ export class LeftSideBarWidget extends Widget {
         this.notebookPanel,
         idx
       );
-      console.log("Canvas cell updated.");
     }
 
     // Set cell meta data to identify it as containing canvases
@@ -1079,18 +1066,15 @@ export class LeftSideBarWidget extends Widget {
     // Inject the imports
     let currentIdx: number = 0;
     currentIdx = await this.injectImportsCode();
-    console.log("Imports injected");
 
     // Inject the data file(s)
     currentIdx = await this.injectDataReaders(currentFile, currentIdx + 1);
-    console.log("Readers injected");
 
     // Inject canvas(es)
     /*let sidecarTitle: string = MiscUtilities.removeExtension(
       this.notebookPanel.title.label
     );*/
     currentIdx = await this.injectCanvasCode(currentIdx + 1, 1);
-    console.log("Canvases injected");
 
     // Select last cell in notebook
     this.notebookPanel.content.activeCellIndex =
@@ -1113,7 +1097,6 @@ export class LeftSideBarWidget extends Widget {
         this.notebookPanel,
         READER_CELL_KEY
       )[0];
-      console.log(`Injecting just reader: ${idx}`);
       await this.injectDataReaders(currentFile, idx);
     }
 
@@ -1146,25 +1129,26 @@ export class LeftSideBarWidget extends Widget {
    * @returns Promise<NotebookPanel> - The widget's current notebookPanel or a new one if none exists.
    */
   public async getNotebookPanel(): Promise<NotebookPanel> {
-    const prom: Promise<NotebookPanel> = new Promise(async (resolve, reject) => {
-      try {
-        if (this.notebookPanel) {
-          resolve(this.notebookPanel);
-        } else {
-          // Create new notebook if one doesn't exist
-          resolve(NotebookUtilities.createNewNotebook(this.commands));
+    const prom: Promise<NotebookPanel> = new Promise(
+      async (resolve, reject) => {
+        try {
+          if (this.notebookPanel) {
+            resolve(this.notebookPanel);
+          } else {
+            // Create new notebook if one doesn't exist
+            resolve(NotebookUtilities.createNewNotebook(this.commands));
+          }
+        } catch (error) {
+          reject(error);
         }
-      } catch (error) {
-        reject(error);
       }
-    });
+    );
     return prom;
   }
 }
 
 // An error boundary to catch errors without killing the UI
 class ErrorBoundary extends React.Component {
-
   public static getDerivedStateFromError(error: any) {
     // Update state so the next render will show the fallback UI.
     return { hasError: true };

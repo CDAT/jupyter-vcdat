@@ -181,7 +181,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
-  public async getCanvasDimensions(): Promise<{ width: number; height: number }> {
+  public async getCanvasDimensions(): Promise<{
+    width: number;
+    height: number;
+  }> {
     try {
       if (this.state.plotReady) {
         // Check the dimensions of the current canvas object
@@ -308,7 +311,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @param group the group name that the selected GM came from
    * @param name the specific GM from the group
    */
-  public async updateGraphicsOptions(group: string, name: string): Promise<void> {
+  public async updateGraphicsOptions(
+    group: string,
+    name: string
+  ): Promise<void> {
     let cmdString: string = "";
     if (name.indexOf(group) < 0) {
       cmdString = `${name}_${group} = vcs.get${group}('${name}')`;
@@ -356,7 +362,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    */
   public async loadVariable(variable: Variable): Promise<any> {
     // inject the code to load the variable into the notebook
-    console.log(variable.sourceName);
     let cmdString = `${variable.name} = ${variable.sourceName}("${
       variable.name
     }"`;
@@ -364,7 +369,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       cmdString += `, ${axis.name}=(${axis.min}, ${axis.max})`;
     });
     cmdString += ")";
-    console.log(cmdString);
     await this.props.inject(cmdString);
 
     // Save the source of the variable

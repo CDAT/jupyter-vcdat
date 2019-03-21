@@ -12,7 +12,7 @@ interface VarLoaderProps {
   loadFileVariable: Function; // function to call when user hits load
   variables: Variable[]; // list of all currently available variables
   updateSelectedVariables: Function; // update the list of selected variables
-  saveNotebook: Function // function that saves the current notebook
+  saveNotebook: Function; // function that saves the current notebook
 }
 interface VarLoaderState {
   show: boolean; // should the modal be shown

@@ -69,9 +69,8 @@ namespace CellUtilities {
     const cell: ICellModel = notebook.model.cells.get(index);
     if (cell.metadata.has(key)) {
       return cell.metadata.get(key);
-    } 
-      return null;
-    
+    }
+    return null;
   }
 
   /**
@@ -242,15 +241,15 @@ namespace CellUtilities {
       notebook.model.cells.insert(0, cell);
       notebook.activeCellIndex = oldIndex;
       return 0;
-    }  if (index >= notebook.widgets.length) {
+    }
+    if (index >= notebook.widgets.length) {
       notebook.model.cells.insert(notebook.widgets.length - 1, cell);
       notebook.activeCellIndex = oldIndex;
       return notebook.widgets.length - 1;
-    } 
-      notebook.model.cells.insert(index, cell);
-      notebook.activeCellIndex = oldIndex;
-      return index;
-    
+    }
+    notebook.model.cells.insert(index, cell);
+    notebook.activeCellIndex = oldIndex;
+    return index;
   }
 
   /**
@@ -277,9 +276,8 @@ namespace CellUtilities {
     if (isCodeCellModel(cell)) {
       cell.value.text = code;
       return;
-    } 
-      throw new Error("Cell is not a code cell.");
-    
+    }
+    throw new Error("Cell is not a code cell.");
   }
 
   /**

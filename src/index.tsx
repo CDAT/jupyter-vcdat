@@ -71,7 +71,6 @@ function activate(
 
   // Creates the left side bar widget once the app has fully started
   app.started.then(() => {
-    
     sidebar = new LeftSideBarWidget(app, tracker);
     sidebar.id = "vcdat-left-side-bar";
     sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";

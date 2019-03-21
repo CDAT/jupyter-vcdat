@@ -138,9 +138,11 @@ namespace ColorFunctions {
 
     if (numColors < 1) {
       return [];
-    }  if (numColors == 1) {
+    }
+    if (numColors == 1) {
       return [startColor];
-    }  if (numColors == 2) {
+    }
+    if (numColors == 2) {
       return [startColor, endColor];
     }
 

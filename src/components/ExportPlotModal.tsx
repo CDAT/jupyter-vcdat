@@ -100,16 +100,15 @@ export class ExportPlotModal extends React.Component<
     if (plotName == null || plotName == "") {
       this.setState({ validateExportName: true });
       return;
-    } 
-      this.setState({ validateExportName: false });
-    
+    }
+    this.setState({ validateExportName: false });
+
     const fileFormat = this.state.plotFileFormat;
     if (fileFormat == null || fileFormat == "") {
       this.setState({ validateFileFormat: true });
       return;
-    } 
-      this.setState({ validateFileFormat: false });
-    
+    }
+    this.setState({ validateFileFormat: false });
 
     if (fileFormat === "png") {
       if (this.state.width && this.state.height) {

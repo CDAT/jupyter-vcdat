@@ -102,7 +102,11 @@ export default class VarMini extends React.Component<
           <Button
             outline={true}
             style={axisStyle}
-            title={this.state.isDerived ? "Editing of modified variables disabled for now." : ""}
+            title={
+              this.state.isDerived
+                ? "Editing of modified variables disabled for now."
+                : ""
+            }
             disabled={this.state.isDerived}
             color={this.state.isDerived ? "dark" : "danger"}
             onClick={(clickEvent: React.MouseEvent<HTMLButtonElement>) => {
