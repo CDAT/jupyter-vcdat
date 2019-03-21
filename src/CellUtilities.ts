@@ -1,7 +1,7 @@
 // Dependencies
 import { ICellModel, isCodeCellModel } from "@jupyterlab/cells";
-import { Notebook, NotebookPanel } from "@jupyterlab/notebook";
 import { nbformat } from "@jupyterlab/coreutils";
+import { Notebook, NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 import { NotebookUtilities } from "./NotebookUtilities";
 
@@ -22,23 +22,23 @@ namespace CellUtilities {
     if (index < 0 || index >= notebook.model.cells.length) {
       throw new Error("Cell index out of range.");
     }
-    let cell: ICellModel = notebook.model.cells.get(index);
+    const cell: ICellModel = notebook.model.cells.get(index);
     if (!isCodeCellModel(cell)) {
       throw new Error("cell is not a code cell.");
     }
     if (cell.outputs.length < 1) {
       return null;
     }
-    let out = cell.outputs.toJSON().pop();
+    const out = cell.outputs.toJSON().pop();
     if (nbformat.isExecuteResult(out)) {
-      let execData: nbformat.IExecuteResult = out;
+      const execData: nbformat.IExecuteResult = out;
       return execData.data["text/plain"];
     }
     if (nbformat.isStream(out)) {
-      return out["text"];
+      return out.text;
     }
     if (nbformat.isError(out)) {
-      let errData: nbformat.IError = out;
+      const errData: nbformat.IError = out;
       errData.evalue;
       throw new Error(
         `Code resulted in errors. Error name: ${errData.ename}.\nMessage: ${
@@ -66,12 +66,12 @@ namespace CellUtilities {
     if (index < 0 || index >= notebook.model.cells.length) {
       throw new Error("Cell index out of range.");
     }
-    let cell: ICellModel = notebook.model.cells.get(index);
+    const cell: ICellModel = notebook.model.cells.get(index);
     if (cell.metadata.has(key)) {
       return cell.metadata.get(key);
-    } else {
+    } 
       return null;
-    }
+    
   }
 
   /**
@@ -98,8 +98,8 @@ namespace CellUtilities {
       throw new Error("Cell index out of range.");
     }
     try {
-      let cell: ICellModel = notebookPanel.model.cells.get(index);
-      let oldVal: any = cell.metadata.set(key, value);
+      const cell: ICellModel = notebookPanel.model.cells.get(index);
+      const oldVal: any = cell.metadata.set(key, value);
       if (save) {
         notebookPanel.context.save();
       }
@@ -117,21 +117,16 @@ namespace CellUtilities {
    * and the second is a reference to the cell itself. Returns [-1, null] if cell not found.
    */
   export function findCellWithMetaKey(
-    notebook: Notebook,
+    notebookPanel: NotebookPanel,
     key: string
   ): [number, ICellModel] {
-    const iter = notebook.model.cells.iter();
-    let index = 0;
-    for (
-      let nextVal = iter.next();
-      iter.next() !== undefined;
-      nextVal = iter.next()
-    ) {
-      console.log(nextVal.metadata.keys());
-      if (nextVal.metadata.has(key)) {
-        return [index, nextVal];
+    const cells = notebookPanel.model.cells;
+    let cell: ICellModel;
+    for (let idx = 0; idx < cells.length; idx++) {
+      cell = cells.get(idx);
+      if (cell.metadata.has(key)) {
+        return [idx, cell];
       }
-      index++;
     }
     return [-1, null];
   }
@@ -166,16 +161,16 @@ namespace CellUtilities {
       );
     }
     await notebookPanel.session.ready;
-    let notebook = notebookPanel.content;
+    const notebook = notebookPanel.content;
     if (index < 0 || index >= notebook.widgets.length) {
       throw new Error("The index was out of range.");
     }
-    //Save the old index, then set the current active cell
-    let oldIndex = notebook.activeCellIndex;
+    // Save the old index, then set the current active cell
+    const oldIndex = notebook.activeCellIndex;
     notebook.activeCellIndex = index;
     try {
       await command.execute("notebook:run-cell");
-      let output = readOutput(notebook, index);
+      const output = readOutput(notebook, index);
       notebook.activeCellIndex = oldIndex;
       return output;
     } catch (error) {
@@ -199,14 +194,14 @@ namespace CellUtilities {
         "Null or undefined parameter was given for notebook argument."
       );
     }
-    let notebook = notebookPanel.content;
+    const notebook = notebookPanel.content;
     if (index < 0 || index >= notebook.widgets.length) {
       throw new Error("The index was out of range.");
     }
-    //Save the old index, then set the current active cell
+    // Save the old index, then set the current active cell
     let oldIndex = notebook.activeCellIndex;
     notebook.model.cells.remove(index);
-    //Adjust old index to account for deleted cell.
+    // Adjust old index to account for deleted cell.
     if (oldIndex == index) {
       if (oldIndex > 0) {
         oldIndex -= 1;
@@ -231,15 +226,15 @@ namespace CellUtilities {
     notebookPanel: NotebookPanel,
     index: number
   ): number {
-    let notebook = notebookPanel.content;
+    const notebook = notebookPanel.content;
 
-    //Create a new cell
-    let cell = notebook.model.contentFactory.createCodeCell({});
+    // Create a new cell
+    const cell = notebook.model.contentFactory.createCodeCell({});
 
-    //Save the old index, then set the current active cell
+    // Save the old index, then set the current active cell
     let oldIndex = notebook.activeCellIndex;
 
-    //Adjust old index for cells inserted above active cell.
+    // Adjust old index for cells inserted above active cell.
     if (oldIndex >= index) {
       oldIndex++;
     }
@@ -247,15 +242,15 @@ namespace CellUtilities {
       notebook.model.cells.insert(0, cell);
       notebook.activeCellIndex = oldIndex;
       return 0;
-    } else if (index >= notebook.widgets.length) {
+    }  if (index >= notebook.widgets.length) {
       notebook.model.cells.insert(notebook.widgets.length - 1, cell);
       notebook.activeCellIndex = oldIndex;
       return notebook.widgets.length - 1;
-    } else {
+    } 
       notebook.model.cells.insert(index, cell);
       notebook.activeCellIndex = oldIndex;
       return index;
-    }
+    
   }
 
   /**
@@ -278,13 +273,13 @@ namespace CellUtilities {
     if (index < 0 || index >= notebook.model.cells.length) {
       throw new Error("Cell index out of range.");
     }
-    let cell: ICellModel = notebook.model.cells.get(index);
+    const cell: ICellModel = notebook.model.cells.get(index);
     if (isCodeCellModel(cell)) {
       cell.value.text = code;
       return;
-    } else {
+    } 
       throw new Error("Cell is not a code cell.");
-    }
+    
   }
 
   /**
@@ -301,7 +296,7 @@ namespace CellUtilities {
     index: number,
     code: string
   ): number {
-    let newIndex = insertCellAtIndex(notebookPanel, index);
+    const newIndex = insertCellAtIndex(notebookPanel, index);
     injectCodeAtIndex(notebookPanel.content, newIndex, code);
     return newIndex;
   }
@@ -327,7 +322,7 @@ namespace CellUtilities {
     let insertionIndex;
     try {
       insertionIndex = insertInjectCode(notebookPanel, index, code);
-      let output: string = await NotebookUtilities.sendSimpleKernelRequest(
+      const output: string = await NotebookUtilities.sendSimpleKernelRequest(
         notebookPanel,
         code,
         false
@@ -364,7 +359,7 @@ namespace CellUtilities {
     let insertionIndex;
     try {
       insertionIndex = insertInjectCode(notebookPanel, index, code);
-      let output: string = await runCellAtIndex(
+      const output: string = await runCellAtIndex(
         command,
         notebookPanel,
         insertionIndex
@@ -398,7 +393,7 @@ namespace CellUtilities {
     if (insertAtEnd) {
       index = notebookPanel.content.model.cells.length;
     }
-    let result: [number, string] = await insertAndRun(
+    const result: [number, string] = await insertAndRun(
       notebookPanel,
       index,
       code,

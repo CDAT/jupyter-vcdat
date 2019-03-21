@@ -1,9 +1,9 @@
 // Dependencies
 import * as React from "react";
 import {
-  SliderItem,
   GetHandleProps,
-  GetTrackProps
+  GetTrackProps,
+  SliderItem
 } from "react-compound-slider";
 
 // SEE: https://codesandbox.io/s/zl8nrlp9x

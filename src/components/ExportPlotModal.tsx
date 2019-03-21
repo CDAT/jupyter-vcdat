@@ -6,24 +6,24 @@ import {
   ButtonGroup,
   Collapse,
   CustomInput,
+  Input,
+  Label,
   Modal,
-  ModalHeader,
   ModalBody,
   ModalFooter,
-  Input,
-  Label
+  ModalHeader
 } from "reactstrap";
 
-export type ExportPlotModalProps = {
+export interface ExportPlotModalProps {
   isOpen: boolean;
   inject: Function; // a method to inject code into the controllers notebook
   getCanvasDimensions: Function; // a method that gets the current plot dimensions
   toggle: Function;
   exportAlerts: Function;
   setPlotInfo: Function;
-};
+}
 
-type ExportPlotModalState = {
+interface ExportPlotModalState {
   modal: boolean;
   plotName: string;
   plotFileFormat: string;
@@ -33,7 +33,7 @@ type ExportPlotModalState = {
   width: string;
   height: string;
   plotUnits: string;
-};
+}
 
 export class ExportPlotModal extends React.Component<
   ExportPlotModalProps,
@@ -61,9 +61,9 @@ export class ExportPlotModal extends React.Component<
     this.toggleDimensionsDisplay = this.toggleDimensionsDisplay.bind(this);
   }
 
-  async toggleDimensionsDisplay() {
+  public async toggleDimensionsDisplay() {
     if (!this.state.displayDimensions) {
-      let dimensions = await this.props.getCanvasDimensions();
+      const dimensions = await this.props.getCanvasDimensions();
       this.setState({ width: dimensions.width });
       this.setState({ height: dimensions.height });
     }
@@ -72,44 +72,44 @@ export class ExportPlotModal extends React.Component<
     }));
   }
 
-  dismissFileFormatValidation() {
+  public dismissFileFormatValidation() {
     this.setState({ validateFileFormat: false });
   }
 
-  dismissExportValidation() {
+  public dismissExportValidation() {
     this.setState({ validateExportName: false });
   }
 
-  toggleModal() {
+  public toggleModal() {
     this.setState({ validateExportName: false });
     this.setState({ validateFileFormat: false });
     this.props.toggle();
     this.setState({ plotName: "" });
   }
 
-  onRadioBtnClick(rSelected: string) {
+  public onRadioBtnClick(rSelected: string) {
     this.setState({ plotFileFormat: rSelected });
   }
 
-  onUnitRadioBtnClick(rSelected: string) {
+  public onUnitRadioBtnClick(rSelected: string) {
     this.setState({ plotUnits: rSelected });
   }
 
-  async save() {
-    let plotName = this.state.plotName;
+  public async save() {
+    const plotName = this.state.plotName;
     if (plotName == null || plotName == "") {
       this.setState({ validateExportName: true });
       return;
-    } else {
+    } 
       this.setState({ validateExportName: false });
-    }
-    let fileFormat = this.state.plotFileFormat;
+    
+    const fileFormat = this.state.plotFileFormat;
     if (fileFormat == null || fileFormat == "") {
       this.setState({ validateFileFormat: true });
       return;
-    } else {
+    } 
       this.setState({ validateFileFormat: false });
-    }
+    
 
     if (fileFormat === "png") {
       if (this.state.width && this.state.height) {
@@ -190,7 +190,7 @@ export class ExportPlotModal extends React.Component<
     this.setState({ displayDimensions: false });
   }
 
-  render(): JSX.Element {
+  public render(): JSX.Element {
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.toggleModal}>
         <ModalHeader toggle={this.toggleModal}>Save Plot</ModalHeader>

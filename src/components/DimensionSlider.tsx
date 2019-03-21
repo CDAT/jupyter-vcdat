@@ -1,12 +1,12 @@
 // Dependencies
-import * as React from "react";
 import * as _ from "lodash";
 import * as moment from "moment";
-import { Row, Col } from "reactstrap";
+import * as React from "react";
+import { Col, Row } from "reactstrap";
 
 // Project Components
-import { Slider, Rail, Handles, Tracks, Ticks } from "react-compound-slider";
-import { Handle, Track, Tick } from "./Tracks";
+import { Handles, Rail, Slider, Ticks, Tracks } from "react-compound-slider";
+import { Handle, Tick, Track } from "./Tracks";
 
 const sliderStyle: React.CSSProperties = {
   marginLeft: "5%",
@@ -31,32 +31,32 @@ const centered: React.CSSProperties = {
   paddingTop: "0.5em"
 };
 
-type DimensionSliderProps = {
+interface DimensionSliderProps {
   varName: string; // the name of the variable this axis belongs to
   min: number;
   max: number;
-  data: Array<number>; // the raw axis data
+  data: number[]; // the raw axis data
   isTime: boolean; // is this a time axis
   modulo: any; // ???
   moduloCycle: number; // ???
   name: string; // the cdms2 name of the axis
-  shape: Array<number>; // the shape of the axis
+  shape: number[]; // the shape of the axis
   units: string; // the units of the axis
   updateDimInfo: Function; // method to be called updating the parent when the slider values change
-};
+}
 
-type DimensionSliderState = {
+interface DimensionSliderState {
   min: number; // the current minimum value
   max: number; // the current max value
   values: number[]; // the absolute min and absolute max values
   pValues: number[];
-};
+}
 
 export default class DimensionSlider extends React.Component<
   DimensionSliderProps,
   DimensionSliderState
 > {
-  singleValue: boolean;
+  public singleValue: boolean;
   constructor(props: DimensionSliderProps) {
     super(props);
     let format: any;
@@ -65,7 +65,7 @@ export default class DimensionSlider extends React.Component<
     this.formatter = this.formatter.bind(this);
 
     if (_.includes(props.units, "since")) {
-      let [span, , startTime] = props.units.split(" ");
+      const [span, , startTime] = props.units.split(" ");
       switch (span) {
         case "years":
           format = "YYYY";
@@ -92,8 +92,8 @@ export default class DimensionSlider extends React.Component<
       this.formatter.bind(this);
     }
     if (props.modulo) {
-      let newPossibleValues = [];
-      let step = Math.abs(props.data[0] - props.data[1]);
+      const newPossibleValues = [];
+      const step = Math.abs(props.data[0] - props.data[1]);
       for (let i = -props.modulo; i <= props.modulo; i += step) {
         newPossibleValues.push(i);
       }
@@ -101,29 +101,29 @@ export default class DimensionSlider extends React.Component<
     }
     this.singleValue = props.data.length == 1;
 
-    let pValues = possibleValues.map((item: any) => {
+    const pValues = possibleValues.map((item: any) => {
       return Math.floor(item);
     });
 
     this.state = {
       min: pValues[0],
       max: pValues[pValues.length - 1],
-      pValues: pValues,
+      pValues,
       values: [props.min, props.max]
     };
   }
 
   // default formatter
-  formatter(data: any): any {
+  public formatter(data: any): any {
     if (data.toFixed) {
       return data.toFixed(5);
     }
     return data;
   }
 
-  render(): JSX.Element {
-    let step = 1;
-    let tickCount = 10;
+  public render(): JSX.Element {
+    const step = 1;
+    const tickCount = 10;
     return (
       <div className="dimension-slider">
         {!this.singleValue && (
@@ -201,7 +201,7 @@ export default class DimensionSlider extends React.Component<
       </div>
     );
   }
-  handleSliderChange(e: any): void {
+  public handleSliderChange(e: any): void {
     if (e.length != 2) {
       return;
     }

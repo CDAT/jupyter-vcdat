@@ -1,8 +1,8 @@
 // Dependencies
-import { NotebookPanel } from "@jupyterlab/notebook";
-import { CommandRegistry } from "@phosphor/commands";
-import { KernelMessage } from "@jupyterlab/services";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
+import { NotebookPanel } from "@jupyterlab/notebook";
+import { KernelMessage } from "@jupyterlab/services";
+import { CommandRegistry } from "@phosphor/commands";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
 namespace NotebookUtilities {
@@ -18,10 +18,10 @@ namespace NotebookUtilities {
     msg: string,
     buttonLabel: string = "OK"
   ): Promise<void> {
-    let buttons: ReadonlyArray<Dialog.IButton> = [
+    const buttons: ReadonlyArray<Dialog.IButton> = [
       Dialog.okButton({ label: buttonLabel })
     ];
-    return showDialog({ title: title, body: msg, buttons: buttons }).then(
+    return showDialog({ title, body: msg, buttons }).then(
       () => {}
     );
   }
@@ -34,7 +34,7 @@ namespace NotebookUtilities {
   export async function createNewNotebook(
     command: CommandRegistry
   ): Promise<NotebookPanel> {
-    let notebook: any = await command.execute("notebook:create-new", {
+    const notebook: any = await command.execute("notebook:create-new", {
       activate: true,
       path: "",
       preferredLanguage: ""
@@ -64,9 +64,9 @@ namespace NotebookUtilities {
     await notebookPanel.session.ready;
     if (notebookPanel.content.model.metadata.has(key)) {
       return notebookPanel.content.model.metadata.get(key);
-    } else {
+    } 
       return null;
-    }
+    
   }
 
   /**
@@ -86,9 +86,9 @@ namespace NotebookUtilities {
     }
     if (notebookPanel.content.model.metadata.has(key)) {
       return notebookPanel.content.model.metadata.get(key);
-    } else {
+    } 
       return null;
-    }
+    
   }
 
   /**
@@ -112,7 +112,7 @@ namespace NotebookUtilities {
       );
     }
     await notebookPanel.session.ready;
-    let oldVal: any = notebookPanel.content.model.metadata.set(key, value);
+    const oldVal: any = notebookPanel.content.model.metadata.set(key, value);
     if (save) {
       await notebookPanel.context.save();
     }
@@ -135,7 +135,7 @@ namespace NotebookUtilities {
     value: any,
     save: boolean = false
   ): any {
-    let oldVal = notebookPanel.content.model.metadata.set(key, value);
+    const oldVal = notebookPanel.content.model.metadata.set(key, value);
     if (save) {
       notebookPanel.context.save();
     }
@@ -161,7 +161,7 @@ namespace NotebookUtilities {
     storeHistory: boolean = false
   ): Promise<string> {
     // Send request to kernel with pre-filled parameters
-    let result: any = await sendKernelRequest(
+    const result: any = await sendKernelRequest(
       notebookPanel,
       code,
       { result: "output" },
@@ -172,15 +172,15 @@ namespace NotebookUtilities {
     );
 
     // Get results from the request for validation
-    let output: any = result["result"];
+    const output: any = result.result;
 
     if (output == null || output.data == undefined) {
-      //Output was empty
+      // Output was empty
       return "";
     }
 
-    //Output has data, return it
-    let execResult: string = output["data"]["text/plain"];
+    // Output has data, return it
+    const execResult: string = output.data["text/plain"];
     return execResult;
   }
 
@@ -235,10 +235,10 @@ namespace NotebookUtilities {
     await notebookPanel.activated;
     await notebookPanel.session.ready;
     await notebookPanel.session.kernel.ready;
-    let message: KernelMessage.IShellMessage = await notebookPanel.session.kernel.requestExecute(
+    const message: KernelMessage.IShellMessage = await notebookPanel.session.kernel.requestExecute(
       {
-        code: code,
-        silent: silent,
+        code,
+        silent,
         store_history: storeHistory,
         user_expressions: userExpressions,
         allow_stdin: allowStdIn,
@@ -246,9 +246,9 @@ namespace NotebookUtilities {
       }
     ).done;
 
-    let content: any = message.content;
+    const content: any = message.content;
 
-    if (content["status"] != "ok") {
+    if (content.status != "ok") {
       throw content; // If response is not 'ok', throw response contents as error
     }
     // Return user_expressions of the content

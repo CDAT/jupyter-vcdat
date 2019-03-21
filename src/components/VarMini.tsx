@@ -1,21 +1,21 @@
 // Dependencies
 import * as React from "react";
 import {
+  Badge,
   Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Card,
   CardBody,
-  Badge
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader
 } from "reactstrap";
 import { MiscUtilities } from "../Utilities";
 
 // Project Components
-import Variable from "./Variable";
 import AxisInfo from "./AxisInfo";
 import DimensionSlider from "./DimensionSlider";
+import Variable from "./Variable";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
@@ -28,7 +28,7 @@ const centered: React.CSSProperties = {
   margin: "auto"
 };
 
-type VarMiniProps = {
+interface VarMiniProps {
   buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
   updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
@@ -36,17 +36,17 @@ type VarMiniProps = {
   selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: Function; // a function to reload the variable
-};
-type VarMiniState = {
+}
+interface VarMiniState {
   showAxis: boolean; // should the edit axis modal be shown
   isDerived: boolean;
-};
+}
 
 export default class VarMini extends React.Component<
   VarMiniProps,
   VarMiniState
 > {
-  varName: string;
+  public varName: string;
   constructor(props: VarMiniProps) {
     super(props);
     this.state = {
@@ -62,7 +62,7 @@ export default class VarMini extends React.Component<
   /**
    * @description open the menu if its closed
    */
-  openMenu(): void {
+  public openMenu(): void {
     if (!this.state.showAxis) {
       this.setState({
         showAxis: true
@@ -70,25 +70,25 @@ export default class VarMini extends React.Component<
     }
   }
 
-  updateDimInfo(newInfo: any, varName: string): void {
+  public updateDimInfo(newInfo: any, varName: string): void {
     this.props.updateDimInfo(newInfo, varName);
   }
 
   /**
    * @description Toggles the variable loader modal
    */
-  toggleModal(): void {
+  public toggleModal(): void {
     this.setState({
       showAxis: !this.state.showAxis
     });
   }
 
-  render(): JSX.Element {
+  public render(): JSX.Element {
     return (
       <div>
         <div className="clearfix">
           <Button
-            outline
+            outline={true}
             color={this.props.isSelected ? "success" : "secondary"}
             style={
               this.props.isSelected && {
@@ -100,10 +100,11 @@ export default class VarMini extends React.Component<
             {this.props.variable.name}
           </Button>
           <Button
-            outline
+            outline={true}
             style={axisStyle}
-            title={this.state.isDerived ? "This is a modified variable." : ""}
-            color={"danger"}
+            title={this.state.isDerived ? "Editing of modified variables disabled for now." : ""}
+            disabled={this.state.isDerived}
+            color={this.state.isDerived ? "dark" : "danger"}
             onClick={(clickEvent: React.MouseEvent<HTMLButtonElement>) => {
               this.setState({
                 showAxis: !this.state.showAxis
