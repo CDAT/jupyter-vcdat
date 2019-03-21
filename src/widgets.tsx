@@ -990,16 +990,7 @@ export class LeftSideBarWidget extends Widget {
     index: number,
     canvasCount: number
   ): Promise<number> {
-    // Build command that creates canvas(es)
-    /*let cmd: string = `#Create ${
-      this.canvasCount > 0
-        ? "canvases and their associated sidecar"
-        : "canvas and a sidecar"
-    }`;
-    for (let i: number = 0; i < canvasCount; i++) {
-      cmd += `\nsc${i + 1} = sidecar.Sidecar(title='${title}_${i + 1}')\
-      \ncanvas${i + 1} = vcs.init(display_target=sidecar${i + 1})`;
-    }*/
+    // Creates canvas(es)
     const cmd: string = `#Create canvas and sidecar\ncanvas = vcs.init()`;
 
     // Find the index where the canvas code is injected
@@ -1071,9 +1062,6 @@ export class LeftSideBarWidget extends Widget {
     currentIdx = await this.injectDataReaders(currentFile, currentIdx + 1);
 
     // Inject canvas(es)
-    /*let sidecarTitle: string = MiscUtilities.removeExtension(
-      this.notebookPanel.title.label
-    );*/
     currentIdx = await this.injectCanvasCode(currentIdx + 1, 1);
 
     // Select last cell in notebook

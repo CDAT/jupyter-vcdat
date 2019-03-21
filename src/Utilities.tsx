@@ -1,27 +1,3 @@
-import Variable from "./components/Variable";
-
-namespace VCDATUtilities {
-  export function getUniqueName(variable: Variable): string {
-    return `${variable.name}_${variable.sourceName}`;
-  }
-
-  export function findVariable(
-    variable: Variable,
-    array: Variable[]
-  ): [number, Variable] {
-    const varName: string = `${variable.name}_${variable.sourceName}`;
-    let found: Variable = null;
-    for (let idx: number = 0; idx < array.length; idx++) {
-      found = array[idx];
-      if (`${found.name}_${found.sourceName}` == varName) {
-        return [idx, found];
-      }
-    }
-
-    return [-1, null];
-  }
-}
-
 namespace MiscUtilities {
   /**
    * Converts a number to and ordinal shorthand string.
@@ -171,4 +147,4 @@ namespace ColorFunctions {
   }
 }
 
-export { MiscUtilities, ColorFunctions, VCDATUtilities };
+export { MiscUtilities, ColorFunctions };
