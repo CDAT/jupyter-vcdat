@@ -1,5 +1,6 @@
 // Dependencies
 import { CommandRegistry } from "@phosphor/commands";
+import { NotebookPanel } from "@jupyterlab/notebook";
 import * as React from "react";
 import {
   Alert,
@@ -13,7 +14,6 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   GRAPHICS_METHOD_KEY,
   MAX_SLABS,

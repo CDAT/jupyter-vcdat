@@ -10,12 +10,12 @@ import {
   ModalFooter,
   ModalHeader
 } from "reactstrap";
-import { MiscUtilities } from "../Utilities";
 
 // Project Components
 import AxisInfo from "./AxisInfo";
 import DimensionSlider from "./DimensionSlider";
 import Variable from "./Variable";
+import { MiscUtilities } from "../Utilities";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"

@@ -129,7 +129,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
     shell.activateById(sidebar.id);
 
     // Prepare the notebook for code injection
-    sidebar.prepareNotebookPanel(context.session.name).catch(error => {
+    sidebar.prepareNotebookPanel(context.session.path).catch(error => {
       if (error.status == "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
       } else if (error.message != null) {

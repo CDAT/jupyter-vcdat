@@ -10,6 +10,8 @@ import * as ReactDOM from "react-dom";
 
 // Project Components
 import { CellUtilities } from "./CellUtilities";
+import { NotebookUtilities } from "./NotebookUtilities";
+import { MiscUtilities } from "./Utilities";
 import AxisInfo from "./components/AxisInfo";
 import Variable from "./components/Variable";
 import { VCSMenu } from "./components/VCSMenu";
@@ -33,8 +35,6 @@ import {
   VARIABLE_SOURCES_KEY,
   VARIABLES_LOADED_KEY
 } from "./constants";
-import { NotebookUtilities } from "./NotebookUtilities";
-import { MiscUtilities } from "./Utilities";
 
 /**
  * This is the main component for the vcdat extension.
