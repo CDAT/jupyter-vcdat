@@ -3,9 +3,9 @@ import * as _ from "lodash";
 import * as moment from "moment";
 import * as React from "react";
 import { Col, Row } from "reactstrap";
+import { Handles, Rail, Slider, Ticks, Tracks } from "react-compound-slider";
 
 // Project Components
-import { Handles, Rail, Slider, Ticks, Tracks } from "react-compound-slider";
 import { Handle, Tick, Track } from "./Tracks";
 
 const sliderStyle: React.CSSProperties = {

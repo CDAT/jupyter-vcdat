@@ -24,9 +24,6 @@ const badgeStyle: React.CSSProperties = {
   margin: "auto",
   marginLeft: "0.5em"
 };
-const centered: React.CSSProperties = {
-  margin: "auto"
-};
 
 interface VarMiniProps {
   buttonColor: string; // The hex value for the color
@@ -39,7 +36,6 @@ interface VarMiniProps {
 }
 interface VarMiniState {
   showAxis: boolean; // should the edit axis modal be shown
-  isDerived: boolean;
 }
 
 export default class VarMini extends React.Component<
@@ -50,8 +46,7 @@ export default class VarMini extends React.Component<
   constructor(props: VarMiniProps) {
     super(props);
     this.state = {
-      showAxis: false,
-      isDerived: this.props.variable.sourceName == ""
+      showAxis: false
     };
     this.varName = this.props.variable.name;
     this.openMenu = this.openMenu.bind(this);
@@ -103,12 +98,12 @@ export default class VarMini extends React.Component<
             outline={true}
             style={axisStyle}
             title={
-              this.state.isDerived
+              this.props.variable.sourceName == ""
                 ? "Editing of modified variables disabled for now."
                 : ""
             }
-            disabled={this.state.isDerived}
-            color={this.state.isDerived ? "dark" : "danger"}
+            disabled={this.props.variable.sourceName == ""}
+            color={this.props.variable.sourceName == "" ? "dark" : "danger"}
             onClick={(clickEvent: React.MouseEvent<HTMLButtonElement>) => {
               this.setState({
                 showAxis: !this.state.showAxis
@@ -138,24 +133,25 @@ export default class VarMini extends React.Component<
         >
           <ModalHeader toggle={this.toggleModal}>Edit Axis</ModalHeader>
           <ModalBody>
-            {this.props.variable.axisInfo.map((item: AxisInfo) => {
-              if (item.data.length <= 1) {
-                return;
-              }
-              item.updateDimInfo = this.updateDimInfo;
-              // Adjust min and max to fit slider
-              item.min = Math.floor(item.min);
-              item.max = Math.floor(item.max);
-              return (
-                <div key={item.name} style={axisStyle}>
-                  <Card>
-                    <CardBody>
-                      <DimensionSlider {...item} varName={this.varName} />
-                    </CardBody>
-                  </Card>
-                </div>
-              );
-            })}
+            {this.props.variable.axisInfo.length > 0 &&
+              this.props.variable.axisInfo.map((item: AxisInfo) => {
+                if (item.data.length <= 1) {
+                  return;
+                }
+                item.updateDimInfo = this.updateDimInfo;
+                // Adjust min and max to fit slider
+                item.min = Math.floor(item.min);
+                item.max = Math.floor(item.max);
+                return (
+                  <div key={item.name} style={axisStyle}>
+                    <Card>
+                      <CardBody>
+                        <DimensionSlider {...item} varName={this.varName} />
+                      </CardBody>
+                    </Card>
+                  </div>
+                );
+              })}
           </ModalBody>
           <ModalFooter>
             <Button

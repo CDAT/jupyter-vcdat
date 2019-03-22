@@ -39,13 +39,12 @@ interface VarCardProps {
   isSelected: Function; // method to check if this variable is selected in parent
   allowReload: boolean;
   reload: Function;
-  isLoaded: boolean;
+  isLoaded: boolean; // Whether a variable already exists/was loaded
 }
 interface VarCardState {
   showAxis: boolean;
   loadOrder: number;
   axisState: any;
-  isLoaded: boolean;
   hidden: boolean;
   isChanged: boolean;
 }
@@ -60,7 +59,6 @@ export default class VarCard extends React.Component<
     this.state = {
       loadOrder: -1,
       axisState: [],
-      isLoaded: this.props.isLoaded,
       showAxis: false,
       hidden: props.hidden,
       isChanged: false
@@ -113,10 +111,6 @@ export default class VarCard extends React.Component<
   }
 
   public render(): JSX.Element {
-    let color = "success";
-    /*if (this.state.isLoaded) {
-      color = "warning";
-    }*/
     return (
       <div>
         <Card style={cardStyle}>
@@ -127,7 +121,7 @@ export default class VarCard extends React.Component<
                   <Col xs="sm-5">
                     <Button
                       outline={true}
-                      color={color}
+                      color={"success"}
                       onClick={this.selectVariable}
                       active={this.props.isSelected(this.varName)}
                       style={buttonsStyle}
@@ -154,19 +148,23 @@ export default class VarCard extends React.Component<
                       </Button>
                     )}
                   </Col>
-                  {this.props.allowReload && this.state.isChanged && (
+                  {this.props.isLoaded && this.props.isSelected(this.varName) && (
                     <Col xs="sm-3">
                       <Button
-                        outline={true}
-                        color="info"
+                        color={"warning"}
                         onClick={() => {
-                          this.setState({
-                            isChanged: false
-                          });
-                          this.props.reload();
+                          NotebookUtilities.showMessage(
+                            "Warning",
+                            `Loading '${
+                              this.varName
+                            }' from this file will overwrite the previous '${
+                              this.varName
+                            }' variable.`,
+                            "Dismiss"
+                          );
                         }}
                       >
-                        Reload
+                        !
                       </Button>
                     </Col>
                   )}

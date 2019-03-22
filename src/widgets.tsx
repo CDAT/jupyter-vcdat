@@ -51,6 +51,7 @@ export class LeftSideBarWidget extends Widget {
   public templatesList: string[]; // The list of current templates
   public usingKernel: boolean; // The widgets is running a ker nel command
   public canvasCount: number; // The number of canvases currently in use (just 1 for now)
+  public refreshExt: boolean; // Will be false if the app was refreshed
 
   private _plotExists: boolean; // True if there exists a plot that can be exported, false if not.
   private _readyKernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
@@ -68,6 +69,7 @@ export class LeftSideBarWidget extends Widget {
     this.notebookTracker = tracker;
     this._state = NOTEBOOK_STATE.Unknown;
     this.usingKernel = false;
+    this.refreshExt = true;
     this.canvasCount = 0;
     this._currentFile = "";
     this._notebookPanel = null;
@@ -546,9 +548,16 @@ export class LeftSideBarWidget extends Widget {
    */
   public async refreshVarList(): Promise<void> {
     // Don't refresh if not VCS_Ready
-    if (this.state != NOTEBOOK_STATE.VCS_Ready) {
+    if (
+      this.state != NOTEBOOK_STATE.VCS_Ready &&
+      this.state != NOTEBOOK_STATE.InitialCellsReady
+    ) {
       this.VCSMenuRef.updateVariables(new Array<Variable>());
       return;
+    }
+
+    if (this.refreshExt) {
+      this.refreshExt = false;
     }
 
     this.usingKernel = true;
@@ -766,7 +775,7 @@ export class LeftSideBarWidget extends Widget {
       // Import lazy_imports if it's missing, before doing other imports
       if (idx >= 0) {
         tmpModules.splice(idx, 1);
-        cmd = "import lazy_import";
+        cmd = "\nimport lazy_import";
       }
       // Import other modules using lazy import syntax
       tmpModules.forEach(module => {
@@ -798,7 +807,7 @@ export class LeftSideBarWidget extends Widget {
   ): Promise<number> {
     // Check if required modules are imported in notebook
     let cmd =
-      "#These imports are required for vcdat. To avoid issues, do not delete or modify.\n";
+      "#These imports are required for vcdat. To avoid issues, do not delete or modify.";
 
     if (skip) {
       // Check if necessary modules are loaded

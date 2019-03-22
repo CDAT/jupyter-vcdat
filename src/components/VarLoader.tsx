@@ -81,7 +81,7 @@ export default class VarLoader extends React.Component<
     this.setState({ selectedVariables: new Array<string>() });
 
     // Save the notebook after variables have been added
-    this.props.saveNotebook();
+    await this.props.saveNotebook();
   }
 
   /**

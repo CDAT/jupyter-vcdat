@@ -376,10 +376,11 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     newSource[variable.name] = variable.sourceName;
     this.setState({ variableSources: newSource });
     // Also save to meta data
-    NotebookUtilities.setMetaDataNow(
+    await NotebookUtilities.setMetaData(
       this.state.notebookPanel,
       VARIABLE_SOURCES_KEY,
-      newSource
+      newSource,
+      true
     );
 
     // Get variables from meta data
@@ -392,7 +393,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     if (result == null) {
       const varArray = new Array<Variable>();
       varArray.push(variable);
-      await NotebookUtilities.setMetaData(
+      await NotebookUtilities.setMetaDataNow(
         this.state.notebookPanel,
         VARIABLES_LOADED_KEY,
         varArray
@@ -415,7 +416,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       await NotebookUtilities.setMetaData(
         this.state.notebookPanel,
         VARIABLES_LOADED_KEY,
-        newVariableArray
+        newVariableArray,
+        true
       );
     }
   }

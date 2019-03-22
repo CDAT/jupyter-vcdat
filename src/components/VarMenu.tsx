@@ -14,7 +14,6 @@ import {
 import { ColorFunctions } from "../Utilities";
 
 // Project Components
-import { NotebookUtilities } from "../NotebookUtilities";
 import AxisInfo from "./AxisInfo";
 import Variable from "./Variable";
 import VarLoader from "./VarLoader";
@@ -102,20 +101,12 @@ export default class VarMenu extends React.Component<
         unloaded.push(fileVar.name);
       }
     });
-
-    // Only launch loader if there are unloaed variables
-    if (unloaded.length > 0) {
-      this.varLoaderRef.setState({
-        fileVariables,
-        unloadedVariables: unloaded,
-        show: true
-      });
-    } else {
-      NotebookUtilities.showMessage(
-        "Notice",
-        "All the variables in this file have already been loaded."
-      );
-    }
+    // Update state to show launcher with variables
+    this.varLoaderRef.setState({
+      fileVariables,
+      unloadedVariables: unloaded,
+      show: true
+    });
   }
 
   /**
@@ -197,8 +188,9 @@ export default class VarMenu extends React.Component<
     });
   }
 
-  public reloadVariable(variable: Variable): void {
-    this.props.loadVariable(variable);
+  public async reloadVariable(variable: Variable): Promise<void> {
+    await this.props.loadVariable(variable);
+    await this.props.saveNotebook();
   }
 
   public getOrder(varName: string): number {
