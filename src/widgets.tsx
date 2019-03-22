@@ -10,8 +10,6 @@ import * as ReactDOM from "react-dom";
 
 // Project Components
 import { CellUtilities } from "./CellUtilities";
-import { NotebookUtilities } from "./NotebookUtilities";
-import { MiscUtilities } from "./Utilities";
 import AxisInfo from "./components/AxisInfo";
 import Variable from "./components/Variable";
 import { VCSMenu } from "./components/VCSMenu";
@@ -35,6 +33,8 @@ import {
   VARIABLE_SOURCES_KEY,
   VARIABLES_LOADED_KEY
 } from "./constants";
+import { NotebookUtilities } from "./NotebookUtilities";
+import { MiscUtilities } from "./Utilities";
 
 /**
  * This is the main component for the vcdat extension.
@@ -811,9 +811,9 @@ export class LeftSideBarWidget extends Widget {
 
       // Create import string based on missing dependencies
       const missingModules: string[] = eval(output);
-      cmd += this.buildImportCommand(missingModules, true);
+      cmd += this.buildImportCommand(missingModules, false);
     } else {
-      cmd += this.buildImportCommand(eval(`[${REQUIRED_MODULES}]`), true);
+      cmd += this.buildImportCommand(eval(`[${REQUIRED_MODULES}]`), false);
     }
 
     // Find the index where the imports code is injected

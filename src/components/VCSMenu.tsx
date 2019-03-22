@@ -1,6 +1,6 @@
 // Dependencies
-import { CommandRegistry } from "@phosphor/commands";
 import { NotebookPanel } from "@jupyterlab/notebook";
+import { CommandRegistry } from "@phosphor/commands";
 import * as React from "react";
 import {
   Alert,

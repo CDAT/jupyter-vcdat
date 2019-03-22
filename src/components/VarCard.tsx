@@ -75,15 +75,6 @@ export default class VarCard extends React.Component<
    * @description sets the isSelected attribute, and propagates up the selection action to the parent
    */
   public async selectVariable(): Promise<void> {
-    if (this.state.isLoaded) {
-      NotebookUtilities.showMessage(
-        "Notice",
-        "This variable is already loaded."
-      );
-      await this.props.deselectVariable(this.varName);
-      return;
-    }
-
     if (this.props.isSelected(this.varName)) {
       await this.props.deselectVariable(this.varName);
     } else {
@@ -123,9 +114,9 @@ export default class VarCard extends React.Component<
 
   public render(): JSX.Element {
     let color = "success";
-    if (this.state.isLoaded) {
+    /*if (this.state.isLoaded) {
       color = "warning";
-    }
+    }*/
     return (
       <div>
         <Card style={cardStyle}>

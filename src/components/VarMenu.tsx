@@ -124,12 +124,24 @@ export default class VarMenu extends React.Component<
    */
   public async loadFileVariable(variable: Variable): Promise<void> {
     // if the variable ISNT already loaded, add it to the loaded list
-    const newVariables: Variable[] = this.state.variables;
-    if (newVariables.indexOf(variable) == -1) {
-      await this.props.loadVariable(variable);
+    let newVariables: Variable[] = this.state.variables;
+    let replaced: boolean = false;
+    await this.state.variables.forEach(
+      async (loadedVar: Variable, idx: number) => {
+        if (variable.name == loadedVar.name) {
+          newVariables[idx] = variable;
+          await this.props.updateVariables(newVariables);
+          replaced = true;
+          return;
+        }
+      }
+    );
+    if (!replaced) {
       newVariables.push(variable);
       await this.props.updateVariables(newVariables);
     }
+
+    await this.props.loadVariable(variable);
   }
 
   public async selectVariable(variableName: string): Promise<void> {

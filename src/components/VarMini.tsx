@@ -12,10 +12,10 @@ import {
 } from "reactstrap";
 
 // Project Components
+import { MiscUtilities } from "../Utilities";
 import AxisInfo from "./AxisInfo";
 import DimensionSlider from "./DimensionSlider";
 import Variable from "./Variable";
-import { MiscUtilities } from "../Utilities";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
