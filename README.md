@@ -34,7 +34,8 @@ npm run build
 jupyter lab build
 ```
 
-# Sample data
+## Sample data
+
 To download sample data, enter code below within a Jupyter notebook cell and run the cell:
 
 ```
