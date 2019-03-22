@@ -6,35 +6,36 @@ import {
   ButtonGroup,
   Collapse,
   CustomInput,
+  Input,
+  Label,
   Modal,
-  ModalHeader,
   ModalBody,
   ModalFooter,
-  Input,
-  Label
+  ModalHeader
 } from "reactstrap";
 
-export type ExportPlotModalProps = {
+export interface ExportPlotModalProps {
   isOpen: boolean;
   inject: Function; // a method to inject code into the controllers notebook
   getCanvasDimensions: Function; // a method that gets the current plot dimensions
   toggle: Function;
   exportAlerts: Function;
   setPlotInfo: Function;
-};
+}
 
-type ExportPlotModalState = {
+interface ExportPlotModalState {
   modal: boolean;
   plotName: string;
   plotFileFormat: string;
   validateExportName: boolean;
   validateFileFormat: boolean;
   displayDimensions: boolean;
+  disableProvenance: boolean;
   captureProvenance: boolean;
   width: string;
   height: string;
   plotUnits: string;
-};
+}
 
 export class ExportPlotModal extends React.Component<
   ExportPlotModalProps,
@@ -48,6 +49,7 @@ export class ExportPlotModal extends React.Component<
       plotFileFormat: "",
       validateExportName: false,
       validateFileFormat: false,
+      disableProvenance: true,
       captureProvenance: false,
       displayDimensions: false,
       width: "",
@@ -64,9 +66,9 @@ export class ExportPlotModal extends React.Component<
     this.toggleCaptureProvenance = this.toggleCaptureProvenance.bind(this);
   }
 
-  async toggleDimensionsDisplay() {
+  public async toggleDimensionsDisplay() {
     if (!this.state.displayDimensions) {
-      let dimensions = await this.props.getCanvasDimensions();
+      const dimensions = await this.props.getCanvasDimensions();
       this.setState({ width: dimensions.width });
       this.setState({ height: dimensions.height });
     }
@@ -75,36 +77,41 @@ export class ExportPlotModal extends React.Component<
     }));
   }
 
-  toggleCaptureProvenance() {
+  public toggleCaptureProvenance() {
     this.setState(prevState => ({
       captureProvenance: !prevState.captureProvenance
     }));
   }
 
-  dismissFileFormatValidation() {
+  public dismissFileFormatValidation() {
     this.setState({ validateFileFormat: false });
   }
 
-  dismissExportValidation() {
+  public dismissExportValidation() {
     this.setState({ validateExportName: false });
   }
 
-  toggleModal() {
+  public toggleModal() {
     this.setState({ validateExportName: false });
     this.setState({ validateFileFormat: false });
     this.props.toggle();
     this.setState({ plotName: "" });
   }
 
-  onRadioBtnClick(rSelected: string) {
+  public onRadioBtnClick(rSelected: string) {
     this.setState({ plotFileFormat: rSelected });
+    if (rSelected === "png") {
+      this.setState({ disableProvenance: false });
+    } else {
+      this.setState({ disableProvenance: true });
+    }
   }
 
-  onUnitRadioBtnClick(rSelected: string) {
+  public onUnitRadioBtnClick(rSelected: string) {
     this.setState({ plotUnits: rSelected });
   }
 
-  async export_png(
+  public async export_png(
     plotName: string,
     provenance: string,
     width?: string,
@@ -122,7 +129,7 @@ export class ExportPlotModal extends React.Component<
     }
   }
 
-  async export_pdf(
+  public async export_pdf(
     plotName: string,
     width?: string,
     height?: string,
@@ -137,7 +144,7 @@ export class ExportPlotModal extends React.Component<
     }
   }
 
-  async export_svg(
+  public async export_svg(
     plotName: string,
     width?: string,
     height?: string,
@@ -152,7 +159,7 @@ export class ExportPlotModal extends React.Component<
     }
   }
 
-  async export_ps(
+  public async export_ps(
     plotName: string,
     width?: string,
     height?: string,
@@ -167,21 +174,20 @@ export class ExportPlotModal extends React.Component<
     }
   }
 
-  async save() {
-    let plotName = this.state.plotName;
+  public async save() {
+    const plotName = this.state.plotName;
     if (plotName == null || plotName == "") {
       this.setState({ validateExportName: true });
       return;
-    } else {
-      this.setState({ validateExportName: false });
     }
-    let fileFormat = this.state.plotFileFormat;
+    this.setState({ validateExportName: false });
+
+    const fileFormat = this.state.plotFileFormat;
     if (fileFormat == null || fileFormat == "") {
       this.setState({ validateFileFormat: true });
       return;
-    } else {
-      this.setState({ validateFileFormat: false });
     }
+    this.setState({ validateFileFormat: false });
 
     let capture = null;
     if (this.state.captureProvenance) {
@@ -247,13 +253,12 @@ export class ExportPlotModal extends React.Component<
         if (this.state.width && this.state.height) {
           this.export_ps(
             plotName,
-            capture,
             this.state.width,
             this.state.height,
             this.state.plotUnits
           );
         } else {
-          this.export_ps(plotName, capture);
+          this.export_ps(plotName);
         }
       } catch (error) {
         console.log("Failed to export plot");
@@ -267,7 +272,7 @@ export class ExportPlotModal extends React.Component<
     this.setState({ displayDimensions: false });
   }
 
-  render(): JSX.Element {
+  public render(): JSX.Element {
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.toggleModal}>
         <ModalHeader toggle={this.toggleModal}>Save Plot</ModalHeader>
@@ -401,6 +406,7 @@ export class ExportPlotModal extends React.Component<
             id="exampleCustomSwitch"
             name="customSwitch"
             label="Capture Provenance"
+            disabled={this.state.disableProvenance}
             checked={this.state.captureProvenance}
             onChange={this.toggleCaptureProvenance}
           />
