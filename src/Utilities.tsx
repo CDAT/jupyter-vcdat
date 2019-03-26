@@ -80,7 +80,7 @@ namespace ColorFunctions {
       return [];
     }  if (numColors == 1) {
       return [startColor];
-    } else if (numColors == 2) {
+    }  if (numColors == 2) {
       return [startColor, endColor];
     }
 

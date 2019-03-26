@@ -146,7 +146,7 @@ export default class DimensionSlider extends React.Component<
   }
 
   // formats the tick values for display only
-  numFormatter(value: number): string {
+  public numFormatter(value: number): string {
     if (value.toString().length > 8) {
       return value.toExponential(4);
     }

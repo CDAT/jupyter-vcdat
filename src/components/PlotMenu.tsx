@@ -247,7 +247,7 @@ export default class PlotMenu extends React.Component<
           </Form>
         </div>
       );
-    } else if (this.state.selectedDropdownOption == "3D") {
+    }  if (this.state.selectedDropdownOption == "3D") {
       return <div>Three Deee</div>;
     }
   }

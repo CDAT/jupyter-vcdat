@@ -250,11 +250,11 @@ namespace CellUtilities {
       notebook.model.cells.insert(notebook.widgets.length - 1, cell);
       notebook.activeCellIndex = oldIndex;
       return notebook.widgets.length - 1;
-    } else {
+    } 
       notebook.model.cells.insert(index, cell);
       notebook.activeCellIndex = oldIndex;
       return index;
-    }
+    
   }
 
   /**
