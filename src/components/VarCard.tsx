@@ -30,7 +30,7 @@ const buttonsStyle: React.CSSProperties = {
   width: "inherit"
 };
 
-interface VarCardProps {
+type VarCardProps = {
   variable: Variable;
   selectVariable: Function; // method to call to add this variable to the list to get loaded
   deselectVariable: Function; // method to call to remove a variable from the list
@@ -41,7 +41,7 @@ interface VarCardProps {
   reload: Function;
   isLoaded: boolean; // Whether a variable already exists/was loaded
 }
-interface VarCardState {
+type VarCardState = {
   showAxis: boolean;
   loadOrder: number;
   axisState: any;

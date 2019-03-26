@@ -39,8 +39,11 @@ jupyter lab build
 To download sample data, enter code below within a Jupyter notebook cell and run the cell:
 
 ```
-  import pkg_resources
-  vcs_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("vcs"), "share/vcs")
-  path = vcs_egg_path+'/sample_files.txt'
-  cdat_info.download_sample_data_files(path,"sample_data")
+import vcs
+import cdms2
+import cdat_info
+import pkg_resources
+vcs_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("vcs"), "share/vcs")
+path = vcs_egg_path+'/sample_files.txt'
+cdat_info.download_sample_data_files(path,"sample_data")
 ```
