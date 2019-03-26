@@ -131,7 +131,7 @@ export default class VarMini extends React.Component<
           <ModalHeader toggle={this.toggleModal}>Edit Axis</ModalHeader>
           <ModalBody>
             {this.props.variable.axisInfo.map((item: AxisInfo) => {
-              console.log("item in VarMini AxisInfo:", item)
+              //console.log("item in VarMini AxisInfo:", item)
               if (item.data.length <= 1) {
                 return;
               }

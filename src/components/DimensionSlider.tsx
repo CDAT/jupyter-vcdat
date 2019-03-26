@@ -5,7 +5,14 @@ import * as moment from "moment";
 import { Row, Col } from "reactstrap";
 
 // Project Components
-import { Slider, Rail, Handles, Tracks, Ticks } from "react-compound-slider";
+import {
+  Slider,
+  Rail,
+  Handles,
+  Tracks,
+  Ticks,
+  SliderItem
+} from "react-compound-slider";
 import { Handle, Track, Tick } from "./Tracks";
 
 const sliderStyle: React.CSSProperties = {
@@ -48,7 +55,7 @@ type DimensionSliderProps = {
 type DimensionSliderState = {
   min: number; // the current minimum value
   max: number; // the current max value
-  values: number[]; // the absolute min and absolute max values
+  tickValues: number[]; // the absolute min and absolute max values
   pValues: number[];
 };
 
@@ -57,6 +64,8 @@ export default class DimensionSlider extends React.Component<
   DimensionSliderState
 > {
   singleValue: boolean;
+  tickCount: number;
+  domain: [number, number];
   constructor(props: DimensionSliderProps) {
     super(props);
     let format: any;
@@ -91,31 +100,84 @@ export default class DimensionSlider extends React.Component<
       };
       this.formatter.bind(this);
     }
+    //console.log(props.name);
+    //console.log(props.data.length);
+
+    // Calculate values based on modulo
     if (props.modulo) {
       let newPossibleValues = [];
-      console.log("DimensionSliderProps:", props)
+      //console.log("DimensionSliderProps:", props);
       let step = Math.abs(props.data[0] - props.data[1]);
-      console.log("step value:", step)
+      //console.log("step value:", step);
       for (let i = -props.modulo; i <= props.modulo; i += step) {
         newPossibleValues.push(i);
       }
       possibleValues = newPossibleValues;
     }
-    this.singleValue = props.data.length == 1;
-
+    //let step: number = 1;
+    this.tickCount = 10;
+    // Calculate display tick values and values
+    let lastIdx: number = possibleValues.length - 1;
+    let skipVal: number = 0;
+    let tickValues: number[] = possibleValues;
+    if (lastIdx >= this.tickCount) {
+      tickValues = Array<number>();
+      skipVal = lastIdx / (this.tickCount - 1);
+      for (let idx = 0; idx < this.tickCount; idx++) {
+        tickValues.push(Math.floor(idx * skipVal));
+      }
+    }
     let pValues = possibleValues.map((item: any) => {
       // console.log("item in pValues:", item)
-      return Math.floor(item);
+      return item; //Math.floor(item);
     });
-    // console.log("props:", props)
-    console.log(`pValues in ${this.props.name} :`, pValues)
 
+    // Set the domain, (number of elements in the data set)
+    this.domain = [0, lastIdx];
+
+    // console.log("props:", props)
+    //console.log(`pValues in ${this.props.name} :`, pValues);
+    //console.log(this.props.name);
     this.state = {
-      min: pValues[0],
-      max: pValues[pValues.length - 1],
+      min: this.domain[0],
+      max: this.domain[1],
       pValues: pValues,
-      values: [props.min, props.max]
+      tickValues: tickValues
     };
+
+    /*console.log(`step in render for ${this.props.name}:`, this.step);
+    console.log(
+      `pValues[0] in render for ${this.props.name}:`,
+      this.state.pValues[0]
+    );
+    console.log(
+      `this.state.min in render for ${this.props.name}:`,
+      this.state.min
+    );
+    console.log(
+      `pValues[this.state.pValues.length - 1] in render for ${
+        this.props.name
+      }:`,
+      this.state.pValues[this.state.pValues.length - 1]
+    );
+    console.log(
+      `this.state.max in render for ${this.props.name}:`,
+      this.state.max
+    );*/
+  }
+
+  mapValue(item: number, values: number[]): number {
+    let curDiff: number = Infinity;
+    let diff: number;
+    let closest: number = 0;
+    values.forEach(value => {
+      diff = Math.abs(item - value);
+      if (diff < curDiff) {
+        closest = value;
+        curDiff = diff;
+      }
+    });
+    return closest;
   }
 
   // default formatter
@@ -127,13 +189,6 @@ export default class DimensionSlider extends React.Component<
   }
 
   render(): JSX.Element {
-    let step = 1;
-    console.log(`step in render for ${this.props.name}:`, step)
-    console.log(`pValues[0] in render for ${this.props.name}:`, this.state.pValues[0])
-    console.log(`this.state.min in render for ${this.props.name}:`, this.state.min)
-    console.log(`pValues[this.state.pValues.length - 1] in render for ${this.props.name}:`, this.state.pValues[this.state.pValues.length - 1])
-    console.log(`this.state.max in render for ${this.props.name}:`, this.state.max)
-    let tickCount = 10;
     return (
       <div className="dimension-slider">
         {!this.singleValue && (
@@ -145,15 +200,12 @@ export default class DimensionSlider extends React.Component<
               </Row>
             </div>
             <Slider
-              mode={1}
-              step={step}
-              domain={[
-                this.state.pValues[0],
-                this.state.pValues[this.state.pValues.length - 1]
-              ]}
+              mode={2}
+              step={1}
+              domain={this.domain}
               rootStyle={sliderStyle}
-              onUpdate={this.handleSliderChange}
-              values={[this.state.values[0], this.state.values[1]]}
+              onChange={this.handleSliderChange}
+              values={this.domain}
             >
               <Rail>
                 {({ getRailProps }) => (
@@ -188,11 +240,16 @@ export default class DimensionSlider extends React.Component<
                   </div>
                 )}
               </Tracks>
-              <Ticks count={tickCount}>
+              <Ticks values={this.state.tickValues}>
                 {({ ticks }) => (
                   <div className="slider-ticks">
-                    {ticks.map(tick => (
-                      <Tick key={tick.id} tick={tick} count={ticks.length} />
+                    {ticks.map((tick: SliderItem, idx: number) => (
+                      <Tick
+                        key={tick.id}
+                        tick={tick}
+                        count={this.tickCount}
+                        value={this.state.pValues[this.state.tickValues[idx]]}
+                      />
                     ))}
                   </div>
                 )}
@@ -202,7 +259,8 @@ export default class DimensionSlider extends React.Component<
               <Row>
                 <Col xs="auto">
                   {" "}
-                  [{this.state.min}...{this.state.max}]{" "}
+                  [{this.state.pValues[this.state.min]}...
+                  {this.state.pValues[this.state.max]}]{" "}
                 </Col>
               </Row>
             </div>
@@ -215,17 +273,18 @@ export default class DimensionSlider extends React.Component<
     if (e.length != 2) {
       return;
     }
+    //let minVal: number = this.mapValue(e[0],this.state.pValues);
+    //let maxVal: number = this.mapValue(e[0],this.state.pValues);
 
     this.setState({
-      values: e,
       min: e[0],
       max: e[1]
     });
     this.props.updateDimInfo(
       {
         name: this.props.name,
-        min: e[0],
-        max: e[1]
+        min: this.state.pValues[e[0]],
+        max: this.state.pValues[e[1]]
       },
       this.props.varName
     );
