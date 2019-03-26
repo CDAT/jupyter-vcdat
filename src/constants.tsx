@@ -158,6 +158,10 @@ const GET_AXIS_INFO: string = `
 outAxes = {}\n\
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
+  if len(axis) < 1000:\n\
+    axis_data = axis[:].tolist()\n\
+  else:\n\
+    axis_data = None\n\
   # Get a displayable name for the variable\n\
   if hasattr(axis, 'id'):\n\
     name = axis.id\n\
@@ -173,7 +177,9 @@ for aname in reader.axes:\n\
     'units': units,\n\
     'modulo': axis.getModulo(),\n\
     'moduloCycle': axis.getModuloCycle(),\n\
-    'data': axis.getData().tolist(),\n\
+    'data': axis_data,\n\
+    'min': float(axis[:].min()),\n\
+    'max': float(axis[:].max()),\n\
     'isTime': axis.isTime()\n\
   }\n\
 aname = None\n\
@@ -240,6 +246,10 @@ for vname in reader.variables:\n\
 outAxes = {}\n\
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
+  if len(axis) < 1000:\n\
+    axis_data = axis[:].tolist()\n\
+  else:\n\
+    axis_data = None\n\
   # Get a displayable name for the variable\n\
   if hasattr(axis, 'id'):\n\
     name = axis.id\n\
@@ -255,7 +265,9 @@ for aname in reader.axes:\n\
     'units': units,\n\
     'modulo': axis.getModulo(),\n\
     'moduloCycle': axis.getModuloCycle(),\n\
-    'data': axis.getData().tolist(),\n\
+    'data': axis_data,\n\
+    'min': float(axis[:].min()),\n\
+    'max': float(axis[:].max()),\n\
     'isTime': axis.isTime()\n\
   }\n\
   var = None\n\

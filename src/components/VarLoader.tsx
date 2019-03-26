@@ -8,6 +8,11 @@ import AxisInfo from "./AxisInfo";
 import VarCard from "./VarCard";
 import Variable from "./Variable";
 
+const modalOverflow: React.CSSProperties = {
+  maxHeight: "70vh",
+  overflow: "auto"
+};
+
 interface VarLoaderProps {
   loadFileVariable: Function; // function to call when user hits load
   variables: Variable[]; // list of all currently available variables
@@ -151,7 +156,7 @@ export default class VarLoader extends React.Component<
           size="lg"
         >
           <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
-          <ModalBody>
+          <ModalBody style={modalOverflow}>
             {this.state.fileVariables.length != 0 &&
               this.state.fileVariables.map((item: Variable) => {
                 return (

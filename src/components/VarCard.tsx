@@ -172,24 +172,22 @@ export default class VarCard extends React.Component<
               </div>
             </CardTitle>
             <Collapse isOpen={this.state.showAxis} onClick={this.openMenu}>
-              {this.props.variable.axisInfo.map((item: AxisInfo) => {
-                if (item.data.length <= 1) {
-                  return;
-                }
-                item.updateDimInfo = this.updateDimInfo;
-                // Adjust min and max to fit slider
-                item.min = Math.floor(item.min);
-                item.max = Math.floor(item.max);
-                return (
-                  <div key={item.name} style={axisStyle}>
-                    <Card>
-                      <CardBody>
-                        <DimensionSlider {...item} varName={this.varName} />
-                      </CardBody>
-                    </Card>
-                  </div>
-                );
-              })}
+              {this.state.showAxis &&
+                this.props.variable.axisInfo.map((item: AxisInfo) => {
+                  if (item.data.length <= 1) {
+                    return;
+                  }
+                  item.updateDimInfo = this.updateDimInfo;
+                  return (
+                    <div key={item.name} style={axisStyle}>
+                      <Card>
+                        <CardBody>
+                          <DimensionSlider {...item} varName={this.varName} />
+                        </CardBody>
+                      </Card>
+                    </div>
+                  );
+                })}
             </Collapse>
           </CardBody>
           <CardFooter />

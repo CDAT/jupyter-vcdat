@@ -53,6 +53,7 @@ export default class GraphicsMenu extends React.Component<
   GraphicsMenuProps,
   GraphicsMenuState
 > {
+  public nameInputRef: Input;
   constructor(props: GraphicsMenuProps) {
     super(props);
     this.state = {

@@ -25,6 +25,11 @@ const badgeStyle: React.CSSProperties = {
   marginLeft: "0.5em"
 };
 
+const modalOverflow: React.CSSProperties = {
+  maxHeight: "70vh",
+  overflow: "auto"
+};
+
 interface VarMiniProps {
   buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
@@ -132,16 +137,14 @@ export default class VarMini extends React.Component<
           size="lg"
         >
           <ModalHeader toggle={this.toggleModal}>Edit Axis</ModalHeader>
-          <ModalBody>
-            {this.props.variable.axisInfo.length > 0 &&
+          <ModalBody style={modalOverflow}>
+            {this.state.showAxis &&
+              this.props.variable.axisInfo.length > 0 &&
               this.props.variable.axisInfo.map((item: AxisInfo) => {
                 if (item.data.length <= 1) {
                   return;
                 }
                 item.updateDimInfo = this.updateDimInfo;
-                // Adjust min and max to fit slider
-                item.min = Math.floor(item.min);
-                item.max = Math.floor(item.max);
                 return (
                   <div key={item.name} style={axisStyle}>
                     <Card>
