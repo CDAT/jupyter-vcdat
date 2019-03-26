@@ -368,7 +368,7 @@ const BASE_GRAPHICS: any = {
   scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"]
 };
 
-const BASE_TEMPLATES: Array<string> = [
+const BASE_TEMPLATES: string[] = [
   "default",
   "ASD",
   "ASD_dud",
