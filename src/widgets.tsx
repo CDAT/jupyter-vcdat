@@ -891,94 +891,113 @@ export class LeftSideBarWidget extends Widget {
 
   /**
    * This will load data from a file so it can be used by vcdat
-   * @param filePath The filepath of the new file to open
    * @param index The index to use for the cell containing the data variables
+   * @param filePath The filepath of the new file to open
+   * @param addNew Whether to add a new data reader to the cell, default is true.
    */
   public async injectDataReaders(
+    index: number,
     filePath: string,
-    index: number
+    addNew: boolean = true
   ): Promise<number> {
     // If the data file doesn't have correct extension, exit
-    if (filePath == "") {
+    if (addNew && filePath == "") {
       throw new Error("The file path was empty.");
     }
 
     // If the data file doesn't have correct extension, exit
-    if (!EXTENSIONS_REGEX.test(filePath)) {
+    if (addNew && !EXTENSIONS_REGEX.test(filePath)) {
       throw new Error("The file has the wrong extension type.");
     }
 
-    // Find the index where the file data code is injected
-    let idx: number = CellUtilities.findCellWithMetaKey(
-      this.notebookPanel,
-      READER_CELL_KEY
-    )[0];
+    let cdmsError: boolean = false; // Whether a cdms error occured
 
-    // Get list of data files to open
-    const dataVarNames: string[] = Object.keys(this.dataReaderList);
-
-    // Build command that opens any existing data file(s)
-    let cmd: string = `#Open the file${
-      dataVarNames.length > 0 ? "s" : ""
-    } for reading\n`;
-
-    if (dataVarNames.length > 0) {
-      cmd = "#Open the files for reading\n";
-      dataVarNames.forEach(existingDataName => {
-        if (this.dataReaderList[existingDataName] == filePath) {
-          // Exit early if the filepath has already been opened
-          if (idx < 0) {
-            return index;
-          }
-          return idx;
-        }
-        cmd += `${existingDataName} = cdms2.open('${
-          this.dataReaderList[existingDataName]
-        }')\n`;
-      });
-    } else {
-      cmd = "#Open the file for reading\n";
-    }
-
-    // Add a new reader to command
-    const newName: string = this.getDataReaderName(filePath);
-    cmd += `${newName} = cdms2.open('${filePath}')`;
-
-    // Update data reader list
-    this.dataReaderList[newName] = filePath;
-
-    if (idx < 0) {
-      // Insert a new cell with given command and run
-      const result: [number, string] = await CellUtilities.insertRunShow(
+    try {
+      // Find the index where the file data code is injected
+      let idx: number = CellUtilities.findCellWithMetaKey(
         this.notebookPanel,
-        this.commands,
-        index,
-        cmd,
+        READER_CELL_KEY
+      )[0];
+
+      // Get list of data files to open
+      const dataVarNames: string[] = Object.keys(this.dataReaderList);
+
+      // Build command that opens any existing data file(s)
+      let cmd: string;
+
+      if (dataVarNames.length > 0) {
+        cmd = "#Open the files for reading\n";
+        dataVarNames.forEach(existingDataName => {
+          if (this.dataReaderList[existingDataName] == filePath) {
+            // Exit early if the filepath has already been opened
+            if (idx < 0) {
+              return index;
+            }
+            return idx;
+          }
+          cmd += `${existingDataName} = cdms2.open('${
+            this.dataReaderList[existingDataName]
+          }')\n`;
+        });
+      } else {
+        if (!addNew) {
+          // If no data files are open anf no new one is being added, exit early
+          return;
+        }
+        cmd = `#Open the file for reading\n`;
+      }
+
+      // Add a new reader to command (optional)
+      let newName: string;
+      if (addNew) {
+        newName = this.getDataReaderName(filePath);
+        cmd += `${newName} = cdms2.open('${filePath}')`;
+      }
+
+      if (idx < 0) {
+        // Insert a new cell with given command and run
+        cdmsError = true;
+        const result: [number, string] = await CellUtilities.insertRunShow(
+          this.notebookPanel,
+          this.commands,
+          index,
+          cmd,
+          true
+        );
+        cdmsError = false;
+        idx = result[0];
+      } else {
+        // Inject code into existing data variables cell and run
+        CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
+        cdmsError = true;
+        await CellUtilities.runCellAtIndex(
+          this.commands,
+          this.notebookPanel,
+          idx
+        );
+        cdmsError = false;
+      }
+
+      // Update or add the file path to the data readers list
+      if (addNew) {
+        this.dataReaderList[newName] = filePath;
+      }
+
+      // Set cell meta data to identify it as containing data variables
+      await CellUtilities.setCellMetaData(
+        this.notebookPanel,
+        idx,
+        READER_CELL_KEY,
+        "saved",
         true
       );
-      idx = result[0];
-    } else {
-      // Inject code into existing data variables cell and run
-      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
-      await CellUtilities.runCellAtIndex(
-        this.commands,
-        this.notebookPanel,
-        idx
-      );
+      return idx;
+    } catch (error) {
+      if (cdmsError) {
+        this.injectDataReaders(index, "", false);
+      }
+      throw new Error(error);
     }
-
-    // Update or add the file path to the data readers list
-    this.dataReaderList[this.getDataReaderName(filePath)] = filePath;
-
-    // Set cell meta data to identify it as containing data variables
-    await CellUtilities.setCellMetaData(
-      this.notebookPanel,
-      idx,
-      READER_CELL_KEY,
-      "saved",
-      true
-    );
-    return idx;
   }
 
   /**
@@ -1063,7 +1082,7 @@ export class LeftSideBarWidget extends Widget {
     currentIdx = await this.injectImportsCode();
 
     // Inject the data file(s)
-    currentIdx = await this.injectDataReaders(currentFile, currentIdx + 1);
+    currentIdx = await this.injectDataReaders(currentIdx + 1, currentFile);
 
     // Inject canvas(es)
     currentIdx = await this.injectCanvasCode(currentIdx + 1, 1);
@@ -1089,7 +1108,7 @@ export class LeftSideBarWidget extends Widget {
         this.notebookPanel,
         READER_CELL_KEY
       )[0];
-      await this.injectDataReaders(currentFile, idx);
+      await this.injectDataReaders(idx, currentFile);
     }
 
     // Launch file variable loader if file has variables
