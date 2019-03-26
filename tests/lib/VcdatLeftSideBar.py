@@ -69,13 +69,16 @@ class VcdatLeftSideBar(BasePage):
             print("...click on the '{p}' from the drop down menu".format(p=plot_type))
             button_elements_locator = "//div[@id='vcdat-left-side-bar']//button[@class='dropdown-item']"
             button_elements = self.driver.find_elements_by_xpath(button_elements_locator)
+            saved_button = None
             for b in button_elements:
                 print("DEBUG...b.text: {button_text}".format(button_text=b.text))
                 if b.text == plot_type:
                     print("FOUND the '{p}' from drop down menu".format(p=plot_type))
                     time.sleep(self._delay)
-                    b.click()
+                    saved_button = b
                     break
+            if saved_button:
+                saved_button.click()
 
         except NoSuchElementException as e:
             print("Not finding 'Select Plot Type' button")

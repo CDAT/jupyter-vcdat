@@ -63,13 +63,13 @@ class BasePage(object):
                   timeout=_wait_timeout):
         url = server
         print("...load_page, url: {u}".format(u=url))
-        try:
-            r = requests.get(url, verify=False, timeout=timeout)
-            err_msg = "fail to connect to '{0}' (code = {1})".format(url, r.status_code)
-            assert(r.status_code < 403), err_msg
-        except Exception as e:
-            err_msg = "fail to connect to '{0}' (reason: {1})".format(url, e)
-            assert(False), err_msg
+        #try:
+        #    r = requests.get(url, verify=False, timeout=timeout)
+        #    err_msg = "fail to connect to '{0}' (code = {1})".format(url, r.status_code)
+        #    assert(r.status_code < 403), err_msg
+        #except Exception as e:
+        #    err_msg = "fail to connect to '{0}' (reason: {1})".format(url, e)
+        #    assert(False), err_msg
 
         try:
             self.driver.get(url)

@@ -14,25 +14,7 @@ from selenium.common.exceptions import TimeoutException
 
 class MainPage(BasePage):
 
-    # TEMPORARY -- should be in config
-    _kernel = "Python 3"
-
-    #_logo_locator = "//div[@id='jp-MainLogo']"
-    _logo_locator = 'jp-MainLogo'
-    _file_folder_locator = "//li[@title='File Browser']"
-    _temp_select_popup_locator = "//div[@class='p-Widget p-Panel jp-Dialog-content']"
-    # _select_kernel_popup_locator = "//div[@class='p-Widget p-Panel jp-Dialog-content']//span[contains(text(), 'Select Kernel')]"
-    _select_kernel_popup_locator = "//div[@class='p-Widget jp-Dialog']//div[@class='p-Widget p-Panel jp-Dialog-content']//span[contains(text(), 'Select Kernel')]"
-    _select_kernel_drop_down_locator = "//select[@class='jp-mod-styled']"
-    _kernel_locator = "//option[contains(text(), '{k}')]".format(k=_kernel)
-    _kernel_select_button_locator = "//button//div[contains(text(), 'SELECT')]"
-    _file_load_error_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
-    #_file_load_error_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']//div[@class='jp-Dialog-buttonIcon']"
-
-    #
-    #
-    #
-    _load_variables_locator = "//button[@class='btn btn-info'][contains(text(), 'Load Variables')]"
+    _kernel_tab_locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), 'Kernel')]"
 
     def __init__(self, driver, server):
         super(MainPage, self).__init__(driver, server)
@@ -41,73 +23,23 @@ class MainPage(BasePage):
     def _validate_page(self):
         # validate Main page is displaying a 'Home' tab
         print("...MainPage.validatePage()")
-        logo_element = self.driver.find_element_by_id(self._logo_locator)
+        logo_locator = 'jp-MainLogo'
+        logo_element = self.driver.find_element_by_id(logo_locator)
 
     def click_on_load_variables(self):
-        load_variables_element = self.driver.find_element_by_xpath(self._load_variables_locator)
+        load_variables_locator = "//button[@class='btn btn-info'][contains(text(), 'Load Variables')]"
+        load_variables_element = self.driver.find_element_by_xpath(load_variables_locator)
         print("FOUND element")
         load_variables_element.click()
         time.sleep(self._delay)
 
-
-
-    def load_file(self, fname):        
-        ## THIS WORKS when run 2nd time
-        #WebDriverWait(self.driver, 180).until(EC.element_to_be_clickable((By.XPATH, self._file_load_error_ok_locator))).click()
-
-        n_tries = 0
-        while n_tries < 3:
-            try:
-                print("...n_tries: {n}".format(n=n_tries))
-                # find file folder icon on left panel, and click
-                print("...click on file folder icon on the left panel")
-                folder_element = self.driver.find_element_by_xpath(self._file_folder_locator)
-                folder_element.click()
-                time.sleep(self._delay)
-
-                print("... double clicking on file name")
-                locator1 = "//span[@class='jp-DirListing-itemText'][contains(text(), '{f}')]".format(f=fname)
-                file_element = self.driver.find_element_by_xpath(locator1)
-
-                print("...found the element...")
-                actionChains = ActionChains(self.driver)
-                actionChains.move_to_element(file_element)
-                print("...going to double click on the file name")
-                actionChains.double_click(file_element)
-                print("...going to perform...")
-                actionChains.perform()
- 
-                print("...after double clicking on file name xxx")
-                print("...click on the File Load Error for clt.nc OK button -- is this TEMPORARY?")
-                print("...doing WebDriverWait...till the element is clickable")
-                load_el = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, self._file_load_error_ok_locator)))
-                print("FOUND file_load_error_ok element, n_tries: {n}".format(n=n_tries))
-                load_el.click()
-                break
-            except TimeoutException:
-                n_tries = n_tries + 1
-                if n_tries == 3:
-                    raise TimeoutException
-                else:
-                    print("going to retry...n_tries:{n}".format(n=n_tries))
-
-
-        # validate that we have 'Select Kernel' pop up
-        print("...looking for the 'Select Kernel' pop up")
-        self.driver.find_element_by_xpath(self._select_kernel_popup_locator)
-        print("...FOUND 'Select Kernel' pop up")
-        time.sleep(self._delay)
-
-        # click on the drop down arrow
-        self.driver.find_element_by_xpath(self._select_kernel_drop_down_locator).click()
-        time.sleep(self._delay)
-
-        print("..._kernel_locator: {l}".format(l=self._kernel_locator))
-        self.driver.find_element_by_xpath(self._kernel_locator).click()
-        time.sleep(self._delay)
-
-        # click on the 'SELECT' button
-        print("...click on SELECT button")
-        self.driver.find_element_by_xpath(self._kernel_select_button_locator).click()
-        time.sleep(self._delay)
-
+    def shutdown_kernel(self):
+        kernel_tab_element = self.driver.find_element_by_xpath(self._kernel_tab_locator)
+        shutdown_kernel_element = "//div[contains(text(), 'Shutdown Kernel')]"
+        
+        print("FOUND 'Kernel' tab")
+        kernel_tab_element.click()
+        print("...shut down kernel...")
+        self.driver.find_element_by_xpath(shutdown_kernel_element).click()
+        time.sleep(5)
+        

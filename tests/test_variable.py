@@ -27,36 +27,15 @@ class BrowserTest(BaseTestCase):
         utils = JupyterUtils()
         self.server = utils.get_server()        
 
-    def do_setup(self):
-        main_page = MainPage(self.driver, self.server)
-        try:
-            note_book = NoteBookPage(self.driver)
-            note_book.close()
-            time.sleep(5)
-        except NoSuchElementException:
-            print("No notebook opened")
-            pass
 
-    def load_data_file(self, filename):
-        left_side_bar = VcdatLeftSideBar(self.driver, None)
-        left_side_bar.click_on_jp_vcdat_icon()
-        time.sleep(5)
-        left_side_bar.click_on_load_variables()
-
-        file_browser = FileBrowser(self.driver, None)
-        file_browser.double_click_on_a_file(filename)
-        time.sleep(5)
-
-        return left_side_bar
-
-    def ABCtest_plot_variable_1(self):
+    def test_plot_variable_1(self):
         '''
         load 'clt.nc', load 'clt' variable, load and plot.
         '''
-        print("...test_plot_variable_1...")
+        print("\n\n...test_plot_variable_1...")
 
-        server = self.server
-        self.do_setup()
+        main_page = MainPage(self.driver, self.server)
+        self.close_notebook_if_any()
 
         left_side_bar = self.load_data_file("clt.nc")
 
@@ -68,15 +47,18 @@ class BrowserTest(BaseTestCase):
 
         plot_area = PlotArea(self.driver)
         plot_area.check_plot()
+        main_page.shutdown_kernel()
+        self.close_notebook_if_any()
 
     def ABCtest_plot_variable_2(self):
         '''
         load 'clt.nc', load 'u' variable, load 'v' variable, load and plot.
         '''
-        print("...test_plot_variable_2...")
+        print("\n\n...test_plot_variable_2...")
 
         server = self.server
-        self.do_setup()
+        main_page = MainPage(self.driver, self.server)
+        self.close_notebook_if_any()
 
         left_side_bar = self.load_data_file("clt.nc")
 
@@ -89,15 +71,17 @@ class BrowserTest(BaseTestCase):
 
         plot_area = PlotArea(self.driver)
         plot_area.check_plot()
+        self.close_notebook_if_any()
 
     def ABCtest_plot_variable_3(self):
         '''
         load 'clt.nc', load 'u' variable, adjust slider, load, and plot.
         '''
-        print("...test_plot_variable_3...")
+        print("\n\n...test_plot_variable_3...")
 
         server = self.server
-        self.do_setup()
+        main_page = MainPage(self.driver, self.server)
+        self.close_notebook_if_any()
 
         left_side_bar = self.load_data_file("clt.nc")
 
@@ -111,15 +95,17 @@ class BrowserTest(BaseTestCase):
         left_side_bar.click_on_plot()
         plot_area = PlotArea(self.driver)
         plot_area.check_plot()
+        self.close_notebook_if_any()
 
-    def test_plot_variable_4(self):
+    def ABCtest_plot_variable_4(self):
         '''
         load 'clt.nc', load 'u' variable, load 'v' variable, adjust sliders, load, and plot.
         '''
-        print("...test_plot_variable_4...")
+        print("\n\n...test_plot_variable_4...")
 
         server = self.server
-        self.do_setup()
+        main_page = MainPage(self.driver, self.server)
+        self.close_notebook_if_any()
 
         left_side_bar = self.load_data_file("clt.nc")
 
@@ -140,7 +126,11 @@ class BrowserTest(BaseTestCase):
         left_side_bar.click_on_plot()
         plot_area = PlotArea(self.driver)
         plot_area.check_plot()
-
+        main_page.shutdown_kernel()
+        self.close_notebook_if_any()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+# nosetests -s tests/test_variable.py:BrowserTest.test_plot_variable_4
