@@ -1,8 +1,9 @@
-FROM jupyter/minimal-notebook:022da74a0c8f
+FROM jasonb87/nimbus-basic:latest
 # Get the latest image tag at:
-# https://hub.docker.com/r/jupyter/minimal-notebook/tags/
-# Inspect the Dockerfile at:
-# https://github.com/jupyter/docker-stacks/tree/master/minimal-notebook/Dockerfile
+# https://hub.docker.com/r/jasonb87/nimbus-basic
 
-RUN conda config --set remote_read_timeout_secs 120 && conda install -y -c cdat/label/v81 -c conda-forge nodejs "python=3.7" vcs vcsaddons thermo wk eofs windspharm autopep8 scipy scikit-learn pip nb_conda nb_conda_kernels plumbum mesalib jupyterhub && conda clean -y --all && pip install lazy_import && pip install sidecar && rm -rf ~/.cache/pip
+RUN conda config --set remote_read_timeout_secs 120 && conda install -y -c cdat/label/v81 -c conda-forge nodejs "python=3.7" vcs vcsaddons thermo wk eofs windspharm autopep8 scipy scikit-learn pip nb_conda nb_conda_kernels plumbum mesalib jupyterhub && conda install -y -c cdat/label/nightly cmor && conda clean -y --all && pip install lazy_import && pip install sidecar && rm -rf ~/.cache/pip
+=======
+RUN conda install -y -c cdat/label/v81 -c conda-forge nodejs "python=3.7" vcs vcsaddons thermo wk eofs windspharm autopep8 scipy scikit_learn pip nb_conda nb_conda_kernels plumbum mesalib && conda install -y -c cdat/label/nightly cmor && conda clean -y --all && pip install lazy_import && pip install sidecar && rm -rf ~/.cache/pip
+>>>>>>> Stashed changes
 
