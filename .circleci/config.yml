@@ -33,7 +33,7 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        ./install_script.sh
-       conda install -n jupyter-vcdat testsrunner
+       conda install -n jupyter-vcdat -c cdat/label/v81 testsrunner
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
