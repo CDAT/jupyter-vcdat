@@ -1,8 +1,4 @@
 FROM cdoutrix/vcdat:core
-# Get the latest image tag at:
-# https://hub.docker.com/r/jupyter/minimal-notebook/tags/
-# Inspect the Dockerfile at:
-# https://github.com/jupyter/docker-stacks/tree/master/minimal-notebook/Dockerfile
 
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager && jupyter labextension install @jupyter-widgets/jupyterlab-sidecar && jupyter labextension install @jupyterlab/github && pip install jupyterlab_github && jupyter serverextension enable --sys-prefix jupyterlab_github && pip install nbgitpuller && jupyter serverextension enable --py nbgitpuller --sys-prefix && rm -rf node_modules && rm -rf ~/.cache/pip
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager && jupyter labextension install @jupyter-widgets/jupyterlab-sidecar && jupyter labextension install @jupyterlab/github && pip install jupyterlab_github && jupyter serverextension enable --sys-prefix jupyterlab_github && pip install nbgitpuller && jupyter serverextension enable --py nbgitpuller --sys-prefix && jupyter labextension install @jupyterlab/hub-extension && rm -rf node_modules && rm -rf ~/.cache/pip
 
