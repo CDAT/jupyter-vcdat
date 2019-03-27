@@ -1,33 +1,34 @@
 // Dependencies
-import * as React from "react";
+import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
+import * as React from "react";
 import {
   Alert,
   Button,
   Card,
   CardBody,
-  Spinner,
+  Col,
   CustomInput,
   Row,
-  Col
+  Spinner
 } from "reactstrap";
 
 // Project Components
-import { NotebookUtilities } from "../NotebookUtilities";
 import {
-  VARIABLES_LOADED_KEY,
   GRAPHICS_METHOD_KEY,
   MAX_SLABS,
   TEMPLATE_KEY,
-  VARIABLES_KEY
+  VARIABLE_SOURCES_KEY,
+  VARIABLES_KEY,
+  VARIABLES_LOADED_KEY
 } from "../constants";
-import VarMenu from "./VarMenu";
+import { NotebookUtilities } from "../NotebookUtilities";
+import AxisInfo from "./AxisInfo";
+import ExportPlotModal from "./ExportPlotModal";
 import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import Variable from "./Variable";
-import AxisInfo from "./AxisInfo";
-import ExportPlotModal from "./ExportPlotModal";
-import { NotebookPanel } from "@jupyterlab/notebook";
+import VarMenu from "./VarMenu";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -46,24 +47,26 @@ const sidebarOverflow: React.CSSProperties = {
 const DEFAULT_WIDTH: number = 800;
 const DEFAULT_HEIGHT: number = 600;
 
-export type VCSMenuProps = {
+export interface VCSMenuProps {
   inject: Function; // a method to inject code into the controllers notebook
   commands: CommandRegistry; // the command executor
   notebookPanel: NotebookPanel;
   plotReady: boolean; // The notebook is ready for code injection an plots
   plotExists: boolean; // whether a plot already exists
   plotExistTrue: Function; // sets the widget's plotExist state to true (called by plot function)
+  getDataVarList: Function; // A dictionary containing data variable names and associated file
   getGraphicsList: Function; // function that reads the current graphics list
   refreshGraphicsList: Function; // function that refreshes the graphics method list
   getTemplatesList: Function; // function that reads the widget's current template list
   getFileVariables: Function; // Function that reads the current notebook file and retrieves variable data
   updateVariables: Function; // function that updates the variables list in the main widget
-};
-type VCSMenuState = {
+}
+interface VCSMenuState {
   plotReady: boolean; // are we ready to plot
   plotExists: boolean; // whether a plot already exists
-  variables: Array<Variable>; // All the variables, loaded from files and derived by users
-  selectedVariables: Array<string>; // Unique names of all the variables that are currently selected
+  variables: Variable[]; // All the variables, loaded from files and derived by users
+  variableSources: { [varName: string]: string }; // Tracks what data reader each variable came from
+  selectedVariables: string[]; // Unique names of all the variables that are currently selected
   selectedGM: string;
   selectedGMgroup: string;
   selectedTemplate: string;
@@ -74,12 +77,12 @@ type VCSMenuState = {
   plotName: string;
   plotFormat: string;
   overlayMode: boolean;
-};
+}
 
 export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
-  varMenuRef: VarMenu;
-  graphicsMenuRef: GraphicsMenu;
-  templateMenuRef: TemplateMenu;
+  public varMenuRef: VarMenu;
+  public graphicsMenuRef: GraphicsMenu;
+  public templateMenuRef: TemplateMenu;
   constructor(props: VCSMenuProps) {
     super(props);
     this.state = {
@@ -96,12 +99,14 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       exportSuccessAlert: false,
       plotName: "",
       plotFormat: "",
-      overlayMode: false
+      overlayMode: false,
+      variableSources: {}
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
     this.plot = this.plot.bind(this);
     this.clear = this.clear.bind(this);
+    this.saveNotebook = this.saveNotebook.bind(this);
     this.resetState = this.resetState.bind(this);
     this.getCanvasDimensions = this.getCanvasDimensions.bind(this);
     this.copyGraphicsMethod = this.copyGraphicsMethod.bind(this);
@@ -125,19 +130,23 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.setPlotInfo = this.setPlotInfo.bind(this);
   }
 
-  setPlotInfo(plotName: string, plotFormat: string) {
-    this.setState({ plotName: plotName, plotFormat: plotFormat });
+  public saveNotebook() {
+    this.state.notebookPanel.context.save();
   }
 
-  dismissSavePlotSpinnerAlert() {
+  public setPlotInfo(plotName: string, plotFormat: string) {
+    this.setState({ plotName, plotFormat });
+  }
+
+  public dismissSavePlotSpinnerAlert() {
     this.setState({ savePlotAlert: false });
   }
 
-  dismissExportSuccessAlert() {
+  public dismissExportSuccessAlert() {
     this.setState({ exportSuccessAlert: false });
   }
 
-  exportPlotAlerts() {
+  public exportPlotAlerts() {
     this.setState({ savePlotAlert: true }, () => {
       window.setTimeout(() => {
         this.setState({ savePlotAlert: false });
@@ -150,15 +159,15 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
-  toggleModal() {
+  public toggleModal() {
     this.setState({ isModalOpen: !this.state.isModalOpen });
   }
 
-  toggleOverlayMode() {
+  public toggleOverlayMode() {
     this.setState({ overlayMode: !this.state.overlayMode });
   }
 
-  async resetState() {
+  public async resetState() {
     this.varMenuRef.resetVarMenuState();
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
@@ -172,15 +181,18 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
-  async getCanvasDimensions(): Promise<{ width: number; height: number }> {
+  public async getCanvasDimensions(): Promise<{
+    width: number;
+    height: number;
+  }> {
     try {
       if (this.state.plotReady) {
         // Check the dimensions of the current canvas object
-        let output: string = await NotebookUtilities.sendSimpleKernelRequest(
+        const output: string = await NotebookUtilities.sendSimpleKernelRequest(
           this.state.notebookPanel,
-          "output=[canvas.width,canvas.height]"
+          "vcdat_output=[canvas.width,canvas.height]"
         );
-        let dimensions: [number, number] = eval(output);
+        const dimensions: [number, number] = eval(output);
         return { width: dimensions[0], height: dimensions[1] };
       }
       return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
@@ -190,9 +202,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     }
   }
 
-  getVariableSelections(): void {
+  public getVariableSelections(): void {
     // Load the selected graphics method from meta data (if exists)
-    let selection: Array<string> = NotebookUtilities.getMetaDataNow(
+    const selection: string[] = NotebookUtilities.getMetaDataNow(
       this.state.notebookPanel,
       VARIABLES_KEY
     );
@@ -211,9 +223,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.varMenuRef.setState({ selectedVariables: selection });
   }
 
-  getGraphicsSelections(): void {
+  public getGraphicsSelections(): void {
     // Load the selected graphics method from meta data (if exists)
-    let gmData: [string, string] = NotebookUtilities.getMetaDataNow(
+    const gmData: [string, string] = NotebookUtilities.getMetaDataNow(
       this.state.notebookPanel,
       GRAPHICS_METHOD_KEY
     );
@@ -240,9 +252,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
-  getTemplateSelection(): void {
+  public getTemplateSelection(): void {
     // Load the selected template from meta data (if exists)
-    let template: string = NotebookUtilities.getMetaDataNow(
+    const template: string = NotebookUtilities.getMetaDataNow(
       this.state.notebookPanel,
       TEMPLATE_KEY
     );
@@ -261,12 +273,12 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
-  async copyGraphicsMethod(
+  public async copyGraphicsMethod(
     groupName: string,
     methodName: string,
     newName: string
   ): Promise<void> {
-    //Check that the method doesn't already exist in the selected group
+    // Check that the method doesn't already exist in the selected group
     if (this.props.getGraphicsList()[groupName].indexOf(newName) >= 0) {
       NotebookUtilities.showMessage(
         "Notice",
@@ -299,7 +311,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @param group the group name that the selected GM came from
    * @param name the specific GM from the group
    */
-  async updateGraphicsOptions(group: string, name: string): Promise<void> {
+  public async updateGraphicsOptions(
+    group: string,
+    name: string
+  ): Promise<void> {
     let cmdString: string = "";
     if (name.indexOf(group) < 0) {
       cmdString = `${name}_${group} = vcs.get${group}('${name}')`;
@@ -323,8 +338,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
-  async updateTemplateOptions(templateName: string): Promise<void> {
-    let cmdString: string = `${templateName} = vcs.gettemplate('${templateName}')`;
+  public async updateTemplateOptions(templateName: string): Promise<void> {
+    const cmdString: string = `${templateName} = vcs.gettemplate('${templateName}')`;
 
     // Attempt code injection
     await this.props.inject(cmdString).then(() => {
@@ -345,34 +360,49 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @description take a variable and load it into the notebook
    * @param variable The variable to load into the notebook
    */
-  async loadVariable(variable: Variable): Promise<any> {
+  public async loadVariable(variable: Variable): Promise<any> {
     // inject the code to load the variable into the notebook
-    let cmdString = `${variable.name} = data("${variable.cdmsID}"`;
+    let cmdString = `${variable.name} = ${variable.sourceName}("${
+      variable.name
+    }"`;
     variable.axisInfo.forEach((axis: AxisInfo) => {
       cmdString += `, ${axis.name}=(${axis.min}, ${axis.max})`;
     });
     cmdString += ")";
-    this.props.inject(cmdString);
+    await this.props.inject(cmdString);
+
+    // Save the source of the variable
+    const newSource: { [varName: string]: string } = this.state.variableSources;
+    newSource[variable.name] = variable.sourceName;
+    this.setState({ variableSources: newSource });
+    // Also save to meta data
+    await NotebookUtilities.setMetaData(
+      this.state.notebookPanel,
+      VARIABLE_SOURCES_KEY,
+      newSource,
+      true
+    );
+
     // Get variables from meta data
-    let res: any = await NotebookUtilities.getMetaData(
+    const result: any = await NotebookUtilities.getMetaData(
       this.state.notebookPanel,
       VARIABLES_LOADED_KEY
     );
 
-    // If no variables are stored in the metadata, save the new one
-    if (res == null) {
-      let varArray = new Array<Variable>();
+    // If no variables are stored in the metadata, save the new variable to meta data
+    if (result == null) {
+      const varArray = new Array<Variable>();
       varArray.push(variable);
-      await NotebookUtilities.setMetaData(
+      await NotebookUtilities.setMetaDataNow(
         this.state.notebookPanel,
         VARIABLES_LOADED_KEY,
         varArray
       );
     } else {
       // If there are already variables stored but this one isn't present then save it
-      let newVariableArray = res.slice();
+      const newVariableArray = result.slice();
       let found: boolean = false;
-      res.forEach((storedVar: Variable, varIndex: number) => {
+      result.forEach((storedVar: Variable, varIndex: number) => {
         if (storedVar.name == variable.name) {
           newVariableArray[varIndex] = variable;
           found = true;
@@ -381,16 +411,18 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       if (!found) {
         newVariableArray.push(variable);
       }
+
       // Update meta data
       await NotebookUtilities.setMetaData(
         this.state.notebookPanel,
         VARIABLES_LOADED_KEY,
-        newVariableArray
+        newVariableArray,
+        true
       );
     }
   }
 
-  updatePlotReady(value: boolean): void {
+  public updatePlotReady(value: boolean): void {
     this.setState({ plotReady: value });
     this.graphicsMenuRef.setState({ plotReady: value });
     this.templateMenuRef.setState({ plotReady: value });
@@ -399,7 +431,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   /**
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
-  plot(): void {
+  public plot(): void {
     try {
       if (this.state.selectedVariables.length == 0) {
         NotebookUtilities.showMessage(
@@ -408,7 +440,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         );
       } else {
         // Limit selection to MAX_SLABS
-        let selection: Array<string> = this.state.selectedVariables;
+        let selection: string[] = this.state.selectedVariables;
         if (selection.length > MAX_SLABS) {
           selection = selection.slice(0, MAX_SLABS);
           this.updateSelectedVariables(selection);
@@ -451,7 +483,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     }
   }
 
-  clear(): void {
+  public clear(): void {
     this.props.inject("canvas.clear()");
   }
 
@@ -459,14 +491,14 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @description Launch the file browser, and then load variables from a file after its been selected
    * @param variables An array of variables to display in the launcher (loaded from a file)
    */
-  async launchVarSelect(variables: Array<Variable>): Promise<void> {
+  public async launchVarSelect(variables: Variable[]): Promise<void> {
     await this.varMenuRef.launchVarLoader(variables);
   }
 
-  updateVariables(variables: Array<Variable>) {
-    this.setState({ variables: variables });
-    this.varMenuRef.setState({ variables: variables });
-    this.varMenuRef.varLoaderRef.setState({ variables: variables });
+  public updateVariables(variables: Variable[]) {
+    this.setState({ variables });
+    this.varMenuRef.setState({ variables });
+    this.varMenuRef.varLoaderRef.setState({ variables });
     this.props.updateVariables(variables);
   }
 
@@ -474,7 +506,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    * @description Adds a list of variables to the selectedVariables list after checking that they're not already there
    * @param selection the list of variables to add to the selectedVariables list
    */
-  async updateSelectedVariables(selection: Array<string>): Promise<any> {
+  public async updateSelectedVariables(selection: string[]): Promise<any> {
     // Update meta data
     await NotebookUtilities.setMetaData(
       this.state.notebookPanel,
@@ -487,28 +519,29 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     ]);
   }
 
-  render(): JSX.Element {
-    let GraphicsMenuProps = {
+  public render(): JSX.Element {
+    const GraphicsMenuProps = {
       getGraphicsList: this.props.getGraphicsList,
       updateGraphicsOptions: this.updateGraphicsOptions,
       copyGraphicsMethod: this.copyGraphicsMethod,
       varInfo: new Variable(),
       plotReady: this.state.plotReady
     };
-    let VarMenuProps = {
+    const VarMenuProps = {
       commands: this.props.commands,
       loadVariable: this.loadVariable,
       variables: this.state.variables,
       selectedVariables: this.state.selectedVariables,
       updateVariables: this.updateVariables,
-      updateSelectedVariables: this.updateSelectedVariables
+      updateSelectedVariables: this.updateSelectedVariables,
+      saveNotebook: this.saveNotebook
     };
-    let TemplateMenuProps = {
+    const TemplateMenuProps = {
       plotReady: this.state.plotReady,
       getTemplatesList: this.props.getTemplatesList,
       updateTemplateOptions: this.updateTemplateOptions
     };
-    let ExportPlotModalProps = {
+    const ExportPlotModalProps = {
       isOpen: this.state.isModalOpen,
       toggle: this.toggleModal,
       inject: this.props.inject,

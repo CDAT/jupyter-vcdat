@@ -1,12 +1,19 @@
 // Dependencies
-import * as React from "react";
 import * as _ from "lodash";
 import * as moment from "moment";
-import { Row, Col } from "reactstrap";
+import * as React from "react";
+import { Col, Row } from "reactstrap";
 
 // Project Components
-import { Slider, Rail, Handles, Tracks, Ticks } from "react-compound-slider";
-import { Handle, Track, Tick } from "./Tracks";
+import {
+  Handles,
+  Rail,
+  Slider,
+  SliderItem,
+  Ticks,
+  Tracks
+} from "react-compound-slider";
+import { Handle, Tick, Track } from "./Tracks";
 
 const sliderStyle: React.CSSProperties = {
   marginLeft: "5%",
@@ -31,41 +38,44 @@ const centered: React.CSSProperties = {
   paddingTop: "0.5em"
 };
 
-type DimensionSliderProps = {
+interface DimensionSliderProps {
   varName: string; // the name of the variable this axis belongs to
   min: number;
   max: number;
-  data: Array<number>; // the raw axis data
+  data: number[]; // the raw axis data
   isTime: boolean; // is this a time axis
   modulo: any; // ???
   moduloCycle: number; // ???
   name: string; // the cdms2 name of the axis
-  shape: Array<number>; // the shape of the axis
+  shape: number[]; // the shape of the axis
   units: string; // the units of the axis
   updateDimInfo: Function; // method to be called updating the parent when the slider values change
-};
+}
 
-type DimensionSliderState = {
+interface DimensionSliderState {
   min: number; // the current minimum value
   max: number; // the current max value
-  values: number[]; // the absolute min and absolute max values
-  pValues: number[];
-};
+  tickValues: number[]; // the absolute min and absolute max values
+  possibleValues: number[];
+}
 
 export default class DimensionSlider extends React.Component<
   DimensionSliderProps,
   DimensionSliderState
 > {
-  singleValue: boolean;
+  public singleValue: boolean; // Whether the slider range contains only a single value
+  public tickCount: number = 10; // The number of ticks to display for slider
+  private domain: [number, number]; // The domain to use for the slider
   constructor(props: DimensionSliderProps) {
     super(props);
-    let format: any;
-    let possibleValues = props.data;
     this.handleSliderChange = this.handleSliderChange.bind(this);
     this.formatter = this.formatter.bind(this);
 
+    // Set slider values and formatting
+    let format: any;
+    let pValues = props.data;
     if (_.includes(props.units, "since")) {
-      let [span, , startTime] = props.units.split(" ");
+      const [span, , startTime] = props.units.split(" ");
       switch (span) {
         case "years":
           format = "YYYY";
@@ -91,39 +101,69 @@ export default class DimensionSlider extends React.Component<
       };
       this.formatter.bind(this);
     }
+
+    // Calculate values based on modulo
     if (props.modulo) {
-      let newPossibleValues = [];
-      let step = Math.abs(props.data[0] - props.data[1]);
+      const newPossibleValues = [];
+      const step = Math.abs(props.data[0] - props.data[1]);
       for (let i = -props.modulo; i <= props.modulo; i += step) {
         newPossibleValues.push(i);
       }
-      possibleValues = newPossibleValues;
+      pValues = newPossibleValues;
     }
-    this.singleValue = props.data.length == 1;
 
-    let pValues = possibleValues.map((item: any) => {
-      return Math.floor(item);
-    });
+    // Calculate display tick values and values
+    const lastIdx: number = pValues.length - 1;
+    let skipVal: number = 0;
+
+    // Create default array of sequential values
+    let tickVals: number[] = Array.from(Array(pValues.length).keys());
+
+    // If there are more real values than there are tick values
+    // Calculate tick index that span the whole range of real  values
+    if (lastIdx >= this.tickCount) {
+      tickVals = Array<number>();
+      skipVal = lastIdx / (this.tickCount - 1);
+      for (let idx = 0; idx < this.tickCount; idx++) {
+        tickVals.push(Math.floor(idx * skipVal));
+      }
+    }
+
+    // Set the domain, (number of elements in the data set)
+    this.domain = [0, lastIdx];
 
     this.state = {
-      min: pValues[0],
-      max: pValues[pValues.length - 1],
-      pValues: pValues,
-      values: [props.min, props.max]
+      min: this.domain[0],
+      max: this.domain[1],
+      possibleValues: pValues,
+      tickValues: tickVals
     };
   }
 
   // default formatter
-  formatter(data: any): any {
+  public formatter(data: any): any {
     if (data.toFixed) {
       return data.toFixed(5);
     }
     return data;
   }
 
-  render(): JSX.Element {
-    let step = 1;
-    let tickCount = 10;
+  // formats the tick indexes for display only
+  public tickValue(index: number): string {
+    let tickIndex: number = this.state.tickValues[index];
+    let realValue: number = this.state.possibleValues[tickIndex];
+
+    if (!realValue) {
+      return ""; // Leave blank if real value is undefined for whatever reason
+    }
+
+    if (realValue.toString().length > 8) {
+      return realValue.toExponential(4);
+    }
+    return realValue.toString();
+  }
+
+  public render(): JSX.Element {
     return (
       <div className="dimension-slider">
         {!this.singleValue && (
@@ -135,15 +175,12 @@ export default class DimensionSlider extends React.Component<
               </Row>
             </div>
             <Slider
-              mode={1}
-              step={step}
-              domain={[
-                this.state.pValues[0],
-                this.state.pValues[this.state.pValues.length - 1]
-              ]}
+              mode={2}
+              step={1}
+              domain={this.domain}
               rootStyle={sliderStyle}
-              onUpdate={this.handleSliderChange}
-              values={[this.state.values[0], this.state.values[1]]}
+              onChange={this.handleSliderChange}
+              values={this.domain}
             >
               <Rail>
                 {({ getRailProps }) => (
@@ -178,11 +215,16 @@ export default class DimensionSlider extends React.Component<
                   </div>
                 )}
               </Tracks>
-              <Ticks count={tickCount}>
+              <Ticks values={this.state.tickValues}>
                 {({ ticks }) => (
                   <div className="slider-ticks">
-                    {ticks.map(tick => (
-                      <Tick key={tick.id} tick={tick} count={ticks.length} />
+                    {ticks.map((tick: SliderItem, idx: number) => (
+                      <Tick
+                        key={tick.id}
+                        tick={tick}
+                        count={this.tickCount}
+                        value={this.tickValue(idx)}
+                      />
                     ))}
                   </div>
                 )}
@@ -191,8 +233,9 @@ export default class DimensionSlider extends React.Component<
             <div style={centered}>
               <Row>
                 <Col xs="auto">
-                  {" "}
-                  [{this.state.min}...{this.state.max}]{" "}
+                  {`[${this.state.possibleValues[this.state.min]} ... ${
+                    this.state.possibleValues[this.state.max]
+                  }]`}
                 </Col>
               </Row>
             </div>
@@ -201,21 +244,20 @@ export default class DimensionSlider extends React.Component<
       </div>
     );
   }
-  handleSliderChange(e: any): void {
+  public handleSliderChange(e: any): void {
     if (e.length != 2) {
       return;
     }
 
     this.setState({
-      values: e,
       min: e[0],
       max: e[1]
     });
     this.props.updateDimInfo(
       {
         name: this.props.name,
-        min: e[0],
-        max: e[1]
+        min: this.state.possibleValues[e[0]],
+        max: this.state.possibleValues[e[1]]
       },
       this.props.varName
     );

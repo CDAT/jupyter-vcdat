@@ -1,39 +1,39 @@
 // Dependencies
+import { Dialog, showDialog } from "@jupyterlab/apputils";
 import * as React from "react";
 import {
-  Collapse,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  CardTitle,
-  CardSubtitle,
   Button,
   Card,
-  CardBody
+  CardBody,
+  CardSubtitle,
+  CardTitle,
+  Collapse,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Form,
+  FormGroup,
+  Input,
+  Label
 } from "reactstrap";
-import { Dialog, showDialog } from "@jupyterlab/apputils";
 
 // Project Components
 import Variable from "./Variable";
 
-type PlotMenuProps = {
+interface PlotMenuProps {
   updatePlotOptions: Function; // the method to call when the users wants to update the plot options
   varInfo: Variable; // variable information about the selected variable
-};
-type PlotMenuState = {
+}
+interface PlotMenuState {
   showMenu: boolean; // should the menu be expanded or not
   showDropdown: boolean; // should the drop down be open
-  dropdownOptions: Array<string>; // options to select for the plot mode
+  dropdownOptions: string[]; // options to select for the plot mode
   selectedDropdownOption: string; // the currently selected plot mode
   plotOptions: any; // the currently selected plot options
   validName: boolean; // is the given plot name valid
   optionsChanged: boolean; // have the options been changed
-};
+}
 
 export default class PlotMenu extends React.Component<
   PlotMenuProps,
@@ -60,23 +60,23 @@ export default class PlotMenu extends React.Component<
     this.selectFalse = this.selectFalse.bind(this);
     this.selectTrue = this.selectTrue.bind(this);
   }
-  toggleMenu(): void {
+  public toggleMenu(): void {
     this.setState({
       showMenu: !this.state.showMenu
     });
   }
-  toggleDropdown(): void {
+  public toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
   }
-  setSelectedOption(option: string): void {
+  public setSelectedOption(option: string): void {
     this.setState({
       selectedDropdownOption: option,
       showMenu: true
     });
   }
-  render(): JSX.Element {
+  public render(): JSX.Element {
     return (
       <div>
         <Card
@@ -93,7 +93,7 @@ export default class PlotMenu extends React.Component<
                 isOpen={this.state.showDropdown}
                 toggle={this.toggleDropdown}
               >
-                <DropdownToggle caret>
+                <DropdownToggle caret={true}>
                   Plot Type: {this.state.selectedDropdownOption}
                 </DropdownToggle>
                 <DropdownMenu>
@@ -123,9 +123,9 @@ export default class PlotMenu extends React.Component<
       </div>
     );
   }
-  selectTrue(): void {
+  public selectTrue(): void {
     if (this.state.plotOptions.saveImg && !this.state.plotOptions.plotName) {
-      let msg =
+      const msg =
         "A filename is required when saving plots or creating animations";
       showDialog({
         title: "Filename Required",
@@ -143,27 +143,28 @@ export default class PlotMenu extends React.Component<
       });
     }
   }
-  selectFalse(): void {
+  public selectFalse(): void {
     this.setState({
       showMenu: false
     });
   }
-  plotOptions(): JSX.Element {
+  public plotOptions(): JSX.Element {
     if (this.state.selectedDropdownOption == "1D") {
       return <div>One Deee</div>;
-    } else if (this.state.selectedDropdownOption == "2D") {
+    }
+    if (this.state.selectedDropdownOption == "2D") {
       return (
         <div>
           <Form className={"jp-vcsWidget-Form"}>
-            <FormGroup check>
-              <Label check>
+            <FormGroup check={true}>
+              <Label check={true}>
                 <Input
                   type="radio"
                   name="radio1"
-                  defaultChecked
+                  defaultChecked={true}
                   onClick={() => {
                     if (this.state.plotOptions.animation != false) {
-                      let newPlotOptions = this.state.plotOptions;
+                      const newPlotOptions = this.state.plotOptions;
                       newPlotOptions.animation = false;
                       this.setState({
                         plotOptions: newPlotOptions,
@@ -175,8 +176,8 @@ export default class PlotMenu extends React.Component<
                 Generate Image
               </Label>
             </FormGroup>
-            <FormGroup check>
-              <Label check>
+            <FormGroup check={true}>
+              <Label check={true}>
                 <Input
                   type="radio"
                   name="radio1"
@@ -185,7 +186,7 @@ export default class PlotMenu extends React.Component<
                       this.state.plotOptions.animation != true ||
                       this.state.plotOptions.saveImg
                     ) {
-                      let newPlotOptions = this.state.plotOptions;
+                      const newPlotOptions = this.state.plotOptions;
                       newPlotOptions.animation = true;
                       newPlotOptions.saveImg = true;
                       this.setState({
@@ -198,14 +199,14 @@ export default class PlotMenu extends React.Component<
                 Generate Animation
               </Label>
             </FormGroup>
-            <FormGroup check>
-              <Label check>
+            <FormGroup check={true}>
+              <Label check={true}>
                 <Input
                   type="checkbox"
                   checked={this.state.plotOptions.saveImg}
                   onChange={() => {}}
                   onClick={() => {
-                    let newPlotOptions = this.state.plotOptions;
+                    const newPlotOptions = this.state.plotOptions;
                     newPlotOptions.saveImg = !newPlotOptions.saveImg;
                     this.setState({
                       plotOptions: newPlotOptions,
@@ -223,7 +224,7 @@ export default class PlotMenu extends React.Component<
                   id="plotNameInput"
                   placeholder="Plot Name"
                   onChange={event => {
-                    let newPlotOptions = this.state.plotOptions;
+                    const newPlotOptions = this.state.plotOptions;
                     newPlotOptions.plotName = event.target.value;
                     this.setState({
                       plotOptions: newPlotOptions,
@@ -247,7 +248,8 @@ export default class PlotMenu extends React.Component<
           </Form>
         </div>
       );
-    } else if (this.state.selectedDropdownOption == "3D") {
+    }
+    if (this.state.selectedDropdownOption == "3D") {
       return <div>Three Deee</div>;
     }
   }

@@ -6,34 +6,36 @@ import {
   ButtonGroup,
   Collapse,
   CustomInput,
+  Input,
+  Label,
   Modal,
-  ModalHeader,
   ModalBody,
   ModalFooter,
-  Input,
-  Label
+  ModalHeader
 } from "reactstrap";
 
-export type ExportPlotModalProps = {
+export interface ExportPlotModalProps {
   isOpen: boolean;
   inject: Function; // a method to inject code into the controllers notebook
   getCanvasDimensions: Function; // a method that gets the current plot dimensions
   toggle: Function;
   exportAlerts: Function;
   setPlotInfo: Function;
-};
+}
 
-type ExportPlotModalState = {
+interface ExportPlotModalState {
   modal: boolean;
   plotName: string;
   plotFileFormat: string;
   validateExportName: boolean;
   validateFileFormat: boolean;
   displayDimensions: boolean;
+  disableProvenance: boolean;
+  captureProvenance: boolean;
   width: string;
   height: string;
   plotUnits: string;
-};
+}
 
 export class ExportPlotModal extends React.Component<
   ExportPlotModalProps,
@@ -47,6 +49,8 @@ export class ExportPlotModal extends React.Component<
       plotFileFormat: "",
       validateExportName: false,
       validateFileFormat: false,
+      disableProvenance: true,
+      captureProvenance: false,
       displayDimensions: false,
       width: "",
       height: "",
@@ -59,11 +63,12 @@ export class ExportPlotModal extends React.Component<
       this
     );
     this.toggleDimensionsDisplay = this.toggleDimensionsDisplay.bind(this);
+    this.toggleCaptureProvenance = this.toggleCaptureProvenance.bind(this);
   }
 
-  async toggleDimensionsDisplay() {
+  public async toggleDimensionsDisplay() {
     if (!this.state.displayDimensions) {
-      let dimensions = await this.props.getCanvasDimensions();
+      const dimensions = await this.props.getCanvasDimensions();
       this.setState({ width: dimensions.width });
       this.setState({ height: dimensions.height });
     }
@@ -72,116 +77,194 @@ export class ExportPlotModal extends React.Component<
     }));
   }
 
-  dismissFileFormatValidation() {
+  public toggleCaptureProvenance() {
+    this.setState(prevState => ({
+      captureProvenance: !prevState.captureProvenance
+    }));
+  }
+
+  public dismissFileFormatValidation() {
     this.setState({ validateFileFormat: false });
   }
 
-  dismissExportValidation() {
+  public dismissExportValidation() {
     this.setState({ validateExportName: false });
   }
 
-  toggleModal() {
+  public toggleModal() {
     this.setState({ validateExportName: false });
     this.setState({ validateFileFormat: false });
     this.props.toggle();
     this.setState({ plotName: "" });
   }
 
-  onRadioBtnClick(rSelected: string) {
+  public onRadioBtnClick(rSelected: string) {
     this.setState({ plotFileFormat: rSelected });
+    if (rSelected === "png") {
+      this.setState({ disableProvenance: false });
+    } else {
+      this.setState({ disableProvenance: true });
+    }
   }
 
-  onUnitRadioBtnClick(rSelected: string) {
+  public onUnitRadioBtnClick(rSelected: string) {
     this.setState({ plotUnits: rSelected });
   }
 
-  async save() {
-    let plotName = this.state.plotName;
+  public async export_png(
+    plotName: string,
+    provenance: string,
+    width?: string,
+    height?: string,
+    plotUnits?: string
+  ) {
+    if (width && height) {
+      await this.props.inject(
+        `canvas.png('${plotName}', height=float('${height}'), width=float('${width}'), units='${plotUnits}', provenance=bool('${provenance}'))`
+      );
+    } else {
+      await this.props.inject(
+        `canvas.png('${plotName}', provenance=bool('${provenance}'))`
+      );
+    }
+  }
+
+  public async export_pdf(
+    plotName: string,
+    width?: string,
+    height?: string,
+    plotUnits?: string
+  ) {
+    if (width && height) {
+      await this.props.inject(
+        `canvas.pdf('${plotName}', height=float('${height}'), width=float('${width}'), units='${plotUnits}')`
+      );
+    } else {
+      await this.props.inject(`canvas.pdf('${plotName}')`);
+    }
+  }
+
+  public async export_svg(
+    plotName: string,
+    width?: string,
+    height?: string,
+    plotUnits?: string
+  ) {
+    if (width && height) {
+      await this.props.inject(
+        `canvas.svg('${plotName}', height=float('${height}'), width=float('${width}'), units='${plotUnits}')`
+      );
+    } else {
+      await this.props.inject(`canvas.svg('${plotName}'))`);
+    }
+  }
+
+  public async export_ps(
+    plotName: string,
+    width?: string,
+    height?: string,
+    plotUnits?: string
+  ) {
+    if (width && height) {
+      await this.props.inject(
+        `canvas.postscript('${plotName}', height=float('${height}'), width=float('${width}'), units='${plotUnits}')`
+      );
+    } else {
+      await this.props.inject(`canvas.postscript('${plotName}')`);
+    }
+  }
+
+  public async save() {
+    const plotName = this.state.plotName;
     if (plotName == null || plotName == "") {
       this.setState({ validateExportName: true });
       return;
-    } else {
-      this.setState({ validateExportName: false });
     }
-    let fileFormat = this.state.plotFileFormat;
+    this.setState({ validateExportName: false });
+
+    const fileFormat = this.state.plotFileFormat;
     if (fileFormat == null || fileFormat == "") {
       this.setState({ validateFileFormat: true });
       return;
-    } else {
-      this.setState({ validateFileFormat: false });
     }
+    this.setState({ validateFileFormat: false });
+
+    let capture = null;
+    if (this.state.captureProvenance) {
+      capture = "1";
+    } else {
+      capture = "";
+    }
+    this.setState({ validateFileFormat: false });
 
     if (fileFormat === "png") {
-      if (this.state.width && this.state.height) {
-        try {
-          await this.props.inject(
-            `canvas.png('${plotName}', height=float('${
-              this.state.height
-            }'), width=float('${this.state.width}'), units='${
-              this.state.plotUnits
-            }')`
+      try {
+        if (this.state.width && this.state.height) {
+          this.export_png(
+            plotName,
+            capture,
+            this.state.width,
+            this.state.height,
+            this.state.plotUnits
           );
-        } catch (error) {
-          console.log("Failed to export with custom dimensions");
-          console.log("error:", error);
-          return;
+        } else {
+          this.export_png(plotName, capture);
         }
-      } else {
-        await this.props.inject(`canvas.png('${plotName}')`);
+      } catch (error) {
+        console.log("Failed to export plot");
+        console.log("error:", error);
+        return;
       }
     } else if (fileFormat === "pdf") {
-      if (this.state.width && this.state.height) {
-        try {
-          await this.props.inject(
-            `canvas.pdf('${plotName}', height=float('${
-              this.state.height
-            }'), width=float('${this.state.width}'), units='${
-              this.state.plotUnits
-            }')`
+      try {
+        if (this.state.width && this.state.height) {
+          this.export_pdf(
+            plotName,
+            this.state.width,
+            this.state.height,
+            this.state.plotUnits
           );
-        } catch (error) {
-          console.log("Failed to export with custom dimensions");
-          console.log("error:", error);
-          return;
+        } else {
+          this.export_pdf(plotName);
         }
-      } else {
-        await this.props.inject(`canvas.pdf('${plotName}')`);
+      } catch (error) {
+        console.log("Failed to export plot");
+        console.log("error:", error);
+        return;
       }
     } else if (fileFormat === "svg") {
-      if (this.state.width && this.state.height) {
-        try {
-          await this.props.inject(
-            `canvas.svg('${plotName}', height=float('${
-              this.state.height
-            }'), width=float('${this.state.width}'), units='${
-              this.state.plotUnits
-            }')`
+      try {
+        if (this.state.width && this.state.height) {
+          this.export_svg(
+            plotName,
+            this.state.width,
+            this.state.height,
+            this.state.plotUnits
           );
-        } catch (error) {
-          console.log("Failed to export with custom dimensions");
-          console.log("error:", error);
-          return;
+        } else {
+          this.export_svg(plotName);
         }
-      } else {
-        await this.props.inject(`canvas.svg('${plotName}')`);
+      } catch (error) {
+        console.log("Failed to export plot");
+        console.log("error:", error);
+        return;
       }
     } else if (fileFormat === "ps") {
-      if (this.state.width && this.state.height) {
-        try {
-          await this.props.inject(
-            `canvas.postscript('${plotName}', height=float('${
-              this.state.height
-            }'), width=float('${this.state.width}'), units='${
-              this.state.plotUnits
-            }')`
+      try {
+        if (this.state.width && this.state.height) {
+          this.export_ps(
+            plotName,
+            this.state.width,
+            this.state.height,
+            this.state.plotUnits
           );
-        } catch (error) {
-          console.log("Failed to export with custom dimensions");
-          console.log("error:", error);
-          return;
+        } else {
+          this.export_ps(plotName);
         }
-      } else {
-        await this.props.inject(`canvas.postscript('${plotName}')`);
+      } catch (error) {
+        console.log("Failed to export plot");
+        console.log("error:", error);
+        return;
       }
     }
     this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
@@ -190,7 +273,7 @@ export class ExportPlotModal extends React.Component<
     this.setState({ displayDimensions: false });
   }
 
-  render(): JSX.Element {
+  public render(): JSX.Element {
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.toggleModal}>
         <ModalHeader toggle={this.toggleModal}>Save Plot</ModalHeader>
@@ -319,6 +402,15 @@ export class ExportPlotModal extends React.Component<
             </div>
           </div>
           <br />
+          <CustomInput
+            type="switch"
+            id="exampleCustomSwitch"
+            name="customSwitch"
+            label="Capture Provenance"
+            disabled={this.state.disableProvenance}
+            checked={this.state.captureProvenance}
+            onChange={this.toggleCaptureProvenance}
+          />
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={this.save}>
