@@ -150,8 +150,13 @@ export default class DimensionSlider extends React.Component<
 
   // formats the tick indexes for display only
   public tickValue(index: number): string {
+<<<<<<< HEAD
+    const tickIndex: number = this.state.tickValues[index];
+    const realValue: number = this.state.possibleValues[tickIndex];
+=======
     let tickIndex: number = this.state.tickValues[index];
     let realValue: number = this.state.possibleValues[tickIndex];
+>>>>>>> b4a6d0d942c5f9b5d061a0c117634056363cb129
 
     if (!realValue) {
       return ""; // Leave blank if real value is undefined for whatever reason

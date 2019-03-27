@@ -3,7 +3,19 @@ import { MiscUtilities } from "./Utilities";
 const MAX_SLABS: number = 2;
 const BASE_URL: string = "/vcs";
 const READY_KEY: string = "vcdat_ready";
+<<<<<<< HEAD
+const EXTENSIONS: string[] = [
+  ".nc",
+  ".nc3",
+  ".nc4",
+  ".ctl",
+  ".dic",
+  ".pp",
+  ".cdf"
+];
+=======
 const EXTENSIONS: string[] = [".nc[34]?", ".ctl", ".dic", ".pp", ".cdf"];
+>>>>>>> b4a6d0d942c5f9b5d061a0c117634056363cb129
 const EXTENSIONS_REGEX: RegExp = MiscUtilities.filenameFilter(EXTENSIONS);
 const FILE_PATH_KEY: string = "vcdat_file_path";
 const IMPORT_CELL_KEY: string = "vcdat_imports";

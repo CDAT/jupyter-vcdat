@@ -819,6 +819,7 @@ export class LeftSideBarWidget extends Widget {
     } else {
       cmd += this.buildImportCommand(eval(`[${REQUIRED_MODULES}]`), false);
     }
+<<<<<<< HEAD
 
     // Find the index where the imports code is injected
     let idx: number = CellUtilities.findCellWithMetaKey(
@@ -826,6 +827,15 @@ export class LeftSideBarWidget extends Widget {
       IMPORT_CELL_KEY
     )[0];
 
+=======
+
+    // Find the index where the imports code is injected
+    let idx: number = CellUtilities.findCellWithMetaKey(
+      this.notebookPanel,
+      IMPORT_CELL_KEY
+    )[0];
+
+>>>>>>> b4a6d0d942c5f9b5d061a0c117634056363cb129
     if (idx < 0) {
       // Inject imports in a new cell and run
       const result: [number, string] = await CellUtilities.insertRunShow(
@@ -840,6 +850,181 @@ export class LeftSideBarWidget extends Widget {
       // Inject code into existing imports cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
       await CellUtilities.runCellAtIndex(
+<<<<<<< HEAD
+        this.commands,
+        this.notebookPanel,
+        idx
+      );
+    }
+
+    // Set cell meta data to identify it as containing imports
+    await CellUtilities.setCellMetaData(
+      this.notebookPanel,
+      idx,
+      IMPORT_CELL_KEY,
+      "saved",
+      true
+    );
+
+    return idx;
+  }
+
+  /**
+   * Gets the name for a data reader object to read data from a file. Creates a new name if one doesn't exist.
+   * @param filePath The file path of the new file added
+   */
+  public getDataReaderName(filePath: string): string {
+    // Check whether that file path is already open, return the data name if so
+    let dataName: string = "";
+    const found: boolean = Object.keys(this.dataReaderList).some(
+      (dataVar: string) => {
+        dataName = dataVar;
+        return this.dataReaderList[dataVar] == filePath;
+      }
+    );
+    if (found) {
+      return dataName;
+    }
+
+    // Filepath hasn't been added before, create the name for data variable based on file path
+    dataName = MiscUtilities.createVariableName(filePath) + "_data";
+
+    // If the reader name already exist but the path is different (like for two files with
+    // similar names but different paths) add a count to the end until it's unique
+    let count: number = 1;
+    while (Object.keys(this.dataReaderList).indexOf(dataName) >= 0) {
+      dataName = `${dataName}${count}`;
+      count++;
+    }
+
+    return dataName;
+  }
+
+  /**
+   * This will load data from a file so it can be used by vcdat
+   * @param index The index to use for the cell containing the data variables
+   * @param filePath The filepath of the new file to open
+   */
+  public async injectDataReaders(
+    index: number,
+    filePath: string
+  ): Promise<number> {
+    // If the data file doesn't have correct extension, exit
+    if (filePath == "") {
+      throw new Error("The file path was empty.");
+    }
+
+    // If the data file doesn't have correct extension, exit
+    if (!EXTENSIONS_REGEX.test(filePath)) {
+      throw new Error("The file has the wrong extension type.");
+    }
+
+    // Try opening the file first, before injecting into code
+    const newName: string = this.getDataReaderName(filePath);
+    const addCmd: string = `${newName} = cdms2.open('${filePath}')`;
+    await NotebookUtilities.sendSimpleKernelRequest(
+      this.notebookPanel,
+      addCmd,
+      false
+    );
+
+    // If file opened fine, find the index where the file data code is injected
+    let idx: number = CellUtilities.findCellWithMetaKey(
+      this.notebookPanel,
+      READER_CELL_KEY
+    )[0];
+
+    // Get list of data files to open
+    const dataVarNames: string[] = Object.keys(this.dataReaderList);
+
+    // Build command that opens any existing data file(s)
+    let cmd: string;
+
+    if (dataVarNames.length > 0) {
+      cmd = "#Open the files for reading\n";
+      dataVarNames.forEach(existingDataName => {
+        if (this.dataReaderList[existingDataName] == filePath) {
+          // Exit early if the filepath has already been opened
+          if (idx < 0) {
+            return index;
+          }
+          return idx;
+        }
+        cmd += `${existingDataName} = cdms2.open('${
+          this.dataReaderList[existingDataName]
+        }')\n`;
+      });
+      cmd += addCmd;
+    } else {
+      cmd = `#Open the file for reading\n${addCmd}`;
+    }
+
+    if (idx < 0) {
+      // Insert a new cell with given command and run
+      const result: [number, string] = await CellUtilities.insertRunShow(
+        this.notebookPanel,
+        this.commands,
+        index,
+        cmd,
+        true
+      );
+      idx = result[0];
+    } else {
+      // Inject code into existing data variables cell and run
+      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
+      await CellUtilities.runCellAtIndex(
+        this.commands,
+        this.notebookPanel,
+        index
+      );
+    }
+
+    // Update or add the file path to the data readers list
+    this.dataReaderList[newName] = filePath;
+
+    // Set cell meta data to identify it as containing data variables
+    await CellUtilities.setCellMetaData(
+      this.notebookPanel,
+      idx,
+      READER_CELL_KEY,
+      "saved",
+      true
+    );
+    return idx;
+  }
+
+  /**
+   * Looks for a cell containing the canvas declarations and updates its code
+   * to contain the specified number of canvases.
+   * If no cell containing canvas code is found a whole new one is inserted.
+   * @param title The base title to use for the sidecars of this notebook
+   * @param index The index of the cell to replace or insert the canvas code
+   * @param canvasCount The number of canvases that the canvas cell should contain
+   */
+  public async injectCanvasCode(
+    // title: string,
+    index: number,
+    canvasCount: number
+  ): Promise<number> {
+    // Creates canvas(es)
+    const cmd: string = `#Create canvas and sidecar\ncanvas = vcs.init()`;
+
+    // Find the index where the canvas code is injected
+    let idx: number = CellUtilities.findCellWithMetaKey(
+      this.notebookPanel,
+      CANVAS_CELL_KEY
+    )[0];
+
+    if (idx < 0) {
+      // Inject the code for starting the canvases
+      const result: [number, string] = await CellUtilities.insertRunShow(
+        this.notebookPanel,
+        this.commands,
+        index,
+        cmd,
+        true
+      );
+=======
         this.commands,
         this.notebookPanel,
         idx
@@ -1031,6 +1216,7 @@ export class LeftSideBarWidget extends Widget {
         cmd,
         true
       );
+>>>>>>> b4a6d0d942c5f9b5d061a0c117634056363cb129
       idx = result[0];
     } else {
       // Replace code in canvas cell and run
