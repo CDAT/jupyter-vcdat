@@ -46,6 +46,6 @@ fi
 python setup.py install
 
 npm install
-npm run build
+#npm run build
 jupyter lab build
 jupyter-labextension install .
