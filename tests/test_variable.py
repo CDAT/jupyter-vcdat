@@ -61,6 +61,7 @@ class TestLoadVariable(BaseTestCase):
         load_variable_pop_up = LoadVariablePopUp(self.driver)
         load_variable_pop_up.click_on_var('u')
         load_variable_pop_up.click_on_var_axes('u')
+
         # adjust the min slider by 20 percent and max slider by 20 percent.
         load_variable_pop_up.adjust_var_axes_slider('u', 'latitude1', 20, -20)
 
