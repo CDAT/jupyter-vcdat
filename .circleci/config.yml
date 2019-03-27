@@ -42,7 +42,6 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       pwd
        jupyter lab --ip='127.0.0.1'
     background: true
 
@@ -55,10 +54,11 @@ aliases:
        source activate jupyter-vcdat
        pip install selenium
        pip install pyvirtualdisplay
-       python run_tests.py -H -v2 -n 2 $COVERAGE
-       RESULT=$?
-       echo "*** $PY_VER test result: "${RESULT} 
-       exit $RESULT
+       pip install nose
+       #python run_tests.py -H -v2 -n 2 $COVERAGE
+       #RESULT=$?
+       #echo "*** $PY_VER test result: "${RESULT} 
+       #exit $RESULT
 
   - &conda_upload
     name: conda_upload
