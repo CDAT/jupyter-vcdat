@@ -32,8 +32,6 @@ aliases:
        export CDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
        ./install_script.sh
-       npm run build
-       jupyter lab
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
