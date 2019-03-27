@@ -17,10 +17,7 @@ import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 // Project Components
 import "../style/css/index.css";
-<<<<<<< HEAD
 import { EXTENSIONS } from "./constants";
-=======
->>>>>>> b4a6d0d942c5f9b5d061a0c117634056363cb129
 import { NotebookUtilities } from "./NotebookUtilities";
 import { LeftSideBarWidget, NCViewerWidget } from "./widgets";
 

@@ -41,11 +41,7 @@ interface VarCardProps {
   reload: Function;
   isLoaded: boolean; // Whether a variable already exists/was loaded
 }
-<<<<<<< HEAD
 interface VarCardState {
-=======
-type VarCardState = {
->>>>>>> b4a6d0d942c5f9b5d061a0c117634056363cb129
   showAxis: boolean;
   loadOrder: number;
   axisState: any;
