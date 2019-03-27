@@ -1,9 +1,9 @@
 // Dependencies
 import * as React from "react";
 import {
-  SliderItem,
   GetHandleProps,
-  GetTrackProps
+  GetTrackProps,
+  SliderItem
 } from "react-compound-slider";
 
 // SEE: https://codesandbox.io/s/zl8nrlp9x
@@ -79,10 +79,11 @@ export const Track: React.SFC<ITrackProps> = ({
 interface ITickProps {
   key: string;
   tick: SliderItem;
+  value: any;
   count: number;
 }
 
-export const Tick: React.SFC<ITickProps> = ({ tick, count }) => (
+export const Tick: React.SFC<ITickProps> = ({ tick, count, value }) => (
   <div>
     <div
       style={{
@@ -105,7 +106,7 @@ export const Tick: React.SFC<ITickProps> = ({ tick, count }) => (
         left: `${tick.percent}%`
       }}
     >
-      {tick.value}
+      {value}
     </div>
   </div>
 );

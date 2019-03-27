@@ -195,6 +195,7 @@ export class ExportPlotModal extends React.Component<
     } else {
       capture = "";
     }
+    this.setState({ validateFileFormat: false });
 
     if (fileFormat === "png") {
       try {
