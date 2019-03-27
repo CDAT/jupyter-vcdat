@@ -55,10 +55,10 @@ aliases:
        pip install selenium
        pip install pyvirtualdisplay
        pip install nose
-       #python run_tests.py -H -v2 -n 2 $COVERAGE
-       #RESULT=$?
-       #echo "*** $PY_VER test result: "${RESULT} 
-       #exit $RESULT
+       python run_tests.py -H -v2 -n 2 $COVERAGE
+       RESULT=$?
+       echo "*** $PY_VER test result: "${RESULT} 
+       exit $RESULT
 
   - &conda_upload
     name: conda_upload
