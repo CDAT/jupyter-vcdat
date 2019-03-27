@@ -64,8 +64,9 @@ class NoteBookPage(BasePage):
         # check if we are getting "Close without saving?" pop up
         close_without_saving_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-warn jp-mod-styled']//div[contains(text(), 'OK')]"
         try:
-            ok_element = self.driver.find_elements_by_xpath(close_without_saving_ok_locator)
+            ok_element = self.driver.find_element_by_xpath(close_without_saving_ok_locator)
             print("FOUND 'Close without saving?' pop up")
+            
             ok_element.click()
         except NoSuchElementException as e:
             print("No 'Close without saving?' pop up")
