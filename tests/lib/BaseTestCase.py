@@ -4,6 +4,8 @@ import time
 import unittest
 import tempfile
 
+from selenium.common.exceptions import NoSuchElementException
+
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 

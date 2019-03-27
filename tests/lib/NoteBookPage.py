@@ -57,10 +57,18 @@ class NoteBookPage(BasePage):
                     action_chains.click(e).perform()
                     time.sleep(self._delay)
 
-
         except NoSuchElementException as e:
             print("Not finding divs")
             print("No notebook")
+
+        # check if we are getting "Close without saving?" pop up
+        close_without_saving_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-warn jp-mod-styled']//div[contains(text(), 'OK')]"
+        try:
+            ok_element = self.driver.find_elements_by_xpath(close_without_saving_ok_locator)
+            print("FOUND 'Close without saving?' pop up")
+            ok_element.click()
+        except NoSuchElementException as e:
+            print("No 'Close without saving?' pop up")
 
     def load_page(self, server, expected_element=(By.TAG_NAME, 'html'), 
                   timeout=_wait_timeout):

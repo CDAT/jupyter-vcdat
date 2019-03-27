@@ -100,4 +100,4 @@ if __name__ == '__main__':
     unittest.main(verbosity=2)
 
 
-# nosetests -s tests/test_variable.py:BrowserTest.test_plot_variable_4
+# nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_4
