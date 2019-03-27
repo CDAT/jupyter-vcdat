@@ -28,7 +28,7 @@ Change into the directory containing the repo and type in the following commands
       # For Atom:
       apm install linter-tslint
 
-    # For all users, activate the jupyter-vcdat environment and launch a JupyterLab instance
+    # For all users, activate the jupyter-vcdat environment and launch the JupyterLab interface
     conda activate jupyter-vcdat
     jupyter lab
 
