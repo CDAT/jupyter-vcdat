@@ -23,7 +23,7 @@ function handle_error {
 trap 'handle_error $LINENO ${BASH_LINENO[@]}' ERR
 
 CONDA_EXE="$(which conda)"
-$CONDA_EXE create -y -n jupyter-vcdat -c cdat/label/v81 -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum
+$CONDA_EXE create -y -n jupyter-vcdat -c cdat/label/v81 -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum jupyterhub
 CONDA_BASE=$(conda info --base)
 source $CONDA_BASE/etc/profile.d/conda.sh
 conda activate jupyter-vcdat
@@ -35,6 +35,8 @@ python -m pip install sidecar
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
+# Jupyterhub extension
+jupyter labextension install @jupyterlab/hub-extension
 
 if [[ ! -d "jupyter-vcdat" ]]; then
   git clone https://github.com/CDAT/jupyter-vcdat.git
