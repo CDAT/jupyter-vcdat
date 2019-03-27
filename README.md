@@ -8,20 +8,27 @@ A Jupyter Lab extension that integrates vCDAT features directly in a notebook.
 
 ## Installation
 
-For a development install:
+To install on your local computer or local network, clone the jupyter-vcdat github repo:
+
+```
+git clone https://github.com/CDAT/jupyter-vcdat.git
+```
+
+Change into the directory containing the repo and type in the following commands:
 
 ```bash
 
     #Create the environment
     ./install_script.sh
 
-    # Install tslint (optional)
+    # The following two lines of code install tslint if developers want to use it (optional):
       # For VSCode:
        code --install-extension tslint
 
       # For Atom:
       apm install linter-tslint
 
+    # For all users, activate the jupyter-vcdat environment and launch a JupyterLab instance
     conda activate jupyter-vcdat
     jupyter lab
 
@@ -36,7 +43,7 @@ jupyter lab build
 
 ## Sample data
 
-To download sample data, enter code below within a Jupyter notebook cell and run the cell:
+To download sample data, enter the code below within a Jupyter notebook cell and run the cell:
 
 ```
 import vcs
