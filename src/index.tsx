@@ -17,6 +17,7 @@ import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 // Project Components
 import "../style/css/index.css";
+import { EXTENSIONS } from "./constants";
 import { NotebookUtilities } from "./NotebookUtilities";
 import { LeftSideBarWidget, NCViewerWidget } from "./widgets";
 
@@ -60,7 +61,7 @@ function activate(
 
   const ft: DocumentRegistry.IFileType = {
     name: FILETYPE,
-    extensions: [".nc"],
+    extensions: EXTENSIONS,
     mimeTypes: ["application/netcdf"],
     contentType: "file",
     fileFormat: "base64"

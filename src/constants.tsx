@@ -3,7 +3,15 @@ import { MiscUtilities } from "./Utilities";
 const MAX_SLABS: number = 2;
 const BASE_URL: string = "/vcs";
 const READY_KEY: string = "vcdat_ready";
-const EXTENSIONS: string[] = [".nc[34]?", ".ctl", ".dic", ".pp", ".cdf"];
+const EXTENSIONS: string[] = [
+  ".nc",
+  ".nc3",
+  ".nc4",
+  ".ctl",
+  ".dic",
+  ".pp",
+  ".cdf"
+];
 const EXTENSIONS_REGEX: RegExp = MiscUtilities.filenameFilter(EXTENSIONS);
 const FILE_PATH_KEY: string = "vcdat_file_path";
 const IMPORT_CELL_KEY: string = "vcdat_imports";
