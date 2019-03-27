@@ -70,7 +70,7 @@ class TestLoadVariable(BaseTestCase):
         plot_area = PlotArea(self.driver)
         plot_area.check_plot()
 
-    def test_plot_variable_4(self):
+    def ABCtest_plot_variable_4(self):
         '''
         load 'clt.nc', load 'u' variable, load 'v' variable, adjust sliders, load, and plot.
         '''
