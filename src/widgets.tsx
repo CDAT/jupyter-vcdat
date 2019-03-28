@@ -21,14 +21,15 @@ import {
   DATA_LIST_KEY,
   EXTENSIONS_REGEX,
   FILE_PATH_KEY,
-  GET_AXIS_INFO,
-  GET_FILE_VARIABLES,
+  GET_AXIS_INFO_CMD,
+  GET_VARIABLES_CMD,
   IMPORT_CELL_KEY,
   NOTEBOOK_STATE,
+  OUTPUT_RESULT_NAME,
   READER_CELL_KEY,
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD,
-  REFRESH_VAR_INFO,
+  REFRESH_VAR_CMD,
   REQUIRED_MODULES,
   VARIABLE_SOURCES_KEY,
   VARIABLES_LOADED_KEY
@@ -490,7 +491,7 @@ export class LeftSideBarWidget extends Widget {
         this.usingKernel = true;
         const output: string = await NotebookUtilities.sendSimpleKernelRequest(
           this.notebookPanel,
-          "output = canvas.listelements('display')"
+          `${OUTPUT_RESULT_NAME} = canvas.listelements('display')`
         );
         this.usingKernel = false;
         return eval(output).length > 1;
@@ -565,7 +566,7 @@ export class LeftSideBarWidget extends Widget {
     // Get the variables info
     const result: string = await NotebookUtilities.sendSimpleKernelRequest(
       this.notebookPanel,
-      REFRESH_VAR_INFO
+      REFRESH_VAR_CMD
     );
     this.usingKernel = false;
     // A grouping object so that variables from each data source are updated
@@ -637,7 +638,7 @@ export class LeftSideBarWidget extends Widget {
     );
 
     let cmd: string = `import cdms2\nimport json\nreader = cdms2.open('${relativePath}')`;
-    cmd += `\n${GET_AXIS_INFO}\nreader.close()\n`;
+    cmd += `\n${GET_AXIS_INFO_CMD}\nreader.close()\n`;
 
     this.usingKernel = true;
     // Get the variables info
@@ -686,7 +687,7 @@ export class LeftSideBarWidget extends Widget {
 
       const result: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        `import json\nimport cdms2\nreader = cdms2.open('${relativePath}')\n${GET_FILE_VARIABLES}`
+        `import json\nimport cdms2\nreader = cdms2.open('${relativePath}')\n${GET_VARIABLES_CMD}`
       );
       this.usingKernel = false;
 

@@ -3,9 +3,11 @@ import { Dialog, showDialog } from "@jupyterlab/apputils";
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { KernelMessage } from "@jupyterlab/services";
 import { CommandRegistry } from "@phosphor/commands";
+import { OUTPUT_RESULT_NAME } from "./constants";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
 namespace NotebookUtilities {
+
   /**
    * Opens a pop-up dialog in JupyterLab to display a simple message.
    * @param title The title for the message popup
@@ -160,7 +162,7 @@ namespace NotebookUtilities {
     const result: any = await sendKernelRequest(
       notebookPanel,
       code,
-      { result: "output" },
+      { result: OUTPUT_RESULT_NAME },
       false,
       storeHistory,
       false,
