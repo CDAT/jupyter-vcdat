@@ -190,7 +190,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         // Check the dimensions of the current canvas object
         const output: string = await NotebookUtilities.sendSimpleKernelRequest(
           this.state.notebookPanel,
-          "vcdat_output=[canvas.width,canvas.height]"
+          "output=[canvas.width,canvas.height]"
         );
         const dimensions: [number, number] = eval(output);
         return { width: dimensions[0], height: dimensions[1] };
