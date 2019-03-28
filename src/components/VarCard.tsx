@@ -174,7 +174,7 @@ export default class VarCard extends React.Component<
             <Collapse isOpen={this.state.showAxis} onClick={this.openMenu}>
               {this.state.showAxis &&
                 this.props.variable.axisInfo.map((item: AxisInfo) => {
-                  if (item.data.length <= 1) {
+                  if (!item.data || item.data.length <= 1) {
                     return;
                   }
                   item.updateDimInfo = this.updateDimInfo;

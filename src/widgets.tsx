@@ -21,14 +21,15 @@ import {
   DATA_LIST_KEY,
   EXTENSIONS_REGEX,
   FILE_PATH_KEY,
-  GET_AXIS_INFO,
-  GET_FILE_VARIABLES,
+  GET_AXIS_INFO_CMD,
+  GET_VARIABLES_CMD,
   IMPORT_CELL_KEY,
   NOTEBOOK_STATE,
+  OUTPUT_RESULT_NAME,
   READER_CELL_KEY,
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD,
-  REFRESH_VAR_INFO,
+  REFRESH_VAR_CMD,
   REQUIRED_MODULES,
   VARIABLE_SOURCES_KEY,
   VARIABLES_LOADED_KEY
@@ -490,7 +491,7 @@ export class LeftSideBarWidget extends Widget {
         this.usingKernel = true;
         const output: string = await NotebookUtilities.sendSimpleKernelRequest(
           this.notebookPanel,
-          "output = canvas.listelements('display')"
+          `${OUTPUT_RESULT_NAME} = canvas.listelements('display')`
         );
         this.usingKernel = false;
         return eval(output).length > 1;
@@ -565,7 +566,7 @@ export class LeftSideBarWidget extends Widget {
     // Get the variables info
     const result: string = await NotebookUtilities.sendSimpleKernelRequest(
       this.notebookPanel,
-      REFRESH_VAR_INFO
+      REFRESH_VAR_CMD
     );
     this.usingKernel = false;
     // A grouping object so that variables from each data source are updated
@@ -637,7 +638,7 @@ export class LeftSideBarWidget extends Widget {
     );
 
     let cmd: string = `import cdms2\nimport json\nreader = cdms2.open('${relativePath}')`;
-    cmd += `\n${GET_AXIS_INFO}\nreader.close()\n`;
+    cmd += `\n${GET_AXIS_INFO_CMD}\nreader.close()\n`;
 
     this.usingKernel = true;
     // Get the variables info
@@ -686,7 +687,7 @@ export class LeftSideBarWidget extends Widget {
 
       const result: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        `import json\nimport cdms2\nreader = cdms2.open('${relativePath}')\n${GET_FILE_VARIABLES}`
+        `import json\nimport cdms2\nreader = cdms2.open('${relativePath}')\n${GET_VARIABLES_CMD}`
       );
       this.usingKernel = false;
 
@@ -903,17 +904,19 @@ export class LeftSideBarWidget extends Widget {
     }
 
     // Filepath hasn't been added before, create the name for data variable based on file path
-    dataName = MiscUtilities.createVariableName(filePath) + "_data";
+    dataName = MiscUtilities.createValidVarName(filePath) + "_data";
 
     // If the reader name already exist but the path is different (like for two files with
     // similar names but different paths) add a count to the end until it's unique
     let count: number = 1;
-    while (Object.keys(this.dataReaderList).indexOf(dataName) >= 0) {
-      dataName = `${dataName}${count}`;
+    let newName: string = dataName;
+
+    while (Object.keys(this.dataReaderList).indexOf(newName) >= 0) {
+      newName = `${dataName}${count}`;
       count++;
     }
 
-    return dataName;
+    return newName;
   }
 
   // Will try to open a file path in cdms2. Returns true if successful.
@@ -921,13 +924,32 @@ export class LeftSideBarWidget extends Widget {
     try {
       await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        `cdms2.open('${filePath}')`,
+        `tryOpenFile = cdms2.open('${filePath}')\ntryOpenFile.close()`,
         false
       );
       return true;
     } catch (error) {
       return false;
     }
+  }
+
+  // Add returns a line of code for adding the specified file to the notebook
+  // If the file couldn't be opened, returns empty string
+  public async addFileCmd(filePath: string): Promise<string> {
+    // Get the relative filepath to open the file
+    const relativePath = MiscUtilities.getRelativePath(
+      this.notebookPanel.session.path,
+      filePath
+    );
+    // Check that file can open before adding it as code
+    const valid: boolean = await this.tryFilePath(relativePath);
+    if (valid) {
+      const addCode: string = `\n${this.getDataReaderName(
+        filePath
+      )} = cdms2.open('${relativePath}')`;
+      return addCode;
+    }
+    return "";
   }
 
   /**
@@ -953,12 +975,8 @@ export class LeftSideBarWidget extends Widget {
     const nbPath: string = `${this.notebookPanel.session.path}`;
     const newFilePath: string = MiscUtilities.getRelativePath(nbPath, filePath);
 
-    // console.log(nbPath);
-    // console.log(`filepath: ${filePath}`);
-    // console.log(relativePath);
-
     // Try opening the file first, before injecting into code, exit if failed
-    let isValidPath: boolean = await this.tryFilePath(newFilePath);
+    const isValidPath: boolean = await this.tryFilePath(newFilePath);
     if (!isValidPath) {
       throw new Error(`The file failed to open. Path: ${newFilePath}`);
     }
@@ -974,34 +992,28 @@ export class LeftSideBarWidget extends Widget {
 
     // Build command that opens any existing data file(s)
     let cmd: string;
-    let tmpRelative: string;
+    let tmpFilePath: string;
+    const addCmds: Array<Promise<string>> = new Array<Promise<string>>();
 
     if (dataVarNames.length > 0) {
       cmd = "#Open the files for reading";
-      // console.log(dataVarNames);
-      dataVarNames.forEach(async (existingDataName: string, idx: number) => {
-        if (this.dataReaderList[existingDataName] == filePath) {
-          // Exit early if the filepath has already been opened
-          // console.log("Exited early");
+      dataVarNames.forEach((existingDataName: string, idx: number) => {
+        tmpFilePath = this.dataReaderList[existingDataName];
+
+        // Exit early if the filepath has already been opened
+        if (tmpFilePath == filePath) {
           if (idx < 0) {
             return index;
           }
           return idx;
         }
-        // Add file to list if it's valid, otherwise it will be removed
-        tmpRelative = MiscUtilities.getRelativePath(
-          nbPath,
-          this.dataReaderList[existingDataName]
-        );
-        isValidPath = await this.tryFilePath(tmpRelative);
-        if (isValidPath) {
-          const addOldFile: string = `\n${this.getDataReaderName(
-            existingDataName
-          )} = cdms2.open('${tmpRelative}')`;
-          cmd += addOldFile;
-          // console.log(idx + " Good!\n" + cmd);
-        }
+
+        // Add file open command to the list
+        addCmds.push(this.addFileCmd(tmpFilePath));
       });
+
+      const allFiles: string[] = await Promise.all(addCmds);
+      cmd += allFiles.join("");
     } else {
       cmd = `#Open the file for reading`;
     }
@@ -1010,9 +1022,7 @@ export class LeftSideBarWidget extends Widget {
     const addCmd: string = `\n${newName} = cdms2.open('${newFilePath}')`;
 
     cmd += addCmd;
-    // console.log(`Source: ${nbPath}`);
-    // console.log(`target: ${filePath}`);
-    console.log(cmd);
+
     if (idx < 0) {
       // Insert a new cell with given command and run
       const result: [number, string] = await CellUtilities.insertRunShow(

@@ -82,8 +82,13 @@ export default class VarLoader extends React.Component<
     // Update the main widget's current selected variables
     await this.props.updateSelectedVariables(this.state.selectedVariables);
 
-    // Reset the selected files in the var loader when done
-    this.setState({ selectedVariables: new Array<string>() });
+    // Reset the state of the var loader when done
+    this.setState({
+      selectedVariables: new Array<string>(),
+      unloadedVariables: new Array<string>(),
+      fileVariables: new Array<Variable>(),
+      variables: new Array<Variable>()
+    });
 
     // Save the notebook after variables have been added
     await this.props.saveNotebook();

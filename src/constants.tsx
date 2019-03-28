@@ -1,5 +1,4 @@
 import { MiscUtilities } from "./Utilities";
-
 const MAX_SLABS: number = 2;
 const BASE_URL: string = "/vcs";
 const READY_KEY: string = "vcdat_ready";
@@ -13,6 +12,7 @@ const EXTENSIONS: string[] = [
   ".cdf"
 ];
 const EXTENSIONS_REGEX: RegExp = MiscUtilities.filenameFilter(EXTENSIONS);
+const OUTPUT_RESULT_NAME = "_private_vcdat_output";
 const FILE_PATH_KEY: string = "vcdat_file_path";
 const IMPORT_CELL_KEY: string = "vcdat_imports";
 const CANVAS_CELL_KEY: string = "vcdat_canvases";
@@ -25,8 +25,9 @@ const TEMPLATE_KEY: string = "template_selected";
 const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
 const REQUIRED_MODULES: string = "'lazy_import','cdms2','vcs','sidecar'";
 
-const GET_VARS_CMD: string =
-  'import __main__\n\
+const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
+
+const GET_VARS_CMD: string = `import __main__\n\
 import json\n\
 def variables():\n\
     out = []\n\
@@ -47,31 +48,28 @@ def list_all():\n\
     out["gm"] = graphic_methods()\n\
     out["template"] = templates()\n\
     return out\n\
-output = "{}|{}|{})".format(variables(),templates(),graphic_methods())';
+${OUTPUT_RESULT_NAME} = "{}|{}|{})".format(variables(),templates(),graphic_methods())`;
 
-const REFRESH_NAMES_CMD =
-  "import __main__\n\
+const REFRESH_NAMES_CMD = `import __main__\n\
 def variables():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
     if isinstance(obj, cdms2.MV2.TransientVariable):\n\
       out+=[nm]\n\
   return out\n\
-output = variables()";
+${OUTPUT_RESULT_NAME} = variables()`;
 
-const REFRESH_GRAPHICS_CMD: string =
-  "import __main__\n\
+const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
 import json\n\
 def graphic_methods():\n\
   out = {}\n\
   for type in vcs.graphicsmethodlist():\n\
     out[type] = vcs.listelements(type)\n\
   return out\n\
-output = json.dumps(graphic_methods())";
+${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())`;
 
-const REFRESH_TEMPLATES_CMD: string =
-  "import __main__\n\
-output = vcs.listelements('template')";
+const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
+${OUTPUT_RESULT_NAME} = vcs.listelements('template')`;
 
 const CHECK_MODULES_CMD: string = `import types\n\
 required = [${REQUIRED_MODULES}]\n\
@@ -80,7 +78,7 @@ def imports():\n\
     if isinstance(val, types.ModuleType):\n\
       yield val.__name__\n\
 found = list(imports())\n\
-output = list(set(required)-set(found))`;
+${OUTPUT_RESULT_NAME} = list(set(required)-set(found))`;
 
 const LIST_CANVASES_CMD: string = `import __main__\n
 def canvases():\n\
@@ -89,9 +87,9 @@ def canvases():\n\
     if isinstance(obj, vcs.Canvas.Canvas):\n\
       out+=[nm]\n\
   return out\n\
-output = canvases()`;
+${OUTPUT_RESULT_NAME} = canvases()`;
 
-const REFRESH_VAR_INFO: string = `import __main__\n\
+const REFRESH_VAR_CMD: string = `import __main__\n\
 import json\n\
 import cdms2\n\
 def variables():\n\
@@ -160,9 +158,9 @@ for vname in vars:\n\
   if ('bounds' not in outVars[vname]):\n\
     outVars[vname]['bounds'] = None\n\
 var = None\n\
-output = json.dumps(outVars)`;
+${OUTPUT_RESULT_NAME} = json.dumps(outVars)`;
 
-const GET_AXIS_INFO: string = `
+const GET_AXIS_INFO_CMD: string = `
 outAxes = {}\n\
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
@@ -191,9 +189,9 @@ for aname in reader.axes:\n\
     'isTime': axis.isTime()\n\
   }\n\
 aname = None\n\
-output = json.dumps(outAxes)`;
+${OUTPUT_RESULT_NAME} = json.dumps(outAxes)`;
 
-const GET_FILE_VARIABLES: string = `outVars = {}\n\
+const GET_VARIABLES_CMD: string = `outVars = {}\n\
 for vname in reader.variables:\n\
   var = reader.variables[vname]\n\
   # Get a displayable name for the variable\n\
@@ -280,7 +278,7 @@ for aname in reader.axes:\n\
   }\n\
   var = None\n\
 reader.close()\n\
-output = json.dumps({\n\
+${OUTPUT_RESULT_NAME} = json.dumps({\n\
   'vars': outVars,\n\
   'axes': outAxes\n\
   })`;
@@ -433,6 +431,7 @@ export {
   READY_KEY,
   FILE_PATH_KEY,
   EXTENSIONS,
+  OUTPUT_RESULT_NAME,
   EXTENSIONS_REGEX,
   DATA_LIST_KEY,
   IMPORT_CELL_KEY,
@@ -444,16 +443,17 @@ export {
   VARIABLES_LOADED_KEY,
   VARIABLE_SOURCES_KEY,
   REQUIRED_MODULES,
+  CANVAS_DIMENSIONS_CMD,
   GET_VARS_CMD,
   BASE_GRAPHICS,
   BASE_TEMPLATES,
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD,
   REFRESH_NAMES_CMD,
-  REFRESH_VAR_INFO,
-  GET_AXIS_INFO,
+  REFRESH_VAR_CMD,
+  GET_AXIS_INFO_CMD,
   CHECK_MODULES_CMD,
   LIST_CANVASES_CMD,
-  GET_FILE_VARIABLES,
+  GET_VARIABLES_CMD,
   NOTEBOOK_STATE
 };
