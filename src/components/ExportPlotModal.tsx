@@ -284,7 +284,9 @@ export class ExportPlotModal extends React.Component<
             name="text"
             placeholder="Name"
             value={this.state.plotName}
-            onChange={e => this.setState({ plotName: e.target.value })}
+            onChange={e => {
+              this.setState({ plotName: e.target.value });
+            }}
           />
           <br />
           <Alert
@@ -298,28 +300,36 @@ export class ExportPlotModal extends React.Component<
             <ButtonGroup>
               <Button
                 color="primary"
-                onClick={() => this.onRadioBtnClick("png")}
+                onClick={() => {
+                  this.onRadioBtnClick("png");
+                }}
                 active={this.state.plotFileFormat === "png"}
               >
                 PNG
               </Button>
               <Button
                 color="primary"
-                onClick={() => this.onRadioBtnClick("svg")}
+                onClick={() => {
+                  this.onRadioBtnClick("svg");
+                }}
                 active={this.state.plotFileFormat === "svg"}
               >
                 SVG
               </Button>
               <Button
                 color="primary"
-                onClick={() => this.onRadioBtnClick("pdf")}
+                onClick={() => {
+                  this.onRadioBtnClick("pdf");
+                }}
                 active={this.state.plotFileFormat === "pdf"}
               >
                 PDF
               </Button>
               <Button
                 color="primary"
-                onClick={() => this.onRadioBtnClick("ps")}
+                onClick={() => {
+                  this.onRadioBtnClick("ps");
+                }}
                 active={this.state.plotFileFormat === "ps"}
               >
                 PS
@@ -347,35 +357,45 @@ export class ExportPlotModal extends React.Component<
                 <ButtonGroup>
                   <Button
                     color="primary"
-                    onClick={() => this.onUnitRadioBtnClick("pixels")}
+                    onClick={() => {
+                      this.onUnitRadioBtnClick("pixels");
+                    }}
                     active={this.state.plotUnits === "pixels"}
                   >
                     px
                   </Button>
                   <Button
                     color="primary"
-                    onClick={() => this.onUnitRadioBtnClick("in")}
+                    onClick={() => {
+                      this.onUnitRadioBtnClick("in");
+                    }}
                     active={this.state.plotUnits === "in"}
                   >
                     in
                   </Button>
                   <Button
                     color="primary"
-                    onClick={() => this.onUnitRadioBtnClick("cm")}
+                    onClick={() => {
+                      this.onUnitRadioBtnClick("cm");
+                    }}
                     active={this.state.plotUnits === "cm"}
                   >
                     cm
                   </Button>
                   <Button
                     color="primary"
-                    onClick={() => this.onUnitRadioBtnClick("mm")}
+                    onClick={() => {
+                      this.onUnitRadioBtnClick("mm");
+                    }}
                     active={this.state.plotUnits === "mm"}
                   >
                     mm
                   </Button>
                   <Button
                     color="primary"
-                    onClick={() => this.onUnitRadioBtnClick("dot")}
+                    onClick={() => {
+                      this.onUnitRadioBtnClick("dot");
+                    }}
                     active={this.state.plotUnits === "dot"}
                   >
                     dot
@@ -388,7 +408,9 @@ export class ExportPlotModal extends React.Component<
                   name="width"
                   placeholder="Width"
                   value={this.state.width}
-                  onChange={e => this.setState({ width: e.target.value })}
+                  onChange={e => {
+                    this.setState({ width: e.target.value });
+                  }}
                 />
                 <Label for="height">Height</Label>
                 <Input
@@ -396,7 +418,9 @@ export class ExportPlotModal extends React.Component<
                   name="height"
                   placeholder="Height"
                   value={this.state.height}
-                  onChange={e => this.setState({ height: e.target.value })}
+                  onChange={e => {
+                    this.setState({ height: e.target.value });
+                  }}
                 />
               </Collapse>
             </div>
