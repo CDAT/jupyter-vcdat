@@ -57,6 +57,7 @@ interface DimensionSliderState {
   max: number; // the current max value
   tickValues: number[]; // the absolute min and absolute max values
   possibleValues: number[];
+  // initialValues: [number, number]; // The slider values to be selected at startup
 }
 
 export default class DimensionSlider extends React.Component<
@@ -69,6 +70,7 @@ export default class DimensionSlider extends React.Component<
   constructor(props: DimensionSliderProps) {
     super(props);
     this.handleSliderChange = this.handleSliderChange.bind(this);
+    this.handleSliderUpdate = this.handleSliderUpdate.bind(this);
     this.formatter = this.formatter.bind(this);
 
     // Set slider values and formatting
@@ -132,9 +134,21 @@ export default class DimensionSlider extends React.Component<
     // Set the domain, (number of elements in the data set)
     this.domain = [0, lastIdx];
 
+    // Set initial selected range
+    let initialMinMax: [number, number] = [0, lastIdx];
+    let idx: number = pValues.indexOf(this.props.min);
+    if (idx > 0) {
+      initialMinMax[0] = idx;
+    }
+    idx = pValues.indexOf(this.props.max);
+    if (idx > 0) {
+      initialMinMax[1] = idx;
+    }
+
+    // Update initial state
     this.state = {
-      min: this.domain[0],
-      max: this.domain[1],
+      min: initialMinMax[0],
+      max: initialMinMax[1],
       possibleValues: pValues,
       tickValues: tickVals
     };
@@ -180,7 +194,8 @@ export default class DimensionSlider extends React.Component<
               domain={this.domain}
               rootStyle={sliderStyle}
               onChange={this.handleSliderChange}
-              values={this.domain}
+              onUpdate={this.handleSliderUpdate}
+              values={[this.state.min, this.state.max]}
             >
               <Rail>
                 {({ getRailProps }) => (
@@ -194,7 +209,7 @@ export default class DimensionSlider extends React.Component<
                       <Handle
                         key={handle.id}
                         handle={handle}
-                        domain={[this.state.min, this.state.max]}
+                        domain={this.domain}
                         getHandleProps={getHandleProps}
                       />
                     ))}
@@ -244,7 +259,7 @@ export default class DimensionSlider extends React.Component<
       </div>
     );
   }
-  public handleSliderChange(e: any): void {
+  public handleSliderUpdate(e: any): void {
     if (e.length != 2) {
       return;
     }
@@ -253,6 +268,12 @@ export default class DimensionSlider extends React.Component<
       min: e[0],
       max: e[1]
     });
+  }
+
+  public handleSliderChange(e: any): void {
+    if (e.length != 2) {
+      return;
+    }
     this.props.updateDimInfo(
       {
         name: this.props.name,

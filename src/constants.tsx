@@ -57,7 +57,7 @@ def variables():\n\
     if isinstance(obj, cdms2.MV2.TransientVariable):\n\
       out+=[nm]\n\
   return out\n\
-  ${OUTPUT_RESULT_NAME} = variables()`;
+${OUTPUT_RESULT_NAME} = variables()`;
 
 const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
 import json\n\
@@ -66,10 +66,10 @@ def graphic_methods():\n\
   for type in vcs.graphicsmethodlist():\n\
     out[type] = vcs.listelements(type)\n\
   return out\n\
-  ${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())`;
+${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())`;
 
 const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
-  ${OUTPUT_RESULT_NAME} = vcs.listelements('template')`;
+${OUTPUT_RESULT_NAME} = vcs.listelements('template')`;
 
 const CHECK_MODULES_CMD: string = `import types\n\
 required = [${REQUIRED_MODULES}]\n\
@@ -87,7 +87,7 @@ def canvases():\n\
     if isinstance(obj, vcs.Canvas.Canvas):\n\
       out+=[nm]\n\
   return out\n\
-  ${OUTPUT_RESULT_NAME} = canvases()`;
+${OUTPUT_RESULT_NAME} = canvases()`;
 
 const REFRESH_VAR_CMD: string = `import __main__\n\
 import json\n\
