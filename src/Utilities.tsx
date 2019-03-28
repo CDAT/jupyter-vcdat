@@ -57,39 +57,16 @@ namespace MiscUtilities {
    */
   export function removeFilename(path: string): string {
     const regEx: RegExp = /[^\/]+$/;
-    console.log(`new path: ${path.replace(regEx, "")}`);
     return path.replace(regEx, "");
   }
 
   /**
-   * Return the relative file path from source to target. Assumes source is a directory only
-   * @param source The directory path to start from for traversal
-   * @param target The directory path and filename to seek from source
-   * @return string - Relative path (e.g. "../../style.css")
+   * Return the relative file path from source to target.
+   * Assumes source is a path (with or without a file name) and target has the filename
+   * @param source The directory path to start from for traversal, Ex: "dir1/dir2/file"
+   * @param target The directory path and filename to seek from source Ex: "dir3/dir1/file2"
+   * @return string - Relative path (e.g. "../../style.css") from the source to target
    */
-  /*export function getRelativePath(source: string, target: string) {
-    const targetArr = target.split("/");
-    const filename = targetArr.pop();
-    const sourceArr = removeFilename(source).split("/");
-    const maxLength = Math.max(targetArr.length,sourceArr.length);
-    let relativePath = "";
-
-    
-    
-    
-    while (target.indexOf(sourceArr.join("/")) === -1) {
-      sourceArr.pop();
-      relativePath += "../";
-    }
-
-    let relPathArr = targetArr.slice(sourceArr.length);
-    if (relPathArr.length > 0) {
-      relativePath += relPathArr.join("/") + "/";
-    }
-
-    return relativePath + filename;
-  }*/
-
   export function getRelativePath(source: string, target: string) {
     const sourceArr: string[] = removeFilename(source).split("/");
     const targetArr: string[] = target.split("/");
@@ -113,14 +90,22 @@ namespace MiscUtilities {
     return relativePath + file;
   }
 
-  export function createVariableName(
+  /**
+   * 
+   * @param name The file's name/path to convert to variable name
+   * @param removeExt Default: true. Whether the extension of the file name should be removed.
+   * @returns string - A string that can be safely used as a Python variable name.
+   * (alpha numerical characters and underscore, and no numerical prefix)
+   * Example (with extension removed): dir1/dir2/1file_12.sdf.ext -> file_12sdf
+   */
+  export function createValidVarName(
     name: string,
     removeExt: boolean = true
   ): string {
     if (removeExt) {
       name = removeExtension(name);
     }
-    return name.replace(/(.*\/.*\/[0-9]*)|(\1[^a-z0-9])/gi, "");
+    return name.replace(/(.*\/(.*\/)*[0-9]*)|([^a-z0-9_])/ig, "");
   }
 }
 
