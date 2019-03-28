@@ -1,25 +1,27 @@
 namespace MiscUtilities {
   /**
    * Converts a number to and ordinal shorthand string.
+   * @param value
+   * @returns string - The ordinal short name for a number
    * Example: 1 => 1st, 2 => 2nd, 5 => 5th, 32 => 32nd etc.
-   * @param num
    */
-  export function numToOrdStr(num: number): string {
+  export function numToOrdStr(value: number): string {
     // Handle the teens
-    if (num > 10 && num < 14) {
-      return `${num}th`;
+    if (value > 10 && value < 14) {
+      return `${value}th`;
     }
 
-    const lastNum: number = num % 10;
+    // All other numbers
+    const lastNum: number = value % 10;
     switch (lastNum) {
       case 1:
-        return `${num}st`;
+        return `${value}st`;
       case 2:
-        return `${num}nd`;
+        return `${value}nd`;
       case 3:
-        return `${num}rd`;
+        return `${value}rd`;
       default:
-        return `${num}th`;
+        return `${value}th`;
     }
   }
 
@@ -28,7 +30,7 @@ namespace MiscUtilities {
    * @param extensions An array of strings representing valid extensions. The string is used in
    * a regular expression and can contain regex if needed to match more cases. Case is ignored.
    * Example: ['.clt','.nc','.nc3','.nc4'] can also be ['.clt','.nc[34]?']
-   * @returns A regular expression that will filter for the specified extensions
+   * @returns RegExp - A regular expression that will filter for the specified extensions
    */
   export function filenameFilter(extensions: string[]): RegExp {
     let regexStr: string = `.+((${extensions.pop()})`;
@@ -46,6 +48,69 @@ namespace MiscUtilities {
    */
   export function removeExtension(filename: string): string {
     return filename.replace(/\.[^/.]*$/, "");
+  }
+
+  /**
+   * Will return a string of the path with it's filename removed.
+   * Example: folder/dir/test.nc => folder/dir/, test.sdf.tes.nc43534 => /
+   * @param path The filename/path to remove extension from
+   */
+  export function removeFilename(path: string): string {
+    const regEx: RegExp = /[^\/]+$/;
+    console.log(`new path: ${path.replace(regEx, "")}`);
+    return path.replace(regEx, "");
+  }
+
+  /**
+   * Return the relative file path from source to target. Assumes source is a directory only
+   * @param source The directory path to start from for traversal
+   * @param target The directory path and filename to seek from source
+   * @return string - Relative path (e.g. "../../style.css")
+   */
+  /*export function getRelativePath(source: string, target: string) {
+    const targetArr = target.split("/");
+    const filename = targetArr.pop();
+    const sourceArr = removeFilename(source).split("/");
+    const maxLength = Math.max(targetArr.length,sourceArr.length);
+    let relativePath = "";
+
+    
+    
+    
+    while (target.indexOf(sourceArr.join("/")) === -1) {
+      sourceArr.pop();
+      relativePath += "../";
+    }
+
+    let relPathArr = targetArr.slice(sourceArr.length);
+    if (relPathArr.length > 0) {
+      relativePath += relPathArr.join("/") + "/";
+    }
+
+    return relativePath + filename;
+  }*/
+
+  export function getRelativePath(source: string, target: string) {
+    const sourceArr: string[] = removeFilename(source).split("/");
+    const targetArr: string[] = target.split("/");
+    const file: string = targetArr.pop();
+    const depth1: number = sourceArr.length;
+    const depth2: number = targetArr.length;
+    const maxCommon: number = Math.min(depth1, depth2);
+    let splitPos: number = 0;
+
+    for (let idx: number = 0; idx < maxCommon; idx++) {
+      if (sourceArr[idx] == targetArr[idx]) {
+        splitPos++;
+      }
+    }
+
+    let relativePath: string = "../".repeat(depth1 - splitPos - 1);
+    for (let idx = splitPos; idx < depth2; idx++) {
+      relativePath += `${targetArr[idx]}/`;
+    }
+
+    return relativePath + file;
   }
 
   export function createVariableName(
