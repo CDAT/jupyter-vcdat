@@ -1,22 +1,15 @@
 import time
 
 from BasePage import BasePage
-from BasePage import InvalidPageException
-
 from selenium.common.exceptions import NoSuchElementException
-
-from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+
 
 class VcdatLeftSideBar(BasePage):
 
-    _jp_vcdat_icon_locator = "//ul[@class='p-TabBar-content']//li[@data-id='vcdat-left-side-bar']//div[@class='p-TabBar-tabIcon jp-vcdat-icon jp-SideBar-tabIcon']"
+    _jp_vcdat_icon_locator = "//div[@class='p-TabBar-tabIcon jp-vcdat-icon jp-SideBar-tabIcon']"
     _variable_options_locator = "//div[@id='vcdat-left-side-bar']//h5[contains(text(), 'Variable Options')]"
-    _load_variables_locator = "//div[@id='vcdat-left-side-bar']//button[@class='btn btn-info'][contains(text(), 'Load Variables')]"
+    _load_variables_locator = "//button[@class='btn btn-info'][contains(text(), 'Load Variables')]"
 
     def __init__(self, driver, server=None):
         super(VcdatLeftSideBar, self).__init__(driver, server)
@@ -25,7 +18,6 @@ class VcdatLeftSideBar(BasePage):
         print("...VcdatLeftSideBar.validate_page()...NO OP NOW")
 
     def click_on_jp_vcdat_icon(self):
-        
         found_load_variables_element = False
         while found_load_variables_element is False:
             print("...click_on_jp_vcdat_icon...")
@@ -45,7 +37,7 @@ class VcdatLeftSideBar(BasePage):
     def click_on_load_variables(self):
         print("...click_on_load_variables...")
         load_variables_element = self.driver.find_element_by_xpath(self._load_variables_locator)
-        #load_variables_element.click()
+        # load_variables_element.click()
 
         actionChains = ActionChains(self.driver)
         actionChains.move_to_element(load_variables_element)
@@ -60,10 +52,10 @@ class VcdatLeftSideBar(BasePage):
         time.sleep(self._delay)
 
     def select_plot_type(self, plot_type):
-        select_plot_button_locator = "//div[@id='vcdat-left-side-bar']//button[@class='dropdown-toggle btn btn-secondary'][contains(text(), 'Select Plot Type')]"
+        select_plot_button_locator = "//button[contains(text(), 'Select Plot Type')]"
         try:
             select_plot_button = self.driver.find_element_by_xpath(select_plot_button_locator)
-            print("DEBUG DEBUG....clicking on 'Select Plot Type' button")
+            print("...clicking on 'Select Plot Type' button")
             select_plot_button.click()
             time.sleep(self._delay)
             print("...click on the '{p}' from the drop down menu".format(p=plot_type))
@@ -71,7 +63,7 @@ class VcdatLeftSideBar(BasePage):
             button_elements = self.driver.find_elements_by_xpath(button_elements_locator)
             saved_button = None
             for b in button_elements:
-                #print("DEBUG...b.text: {button_text}".format(button_text=b.text))
+                # print("DEBUG...b.text: {button_text}".format(button_text=b.text))
                 if b.text == plot_type:
                     print("FOUND the '{p}' from drop down menu".format(p=plot_type))
                     time.sleep(self._delay)
@@ -84,11 +76,4 @@ class VcdatLeftSideBar(BasePage):
             print("Not finding 'Select Plot Type' button")
             raise e
 
-        # validate that the Graphics Options button now shows the selected plot_type
-        #graphics_option_button_locator = "//div[@id='vcdat-left-side-bar']//button[@class='dropdown-toggle btn btn-secondary'][contains(text(), '{pt}')]".format(pt=plot_type)
-        #try:
-        #    graphics_option_button = self.driver.find_element_by_xpath(select_plot_button_locator)
-        #except NoSuchElementException as e:
-        #    print("Graphics Options button should be showing '{pt}'".format(pt=plot_type))
-        
-
+        # REVISIT validate that the Graphics Options button now shows the selected plot_type

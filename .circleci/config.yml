@@ -9,22 +9,16 @@ aliases:
     name: setup_miniconda
     command: |
       mkdir -p workspace
-      #git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      #python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3.7'
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda3.sh
       bash ./miniconda3.sh -b -p $WORKDIR/miniconda
 
   - &create_conda_env
     name: create_conda_env
-    environment:
-       CHANNELS: "-c cdat/label/v81 -c conda-forge"
-       PKGS: "nodejs 'python>3' vcs jupyterlab pip nb_conda nb_conda_kernels plumbum testsrunner"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -q conda
        conda config --set anaconda_upload no
-       #conda create -q -n $PY_VER $CHANNELS $PKGS "python>3" $COVERAGE_PKGS
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -33,7 +27,7 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        ./install_script.sh
-       conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner $COVERAGE_PKGS
+       conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner cdat_info $COVERAGE_PKGS
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
@@ -55,7 +49,7 @@ aliases:
        pip install selenium
        pip install pyvirtualdisplay
        pip install nose
-       python run_tests.py -H -v2 -n 2 $COVERAGE
+       python run_tests.py -H -v2 $COVERAGE
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
@@ -102,7 +96,6 @@ jobs:
     steps:
       - checkout
       - run: *setup_miniconda
-      #- run: *create_conda_env
       - run: *setup_jupyter_vcdat
 
   linux_jupyter_vcdat_py3:
@@ -117,7 +110,6 @@ jobs:
       - checkout
       - run: uname -a
       - run: *setup_miniconda
-      #- run: *create_conda_env
       - run: *setup_jupyter_vcdat
       #- run: *conda_upload
 
@@ -137,7 +129,6 @@ jobs:
       - run: which firefox
       - run: which geckodriver
       - run: *setup_miniconda
-      #- run: *create_conda_env
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests

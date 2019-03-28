@@ -1,17 +1,9 @@
 import time
 
 from BasePage import BasePage
-from BasePage import InvalidPageException
-
 from selenium.common.exceptions import NoSuchElementException
-
-from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.keys import Keys
+
 
 class LoadVariablePopUp(BasePage):
 
@@ -51,14 +43,12 @@ class LoadVariablePopUp(BasePage):
         print("...click_on_var_axes...var: {v}".format(v=var))
 
         var_row_elements = self._get_var_row_elements()
-        found_button = False
         for r in var_row_elements:
             var_axes_row_locator = ".//div[starts-with(@class, 'col-sm')]//button"
             buttons = r.find_elements_by_xpath(var_axes_row_locator)
             for b in buttons:
                 print("xxx b.text: {t}".format(t=b.text))
                 if b.text == var:
-                    found_button = True
                     actionChains = ActionChains(self.driver)
                     print("...going to click on 'Axes' button for variable '{v}'".format(v=var))
                     actionChains.click(buttons[1]).perform()
@@ -67,14 +57,8 @@ class LoadVariablePopUp(BasePage):
         time.sleep(self._delay)
 
     def adjust_var_axes_slider(self, var, axis, min_offset_percent, max_offset_percent):
-        print("...adjust_var_axes_slider, var: {v}, axis:{a}, min_percent: {min}, max_percent: {max}".format(v=var,
-                                                                                                             a=axis,
-                                                                                                             min=min_offset_percent,
-                                                                                                             max=max_offset_percent))
-                                                                                 
         var_row_elements = self._get_var_row_elements()
         print("...# of var_row_elements: {n}".format(n=len(var_row_elements)))
-        found_button = False
         for r in var_row_elements:
             var_axes_row_locator = ".//div[starts-with(@class, 'col-sm')]//button"
             buttons = r.find_elements_by_xpath(var_axes_row_locator)
@@ -84,7 +68,7 @@ class LoadVariablePopUp(BasePage):
                     var_axes_locator = ".//div[@class='collapse show']/div"
                     var_axes_elements = r.find_elements_by_xpath(var_axes_locator)
                     # number of var_axes_elements should be the number of sliders
-                    print("DEBUG....number of var_axes_elements: {n}".format(n=len(var_axes_elements)))
+                    # print("DEBUG....number of var_axes_elements: {n}".format(n=len(var_axes_elements)))
                     # find the axis to be modified.
                     axis_locator = ".//div[@class='row']/div[@class='col-auto']"
                     for an_axis in var_axes_elements:
@@ -108,19 +92,15 @@ class LoadVariablePopUp(BasePage):
                     print("xxx width of slider_track: {w}".format(w=slider_width))
                     # get the slider handle elements - this is the min and max handles
                     slider_handle_locator = ".//div[@class='slider-handles']/div[@role='slider']"
-                    slider_handle_min_max_elements = the_axis.find_elements_by_xpath(slider_handle_locator)
-                    action_chains = ActionChains(self.driver)
-                    #if min_or_max == 'min':
-                    #    slider_handle = slider_handle_min_max_elements[0]
-                    #else:
-                    #    slider_handle = slider_handle_min_max_elements[1]
-                    if min_offset_percent != 0:  
+                    min_max_elements = the_axis.find_elements_by_xpath(slider_handle_locator)
+                    ac = ActionChains(self.driver)
+                    if min_offset_percent != 0:
                         min_offset = (min_offset_percent/100) * slider_width
-                        action_chains.click_and_hold(slider_handle_min_max_elements[0]).move_by_offset(min_offset, 0).release().perform()
+                        ac.click_and_hold(min_max_elements[0]).move_by_offset(min_offset, 0).release().perform()
                         time.sleep(self._delay)
                     if max_offset_percent != 0:
                         max_offset = (max_offset_percent/100) * slider_width
-                        action_chains.click_and_hold(slider_handle_min_max_elements[1]).move_by_offset(max_offset, 0).release().perform()
+                        ac.click_and_hold(min_max_elements[1]).move_by_offset(max_offset, 0).release().perform()
                         time.sleep(self._delay)
                     break
 
