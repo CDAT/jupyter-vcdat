@@ -47,7 +47,6 @@ class FileBrowser(BasePage):
         self.find_element_and_click(select_kernel_drop_down_locator, "kernel drop down list")
         time.sleep(self._delay)
 
-
         self.find_element_and_click(kernel_locator, "Kernel {k}".format(k=kernel))
         time.sleep(self._delay)
 
@@ -74,6 +73,6 @@ class FileBrowser(BasePage):
         load_el = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, self._file_load_error_ok_locator)))
         print("FOUND file_load_error_ok element...")
         load_el.click()
-        time.sleep(5)
+        time.sleep(self._delay)
 
         self.select_kernel()
