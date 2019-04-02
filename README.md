@@ -5,10 +5,15 @@ A Jupyter Lab extension that integrates vCDAT features directly in a notebook.
 ## Prerequisites
 
 - JupyterLab
+- Installation of conda via Anaconda or Miniconda
 
 ## Installation
 
-To install on your local computer or local network, clone the jupyter-vcdat github repo:
+If you didn't let Anaconda or Miniconda prepend the Anaconda<2 or 3> install location to PATH, make sure conda is in your PATH (for more information see the Anaconda Documentation). Assuming Ananconda is installed in ${HOME}/anaconda:
+* export PATH=${HOME}/anaconda/bin:${PATH} # for [ba]sh
+* setenv PATH ${HOME}/anaconda/bin:${PATH} # for [t]csh
+
+Next, clone the jupyter-vcdat github repo:
 
 ```
 git clone https://github.com/CDAT/jupyter-vcdat.git
