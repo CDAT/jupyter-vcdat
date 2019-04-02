@@ -1,6 +1,6 @@
 from BaseTestCase import BaseTestCase
 from LoadVariablePopUp import LoadVariablePopUp
-from PlotArea import PlotArea
+from Canvas import Canvas
 
 import unittest
 # import os
@@ -37,8 +37,8 @@ class TestAdjustAxes(BaseTestCase):
         left_side_bar.select_plot_type("streamline (default)")
 
         left_side_bar.click_on_plot()
-        plot_area = PlotArea(self.driver)
-        plot_area.check_plot()
+        canvas = Canvas(self.driver)
+        canvas.check_plot()
 
 
 if __name__ == '__main__':

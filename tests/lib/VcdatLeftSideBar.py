@@ -51,6 +51,12 @@ class VcdatLeftSideBar(BasePage):
         self.find_element_and_click(plot_button_locator, "'Plot' button")
         time.sleep(self._delay)
 
+    def click_on_clear(self):
+        print("...click on 'Clear' button...")
+        plot_button_locator = "//button[contains(text(), 'Clear')]"
+        self.find_element_and_click(plot_button_locator, "'Clear' button")
+        time.sleep(self._delay)
+
     def select_plot_type(self, plot_type):
         select_plot_button_locator = "//button[contains(text(), 'Select Plot Type')]"
         try:

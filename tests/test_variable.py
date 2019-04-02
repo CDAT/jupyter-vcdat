@@ -1,6 +1,6 @@
 from BaseTestCase import BaseTestCase
 from LoadVariablePopUp import LoadVariablePopUp
-from PlotArea import PlotArea
+from Canvas import Canvas
 
 import unittest
 # import os
@@ -21,13 +21,19 @@ class TestLoadVariable(BaseTestCase):
         left_side_bar = self.load_data_file("clt.nc")
 
         load_variable_pop_up = LoadVariablePopUp(self.driver)
-        load_variable_pop_up.click_on_var('clt')
+        try:
+            load_variable_pop_up.click_on_var('clt')
+        except NoSuchElementException:
+            print("XXX XXX XXX got exception XXX")
+
         load_variable_pop_up.load()
 
         left_side_bar.click_on_plot()
 
-        plot_area = PlotArea(self.driver)
-        plot_area.check_plot()
+        canvas = Canvas(self.driver)
+        canvas.check_plot()
+
+        left_side_bar.click_on_clear()
 
     def test_plot_variable_2(self):
         '''
@@ -44,8 +50,8 @@ class TestLoadVariable(BaseTestCase):
 
         left_side_bar.click_on_plot()
 
-        plot_area = PlotArea(self.driver)
-        plot_area.check_plot()
+        canvas = Canvas(self.driver)
+        canvas.check_plot()
 
     def test_plot_variable_3(self):
         '''
@@ -64,11 +70,12 @@ class TestLoadVariable(BaseTestCase):
 
         load_variable_pop_up.load()
         left_side_bar.click_on_plot()
-        plot_area = PlotArea(self.driver)
-        plot_area.check_plot()
+        canvas = Canvas(self.driver)
+        canvas.check_plot()
 
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
 
+# nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_1
 # nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_1
