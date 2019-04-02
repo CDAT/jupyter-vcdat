@@ -31,7 +31,8 @@ class FileBrowser(BasePage):
         can call this method when you get the "Select Kernel" pop up
         """
         
-        select_kernel_popup_locator = "//div[@class='p-Widget jp-Dialog']//div[@class='p-Widget p-Panel jp-Dialog-content']//span[contains(text(), 'Select Kernel')]"
+        # select_kernel_popup_locator = "//div[@class='p-Widget jp-Dialog']//div[@class='p-Widget p-Panel jp-Dialog-content']//span[contains(text(), 'Select Kernel')]"
+        select_kernel_popup_locator = "//span[contains(text(), 'Select Kernel')]"
         select_kernel_drop_down_locator = "//select[@class='jp-mod-styled']"
         kernel = "Python 3"
         kernel_locator = "//option[contains(text(), '{k}')]".format(k=kernel)
@@ -43,7 +44,7 @@ class FileBrowser(BasePage):
         time.sleep(self._delay)
 
         # click on the drop down arrow
-        #self.driver.find_element_by_xpath(select_kernel_drop_down_locator).click()
+        # self.driver.find_element_by_xpath(select_kernel_drop_down_locator).click()
         self.find_element_and_click(select_kernel_drop_down_locator, "kernel drop down list")
         time.sleep(self._delay)
 
