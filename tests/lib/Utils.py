@@ -1,7 +1,7 @@
 import os
-import time
 import shlex
 import subprocess
+
 
 class TestUtils(object):
 
@@ -9,7 +9,6 @@ class TestUtils(object):
         super(TestUtils, self).__init__()
 
     def run_command(self, cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
-
         if isinstance(cmd, str):
             cmd = shlex.split(cmd)
 
@@ -22,7 +21,7 @@ class TestUtils(object):
             current_wd = os.getcwd()
         else:
             current_wd = cwd
-        print("xxx PATH: {e}".format(e=os.environ["PATH"]))
+
         P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr_setting,
                              bufsize=0, cwd=current_wd, shell=shell_cmd)
         out = []
@@ -30,7 +29,7 @@ class TestUtils(object):
             read = P.stdout.readline().rstrip()
             decoded_str = read.decode('utf-8')
             out.append(decoded_str)
-            if verbose == True:
+            if verbose:
                 print(decoded_str)
 
         ret_code = P.returncode
