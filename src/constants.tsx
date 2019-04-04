@@ -27,6 +27,12 @@ const REQUIRED_MODULES: string = "'lazy_import','cdms2','vcs','sidecar'";
 
 const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
 
+const CHECK_VCS_CMD: string = `try:\n\
+  vcs.init()\n\
+  ${OUTPUT_RESULT_NAME}=True\n\
+except:\n\
+  ${OUTPUT_RESULT_NAME}=False\n`;
+
 const GET_VARS_CMD: string = `import __main__\n\
 import json\n\
 def variables():\n\
@@ -80,7 +86,7 @@ def imports():\n\
 found = list(imports())\n\
 ${OUTPUT_RESULT_NAME} = list(set(required)-set(found))`;
 
-const LIST_CANVASES_CMD: string = `import __main__\n
+const LIST_CANVASES_CMD: string = `import __main__\n\
 def canvases():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
@@ -444,6 +450,7 @@ export {
   VARIABLE_SOURCES_KEY,
   REQUIRED_MODULES,
   CANVAS_DIMENSIONS_CMD,
+  CHECK_VCS_CMD,
   GET_VARS_CMD,
   BASE_GRAPHICS,
   BASE_TEMPLATES,

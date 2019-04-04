@@ -18,6 +18,7 @@ import {
   BASE_TEMPLATES,
   CANVAS_CELL_KEY,
   CHECK_MODULES_CMD,
+  CHECK_VCS_CMD,
   DATA_LIST_KEY,
   EXTENSIONS_REGEX,
   FILE_PATH_KEY,
@@ -92,6 +93,7 @@ export class LeftSideBarWidget extends Widget {
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
     this.inject = this.inject.bind(this);
     this.getDataReaderName = this.getDataReaderName.bind(this);
+    this.checkVCS = this.checkVCS.bind(this);
     this.checkPlotExists = this.checkPlotExists.bind(this);
     this.injectAndDisplay = this.injectAndDisplay.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
@@ -393,7 +395,7 @@ export class LeftSideBarWidget extends Widget {
     // Perform actions when the notebook state has a command run and the notebook is vcs ready
     if (
       this.state == NOTEBOOK_STATE.VCS_Ready &&
-      stateChange.newValue == "command"
+      stateChange.newValue != "edit"
     ) {
       this.refreshVarList();
       this.refreshGraphicsList();
@@ -466,12 +468,12 @@ export class LeftSideBarWidget extends Widget {
   }
 
   // =======WIDGET MAIN FUNCTIONS=======
-
   /**
    * This initializes the left side bar widget and checks for any open notebooks.
    * The status of the notebook is set and the notebook switching handler is connected.
    */
   public async initialize(): Promise<void> {
+
     // Check the active widget is a notebook panel
     if (this.application.shell.currentWidget instanceof NotebookPanel) {
       await this.setNotebookPanel(this.application.shell.currentWidget);
@@ -482,6 +484,25 @@ export class LeftSideBarWidget extends Widget {
 
     // Notebook tracker will signal when a notebook is changed
     this.notebookTracker.currentChanged.connect(this.handleNotebooksChanged);
+  }
+
+  public async checkVCS(): Promise<boolean> {
+    if (this.notebookPanel == null) {
+      return false;
+    }
+
+    // Try to initialize a vcs instant, if error then it's not vcs ready
+    this.usingKernel = true;
+    const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+      this.notebookPanel,
+      CHECK_VCS_CMD
+    );
+    this.usingKernel = false;
+    if (result == "True") {
+      return true;
+    } 
+      return false;
+    
   }
 
   public async checkPlotExists(): Promise<boolean> {
@@ -738,9 +759,11 @@ export class LeftSideBarWidget extends Widget {
           await this._notebookPanel.session.ready;
           // Check if there is a kernel listed as vcsReady
           if (
-            this._readyKernels.length > 0 &&
-            this._readyKernels.indexOf(this.notebookPanel.session.kernel.id) >=
-              0
+            (this._readyKernels.length > 0 &&
+              this._readyKernels.indexOf(
+                this.notebookPanel.session.kernel.id
+              ) >= 0) ||
+            (await this.checkVCS())
           ) {
             // Ready kernel identified, so the notebook is ready for injection
             this.state = NOTEBOOK_STATE.VCS_Ready;
