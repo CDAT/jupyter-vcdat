@@ -13,6 +13,7 @@ import {
   ModalFooter,
   ModalHeader
 } from "reactstrap";
+import { CodeInjector } from "../CodeInjector";
 
 export interface ExportPlotModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export interface ExportPlotModalProps {
   toggle: Function;
   exportAlerts: Function;
   setPlotInfo: Function;
+  cmdManager: CodeInjector;
 }
 
 interface ExportPlotModalState {
@@ -111,69 +113,6 @@ export class ExportPlotModal extends React.Component<
     this.setState({ plotUnits: rSelected });
   }
 
-  public async export_png(
-    plotName: string,
-    provenance: string,
-    width?: string,
-    height?: string,
-    plotUnits?: string
-  ) {
-    if (width && height) {
-      await this.props.inject(
-        `canvas.png('${plotName}', height=float('${height}'), width=float('${width}'), units='${plotUnits}', provenance=bool('${provenance}'))`
-      );
-    } else {
-      await this.props.inject(
-        `canvas.png('${plotName}', provenance=bool('${provenance}'))`
-      );
-    }
-  }
-
-  public async export_pdf(
-    plotName: string,
-    width?: string,
-    height?: string,
-    plotUnits?: string
-  ) {
-    if (width && height) {
-      await this.props.inject(
-        `canvas.pdf('${plotName}', height=float('${height}'), width=float('${width}'), units='${plotUnits}')`
-      );
-    } else {
-      await this.props.inject(`canvas.pdf('${plotName}')`);
-    }
-  }
-
-  public async export_svg(
-    plotName: string,
-    width?: string,
-    height?: string,
-    plotUnits?: string
-  ) {
-    if (width && height) {
-      await this.props.inject(
-        `canvas.svg('${plotName}', height=float('${height}'), width=float('${width}'), units='${plotUnits}')`
-      );
-    } else {
-      await this.props.inject(`canvas.svg('${plotName}'))`);
-    }
-  }
-
-  public async export_ps(
-    plotName: string,
-    width?: string,
-    height?: string,
-    plotUnits?: string
-  ) {
-    if (width && height) {
-      await this.props.inject(
-        `canvas.postscript('${plotName}', height=float('${height}'), width=float('${width}'), units='${plotUnits}')`
-      );
-    } else {
-      await this.props.inject(`canvas.postscript('${plotName}')`);
-    }
-  }
-
   public async save() {
     const plotName = this.state.plotName;
     if (plotName == null || plotName == "") {
@@ -189,84 +128,15 @@ export class ExportPlotModal extends React.Component<
     }
     this.setState({ validateFileFormat: false });
 
-    let capture = null;
-    if (this.state.captureProvenance) {
-      capture = "1";
-    } else {
-      capture = "";
-    }
-    this.setState({ validateFileFormat: false });
+    this.props.cmdManager.exportPlot(
+      fileFormat,
+      plotName,
+      this.state.width,
+      this.state.height,
+      this.state.plotUnits,
+      this.state.captureProvenance
+    );
 
-    if (fileFormat === "png") {
-      try {
-        if (this.state.width && this.state.height) {
-          this.export_png(
-            plotName,
-            capture,
-            this.state.width,
-            this.state.height,
-            this.state.plotUnits
-          );
-        } else {
-          this.export_png(plotName, capture);
-        }
-      } catch (error) {
-        console.log("Failed to export plot");
-        console.log("error:", error);
-        return;
-      }
-    } else if (fileFormat === "pdf") {
-      try {
-        if (this.state.width && this.state.height) {
-          this.export_pdf(
-            plotName,
-            this.state.width,
-            this.state.height,
-            this.state.plotUnits
-          );
-        } else {
-          this.export_pdf(plotName);
-        }
-      } catch (error) {
-        console.log("Failed to export plot");
-        console.log("error:", error);
-        return;
-      }
-    } else if (fileFormat === "svg") {
-      try {
-        if (this.state.width && this.state.height) {
-          this.export_svg(
-            plotName,
-            this.state.width,
-            this.state.height,
-            this.state.plotUnits
-          );
-        } else {
-          this.export_svg(plotName);
-        }
-      } catch (error) {
-        console.log("Failed to export plot");
-        console.log("error:", error);
-        return;
-      }
-    } else if (fileFormat === "ps") {
-      try {
-        if (this.state.width && this.state.height) {
-          this.export_ps(
-            plotName,
-            this.state.width,
-            this.state.height,
-            this.state.plotUnits
-          );
-        } else {
-          this.export_ps(plotName);
-        }
-      } catch (error) {
-        console.log("Failed to export plot");
-        console.log("error:", error);
-        return;
-      }
-    }
     this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
     this.props.exportAlerts();
     this.toggleModal();

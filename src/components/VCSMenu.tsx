@@ -14,6 +14,7 @@ import {
 } from "reactstrap";
 
 // Project Components
+import { CodeInjector } from "../CodeInjector";
 import {
   CANVAS_DIMENSIONS_CMD,
   GRAPHICS_METHOD_KEY,
@@ -51,6 +52,7 @@ const DEFAULT_HEIGHT: number = 600;
 export interface VCSMenuProps {
   inject: Function; // a method to inject code into the controllers notebook
   commands: CommandRegistry; // the command executor
+  codeInjector: CodeInjector;
   notebookPanel: NotebookPanel;
   plotReady: boolean; // The notebook is ready for code injection an plots
   plotExists: boolean; // whether a plot already exists
@@ -287,10 +289,28 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       );
     }
 
+    // Inject copy graphics method command into notebook
+    await this.props.codeInjector.copyGM(newName, groupName, methodName);
+
+    // If successful, update the list and state
+    this.props.refreshGraphicsList();
+
+    await this.setState({
+      selectedGMgroup: groupName,
+      selectedGM: newName
+    });
+    // Save selected graphics method to meta data
+    NotebookUtilities.setMetaData(
+      this.state.notebookPanel,
+      GRAPHICS_METHOD_KEY,
+      [this.state.selectedGMgroup, this.state.selectedGM]
+    );
+
     // If no duplicates, create command injection string
-    let command: string = `${newName}_${groupName} = `;
+    /*let command: string = `${newName}_${groupName} = `;
     command += `vcs.create${groupName}('${newName}',source='${methodName}')`;
-    // Attempt code injection
+
+    
     await this.props.inject(command).then(async () => {
       this.props.refreshGraphicsList();
       // If successful, update the current state
@@ -304,7 +324,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         GRAPHICS_METHOD_KEY,
         [this.state.selectedGMgroup, this.state.selectedGM]
       );
-    });
+    });*/
   }
 
   /**
@@ -548,7 +568,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       inject: this.props.inject,
       exportAlerts: this.exportPlotAlerts,
       setPlotInfo: this.setPlotInfo,
-      getCanvasDimensions: this.getCanvasDimensions
+      getCanvasDimensions: this.getCanvasDimensions,
+      cmdManager: this.props.codeInjector
     };
 
     return (

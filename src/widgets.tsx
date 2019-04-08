@@ -10,6 +10,7 @@ import * as ReactDOM from "react-dom";
 
 // Project Components
 import { CellUtilities } from "./CellUtilities";
+import { CodeInjector } from "./CodeInjector";
 import AxisInfo from "./components/AxisInfo";
 import Variable from "./components/Variable";
 import { VCSMenu } from "./components/VCSMenu";
@@ -53,6 +54,7 @@ export class LeftSideBarWidget extends Widget {
   public usingKernel: boolean; // The widgets is running a ker nel command
   public canvasCount: number; // The number of canvases currently in use (just 1 for now)
   public refreshExt: boolean; // Will be false if the app was refreshed
+  public codeInjector: CodeInjector;
 
   private _plotExists: boolean; // True if there exists a plot that can be exported, false if not.
   private _readyKernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
@@ -67,6 +69,7 @@ export class LeftSideBarWidget extends Widget {
     this.node.appendChild(this.div);
     this.application = app;
     this.commands = app.commands;
+    this.codeInjector = new CodeInjector(app.commands);
     this.notebookTracker = tracker;
     this._state = NOTEBOOK_STATE.Unknown;
     this.usingKernel = false;
@@ -105,6 +108,7 @@ export class LeftSideBarWidget extends Widget {
         <VCSMenu
           ref={loader => (this.VCSMenuRef = loader)}
           commands={this.commands}
+          codeInjector={this.codeInjector}
           inject={this.inject}
           plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
           plotExists={this.plotExists}
@@ -195,6 +199,9 @@ export class LeftSideBarWidget extends Widget {
 
       // Update current notebook
       this._notebookPanel = notebookPanel;
+
+      // Update notebook in injection manager
+      this.codeInjector.notebookPanel = notebookPanel;
 
       // Reset the UI components
       await this.VCSMenuRef.resetState();

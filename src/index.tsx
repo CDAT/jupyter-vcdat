@@ -67,6 +67,8 @@ function activate(
     fileFormat: "base64"
   };
 
+  
+
   app.docRegistry.addFileType(ft);
   app.docRegistry.addWidgetFactory(factory);
 
