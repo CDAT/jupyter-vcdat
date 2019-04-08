@@ -45,8 +45,9 @@ class NoteBookPage(BasePage):
         close_without_saving_ok_locator = "//div[contains(text(), 'OK')]"
         try:
             ok_element = self.driver.find_element_by_xpath(close_without_saving_ok_locator)
-            print("FOUND 'Close without saving?' pop up")
+            print("FOUND 'Close without saving?' pop up, click 'OK'")
             ok_element.click()
+            time.sleep(self._delay)
         except NoSuchElementException:
             print("No 'Close without saving?' pop up")
 
