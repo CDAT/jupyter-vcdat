@@ -29,6 +29,7 @@ const formOverflow: React.CSSProperties = {
 };
 
 interface VarMenuProps {
+  plotReady: boolean;
   loadVariable: Function; // a method to call when loading the variable
   commands?: any; // the command executer
   variables: Variable[]; // an array of all current variables
@@ -36,9 +37,11 @@ interface VarMenuProps {
   updateSelectedVariables: Function; // update the list of selected variables
   updateVariables: Function; // update the list of all variables
   saveNotebook: Function; // function that saves the current notebook
+  updateNotebook: Function; // Updates the current notebook to check if it is vcdat ready
 }
 
 interface VarMenuState {
+  plotReady: boolean;
   variables: Variable[]; // all variables for list (derived and loaded)
   selectedVariables: string[]; // the names of the variables the user has selected
 }
@@ -51,6 +54,7 @@ export default class VarMenu extends React.Component<
   constructor(props: VarMenuProps) {
     super(props);
     this.state = {
+      plotReady: this.props.plotReady,
       selectedVariables: this.props.selectedVariables,
       variables: this.props.variables
     };
@@ -220,6 +224,18 @@ export default class VarMenu extends React.Component<
                     style={varButtonStyle}
                   >
                     Load Variables
+                  </Button>
+                </Col>
+                <Col>
+                  <Button
+                    color="info"
+                    onClick={async () => {
+                      await this.props.updateNotebook();
+                    }}
+                    hidden={this.state.plotReady}
+                    style={varButtonStyle}
+                  >
+                    Update
                   </Button>
                 </Col>
               </Row>

@@ -101,6 +101,7 @@ export class LeftSideBarWidget extends Widget {
     this.injectCanvasCode = this.injectCanvasCode.bind(this);
     this.injectDataReaders = this.injectDataReaders.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
+    this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
     this.VCSMenuRef = (React as any).createRef();
     ReactDOM.render(
       <ErrorBoundary>
@@ -128,6 +129,9 @@ export class LeftSideBarWidget extends Widget {
           }}
           refreshGraphicsList={this.refreshGraphicsList}
           notebookPanel={this._notebookPanel}
+          updateNotebookPanel={async () => {
+            this.recognizeNotebookPanel();
+          }}
         />
       </ErrorBoundary>,
       this.div
@@ -473,7 +477,6 @@ export class LeftSideBarWidget extends Widget {
    * The status of the notebook is set and the notebook switching handler is connected.
    */
   public async initialize(): Promise<void> {
-
     // Check the active widget is a notebook panel
     if (this.application.shell.currentWidget instanceof NotebookPanel) {
       await this.setNotebookPanel(this.application.shell.currentWidget);
@@ -484,6 +487,74 @@ export class LeftSideBarWidget extends Widget {
 
     // Notebook tracker will signal when a notebook is changed
     this.notebookTracker.currentChanged.connect(this.handleNotebooksChanged);
+  }
+
+  /**
+   * Set's the widget's current notebook and updates needed widget variables.
+   */
+  /**
+   * Prepares the current widget notebook to be a vcsReady notebook. Will create a new one if none exists.
+   * @param currentFile The file path to set for the variable loading. If left blank, an error will occur.
+   */
+  public async recognizeNotebookPanel(): Promise<void> {
+    // Check the active widget is a notebook panel
+    if (this.application.shell.currentWidget instanceof NotebookPanel) {
+      await this.setNotebookPanel(this.application.shell.currentWidget);
+    } else {
+      // There is no active notebook widget
+      await this.setNotebookPanel(null);
+    }
+
+    // Get notebook state
+    await this.updateNotebookState();
+
+    if (
+      this.state == NOTEBOOK_STATE.Unknown ||
+      this.state == NOTEBOOK_STATE.NoOpenNotebook ||
+      this.state == NOTEBOOK_STATE.InactiveNotebook
+    ) {
+      return;
+    }
+
+    // Check the active widget is a notebook panel
+    if (this.application.shell.currentWidget instanceof NotebookPanel) {
+      await this.setNotebookPanel(this.application.shell.currentWidget);
+    } else {
+      return;
+    }
+
+    // Inject the imports
+    let currentIdx: number = this.notebookPanel.content.model.cells.length - 1;
+    currentIdx = await this.injectImportsCode(currentIdx, true);
+
+    // Inject canvas(es)
+    currentIdx = await this.injectCanvasCode(currentIdx + 1, 1);
+
+    this.state = NOTEBOOK_STATE.VCS_Ready;
+
+    // Update the selected graphics method, variable list, templates and loaded variables
+    await this.refreshGraphicsList();
+    await this.refreshTemplatesList();
+    await this.refreshVarList();
+
+    // Select last cell in notebook
+    this.notebookPanel.content.activeCellIndex =
+      this.notebookPanel.content.model.cells.length - 1;
+
+    // Update kernel list to identify this kernel is ready
+    this._readyKernels.push(this.notebookPanel.session.kernel.id);
+
+    // Save the notebook to preserve the cell metadata, update state
+    this.state = NOTEBOOK_STATE.VCS_Ready;
+
+    // Save the notebook
+    this.notebookPanel.context.save();
+
+    // Activate current notebook
+    this.application.shell.activateById(this.notebookPanel.id);
+
+    // Connect the handler specific to current notebook
+    this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
   }
 
   public async checkVCS(): Promise<boolean> {
@@ -498,11 +569,10 @@ export class LeftSideBarWidget extends Widget {
       CHECK_VCS_CMD
     );
     this.usingKernel = false;
-    if (result == "True") {
+    if (result === "True") {
       return true;
-    } 
-      return false;
-    
+    }
+    return false;
   }
 
   public async checkPlotExists(): Promise<boolean> {
@@ -759,11 +829,9 @@ export class LeftSideBarWidget extends Widget {
           await this._notebookPanel.session.ready;
           // Check if there is a kernel listed as vcsReady
           if (
-            (this._readyKernels.length > 0 &&
-              this._readyKernels.indexOf(
-                this.notebookPanel.session.kernel.id
-              ) >= 0) ||
-            (await this.checkVCS())
+            this._readyKernels.length > 0 &&
+            this._readyKernels.indexOf(this.notebookPanel.session.kernel.id) >=
+              0
           ) {
             // Ready kernel identified, so the notebook is ready for injection
             this.state = NOTEBOOK_STATE.VCS_Ready;
@@ -774,17 +842,17 @@ export class LeftSideBarWidget extends Widget {
               IMPORT_CELL_KEY
             )[0];
             // Search for a cell containing the data variables key
-            find += CellUtilities.findCellWithMetaKey(
+            /*find += CellUtilities.findCellWithMetaKey(
               this.notebookPanel,
               READER_CELL_KEY
-            )[0];
+            )[0];*/
             // Search for a cell containing the canvas variables key
             find += CellUtilities.findCellWithMetaKey(
               this.notebookPanel,
               CANVAS_CELL_KEY
             )[0];
 
-            if (find >= 3) {
+            if (find >= 2) {
               // The imports, data and canvas cells were found, but not run yet
               this.state = NOTEBOOK_STATE.InitialCellsReady;
             } else {
@@ -856,6 +924,7 @@ export class LeftSideBarWidget extends Widget {
       "#These imports are required for vcdat. To avoid issues, do not delete or modify.";
 
     if (skip) {
+      cmd = "#These imports are needed for vcdat.";
       // Check if necessary modules are loaded
       this.usingKernel = true;
       const output: string = await NotebookUtilities.sendSimpleKernelRequest(

@@ -27,9 +27,12 @@ const REQUIRED_MODULES: string = "'lazy_import','cdms2','vcs','sidecar'";
 
 const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
 
-const CHECK_VCS_CMD: string = `try:\n\
-  vcs.init()\n\
-  ${OUTPUT_RESULT_NAME}=True\n\
+const CHECK_VCS_CMD: string = `import __main__\n\
+try:\n\
+  for nm, obj in __main__.__dict__.items():\n\
+    if isinstance(obj, cdms2.MV2.TransientVariable):\n\
+      ${OUTPUT_RESULT_NAME}=True\n\
+      break\n\
 except:\n\
   ${OUTPUT_RESULT_NAME}=False\n`;
 

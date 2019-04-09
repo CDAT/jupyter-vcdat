@@ -61,6 +61,7 @@ export interface VCSMenuProps {
   getTemplatesList: Function; // function that reads the widget's current template list
   getFileVariables: Function; // Function that reads the current notebook file and retrieves variable data
   updateVariables: Function; // function that updates the variables list in the main widget
+  updateNotebookPanel: Function; // Function passed to the var menu
 }
 interface VCSMenuState {
   plotReady: boolean; // are we ready to plot
@@ -425,6 +426,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
   public updatePlotReady(value: boolean): void {
     this.setState({ plotReady: value });
+    this.varMenuRef.setState({ plotReady: value });
     this.graphicsMenuRef.setState({ plotReady: value });
     this.templateMenuRef.setState({ plotReady: value });
   }
@@ -522,20 +524,22 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
   public render(): JSX.Element {
     const GraphicsMenuProps = {
+      plotReady: this.state.plotReady,
       getGraphicsList: this.props.getGraphicsList,
       updateGraphicsOptions: this.updateGraphicsOptions,
       copyGraphicsMethod: this.copyGraphicsMethod,
-      varInfo: new Variable(),
-      plotReady: this.state.plotReady
+      varInfo: new Variable()
     };
     const VarMenuProps = {
+      plotReady: this.state.plotReady,
       commands: this.props.commands,
       loadVariable: this.loadVariable,
       variables: this.state.variables,
       selectedVariables: this.state.selectedVariables,
       updateVariables: this.updateVariables,
       updateSelectedVariables: this.updateSelectedVariables,
-      saveNotebook: this.saveNotebook
+      saveNotebook: this.saveNotebook,
+      updateNotebook: this.props.updateNotebookPanel
     };
     const TemplateMenuProps = {
       plotReady: this.state.plotReady,
@@ -596,6 +600,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                 id="overlayModeSwitch"
                 name="overlayModeSwitch"
                 label="Overlay Mode"
+                disabled={!this.state.plotReady}
                 checked={this.state.overlayMode}
                 onChange={this.toggleOverlayMode}
               />
