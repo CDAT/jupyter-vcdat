@@ -5,7 +5,8 @@ A Jupyter Lab extension that integrates vCDAT features directly in a notebook.
 ## Prerequisites
 
 - JupyterLab
-- Installation of conda via Anaconda or Miniconda
+- Installation of conda via Anaconda or Miniconda conda >=4.6.11 (the script
+  will try to update your base installation anyway)
 
 ## Installation
 
