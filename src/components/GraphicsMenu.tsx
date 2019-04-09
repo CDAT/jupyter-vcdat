@@ -33,6 +33,7 @@ const listItemStyle: React.CSSProperties = {
 };
 
 interface GraphicsMenuProps {
+  plotReady: boolean;
   getGraphicsList: Function; // a method that gets the current list of graphics methods
   updateGraphicsOptions: Function; // a method to call when the user has selected their desired graphics method
   copyGraphicsMethod: Function; // a method that will create a copy of the currently selected graphics method.
@@ -65,7 +66,7 @@ export default class GraphicsMenu extends React.Component<
       enterName: false,
       nameValue: "",
       invalidName: false,
-      plotReady: false
+      plotReady: this.props.plotReady
     };
     this.handleNameInput = this.handleNameInput.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);

@@ -99,6 +99,8 @@ function activate(
     );
     sidebar.initialize();
   });
+
+  
 }
 
 // Adds a reference link to the help menu in JupyterLab
