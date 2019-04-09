@@ -14,6 +14,7 @@ import {
 } from "reactstrap";
 
 // Project Components
+import Container from "reactstrap/lib/Container";
 import {
   CANVAS_DIMENSIONS_CMD,
   GRAPHICS_METHOD_KEY,
@@ -40,7 +41,7 @@ const centered: React.CSSProperties = {
 
 const sidebarOverflow: React.CSSProperties = {
   maxHeight: "100vh",
-  minWidth: "320px",
+  minWidth: "360px",
   overflow: "auto"
 };
 
@@ -62,6 +63,7 @@ export interface VCSMenuProps {
   getFileVariables: Function; // Function that reads the current notebook file and retrieves variable data
   updateVariables: Function; // function that updates the variables list in the main widget
   updateNotebookPanel: Function; // Function passed to the var menu
+  syncNotebook: Function; // Function passed to the var menu
 }
 interface VCSMenuState {
   plotReady: boolean; // are we ready to plot
@@ -426,7 +428,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
   public updatePlotReady(value: boolean): void {
     this.setState({ plotReady: value });
-    this.varMenuRef.setState({ plotReady: value });
     this.graphicsMenuRef.setState({ plotReady: value });
     this.templateMenuRef.setState({ plotReady: value });
   }
@@ -531,7 +532,6 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       varInfo: new Variable()
     };
     const VarMenuProps = {
-      plotReady: this.state.plotReady,
       commands: this.props.commands,
       loadVariable: this.loadVariable,
       variables: this.state.variables,
@@ -539,6 +539,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       updateVariables: this.updateVariables,
       updateSelectedVariables: this.updateSelectedVariables,
       saveNotebook: this.saveNotebook,
+      syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel
     };
     const TemplateMenuProps = {
@@ -561,35 +562,38 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           <CardBody>
             <div style={centered}>
               <Row>
-                <Col>
+                <Col sm={3}>
                   <Button
                     type="button"
                     color="primary"
                     style={btnStyle}
                     onClick={this.plot}
                     disabled={!this.state.plotReady}
+                    title="Plot the current selected variable(s)."
                   >
                     Plot
                   </Button>
                 </Col>
-                <Col>
+                <Col sm={5} style={{ padding: "0 5px" }}>
                   <Button
                     type="button"
                     color="primary"
                     style={btnStyle}
                     onClick={this.toggleModal}
                     disabled={!this.state.plotReady || !this.state.plotExists}
+                    title="Exports the current canvas plot."
                   >
-                    Save
+                    Export Plot
                   </Button>
                 </Col>
-                <Col>
+                <Col sm={4}>
                   <Button
                     type="button"
                     color="primary"
                     style={btnStyle}
                     onClick={this.clear}
                     disabled={!this.state.plotReady}
+                    title="Clears the canvas."
                   >
                     Clear
                   </Button>

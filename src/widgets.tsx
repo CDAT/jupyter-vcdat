@@ -114,6 +114,9 @@ export class LeftSideBarWidget extends Widget {
           plotExistTrue={() => {
             this.plotExists = true;
           }}
+          syncNotebook={() => {
+            return this.state == NOTEBOOK_STATE.ActiveNotebook;
+          }}
           getFileVariables={this.getFileVariables}
           getDataVarList={() => {
             return this.dataReaderList;
@@ -533,8 +536,6 @@ export class LeftSideBarWidget extends Widget {
       currentIdx = this.notebookPanel.content.model.cells.length - 1;
       await this.injectCanvasCode(currentIdx, 1);
     }
-
-    this.state = NOTEBOOK_STATE.VCS_Ready;
 
     // Update the selected graphics method, variable list, templates and loaded variables
     await this.refreshGraphicsList();

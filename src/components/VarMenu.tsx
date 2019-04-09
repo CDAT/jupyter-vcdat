@@ -29,7 +29,6 @@ const formOverflow: React.CSSProperties = {
 };
 
 interface VarMenuProps {
-  plotReady: boolean;
   loadVariable: Function; // a method to call when loading the variable
   commands?: any; // the command executer
   variables: Variable[]; // an array of all current variables
@@ -38,10 +37,10 @@ interface VarMenuProps {
   updateVariables: Function; // update the list of all variables
   saveNotebook: Function; // function that saves the current notebook
   updateNotebook: Function; // Updates the current notebook to check if it is vcdat ready
+  syncNotebook: Function; // Function that check if the Notebook should be synced/prepared
 }
 
 interface VarMenuState {
-  plotReady: boolean;
   variables: Variable[]; // all variables for list (derived and loaded)
   selectedVariables: string[]; // the names of the variables the user has selected
 }
@@ -54,7 +53,6 @@ export default class VarMenu extends React.Component<
   constructor(props: VarMenuProps) {
     super(props);
     this.state = {
-      plotReady: this.props.plotReady,
       selectedVariables: this.props.selectedVariables,
       variables: this.props.variables
     };
@@ -210,6 +208,8 @@ export default class VarMenu extends React.Component<
       "#28a745",
       "#17a2b8"
     );
+    const syncNotebook: boolean = this.props.syncNotebook();
+
     return (
       <div>
         <Card>
@@ -217,25 +217,27 @@ export default class VarMenu extends React.Component<
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
               <Row>
-                <Col>
+                <Col sm={6}>
                   <Button
                     color="info"
                     onClick={this.launchFilebrowser}
                     style={varButtonStyle}
+                    title="Load variables from a data file."
                   >
-                    Load Variables
+                    Load Variable(s)
                   </Button>
                 </Col>
-                <Col>
+                <Col sm={6}>
                   <Button
                     color="info"
                     onClick={async () => {
-                      await this.props.updateNotebook();
+                      this.props.updateNotebook();
                     }}
-                    hidden={this.state.plotReady}
+                    hidden={!syncNotebook}
                     style={varButtonStyle}
+                    title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
                   >
-                    Update
+                    Sync Notebook
                   </Button>
                 </Col>
               </Row>
