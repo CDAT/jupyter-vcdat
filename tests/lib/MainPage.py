@@ -82,7 +82,7 @@ class MainPage(BasePage):
         time.sleep(self._delay)
 
     def click_on_load_variables(self):
-        load_variables_locator = "//button[@class='btn btn-info'][contains(text(), 'Load Variables')]"
+        load_variables_locator = "//button[@class='btn btn-info'][contains(text(), 'Load Variable(s)')]"
         load_variables_element = self.driver.find_element_by_xpath(load_variables_locator)
         load_variables_element.click()
         time.sleep(self._delay)
