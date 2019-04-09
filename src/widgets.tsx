@@ -525,10 +525,11 @@ export class LeftSideBarWidget extends Widget {
 
     // Inject the imports
     let currentIdx: number = this.notebookPanel.content.model.cells.length - 1;
-    currentIdx = await this.injectImportsCode(currentIdx, true);
+    await this.injectImportsCode(currentIdx, true);
 
     // Inject canvas(es)
-    currentIdx = await this.injectCanvasCode(currentIdx + 1, 1);
+    currentIdx = this.notebookPanel.content.model.cells.length - 1;
+    await this.injectCanvasCode(currentIdx, 1);
 
     this.state = NOTEBOOK_STATE.VCS_Ready;
 
@@ -841,11 +842,6 @@ export class LeftSideBarWidget extends Widget {
               this.notebookPanel,
               IMPORT_CELL_KEY
             )[0];
-            // Search for a cell containing the data variables key
-            /*find += CellUtilities.findCellWithMetaKey(
-              this.notebookPanel,
-              READER_CELL_KEY
-            )[0];*/
             // Search for a cell containing the canvas variables key
             find += CellUtilities.findCellWithMetaKey(
               this.notebookPanel,
@@ -920,11 +916,9 @@ export class LeftSideBarWidget extends Widget {
     skip: boolean = false
   ): Promise<number> {
     // Check if required modules are imported in notebook
-    let cmd =
-      "#These imports are required for vcdat. To avoid issues, do not delete or modify.";
+    let cmd = "#These imports are added for vcdat.";
 
     if (skip) {
-      cmd = "#These imports are needed for vcdat.";
       // Check if necessary modules are loaded
       this.usingKernel = true;
       const output: string = await NotebookUtilities.sendSimpleKernelRequest(
@@ -935,7 +929,11 @@ export class LeftSideBarWidget extends Widget {
 
       // Create import string based on missing dependencies
       const missingModules: string[] = eval(output);
-      cmd += this.buildImportCommand(missingModules, false);
+      if (missingModules.length > 0) {
+        cmd += this.buildImportCommand(missingModules, false);
+      } else {
+        return index;
+      }
     } else {
       cmd += this.buildImportCommand(eval(`[${REQUIRED_MODULES}]`), false);
     }

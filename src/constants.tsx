@@ -23,7 +23,7 @@ const VARIABLE_SOURCES_KEY: string = "variable_source_names";
 const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
 const TEMPLATE_KEY: string = "template_selected";
 const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
-const REQUIRED_MODULES: string = "'lazy_import','cdms2','vcs','sidecar'";
+const REQUIRED_MODULES: string = "'cdms2','vcs','sidecar'";
 
 const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
 
