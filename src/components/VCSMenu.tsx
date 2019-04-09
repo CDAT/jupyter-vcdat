@@ -41,7 +41,7 @@ const centered: React.CSSProperties = {
 
 const sidebarOverflow: React.CSSProperties = {
   maxHeight: "100vh",
-  minWidth: "320px",
+  minWidth: "360px",
   overflow: "auto"
 };
 
@@ -63,6 +63,8 @@ export interface VCSMenuProps {
   getTemplatesList: Function; // function that reads the widget's current template list
   getFileVariables: Function; // Function that reads the current notebook file and retrieves variable data
   updateVariables: Function; // function that updates the variables list in the main widget
+  updateNotebookPanel: Function; // Function passed to the var menu
+  syncNotebook: Function; // Function passed to the var menu
 }
 interface VCSMenuState {
   plotReady: boolean; // are we ready to plot
@@ -542,11 +544,11 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
 
   public render(): JSX.Element {
     const GraphicsMenuProps = {
+      plotReady: this.state.plotReady,
       getGraphicsList: this.props.getGraphicsList,
       updateGraphicsOptions: this.updateGraphicsOptions,
       copyGraphicsMethod: this.copyGraphicsMethod,
-      varInfo: new Variable(),
-      plotReady: this.state.plotReady
+      varInfo: new Variable()
     };
     const VarMenuProps = {
       commands: this.props.commands,
@@ -555,7 +557,9 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       selectedVariables: this.state.selectedVariables,
       updateVariables: this.updateVariables,
       updateSelectedVariables: this.updateSelectedVariables,
-      saveNotebook: this.saveNotebook
+      saveNotebook: this.saveNotebook,
+      syncNotebook: this.props.syncNotebook,
+      updateNotebook: this.props.updateNotebookPanel
     };
     const TemplateMenuProps = {
       plotReady: this.state.plotReady,
@@ -578,35 +582,38 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           <CardBody>
             <div style={centered}>
               <Row>
-                <Col>
+                <Col sm={3}>
                   <Button
                     type="button"
                     color="primary"
                     style={btnStyle}
                     onClick={this.plot}
                     disabled={!this.state.plotReady}
+                    title="Plot the current selected variable(s)."
                   >
                     Plot
                   </Button>
                 </Col>
-                <Col>
+                <Col sm={5} style={{ padding: "0 5px" }}>
                   <Button
                     type="button"
                     color="primary"
                     style={btnStyle}
                     onClick={this.toggleModal}
                     disabled={!this.state.plotReady || !this.state.plotExists}
+                    title="Exports the current canvas plot."
                   >
-                    Save
+                    Export Plot
                   </Button>
                 </Col>
-                <Col>
+                <Col sm={4}>
                   <Button
                     type="button"
                     color="primary"
                     style={btnStyle}
                     onClick={this.clear}
                     disabled={!this.state.plotReady}
+                    title="Clears the canvas."
                   >
                     Clear
                   </Button>
@@ -617,6 +624,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
                 id="overlayModeSwitch"
                 name="overlayModeSwitch"
                 label="Overlay Mode"
+                disabled={!this.state.plotReady}
                 checked={this.state.overlayMode}
                 onChange={this.toggleOverlayMode}
               />

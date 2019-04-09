@@ -23,9 +23,18 @@ const VARIABLE_SOURCES_KEY: string = "variable_source_names";
 const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
 const TEMPLATE_KEY: string = "template_selected";
 const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
-const REQUIRED_MODULES: string = "'lazy_import','cdms2','vcs','sidecar'";
+const REQUIRED_MODULES: string = "'cdms2','vcs','sidecar'";
 
 const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
+
+const CHECK_VCS_CMD: string = `import __main__\n\
+try:\n\
+  for nm, obj in __main__.__dict__.items():\n\
+    if isinstance(obj, cdms2.MV2.TransientVariable):\n\
+      ${OUTPUT_RESULT_NAME}=True\n\
+      break\n\
+except:\n\
+  ${OUTPUT_RESULT_NAME}=False\n`;
 
 const GET_VARS_CMD: string = `import __main__\n\
 import json\n\
@@ -80,7 +89,7 @@ def imports():\n\
 found = list(imports())\n\
 ${OUTPUT_RESULT_NAME} = list(set(required)-set(found))`;
 
-const LIST_CANVASES_CMD: string = `import __main__\n
+const LIST_CANVASES_CMD: string = `import __main__\n\
 def canvases():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
@@ -444,6 +453,7 @@ export {
   VARIABLE_SOURCES_KEY,
   REQUIRED_MODULES,
   CANVAS_DIMENSIONS_CMD,
+  CHECK_VCS_CMD,
   GET_VARS_CMD,
   BASE_GRAPHICS,
   BASE_TEMPLATES,

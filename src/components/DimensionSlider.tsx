@@ -135,20 +135,19 @@ export default class DimensionSlider extends React.Component<
     this.domain = [0, lastIdx];
 
     // Set initial selected range
-    const initialMinMax: [number, number] = [0, lastIdx];
-    let idx: number = pValues.indexOf(this.props.min);
-    if (idx > 0) {
-      initialMinMax[0] = idx;
+    let idxMin: number = pValues.indexOf(this.props.min);
+    let idxMax: number = pValues.indexOf(this.props.max);
+    if (idxMin < 0) {
+      idxMin = 0;
     }
-    idx = pValues.indexOf(this.props.max);
-    if (idx > 0) {
-      initialMinMax[1] = idx;
+    if (idxMax < 0) {
+      idxMax = lastIdx;
     }
 
     // Update initial state
     this.state = {
-      min: initialMinMax[0],
-      max: initialMinMax[1],
+      min: idxMin,
+      max: idxMax,
       possibleValues: pValues,
       tickValues: tickVals
     };

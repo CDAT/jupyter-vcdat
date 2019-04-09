@@ -22,6 +22,7 @@ class BaseTestCase(unittest.TestCase):
 
     _delay = 1
     _wait_timeout = 3
+    # _test_notebook_file = 'test_jpvcdat.ipynb'
 
     def setUp(self):
         self._download_dir = tempfile.mkdtemp()
@@ -46,12 +47,15 @@ class BaseTestCase(unittest.TestCase):
         utils = JupyterUtils()
         self.server = utils.get_server()
         self.main_page = MainPage(self.driver, self.server)
-        self.close_notebook_if_any()
+        self._test_notebook_file = "{t}.ipynb".format(t=self._testMethodName)
+        self.new_notebook(self._test_notebook_file)
 
     def tearDown(self):
+        print("xxx xxx BaseTestCase.tearDown() xxx xxx")
         self.main_page.shutdown_kernel()
-        self.close_notebook_if_any()
+        self.close_current_notebook()
         self.driver.quit()
+        os.remove(self._test_notebook_file)
 
     def setup_for_chrome(self, mode):
         chrome_options = webdriver.ChromeOptions()
@@ -101,6 +105,18 @@ class BaseTestCase(unittest.TestCase):
 
         file_browser = FileBrowser(self.driver, None)
         file_browser.double_click_on_a_file(filename)
+        # self.main_page.select_kernel()
         time.sleep(self._delay)
 
         return left_side_bar
+
+    def new_notebook(self, notebook_title):
+        self.main_page.new_notebook()
+        self.main_page.select_kernel()
+        self.main_page.rename_notebook(notebook_title)
+
+    def close_current_notebook(self):
+        self.main_page.close_current_notebook()
+
+    def select_kernel(self):
+        self.main_page.select_kernel()

@@ -17,6 +17,7 @@ const dropdownMenuStype: React.CSSProperties = {
 };
 
 interface TemplateMenuProps {
+  plotReady: boolean;
   getTemplatesList: Function; // a method to call when the user has seleted a template
   updateTemplateOptions: Function;
 }
@@ -39,7 +40,7 @@ export default class TemplateMenu extends React.Component<
       showDropdown: false,
       selectedTemplate: "",
       optionsChanged: false,
-      plotReady: false
+      plotReady: this.props.plotReady
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
