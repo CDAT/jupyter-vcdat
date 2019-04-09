@@ -527,9 +527,12 @@ export class LeftSideBarWidget extends Widget {
     let currentIdx: number = this.notebookPanel.content.model.cells.length - 1;
     await this.injectImportsCode(currentIdx, true);
 
-    // Inject canvas(es)
-    currentIdx = this.notebookPanel.content.model.cells.length - 1;
-    await this.injectCanvasCode(currentIdx, 1);
+    // Inject canvas if needed
+    const canvasExists: boolean = await this.checkCanvasExists();
+    if (!canvasExists) {
+      currentIdx = this.notebookPanel.content.model.cells.length - 1;
+      await this.injectCanvasCode(currentIdx, 1);
+    }
 
     this.state = NOTEBOOK_STATE.VCS_Ready;
 
@@ -574,6 +577,21 @@ export class LeftSideBarWidget extends Widget {
       return true;
     }
     return false;
+  }
+
+  public async checkCanvasExists(): Promise<boolean> {
+    try {
+      // Get the list of display elements in the canvas
+      this.usingKernel = true;
+      const output: string = await NotebookUtilities.sendSimpleKernelRequest(
+        this.notebookPanel,
+        `${OUTPUT_RESULT_NAME} = canvas.listelements('display')`
+      );
+      this.usingKernel = false;
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   public async checkPlotExists(): Promise<boolean> {
