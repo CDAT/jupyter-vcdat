@@ -3,7 +3,6 @@ import time
 from MainPage import MainPage
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 
@@ -21,18 +20,9 @@ class NoteBookPage(MainPage):
         self.click_on_file_tab()
         self.find_menu_item_from_tab_drop_down_and_click('New')
 
-        notebook_locator = "//li[@class='p-Menu-item'][@data-command='notebook:create-new']"
-        notebook_element = None
-        try:
-            notebook_element = self.driver.find_element_by_xpath(notebook_locator)
-            print("....found 'Notebook' in the popup...")
-        except NoSuchElementException:
-            print("NOT Finding 'Notebook' element")
-
-        action_chains1 = ActionChains(self.driver)
-        action_chains1.move_to_element(notebook_element)
-        action_chains1.click(notebook_element).perform()
-        time.sleep(self._delay)
+        # notebook_locator = "//li[@class='p-Menu-item'][@data-command='notebook:create-new']"
+        notebook_locator_constraint = "@data-command='notebook:create-new'"
+        self.find_menu_item_by_constraint_and_click(notebook_locator_constraint)
 
     def rename_notebook(self, new_nb_name):
         # look for the 'Rename Notebook...' under File tab menu
@@ -45,10 +35,8 @@ class NoteBookPage(MainPage):
 
         # click on the input area
         input_area.clear()
-        ActionChains(self.driver).click(input_area).perform()
-        a = ActionChains(self.driver)
-        a.send_keys(new_nb_name).key_down(Keys.ENTER)
-        a.perform()
+        action_chains = ActionChains(self.driver)
+        action_chains.click(input_area).send_keys(new_nb_name).key_down(Keys.ENTER).perform()
         time.sleep(self._delay * 2)
 
     def new_notebook(self):
@@ -92,7 +80,6 @@ class NoteBookPage(MainPage):
                     time.sleep(self._delay)
 
         except NoSuchElementException:
-            print("Not finding divs")
             print("No notebook")
 
         # check if we are getting "Close without saving?" pop up
@@ -104,10 +91,6 @@ class NoteBookPage(MainPage):
             time.sleep(self._delay)
         except NoSuchElementException:
             print("No 'Close without saving?' pop up")
-
-    def load_page(self, server, expected_element=(By.TAG_NAME, 'html'),
-                  timeout=3):
-        print("...NoteBookPage.load_page()...do nothing")
 
     def enter_code(self, code_text):
 
@@ -124,5 +107,3 @@ class NoteBookPage(MainPage):
         a.send_keys(code_text).key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
         a.perform()
         time.sleep(self._delay)
-
-        print("xxx after entering: {c}".format(c=code_text))

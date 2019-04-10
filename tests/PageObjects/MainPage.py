@@ -2,7 +2,6 @@ import time
 
 from BasePage import BasePage
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.action_chains import ActionChains
 
 
 class MainPage(BasePage):
@@ -20,36 +19,44 @@ class MainPage(BasePage):
         find the tab element ('File', 'Edit', 'View', 'Run'...) and
         return the element
         '''
-        tabs_locator = "//ul[@class='p-MenuBar-content']/li"
-        tabs_elements = self.driver.find_elements_by_xpath(tabs_locator)
-        tab_label_locator = ".//div[@class='p-MenuBar-itemLabel']"
-        for tab_element in tabs_elements:
-            tab_label_element = tab_element.find_element_by_xpath(tab_label_locator)
-            if tab_label_element.text == tab_name:
-                return tab_label_element
+        print("...find tab for '{t}'".format(t=tab_name))
+        tab_locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), '{n}')]".format(n=tab_name)
+        try:
+            tab_label_element = self.driver.find_element_by_xpath(tab_locator)
+            return tab_label_element
+        except NoSuchElementException as e:
+            raise e
 
     def find_menu_item_from_tab_drop_down_and_click(self, menu_item_name):
         '''
         find the specified menu item from the tab drop down, and
         click on it.
         '''
-        menu_items_locator = "//ul[@class='p-Menu-content']/li"
-        menu_items_elements = self.driver.find_elements_by_xpath(menu_items_locator)
-        item_label_locator = "./div[@class='p-Menu-itemLabel']"
-        index = 0
-        for m in menu_items_elements:
-            item_label_element = m.find_element_by_xpath(item_label_locator)
-            if menu_item_name in item_label_element.text:
-                break
-            index += 1
+        print("...find '{m}' from drop down menu".format(m=menu_item_name))
+        menu_item_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{n}')]".format(n=menu_item_name)
+        try:
+            m = self.driver.find_element_by_xpath(menu_item_locator)
+            if m.is_displayed() and m.is_enabled():
+                m.click()
+                time.sleep(self._delay)
+        except NoSuchElementException as e:
+            print("Did not find '{m}' from the drop down menu".format(m=menu_item_name))
+            raise e
 
-        menu_item = menu_items_elements[index]
-        print("Going to click on '{n}'".format(n=menu_item_name))
-        action_chains = ActionChains(self.driver)
-        action_chains.move_to_element(menu_item)
-        time.sleep(self._delay)
-        action_chains.click(menu_item).perform()
-        time.sleep(self._delay * 2)
+    def find_menu_item_by_constraint_and_click(self, constraint):
+        '''
+        find the menu item with the specified constraint from the tab
+        drop down, and click on it.
+        '''
+        menu_item_locator = "//li[@class='p-Menu-item'][{c}]".format(c=constraint)
+        try:
+            m = self.driver.find_element_by_xpath(menu_item_locator)
+            if m.is_displayed() and m.is_enabled():
+                m.click()
+                time.sleep(self._delay)
+        except NoSuchElementException as e:
+            print("Did not find menu item with '{c}' constraint".format(c=constraint))
+            raise e
 
     def click_on_file_tab(self):
         print("...click on 'File' tab...")
@@ -64,32 +71,23 @@ class MainPage(BasePage):
         select_kernel_popup_locator = "//span[contains(text(), 'Select Kernel')]"
         kernel_select_button_locator = "//button//div[contains(text(), 'SELECT')]"
 
-        print("...looking for the 'Select Kernel' pop up")
-        time.sleep(self._delay)
-        self.driver.find_element_by_xpath(select_kernel_popup_locator)
+        print("...click on 'SELECT' in the 'Select Kernel' pop up")
+        try:
+            self.driver.find_element_by_xpath(select_kernel_popup_locator)
+            time.sleep(self._delay)
 
-        print("...FOUND 'Select Kernel' pop up")
-        time.sleep(self._delay)
-
-        print("...click on SELECT button")
-        self.find_element_and_click(kernel_select_button_locator, "Kernel Select button")
-        time.sleep(self._delay)
+            self.find_element_and_click(kernel_select_button_locator, "Kernel Select button")
+            time.sleep(self._delay)
+        except NoSuchElementException as e:
+            print("did not find 'Select Kernel' pop up")
+            raise e
 
     def shutdown_kernel(self):
-        kernel_tab_locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), 'Kernel')]"
-        kernel_tab_element = self.driver.find_element_by_xpath(kernel_tab_locator)
-        shutdown_kernel_locator = "//li[@class='p-Menu-item'][@data-command='kernelmenu:shutdown']"
-        print("FOUND 'Kernel' tab")
-        if kernel_tab_element.is_displayed() and kernel_tab_element.is_enabled():
-            kernel_tab_element.click()
-            print("...check if need to shut down kernel...")
-            try:
-                shutdown_kernel_element = self.driver.find_element_by_xpath(shutdown_kernel_locator)
-                if shutdown_kernel_element.is_displayed() and shutdown_kernel_element.is_enabled():
-                    print("...shut down kernel...")
-                    shutdown_kernel_element.click()
-                    time.sleep(self._delay)
-                else:
-                    print("'Shutdown Kernel' is not clickable")
-            except NoSuchElementException:
-                print("No need to shutdown kernel")
+        print("...shutdown kernel if need to...")
+        kernel_tab_element = self.find_tab('Kernel')
+        kernel_tab_element.click()
+        try:
+            shutdown_kernel_locator_contraint = "@data-command='kernelmenu:shutdown'"
+            self.find_menu_item_by_constraint_and_click(shutdown_kernel_locator_contraint)
+        except NoSuchElementException:
+            print("No need to shutdown kernel")
