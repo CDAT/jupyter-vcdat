@@ -87,32 +87,6 @@ aliases:
        source deactivate
 
 jobs:
-  macos_jupyter_vcdat_py3:
-    macos:
-      xcode: "10.2.0"
-    environment:
-      WORKDIR: "workspace/test_macos_jupyter_vcdat_py3"
-      PY_VER: "py3"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *setup_jupyter_vcdat
-
-  linux_jupyter_vcdat_py3:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: "workspace/test_linux_jupyter_vcdat_py3"
-      PY_VER: "py3"
-      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-      #COVERAGE_PKGS: "coverage coveralls"
-    steps:
-      - checkout
-      - run: uname -a
-      - run: *setup_miniconda
-      - run: *setup_jupyter_vcdat
-      #- run: *conda_upload
-
   linux_docker_firefox_jupyter_vcdat_py3:
     docker:
       - image: circleci/node:jessie-browsers
@@ -121,7 +95,7 @@ jobs:
       WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-      COVERAGE_PKGS: "coverage coveralls"
+      COVERAGE_PKGS: "coveralls"
       BROWSER_TYPE: "firefox"
     steps:
       - checkout
@@ -147,7 +121,7 @@ jobs:
       WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
       PY_VER: "py3"
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-      COVERAGE_PKGS: "coverage coveralls"
+      #COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: "chrome"
     steps:
       - checkout
@@ -169,8 +143,6 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      #- macos_jupyter_vcdat_py3
-      #- linux_jupyter_vcdat_py3
       - linux_docker_chrome_jupyter_vcdat_py3
       #- linux_docker_firefox_jupyter_vcdat_py3
 
