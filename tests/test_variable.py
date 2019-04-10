@@ -58,4 +58,3 @@ if __name__ == '__main__':
     unittest.main(verbosity=2)
 
 # nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_1
-# nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_1
