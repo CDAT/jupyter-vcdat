@@ -1,21 +1,21 @@
 // Dependencies
 import * as React from "react";
 import {
-  Collapse,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  CardTitle,
-  CardSubtitle,
+  Button,
   Card,
   CardBody,
+  CardSubtitle,
+  CardTitle,
+  Collapse,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   Input,
-  Button,
-  ListGroup,
-  ListGroupItem,
   InputGroup,
-  InputGroupAddon
+  InputGroupAddon,
+  ListGroup,
+  ListGroupItem
 } from "reactstrap";
 
 // Project Components
@@ -32,12 +32,13 @@ const listItemStyle: React.CSSProperties = {
   textAlign: "left"
 };
 
-type GraphicsMenuProps = {
+interface GraphicsMenuProps {
+  plotReady: boolean;
   getGraphicsList: Function; // a method that gets the current list of graphics methods
   updateGraphicsOptions: Function; // a method to call when the user has selected their desired graphics method
   copyGraphicsMethod: Function; // a method that will create a copy of the currently selected graphics method.
-};
-type GraphicsMenuState = {
+}
+interface GraphicsMenuState {
   showMenu: boolean;
   showDropdown: boolean;
   selectedMethod: string;
@@ -47,13 +48,13 @@ type GraphicsMenuState = {
   nameValue: string;
   invalidName: boolean;
   plotReady: boolean;
-};
+}
 
 export default class GraphicsMenu extends React.Component<
   GraphicsMenuProps,
   GraphicsMenuState
 > {
-  nameInputRef: Input;
+  public nameInputRef: Input;
   constructor(props: GraphicsMenuProps) {
     super(props);
     this.state = {
@@ -65,24 +66,23 @@ export default class GraphicsMenu extends React.Component<
       enterName: false,
       nameValue: "",
       invalidName: false,
-      plotReady: false
+      plotReady: this.props.plotReady
     };
     this.handleNameInput = this.handleNameInput.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.graphicsOptions = this.graphicsOptions.bind(this);
     this.resetGraphicsState = this.resetGraphicsState.bind(this);
     this.selectItem = this.selectItem.bind(this);
-    this.nameInputRef = (React as any).createRef();
   }
 
-  handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
+  public handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
     // Regex filter for unallowed name characters
-    let forbidden: RegExp = /^[^A-z_]|[^A-z0-9]+/;
-    let invalid: boolean = forbidden.test(event.target.value);
+    const forbidden: RegExp = /^[^a-z_]|[^a-z0-9]+/i;
+    const invalid: boolean = forbidden.test(event.target.value);
     this.setState({ nameValue: event.target.value, invalidName: invalid });
   }
 
-  toggleDropdown(): void {
+  public toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
@@ -94,7 +94,7 @@ export default class GraphicsMenu extends React.Component<
   }
 
   // Resets the graphics menu to initial, (for when a new notebook is selected)
-  async resetGraphicsState(): Promise<void> {
+  public async resetGraphicsState(): Promise<void> {
     this.setState({
       showMenu: false,
       showDropdown: false,
@@ -107,7 +107,7 @@ export default class GraphicsMenu extends React.Component<
     });
   }
 
-  async selectItem(item: string): Promise<void> {
+  public async selectItem(item: string): Promise<void> {
     if (
       this.state.tempGroup != this.state.selectedGroup ||
       this.state.selectedMethod != item
@@ -124,9 +124,9 @@ export default class GraphicsMenu extends React.Component<
     }
   }
 
-  graphicsOptions(group: string): JSX.Element {
+  public graphicsOptions(group: string): JSX.Element {
     return (
-      <ListGroup flush>
+      <ListGroup flush={true}>
         {this.props.getGraphicsList()[group].map((item: string) => {
           return (
             <ListGroupItem
@@ -152,7 +152,7 @@ export default class GraphicsMenu extends React.Component<
     );
   }
 
-  render(): JSX.Element {
+  public render(): JSX.Element {
     // Set the dropdown title based on state
     let dropdownTitle = "Select Plot Type";
     if (this.state.tempGroup != "") {
@@ -168,7 +168,7 @@ export default class GraphicsMenu extends React.Component<
         this.state.selectedMethod
       })`;
     }
-    // Set the input color as v
+    // Set the input color
     let validInputColor = "success";
     if (this.state.invalidName) {
       validInputColor = "danger";
@@ -187,13 +187,13 @@ export default class GraphicsMenu extends React.Component<
               >
                 <DropdownToggle
                   disabled={!this.state.plotReady || this.state.enterName}
-                  caret
+                  caret={true}
                 >
                   {dropdownTitle}
                 </DropdownToggle>
                 <DropdownMenu style={dropdownMenuStyle}>
                   {Object.keys(this.props.getGraphicsList()).map(item => {
-                    let methods: any = this.props.getGraphicsList()[item];
+                    const methods: any = this.props.getGraphicsList()[item];
                     if (methods.length > 1) {
                       return (
                         <DropdownItem
@@ -209,27 +209,26 @@ export default class GraphicsMenu extends React.Component<
                           {item}
                         </DropdownItem>
                       );
-                    } else {
-                      return (
-                        <DropdownItem
-                          onClick={() => {
-                            this.setState(
-                              {
-                                tempGroup: item,
-                                showDropdown: false,
-                                showMenu: false
-                              },
-                              () => {
-                                this.selectItem(methods[0]);
-                              }
-                            );
-                          }}
-                          key={item}
-                        >
-                          {item} ({methods[0]})
-                        </DropdownItem>
-                      );
                     }
+                    return (
+                      <DropdownItem
+                        onClick={() => {
+                          this.setState(
+                            {
+                              tempGroup: item,
+                              showDropdown: false,
+                              showMenu: false
+                            },
+                            () => {
+                              this.selectItem(methods[0]);
+                            }
+                          );
+                        }}
+                        key={item}
+                      >
+                        {item} ({methods[0]})
+                      </DropdownItem>
+                    );
                   })}
                 </DropdownMenu>
               </Dropdown>
@@ -256,7 +255,7 @@ export default class GraphicsMenu extends React.Component<
                   this.state.enterName ||
                   this.state.selectedGroup == ""
                 }
-                outline
+                outline={true}
                 onClick={() => {
                   this.setState({ enterName: true });
                 }}
@@ -288,7 +287,6 @@ export default class GraphicsMenu extends React.Component<
                 className="float-left"
                 value={this.state.nameValue}
                 placeholder="Enter new name here."
-                ref={loader => (this.nameInputRef = loader)}
               />
               <InputGroupAddon addonType="append">
                 <Button

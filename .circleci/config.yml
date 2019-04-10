@@ -9,20 +9,16 @@ aliases:
     name: setup_miniconda
     command: |
       mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3.7'
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda3.sh
+      bash ./miniconda3.sh -b -p $WORKDIR/miniconda
 
   - &create_conda_env
     name: create_conda_env
-    environment:
-       CHANNELS: "-c cdat/label/v81 -c conda-forge"
-       PKGS: "nodejs 'python>3' vcs jupyterlab pip nb_conda nb_conda_kernels plumbum testsrunner"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -q conda
        conda config --set anaconda_upload no
-       conda create -q -n $PY_VER $CHANNELS $PKGS "python>3" $COVERAGE_PKGS
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -30,30 +26,9 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
-       source activate $PY_VER
-       # for running tests
-       pip install selenium
-       pip install pyvirtualdisplay
-       # LAZY_IMPORT
-       #   python -m pip install lazy_import
-       # SIDECAR
-       #python -m pip install sidecar
-       #jupyter labextension install @jupyter-widgets/jupyterlab-manager
-       #jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
-
-       # GITHUB EXTENSION
-       #jupyter labextension install @jupyterlab/github
-       # maybe?
-       #pip install jupyterlab_github
-       #jupyter serverextension enable --sys-prefix jupyterlab_github
-
-       python setup.py install
-       rm -rf node_modules
-       npm install
-       npm run build
-       jupyter lab build
-       jupyter labextension install . 
-
+       ./install_script.sh
+       source activate jupyter-vcdat
+       conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner cdat_info $COVERAGE_PKGS
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
@@ -61,8 +36,7 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
-       source activate $PY_VER
-       pwd
+       source activate jupyter-vcdat
        jupyter lab --ip='127.0.0.1'
     background: true
 
@@ -72,10 +46,11 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
-       source activate $PY_VER
+       source activate jupyter-vcdat
        pip install selenium
        pip install pyvirtualdisplay
-       python run_tests.py -H -v2 -n 2 $COVERAGE
+       pip install nose
+       python run_tests.py -H -v2 $COVERAGE
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
@@ -108,7 +83,7 @@ aliases:
     name: run_coveralls
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       source activate $PY_VER
+       source activate jupyter-vcdat
        coveralls
        source deactivate
 
@@ -122,7 +97,6 @@ jobs:
     steps:
       - checkout
       - run: *setup_miniconda
-      - run: *create_conda_env
       - run: *setup_jupyter_vcdat
 
   linux_jupyter_vcdat_py3:
@@ -137,7 +111,6 @@ jobs:
       - checkout
       - run: uname -a
       - run: *setup_miniconda
-      - run: *create_conda_env
       - run: *setup_jupyter_vcdat
       #- run: *conda_upload
 
@@ -157,7 +130,6 @@ jobs:
       - run: which firefox
       - run: which geckodriver
       - run: *setup_miniconda
-      - run: *create_conda_env
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
@@ -180,8 +152,8 @@ jobs:
       BROWSER_TYPE: "chrome"
     steps:
       - checkout
-        #      - run: *setup_miniconda
-        #- run: *create_conda_env
+      - run: *setup_miniconda
+      #- run: *create_conda_env
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests

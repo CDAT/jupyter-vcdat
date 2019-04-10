@@ -2,14 +2,14 @@
 import {
   ABCWidgetFactory,
   DocumentRegistry,
-  IDocumentWidget,
-  DocumentWidget
+  DocumentWidget,
+  IDocumentWidget
 } from "@jupyterlab/docregistry";
 
 import {
+  ApplicationShell,
   JupyterLab,
-  JupyterLabPlugin,
-  ApplicationShell
+  JupyterLabPlugin
 } from "@jupyterlab/application";
 
 import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
@@ -17,8 +17,9 @@ import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 // Project Components
 import "../style/css/index.css";
-import { NCViewerWidget, LeftSideBarWidget } from "./widgets";
+import { EXTENSIONS } from "./constants";
 import { NotebookUtilities } from "./NotebookUtilities";
+import { LeftSideBarWidget, NCViewerWidget } from "./widgets";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -35,7 +36,7 @@ const extension: JupyterLabPlugin<void> = {
   id: "jupyter-vcdat",
   autoStart: true,
   requires: [INotebookTracker, IMainMenu],
-  activate: activate
+  activate
 };
 
 export default extension;
@@ -58,9 +59,9 @@ function activate(
     readOnly: true
   });
 
-  let ft: DocumentRegistry.IFileType = {
+  const ft: DocumentRegistry.IFileType = {
     name: FILETYPE,
-    extensions: [".nc"],
+    extensions: EXTENSIONS,
     mimeTypes: ["application/netcdf"],
     contentType: "file",
     fileFormat: "base64"
@@ -98,13 +99,15 @@ function activate(
     );
     sidebar.initialize();
   });
+
+  
 }
 
 // Adds a reference link to the help menu in JupyterLab
 function addHelpReference(mainMenu: MainMenu, text: string, url: string): void {
   // Add item to help menu
   mainMenu.helpMenu.menu.addItem({
-    args: { text: text, url: url },
+    args: { text, url },
     command: "help:open"
   });
 }
@@ -129,7 +132,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
     shell.activateById(sidebar.id);
 
     // Prepare the notebook for code injection
-    sidebar.prepareNotebookPanel(context.session.name).catch(error => {
+    sidebar.prepareNotebookPanel(context.session.path).catch(error => {
       if (error.status == "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
       } else if (error.message != null) {

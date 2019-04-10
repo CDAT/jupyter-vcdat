@@ -34,7 +34,7 @@
     "tslint-check": "npx tslint-config-prettier-check ./tslint.json",
     "lint": "npx tslint 'src/**/*.{ts,tsx}'",
     "format": "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
-    "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E704,W504 --max-line-length=120 *.py"
+    "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
@@ -43,7 +43,7 @@
       "git add"
     ],
     "*.py": [
-      "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E704,W504 --max-line-length=120 *.py"
+      "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
     ]
   },
   "husky": {
@@ -79,7 +79,6 @@
     "jquery": "^3.3.1",
     "lodash": "^4.17.11",
     "node": "^10.14.1",
-    "nodejs": "0.0.0",
     "query-string": "^6.1.0",
     "rc-slider": "^8.6.3",
     "react-bootstrap": "^1.0.0-beta.1",
