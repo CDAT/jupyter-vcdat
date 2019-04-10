@@ -9,7 +9,7 @@ class VcdatLeftSideBar(BasePage):
 
     _jp_vcdat_icon_locator = "//div[@class='p-TabBar-tabIcon jp-vcdat-icon jp-SideBar-tabIcon']"
     _variable_options_locator = "//div[@id='vcdat-left-side-bar']//h5[contains(text(), 'Variable Options')]"
-    _load_variables_locator = "//button[@class='btn btn-info'][contains(text(), 'Load Variables')]"
+    _load_variables_locator = "//button[@class='btn btn-info'][contains(text(), 'Load Variable(s)')]"
 
     def __init__(self, driver, server=None):
         super(VcdatLeftSideBar, self).__init__(driver, server)
@@ -27,12 +27,12 @@ class VcdatLeftSideBar(BasePage):
             try:
                 load_variables_element = self.driver.find_element_by_xpath(self._load_variables_locator)
                 if load_variables_element.is_displayed():
-                    print("...FOUND 'Load Variables' button XXX")
+                    print("...FOUND 'Load Variable(s)' button XXX")
                     found_load_variables_element = True
                 else:
-                    print("...'Load Variables' button is not displayed")
+                    print("...'Load Variable(s)' button is not displayed")
             except NoSuchElementException:
-                print("...not seeing Load Variables button..")
+                print("...not seeing Load Variable(s) button..")
 
     def click_on_load_variables(self):
         print("...click_on_load_variables...")
