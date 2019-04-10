@@ -3,7 +3,6 @@ import time
 from BasePage import BasePage
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
 
 
 class MainPage(BasePage):
@@ -13,11 +12,10 @@ class MainPage(BasePage):
 
     def _validate_page(self):
         # validate Main page is displaying a 'Home' tab
-        print("...MainPage.validatePage()")
         logo_locator = 'jp-MainLogo'
         self.driver.find_element_by_id(logo_locator)
 
-    def _find_tab(self, tab_name):
+    def find_tab(self, tab_name):
         '''
         find the tab element ('File', 'Edit', 'View', 'Run'...) and
         return the element
@@ -30,7 +28,7 @@ class MainPage(BasePage):
             if tab_label_element.text == tab_name:
                 return tab_label_element
 
-    def _find_menu_item_from_tab_drop_down_and_click(self, menu_item_name):
+    def find_menu_item_from_tab_drop_down_and_click(self, menu_item_name):
         '''
         find the specified menu item from the tab drop down, and
         click on it.
@@ -55,36 +53,8 @@ class MainPage(BasePage):
 
     def click_on_file_tab(self):
         print("...click on 'File' tab...")
-        file_tab_element = self._find_tab('File')
+        file_tab_element = self.find_tab('File')
         file_tab_element.click()
-        time.sleep(self._delay)
-
-    def new_notebook(self):
-        '''
-        Create a new notebook
-        '''
-        print("...new_notebook() - create a new notebook")
-        self.click_on_file_tab()
-        self._find_menu_item_from_tab_drop_down_and_click('New')
-
-        notebook_locator = "//li[@class='p-Menu-item'][@data-command='notebook:create-new']"
-        notebook_element = None
-        try:
-            notebook_element = self.driver.find_element_by_xpath(notebook_locator)
-            print("....found 'Notebook' in the popup...")
-        except NoSuchElementException:
-            print("NOT Finding 'Notebook' element")
-
-        print("Going to click on 'Notebook'...to create a notebook")
-        action_chains1 = ActionChains(self.driver)
-        action_chains1.move_to_element(notebook_element)
-        action_chains1.click(notebook_element).perform()
-        time.sleep(self._delay)
-
-    def click_on_load_variables(self):
-        load_variables_locator = "//button[@class='btn btn-info'][contains(text(), 'Load Variable(s)')]"
-        load_variables_element = self.driver.find_element_by_xpath(load_variables_locator)
-        load_variables_element.click()
         time.sleep(self._delay)
 
     def select_kernel(self):
@@ -123,34 +93,3 @@ class MainPage(BasePage):
                     print("'Shutdown Kernel' is not clickable")
             except NoSuchElementException:
                 print("No need to shutdown kernel")
-
-    def rename_notebook(self, new_nb_name):
-        # look for the 'Rename Notebook...' under File tab menu
-        self.click_on_file_tab()
-        self._find_menu_item_from_tab_drop_down_and_click('Rename')
-
-        # enter the new notebook name
-        rename_notebook_input_locator = "//input[@class='jp-mod-styled']"
-        input_area = self.driver.find_element_by_xpath(rename_notebook_input_locator)
-
-        # click on the input area
-        input_area.clear()
-        ActionChains(self.driver).click(input_area).perform()
-        a = ActionChains(self.driver)
-        a.send_keys(new_nb_name).key_down(Keys.ENTER)
-        a.perform()
-        time.sleep(self._delay * 2)
-
-    def close_current_notebook(self):
-        self.click_on_file_tab()
-        self._find_menu_item_from_tab_drop_down_and_click('Close Notebook')
-
-        # check if we are getting "Close without saving?" pop up
-        close_without_saving_ok_locator = "//div[contains(text(), 'OK')]"
-        try:
-            ok_element = self.driver.find_element_by_xpath(close_without_saving_ok_locator)
-            print("FOUND 'Close without saving?' pop up, click 'OK'")
-            ok_element.click()
-            time.sleep(self._delay)
-        except NoSuchElementException:
-            print("No 'Close without saving?' pop up")

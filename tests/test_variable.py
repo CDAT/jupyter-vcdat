@@ -1,13 +1,15 @@
+import os
+import sys
+
+this_dir = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(this_dir, 'TestUtils'))
+sys.path.append(os.path.join(this_dir, 'PageObjects'))
+
 from BaseTestCase import BaseTestCase
 from LoadVariablePopUp import LoadVariablePopUp
 from Canvas import Canvas
 
 import unittest
-# import os
-# import sys
-# this_dir = os.path.abspath(os.path.dirname(__file__))
-# lib_dir = os.path.join(this_dir, 'lib')
-# sys.path.append(lib_dir)
 
 
 class TestLoadVariable(BaseTestCase):
@@ -55,5 +57,4 @@ class TestLoadVariable(BaseTestCase):
 if __name__ == '__main__':
     unittest.main(verbosity=2)
 
-# nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_1
 # nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_1

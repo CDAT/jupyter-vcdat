@@ -1,15 +1,15 @@
+import os
+import sys
+
+this_dir = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(this_dir, 'TestUtils'))
+sys.path.append(os.path.join(this_dir, 'PageObjects'))
+
 from BaseTestCase import BaseTestCase
 from LoadVariablePopUp import LoadVariablePopUp
 from Canvas import Canvas
 
 import unittest
-# import os
-# import sys
-# import time
-
-# this_dir = os.path.abspath(os.path.dirname(__file__))
-# lib_dir = os.path.join(this_dir, 'lib')
-# sys.path.append(lib_dir)
 
 
 class TestAdjustAxes(BaseTestCase):
@@ -28,7 +28,6 @@ class TestAdjustAxes(BaseTestCase):
 
         # adjust the min slider by 20 percent and max slider by 20 percent.
         load_variable_pop_up.adjust_var_axes_slider('u', 'latitude1', 20, -20)
-
         load_variable_pop_up.load()
         left_side_bar.click_on_plot()
         canvas = Canvas(self.driver)
@@ -64,4 +63,4 @@ class TestAdjustAxes(BaseTestCase):
 if __name__ == '__main__':
     unittest.main(verbosity=2)
 
-# nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_4
+# nosetests -s tests/test_adjust_axes.py:TestAdjustAxes.test_adjust_axes_2

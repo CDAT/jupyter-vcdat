@@ -30,7 +30,6 @@ class FileBrowser(BasePage):
         actionChains.move_to_element(file_element)
         print("...going to double click on the file name")
         actionChains.double_click(file_element)
-        print("...going to perform...")
         actionChains.perform()
 
         print("...click on the File Load Error for clt.nc OK button")
