@@ -87,32 +87,6 @@ aliases:
        source deactivate
 
 jobs:
-  linux_docker_firefox_jupyter_vcdat_py3:
-    docker:
-      - image: circleci/node:jessie-browsers
-      - image: circleci/python:3.6.2-stretch-browsers
-    environment:
-      WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
-      PY_VER: "py3"
-      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-      COVERAGE_PKGS: "coveralls"
-      BROWSER_TYPE: "firefox"
-    steps:
-      - checkout
-      - run: uname -a
-      - run: which firefox
-      - run: which geckodriver
-      - run: *setup_miniconda
-      - run: *setup_jupyter_vcdat
-      - run: *run_jupyter_vcdat
-      - run: *run_jupyter_vcdat_tests
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
-      - store_artifacts:
-          path: tests_png
-          destination: tests_png
-
   linux_docker_chrome_jupyter_vcdat_py3:
     docker:
       - image: circleci/node:jessie-browsers
@@ -130,7 +104,7 @@ jobs:
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests
-      - run: *run_coveralls
+      #- run: *run_coveralls
       - run: *conda_upload
       - store_artifacts:
           path: tests_html
@@ -144,7 +118,6 @@ workflows:
   jupyter_vcdat:
     jobs:
       - linux_docker_chrome_jupyter_vcdat_py3
-      #- linux_docker_firefox_jupyter_vcdat_py3
 
 
 
