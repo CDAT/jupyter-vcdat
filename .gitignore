@@ -5,6 +5,7 @@ node_modules/
 .ipynb_checkpoints
 frontend/
 .DS_Store
+.vscode/
 
 build
 dist

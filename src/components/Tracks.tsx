@@ -1,9 +1,12 @@
+// Dependencies
 import * as React from "react";
 import {
-  SliderItem,
   GetHandleProps,
-  GetTrackProps
+  GetTrackProps,
+  SliderItem
 } from "react-compound-slider";
+
+// SEE: https://codesandbox.io/s/zl8nrlp9x
 
 // *******************************************************
 // HANDLE COMPONENT
@@ -73,33 +76,37 @@ export const Track: React.SFC<ITrackProps> = ({
 // *******************************************************
 // TICK COMPONENT
 // *******************************************************
+interface ITickProps {
+  key: string;
+  tick: SliderItem;
+  value: any;
+  count: number;
+}
 
-export const Tick: React.SFC<any> = ({ tick, count, format }) => {
-  return (
-    <div>
-      <div
-        style={{
-          position: "absolute",
-          marginTop: 14,
-          width: 1,
-          height: 5,
-          backgroundColor: "rgb(200,200,200)",
-          left: `${tick.percent}%`
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          marginTop: 22,
-          fontSize: 10,
-          textAlign: "center",
-          marginLeft: `${-(100 / count) / 2}%`,
-          width: `${100 / count}%`,
-          left: `${tick.percent}%`
-        }}
-      >
-        {tick.value}
-      </div>
+export const Tick: React.SFC<ITickProps> = ({ tick, count, value }) => (
+  <div>
+    <div
+      style={{
+        position: "absolute",
+        marginTop: 14,
+        width: 1,
+        height: 5,
+        backgroundColor: "rgb(200,200,200)",
+        left: `${tick.percent}%`
+      }}
+    />
+    <div
+      style={{
+        position: "absolute",
+        marginTop: 22,
+        fontSize: 10,
+        textAlign: "center",
+        marginLeft: `${-(100 / count) / 2}%`,
+        width: `${100 / count}%`,
+        left: `${tick.percent}%`
+      }}
+    >
+      {value}
     </div>
-  );
-};
+  </div>
+);

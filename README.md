@@ -1,40 +1,41 @@
 # jupyter-react-ext
 
-Learning to make extensions for JupyterLab and incorporating React.
-
+A Jupyter Lab extension that integrates vCDAT features directly in a notebook.
 
 ## Prerequisites
 
-* JupyterLab
+- JupyterLab
+- Installation of conda via Anaconda or Miniconda conda >=4.6.11 (the script
+  will try to update your base installation anyway)
 
 ## Installation
 
-For a development install:
+If you didn't let Anaconda or Miniconda prepend the Anaconda<2 or 3> install location to PATH, make sure conda is in your PATH (for more information see the Anaconda Documentation). Assuming Ananconda is installed in ${HOME}/anaconda:
+* export PATH=${HOME}/anaconda/bin:${PATH} # for [ba]sh
+* setenv PATH ${HOME}/anaconda/bin:${PATH} # for [t]csh
+
+Next, clone the jupyter-vcdat github repo:
+
+```
+git clone https://github.com/CDAT/jupyter-vcdat.git
+```
+
+Change into the directory containing the repo and type in the following commands:
 
 ```bash
 
     #Create the environment
-    conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels
-    source activate jupyter-vcdat
+    ./install_script.sh
 
-    # Install sidecar
-    python -m pip install --no-deps --ignore-installed sidecar
-    jupyter labextension install @jupyter-widgets/jupyterlab-manager
-    jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
+    # The following two lines of code install tslint if developers want to use it (optional):
+      # For VSCode:
+       code --install-extension tslint
 
-    # GITHUB EXTENSION
-    jupyter labextension install @jupyterlab/github
-    # maybe?
-    pip install jupyterlab_github
-    jupyter serverextension enable --sys-prefix jupyterlab_github
+      # For Atom:
+      apm install linter-tslint
 
-    # Install the extension
-    cd ..
-    git clone https://github.com/CDAT/jupyter-vcdat.git
-    cd jupyter-vcdat
-    python setup.py install
-
-    # To run, got to jupyter-vcdat repo
+    # For all users, activate the jupyter-vcdat environment and launch the JupyterLab interface
+    conda activate jupyter-vcdat
     jupyter lab
 
 ```
@@ -46,9 +47,16 @@ npm run build
 jupyter lab build
 ```
 
-## Possible issues:
+## Sample data
 
-If you get an FFMPEG import error, run the following command:
-```bash
-    conda install -c conda-forge "ffmpeg>4"
+To download sample data, enter the code below within a Jupyter notebook cell and run the cell:
+
+```
+import vcs
+import cdms2
+import cdat_info
+import pkg_resources
+vcs_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("vcs"), "share/vcs")
+path = vcs_egg_path+'/sample_files.txt'
+cdat_info.download_sample_data_files(path,"sample_data")
 ```
