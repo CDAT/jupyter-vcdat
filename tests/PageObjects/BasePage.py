@@ -29,8 +29,8 @@ class BasePage(object):
             elem = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
             print("FOUND {d}, clicking it".format(d=descr))
             elem.click()
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding {d}".format(d=descr))
+        except TimeoutException as e:
+            print("TimeoutException...not finding {d} to be clickable".format(d=descr))
             raise e
 
     def find_element(self, xpath, descr):
@@ -68,6 +68,48 @@ class BasePage(object):
             WebDriverWait(self.driver, timeout).until(element)
         except TimeoutException:
             assert(False), "page not found or timeout  for {0}".format(url)
+        time.sleep(self._delay)
+
+    def find_tab_OBSOLETE(self, tab_name):
+        '''
+        find the tab element ('File', 'Edit', 'View', 'Run'...) and
+        return the element
+        '''
+        tabs_locator = "//ul[@class='p-MenuBar-content']/li"
+        tabs_elements = self.driver.find_elements_by_xpath(tabs_locator)
+        tab_label_locator = ".//div[@class='p-MenuBar-itemLabel']"
+        for tab_element in tabs_elements:
+            tab_label_element = tab_element.find_element_by_xpath(tab_label_locator)
+            if tab_label_element.text == tab_name:
+                return tab_label_element
+
+    def find_menu_item_from_tab_drop_down_and_click_OBSOLETE(self, menu_item_name):
+        '''
+        find the specified menu item from the tab drop down, and
+        click on it.
+        '''
+        menu_items_locator = "//ul[@class='p-Menu-content']/li"
+        menu_items_elements = self.driver.find_elements_by_xpath(menu_items_locator)
+        item_label_locator = "./div[@class='p-Menu-itemLabel']"
+        index = 0
+        for m in menu_items_elements:
+            item_label_element = m.find_element_by_xpath(item_label_locator)
+            if menu_item_name in item_label_element.text:
+                break
+            index += 1
+
+        menu_item = menu_items_elements[index]
+        print("Going to click on '{n}'".format(n=menu_item_name))
+        action_chains = ActionChains(self.driver)
+        action_chains.move_to_element(menu_item)
+        time.sleep(self._delay)
+        action_chains.click(menu_item).perform()
+        time.sleep(self._delay * 2)
+
+    def click_on_file_tab_OBSOLETE(self):
+        print("...click on 'File' tab...")
+        file_tab_element = self._find_tab('File')
+        file_tab_element.click()
         time.sleep(self._delay)
 
 

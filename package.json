@@ -34,7 +34,7 @@
     "tslint-check": "npx tslint-config-prettier-check ./tslint.json",
     "lint": "npx tslint 'src/**/*.{ts,tsx}'",
     "format": "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
-    "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E704,W504 --max-line-length=120 *.py"
+    "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
@@ -43,7 +43,7 @@
       "git add"
     ],
     "*.py": [
-      "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E704,W504 --max-line-length=120 *.py"
+      "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
     ]
   },
   "husky": {
