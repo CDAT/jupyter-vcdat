@@ -33,10 +33,10 @@ class VcdatLeftSideBar(BasePage):
             try:
                 load_variables_element = self.driver.find_element_by_xpath(self._load_variables_locator)
                 if load_variables_element.is_displayed():
-                    print("...FOUND 'Load Variables' button XXX")
+                    print("...FOUND 'Load Variable(s)' button XXX")
                     found_load_variables_element = True
                 else:
-                    print("...'Load Variables' button is not displayed")
+                    print("...'Load Variable(s)' button is not displayed")
             except NoSuchElementException as e:
                 print("...NOT seeing Load Variable(s) button..")
                 if n >= 2:
