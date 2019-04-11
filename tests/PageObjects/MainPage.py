@@ -59,7 +59,6 @@ class MainPage(BasePage):
             raise e
 
     def click_on_file_tab(self):
-        print("...click on 'File' tab....")
         file_tab_element = self.find_tab('File')
         file_tab_element.click()
         time.sleep(self._delay)
