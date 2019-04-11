@@ -63,12 +63,11 @@ class LoadVariablePopUp(BasePage):
                     var_axes_locator = ".//div[@class='collapse show']/div"
                     var_axes_elements = r.find_elements_by_xpath(var_axes_locator)
                     # number of var_axes_elements should be the number of sliders
-                    # print("DEBUG....number of var_axes_elements: {n}".format(n=len(var_axes_elements)))
                     # find the axis to be modified.
                     axis_locator = ".//div[@class='row']/div[@class='col-auto']"
                     for an_axis in var_axes_elements:
                         axis_title_elements = an_axis.find_elements_by_xpath(axis_locator)
-                        print("...an axis...{t}".format(t=axis_title_elements[0].text))
+                        # print("...an axis...{t}".format(t=axis_title_elements[0].text))
                         if axis_title_elements[0].text == axis:
                             print("FOUND the axis to be adjusted...{i}".format(i=div_index_for_axis))
                             break
