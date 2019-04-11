@@ -67,42 +67,46 @@ function activate(
     fileFormat: "base64"
   };
 
-  
-
   app.docRegistry.addFileType(ft);
   app.docRegistry.addWidgetFactory(factory);
 
   // Creates the left side bar widget once the app has fully started
-  app.started.then(() => {
-    sidebar = new LeftSideBarWidget(app, tracker);
-    sidebar.id = "vcdat-left-side-bar";
-    sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";
-    sidebar.title.closable = true;
+  app.started
+    .then(() => {
+      sidebar = new LeftSideBarWidget(app, tracker);
+      sidebar.id = "vcdat-left-side-bar";
+      sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";
+      sidebar.title.closable = true;
 
-    // Attach it to the left side of main area
-    shell.addToLeftArea(sidebar);
+      // Attach it to the left side of main area
+      shell.addToLeftArea(sidebar);
 
-    // Activate the widget
-    shell.activateById(sidebar.id);
-  });
+      // Activate the widget
+      shell.activateById(sidebar.id);
+    })
+    .catch(error => {
+      console.log(error);
+    });
 
   // Initializes the sidebar widget once the application shell has been restored
   // and all the widgets have been added to the notebooktracker
-  app.shell.restored.then(() => {
-    addHelpReference(
-      mainMenu,
-      "VCS Reference",
-      "https://cdat-vcs.readthedocs.io/en/latest/"
-    );
-    addHelpReference(
-      mainMenu,
-      "CDMS Reference",
-      "https://cdms.readthedocs.io/en/latest/"
-    );
-    sidebar.initialize();
-  });
-
-  
+  app.shell.restored
+    .then(() => {
+      addHelpReference(
+        mainMenu,
+        "VCS Reference",
+        "https://cdat-vcs.readthedocs.io/en/latest/"
+      );
+      addHelpReference(
+        mainMenu,
+        "CDMS Reference",
+        "https://cdms.readthedocs.io/en/latest/"
+      );
+      sidebar.initialize();
+    })
+    .catch(error => {
+      console.log(error);
+    });
 }
 
 // Adds a reference link to the help menu in JupyterLab
@@ -137,7 +141,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
     sidebar.prepareNotebookPanel(context.session.path).catch(error => {
       if (error.status == "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
-      } else if (error.message != null) {
+      } else if (error.message) {
         NotebookUtilities.showMessage("Error", error.message);
       } else {
         NotebookUtilities.showMessage(

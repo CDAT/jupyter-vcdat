@@ -7,7 +7,6 @@ import { OUTPUT_RESULT_NAME } from "./constants";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
 namespace NotebookUtilities {
-
   /**
    * Opens a pop-up dialog in JupyterLab to display a simple message.
    * @param title The title for the message popup
@@ -23,7 +22,7 @@ namespace NotebookUtilities {
     const buttons: ReadonlyArray<Dialog.IButton> = [
       Dialog.okButton({ label: buttonLabel })
     ];
-    return showDialog({ title, body: msg, buttons }).then(() => {});
+    await showDialog({ title, body: msg, buttons });
   }
 
   /**
@@ -227,7 +226,8 @@ namespace NotebookUtilities {
     if (notebookPanel == null) {
       throw new Error("The notebook is null or undefined.");
     }
-    // Wait for kernel to be ready before sending request
+    try {
+      // Wait for kernel to be ready before sending request
     await notebookPanel.activated;
     await notebookPanel.session.ready;
     await notebookPanel.session.kernel.ready;
@@ -249,6 +249,10 @@ namespace NotebookUtilities {
     }
     // Return user_expressions of the content
     return content.user_expressions;
+    } catch (error) {
+      
+    }
+    
   }
 }
 

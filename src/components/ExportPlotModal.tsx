@@ -13,22 +13,23 @@ import {
   ModalFooter,
   ModalHeader
 } from "reactstrap";
-import { CodeInjector } from "../CodeInjector";
+
+// Project Components
+import { CodeInjector, ExportFormats, ImageUnits } from "../CodeInjector";
 
 export interface ExportPlotModalProps {
   isOpen: boolean;
-  inject: Function; // a method to inject code into the controllers notebook
-  getCanvasDimensions: Function; // a method that gets the current plot dimensions
   toggle: Function;
   exportAlerts: Function;
   setPlotInfo: Function;
-  cmdManager: CodeInjector;
+  codeInjector: CodeInjector;
+  getCanvasDimensions: Function; // a method that gets the current plot dimensions
 }
 
 interface ExportPlotModalState {
   modal: boolean;
   plotName: string;
-  plotFileFormat: string;
+  plotFileFormat: ExportFormats;
   validateExportName: boolean;
   validateFileFormat: boolean;
   displayDimensions: boolean;
@@ -36,7 +37,7 @@ interface ExportPlotModalState {
   captureProvenance: boolean;
   width: string;
   height: string;
-  plotUnits: string;
+  plotUnits: ImageUnits;
 }
 
 export class ExportPlotModal extends React.Component<
@@ -100,7 +101,7 @@ export class ExportPlotModal extends React.Component<
     this.setState({ plotName: "" });
   }
 
-  public onRadioBtnClick(rSelected: string) {
+  public onRadioBtnClick(rSelected: ExportFormats) {
     this.setState({ plotFileFormat: rSelected });
     if (rSelected === "png") {
       this.setState({ disableProvenance: false });
@@ -109,7 +110,7 @@ export class ExportPlotModal extends React.Component<
     }
   }
 
-  public onUnitRadioBtnClick(rSelected: string) {
+  public onUnitRadioBtnClick(rSelected: ImageUnits) {
     this.setState({ plotUnits: rSelected });
   }
 
@@ -128,7 +129,7 @@ export class ExportPlotModal extends React.Component<
     }
     this.setState({ validateFileFormat: false });
 
-    this.props.cmdManager.exportPlot(
+    this.props.codeInjector.exportPlot(
       fileFormat,
       plotName,
       this.state.width,

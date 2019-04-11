@@ -387,18 +387,18 @@ namespace CellUtilities {
     code: string,
     insertAtEnd = true
   ): Promise<string> {
-    let index: number = -1;
+    let idx: number = -1;
     if (insertAtEnd) {
-      index = notebookPanel.content.model.cells.length;
+      idx = notebookPanel.content.model.cells.length;
     }
-    const result: [number, string] = await insertAndRun(
+    const [index, result]: [number, string] = await insertAndRun(
       notebookPanel,
-      index,
+      idx,
       code,
       true
     );
-    deleteCellAtIndex(notebookPanel, result[0]);
-    return result[1];
+    deleteCellAtIndex(notebookPanel, index);
+    return result;
   }
 }
 

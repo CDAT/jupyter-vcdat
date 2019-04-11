@@ -94,11 +94,9 @@ export class LeftSideBarWidget extends Widget {
     this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
     this.getFileVariables = this.getFileVariables.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
-    this.inject = this.inject.bind(this);
     this.getDataReaderName = this.getDataReaderName.bind(this);
     this.checkVCS = this.checkVCS.bind(this);
     this.checkPlotExists = this.checkPlotExists.bind(this);
-    this.injectAndDisplay = this.injectAndDisplay.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.injectImportsCode = this.injectImportsCode.bind(this);
     this.injectCanvasCode = this.injectCanvasCode.bind(this);
@@ -112,14 +110,16 @@ export class LeftSideBarWidget extends Widget {
           ref={loader => (this.VCSMenuRef = loader)}
           commands={this.commands}
           codeInjector={this.codeInjector}
-          inject={this.inject}
           plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
           plotExists={this.plotExists}
           plotExistTrue={() => {
             this.plotExists = true;
           }}
           syncNotebook={() => {
-            return this.state == NOTEBOOK_STATE.ActiveNotebook;
+            return (
+              this.state != NOTEBOOK_STATE.VCS_Ready &&
+              this.state != NOTEBOOK_STATE.NoOpenNotebook
+            );
           }}
           getFileVariables={this.getFileVariables}
           getDataVarList={() => {
@@ -354,7 +354,7 @@ export class LeftSideBarWidget extends Widget {
     } catch (error) {
       if (error.status == "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
-      } else if (error.message != null) {
+      } else if (error.message) {
         NotebookUtilities.showMessage("Error", error.message);
       } else {
         NotebookUtilities.showMessage(
@@ -411,72 +411,13 @@ export class LeftSideBarWidget extends Widget {
       this.state == NOTEBOOK_STATE.VCS_Ready &&
       stateChange.newValue != "edit"
     ) {
-      this.refreshVarList();
-      this.refreshGraphicsList();
-      await this.refreshTemplatesList();
-      this.plotExists = await this.checkPlotExists();
-    }
-  }
-
-  // =======WIDGET COMPONENT METHODS (FOR PROPS)=======
-
-  /**
-   * Injects code into the bottom cell of the notebook, doesn't display results (output or error)
-   * @param code A string that has the code to inject into the notebook cell.
-   * @returns Promise<[number, string]> - A promise for when the cell code has executed containing
-   * the cell's index and output result
-   */
-  public async inject(code: string): Promise<[number, string]> {
-    try {
-      const result = await CellUtilities.insertRunShow(
-        this.notebookPanel,
-        this.commands,
-        this.notebookPanel.content.model.cells.length - 1,
-        code,
-        true
-      );
-      this.notebookPanel.content.activeCellIndex = result[0] + 1;
-      return result;
-    } catch (error) {
-      if (error.status == "error") {
-        NotebookUtilities.showMessage(error.ename, error.evalue);
-      } else if (error.message != null) {
-        NotebookUtilities.showMessage("Error", error.message);
-      } else {
-        NotebookUtilities.showMessage(
-          "Error",
-          "An error occurred when injecting the code."
-        );
-      }
-      console.log(error);
-    }
-  }
-
-  /**
-   * Injects code into the bottom cell of the notebook, and WILL display results (output or error)
-   * @param code A string that has the code to inject into the notebook cell.
-   * @returns any - Results from running the code.
-   */
-  public async injectAndDisplay(code: string): Promise<any> {
-    try {
-      const result: any = await CellUtilities.insertRunShow(
-        this.notebookPanel,
-        this.commands,
-        this.notebookPanel.content.model.cells.length,
-        code,
-        false
-      );
-      return result;
-    } catch (error) {
-      if (error.status == "error") {
-        NotebookUtilities.showMessage(error.ename, error.evalue);
-      } else if (error.message != null) {
-        NotebookUtilities.showMessage("Error", error.message);
-      } else {
-        NotebookUtilities.showMessage(
-          "Error",
-          "An error occurred when injecting the code."
-        );
+      try {
+        this.refreshVarList();
+        this.refreshGraphicsList();
+        await this.refreshTemplatesList();
+        this.plotExists = await this.checkPlotExists();
+      } catch (error) {
+        console.log(error);
       }
     }
   }
@@ -507,66 +448,71 @@ export class LeftSideBarWidget extends Widget {
    * @param currentFile The file path to set for the variable loading. If left blank, an error will occur.
    */
   public async recognizeNotebookPanel(): Promise<void> {
-    // Check the active widget is a notebook panel
-    if (this.application.shell.currentWidget instanceof NotebookPanel) {
-      await this.setNotebookPanel(this.application.shell.currentWidget);
-    } else {
-      // There is no active notebook widget
-      await this.setNotebookPanel(null);
+    try {
+      // Check the active widget is a notebook panel
+      if (this.application.shell.currentWidget instanceof NotebookPanel) {
+        await this.setNotebookPanel(this.application.shell.currentWidget);
+      } else {
+        // There is no active notebook widget
+        await this.setNotebookPanel(null);
+      }
+
+      // Get notebook state
+      await this.updateNotebookState();
+
+      if (
+        this.state == NOTEBOOK_STATE.Unknown ||
+        this.state == NOTEBOOK_STATE.NoOpenNotebook ||
+        this.state == NOTEBOOK_STATE.InactiveNotebook
+      ) {
+        return;
+      }
+
+      // Check the active widget is a notebook panel
+      if (this.application.shell.currentWidget instanceof NotebookPanel) {
+        await this.setNotebookPanel(this.application.shell.currentWidget);
+      } else {
+        return;
+      }
+
+      // Inject the imports
+      let currentIdx: number =
+        this.notebookPanel.content.model.cells.length - 1;
+      await this.injectImportsCode(currentIdx, true);
+
+      // Inject canvas if needed
+      const canvasExists: boolean = await this.checkCanvasExists();
+      if (!canvasExists) {
+        currentIdx = this.notebookPanel.content.model.cells.length - 1;
+        await this.injectCanvasCode(currentIdx, 1);
+      }
+
+      // Update the selected graphics method, variable list, templates and loaded variables
+      await this.refreshGraphicsList();
+      await this.refreshTemplatesList();
+      await this.refreshVarList();
+
+      // Select last cell in notebook
+      this.notebookPanel.content.activeCellIndex =
+        this.notebookPanel.content.model.cells.length - 1;
+
+      // Update kernel list to identify this kernel is ready
+      this._readyKernels.push(this.notebookPanel.session.kernel.id);
+
+      // Save the notebook to preserve the cell metadata, update state
+      this.state = NOTEBOOK_STATE.VCS_Ready;
+
+      // Save the notebook
+      this.notebookPanel.context.save();
+
+      // Activate current notebook
+      this.application.shell.activateById(this.notebookPanel.id);
+
+      // Connect the handler specific to current notebook
+      this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
+    } catch (error) {
+      console.log(error);
     }
-
-    // Get notebook state
-    await this.updateNotebookState();
-
-    if (
-      this.state == NOTEBOOK_STATE.Unknown ||
-      this.state == NOTEBOOK_STATE.NoOpenNotebook ||
-      this.state == NOTEBOOK_STATE.InactiveNotebook
-    ) {
-      return;
-    }
-
-    // Check the active widget is a notebook panel
-    if (this.application.shell.currentWidget instanceof NotebookPanel) {
-      await this.setNotebookPanel(this.application.shell.currentWidget);
-    } else {
-      return;
-    }
-
-    // Inject the imports
-    let currentIdx: number = this.notebookPanel.content.model.cells.length - 1;
-    await this.injectImportsCode(currentIdx, true);
-
-    // Inject canvas if needed
-    const canvasExists: boolean = await this.checkCanvasExists();
-    if (!canvasExists) {
-      currentIdx = this.notebookPanel.content.model.cells.length - 1;
-      await this.injectCanvasCode(currentIdx, 1);
-    }
-
-    // Update the selected graphics method, variable list, templates and loaded variables
-    await this.refreshGraphicsList();
-    await this.refreshTemplatesList();
-    await this.refreshVarList();
-
-    // Select last cell in notebook
-    this.notebookPanel.content.activeCellIndex =
-      this.notebookPanel.content.model.cells.length - 1;
-
-    // Update kernel list to identify this kernel is ready
-    this._readyKernels.push(this.notebookPanel.session.kernel.id);
-
-    // Save the notebook to preserve the cell metadata, update state
-    this.state = NOTEBOOK_STATE.VCS_Ready;
-
-    // Save the notebook
-    this.notebookPanel.context.save();
-
-    // Activate current notebook
-    this.application.shell.activateById(this.notebookPanel.id);
-
-    // Connect the handler specific to current notebook
-    this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
   }
 
   public async checkVCS(): Promise<boolean> {
@@ -965,41 +911,41 @@ export class LeftSideBarWidget extends Widget {
     }
 
     // Find the index where the imports code is injected
-    let idx: number = CellUtilities.findCellWithMetaKey(
+    let cellIdx: number = CellUtilities.findCellWithMetaKey(
       this.notebookPanel,
       IMPORT_CELL_KEY
     )[0];
 
-    if (idx < 0) {
+    if (cellIdx < 0) {
       // Inject imports in a new cell and run
-      const result: [number, string] = await CellUtilities.insertRunShow(
+      const [newIdx]: [number, string] = await CellUtilities.insertRunShow(
         this.notebookPanel,
         this.commands,
         index,
         cmd,
         true
       );
-      idx = result[0];
+      cellIdx = newIdx;
     } else {
       // Inject code into existing imports cell and run
-      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
+      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
         this.commands,
         this.notebookPanel,
-        idx
+        cellIdx
       );
     }
 
     // Set cell meta data to identify it as containing imports
     await CellUtilities.setCellMetaData(
       this.notebookPanel,
-      idx,
+      cellIdx,
       IMPORT_CELL_KEY,
       "saved",
       true
     );
 
-    return idx;
+    return cellIdx;
   }
 
   /**
@@ -1098,7 +1044,7 @@ export class LeftSideBarWidget extends Widget {
     }
 
     // If file opened fine, find the index where the file data code is injected
-    let idx: number = CellUtilities.findCellWithMetaKey(
+    let cellIdx: number = CellUtilities.findCellWithMetaKey(
       this.notebookPanel,
       READER_CELL_KEY
     )[0];
@@ -1139,19 +1085,19 @@ export class LeftSideBarWidget extends Widget {
 
     cmd += addCmd;
 
-    if (idx < 0) {
+    if (cellIdx < 0) {
       // Insert a new cell with given command and run
-      const result: [number, string] = await CellUtilities.insertRunShow(
+      const [newIdx]: [number, string] = await CellUtilities.insertRunShow(
         this.notebookPanel,
         this.commands,
         index,
         cmd,
         true
       );
-      idx = result[0];
+      cellIdx = newIdx;
     } else {
       // Inject code into existing data variables cell and run
-      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
+      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
         this.commands,
         this.notebookPanel,
@@ -1165,12 +1111,12 @@ export class LeftSideBarWidget extends Widget {
     // Set cell meta data to identify it as containing data variables
     await CellUtilities.setCellMetaData(
       this.notebookPanel,
-      idx,
+      cellIdx,
       READER_CELL_KEY,
       "saved",
       true
     );
-    return idx;
+    return cellIdx;
   }
 
   /**
@@ -1190,35 +1136,35 @@ export class LeftSideBarWidget extends Widget {
     const cmd: string = `#Create canvas and sidecar\ncanvas = vcs.init()`;
 
     // Find the index where the canvas code is injected
-    let idx: number = CellUtilities.findCellWithMetaKey(
+    let cellIdx: number = CellUtilities.findCellWithMetaKey(
       this.notebookPanel,
       CANVAS_CELL_KEY
     )[0];
 
-    if (idx < 0) {
+    if (cellIdx < 0) {
       // Inject the code for starting the canvases
-      const result: [number, string] = await CellUtilities.insertRunShow(
+      const [newIdx]: [number, string] = await CellUtilities.insertRunShow(
         this.notebookPanel,
         this.commands,
         index,
         cmd,
         true
       );
-      idx = result[0];
+      cellIdx = newIdx;
     } else {
       // Replace code in canvas cell and run
-      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
+      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
         this.commands,
         this.notebookPanel,
-        idx
+        cellIdx
       );
     }
 
     // Set cell meta data to identify it as containing canvases
     await CellUtilities.setCellMetaData(
       this.notebookPanel,
-      idx,
+      cellIdx,
       CANVAS_CELL_KEY,
       "saved",
       true
@@ -1227,7 +1173,7 @@ export class LeftSideBarWidget extends Widget {
     // Update the current canvas count
     this.canvasCount = canvasCount;
 
-    return idx;
+    return cellIdx;
   }
 
   /**
