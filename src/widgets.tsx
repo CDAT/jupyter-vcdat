@@ -139,9 +139,7 @@ export class LeftSideBarWidget extends Widget {
           refreshGraphicsList={this.refreshGraphicsList}
           notebookPanel={this._notebookPanel}
           updateNotebookPanel={async () => {
-            this._preparing = true;
             await this.recognizeNotebookPanel();
-            this._preparing = false;
           }}
         />
       </ErrorBoundary>,
@@ -820,14 +818,14 @@ export class LeftSideBarWidget extends Widget {
             this.state = NOTEBOOK_STATE.VCS_Ready;
           } else {
             // Search for a cell containing the imports key
-            let importKeyFound: boolean =
+            const importKeyFound: boolean =
               CellUtilities.findCellWithMetaKey(
                 this.notebookPanel,
                 IMPORT_CELL_KEY
               )[0] >= 0;
 
             // Search for a cell containing the canvas variables key
-            let canvasKeyFound =
+            const canvasKeyFound =
               CellUtilities.findCellWithMetaKey(
                 this.notebookPanel,
                 CANVAS_CELL_KEY

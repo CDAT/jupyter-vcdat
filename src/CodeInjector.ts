@@ -254,7 +254,7 @@ export class CodeInjector {
       throw Error("No notebook, code injection cancelled.");
     }
     try {
-      let idx: number =
+      const idx: number =
         index | (this.notebookPanel.content.model.cells.length - 1);
       const [newIdx, result]: [
         number,
