@@ -16,7 +16,7 @@ class LoadVariablePopUp(BasePage):
         self.driver.find_element_by_xpath(load_variable_locator)
 
     def _get_var_row_elements(self):
-        var_rows_locator = "//div[@id='var-loader-modal']//div[@class='modal-content']//div[@class='modal-body']/div"
+        var_rows_locator = "//div[@class='modal-body']/div"
         try:
             var_row_elements = self.driver.find_elements_by_xpath(var_rows_locator)
         except NoSuchElementException as e:
@@ -41,19 +41,14 @@ class LoadVariablePopUp(BasePage):
 
     def click_on_var_axes(self, var):
         print("...click_on_var_axes...var: {v}".format(v=var))
-
         var_row_elements = self._get_var_row_elements()
         for r in var_row_elements:
             var_axes_row_locator = ".//div[starts-with(@class, 'col-sm')]//button"
             buttons = r.find_elements_by_xpath(var_axes_row_locator)
-            for b in buttons:
-                print("xxx b.text: {t}".format(t=b.text))
-                if b.text == var:
-                    actionChains = ActionChains(self.driver)
-                    print("...going to click on 'Axes' button for variable '{v}'".format(v=var))
-                    actionChains.click(buttons[1]).perform()
-                    break
-
+            if buttons[0].text == var:
+                print("...going to click on 'Axes' button for variable '{v}'".format(v=var))
+                buttons[1].click()
+                break
         time.sleep(self._delay)
 
     def adjust_var_axes_slider(self, var, axis, min_offset_percent, max_offset_percent):
@@ -68,12 +63,11 @@ class LoadVariablePopUp(BasePage):
                     var_axes_locator = ".//div[@class='collapse show']/div"
                     var_axes_elements = r.find_elements_by_xpath(var_axes_locator)
                     # number of var_axes_elements should be the number of sliders
-                    # print("DEBUG....number of var_axes_elements: {n}".format(n=len(var_axes_elements)))
                     # find the axis to be modified.
                     axis_locator = ".//div[@class='row']/div[@class='col-auto']"
                     for an_axis in var_axes_elements:
                         axis_title_elements = an_axis.find_elements_by_xpath(axis_locator)
-                        print("...an axis...{t}".format(t=axis_title_elements[0].text))
+                        # print("...an axis...{t}".format(t=axis_title_elements[0].text))
                         if axis_title_elements[0].text == axis:
                             print("FOUND the axis to be adjusted...{i}".format(i=div_index_for_axis))
                             break
@@ -89,7 +83,7 @@ class LoadVariablePopUp(BasePage):
                     slider_track_locator = ".//div[@class='slider-tracks']/div"
                     slider_track = the_axis.find_element_by_xpath(slider_track_locator)
                     slider_width = slider_track.size['width']
-                    print("xxx width of slider_track: {w}".format(w=slider_width))
+                    print("...info...width of slider_track: {w}".format(w=slider_width))
                     # get the slider handle elements - this is the min and max handles
                     slider_handle_locator = ".//div[@class='slider-handles']/div[@role='slider']"
                     min_max_elements = the_axis.find_elements_by_xpath(slider_handle_locator)

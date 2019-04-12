@@ -29,8 +29,9 @@ class BasePage(object):
             elem = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
             print("FOUND {d}, clicking it".format(d=descr))
             elem.click()
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding {d}".format(d=descr))
+            time.sleep(self._delay)
+        except TimeoutException as e:
+            print("TimeoutException...not finding {d} to be clickable".format(d=descr))
             raise e
 
     def find_element(self, xpath, descr):
@@ -49,7 +50,7 @@ class BasePage(object):
             action_chains = ActionChains(self.driver)
             action_chains.move_to_element(element)
             action_chains.click(element)
-
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             print("NoSuchElementException...not finding {d}".format(d=descr))
             raise e

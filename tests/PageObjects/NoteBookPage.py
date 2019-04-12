@@ -1,19 +1,61 @@
 import time
 
-from BasePage import BasePage
+from MainPage import MainPage
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 
-class NoteBookPage(BasePage):
+class NoteBookPage(MainPage):
 
     def __init__(self, driver, server=None):
         super(NoteBookPage, self).__init__(driver, server)
+        self.new_notebook()
 
     def _validate_page(self):
         print("...NoteBookPage.validatePage()")
+
+    def _click_on_new_notebook(self):
+        print("...click on New Notebook...")
+        self.click_on_file_tab()
+        self.find_menu_item_from_tab_drop_down_and_click('New')
+
+        # notebook_locator = "//li[@class='p-Menu-item'][@data-command='notebook:create-new']"
+        notebook_locator_constraint = "@data-command='notebook:create-new'"
+        self.find_menu_item_by_constraint_and_click(notebook_locator_constraint)
+
+    def rename_notebook(self, new_nb_name):
+        # look for the 'Rename Notebook...' under File tab menu
+        self.click_on_file_tab()
+        self.find_menu_item_from_tab_drop_down_and_click('Rename')
+
+        # enter the new notebook name
+        rename_notebook_input_locator = "//input[@class='jp-mod-styled']"
+        input_area = self.driver.find_element_by_xpath(rename_notebook_input_locator)
+
+        # click on the input area
+        input_area.clear()
+        action_chains = ActionChains(self.driver)
+        action_chains.click(input_area).send_keys(new_nb_name).key_down(Keys.ENTER).perform()
+        time.sleep(self._delay * 2)
+
+    def new_notebook(self):
+        self._click_on_new_notebook()
+        self.select_kernel()
+
+    def close_current_notebook(self):
+        self.click_on_file_tab()
+        self.find_menu_item_from_tab_drop_down_and_click('Close Notebook')
+
+        # check if we are getting "Close without saving?" pop up
+        close_without_saving_ok_locator = "//div[contains(text(), 'OK')]"
+        try:
+            ok_element = self.driver.find_element_by_xpath(close_without_saving_ok_locator)
+            print("FOUND 'Close without saving?' pop up, click 'OK'")
+            ok_element.click()
+            time.sleep(self._delay)
+        except NoSuchElementException:
+            print("No 'Close without saving?' pop up")
 
     def close(self):
         print("...closing a note book if there is any...")
@@ -38,7 +80,6 @@ class NoteBookPage(BasePage):
                     time.sleep(self._delay)
 
         except NoSuchElementException:
-            print("Not finding divs")
             print("No notebook")
 
         # check if we are getting "Close without saving?" pop up
@@ -50,10 +91,6 @@ class NoteBookPage(BasePage):
             time.sleep(self._delay)
         except NoSuchElementException:
             print("No 'Close without saving?' pop up")
-
-    def load_page(self, server, expected_element=(By.TAG_NAME, 'html'),
-                  timeout=3):
-        print("...NoteBookPage.load_page()...do nothing")
 
     def enter_code(self, code_text):
 
@@ -70,5 +107,3 @@ class NoteBookPage(BasePage):
         a.send_keys(code_text).key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
         a.perform()
         time.sleep(self._delay)
-
-        print("xxx after entering: {c}".format(c=code_text))
