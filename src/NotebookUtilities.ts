@@ -226,8 +226,8 @@ namespace NotebookUtilities {
     if (notebookPanel == null) {
       throw new Error("The notebook is null or undefined.");
     }
-    try {
-      // Wait for kernel to be ready before sending request
+
+    // Wait for kernel to be ready before sending request
     await notebookPanel.activated;
     await notebookPanel.session.ready;
     await notebookPanel.session.kernel.ready;
@@ -249,10 +249,6 @@ namespace NotebookUtilities {
     }
     // Return user_expressions of the content
     return content.user_expressions;
-    } catch (error) {
-      
-    }
-    
   }
 }
 

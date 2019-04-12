@@ -208,7 +208,6 @@ export default class VarMenu extends React.Component<
       "#28a745",
       "#17a2b8"
     );
-    const syncNotebook: boolean = this.props.syncNotebook();
 
     return (
       <div>
@@ -230,10 +229,10 @@ export default class VarMenu extends React.Component<
                 <Col sm={6}>
                   <Button
                     color="info"
-                    onClick={async () => {
+                    onClick={() => {
                       this.props.updateNotebook();
                     }}
-                    hidden={!syncNotebook}
+                    hidden={!this.props.syncNotebook()}
                     style={varButtonStyle}
                     title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
                   >

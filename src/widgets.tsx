@@ -55,13 +55,14 @@ export class LeftSideBarWidget extends Widget {
   public usingKernel: boolean; // The widgets is running a ker nel command
   public canvasCount: number; // The number of canvases currently in use (just 1 for now)
   public refreshExt: boolean; // Will be false if the app was refreshed
-  public codeInjector: CodeInjector;
+  public codeInjector: CodeInjector; // The code injector object which is responsible for injecting code into notebooks
 
   private _plotExists: boolean; // True if there exists a plot that can be exported, false if not.
   private _readyKernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
   private _currentFile: string; // The current filepath of the data file being used for variables and data
   private _notebookPanel: NotebookPanel; // The notebook this widget is interacting with
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
+  private _preparing: boolean; // Whether the notebook is currently being prepared
 
   constructor(app: JupyterLab, tracker: NotebookTracker) {
     super();
@@ -117,8 +118,9 @@ export class LeftSideBarWidget extends Widget {
           }}
           syncNotebook={() => {
             return (
-              this.state != NOTEBOOK_STATE.VCS_Ready &&
-              this.state != NOTEBOOK_STATE.NoOpenNotebook
+              !this._preparing &&
+              (this.state == NOTEBOOK_STATE.ActiveNotebook ||
+                this.state == NOTEBOOK_STATE.InitialCellsReady)
             );
           }}
           getFileVariables={this.getFileVariables}
@@ -137,7 +139,9 @@ export class LeftSideBarWidget extends Widget {
           refreshGraphicsList={this.refreshGraphicsList}
           notebookPanel={this._notebookPanel}
           updateNotebookPanel={async () => {
-            this.recognizeNotebookPanel();
+            this._preparing = true;
+            await this.recognizeNotebookPanel();
+            this._preparing = false;
           }}
         />
       </ErrorBoundary>,
@@ -190,12 +194,10 @@ export class LeftSideBarWidget extends Widget {
    */
   public async setNotebookPanel(notebookPanel: NotebookPanel): Promise<void> {
     try {
-      await this.VCSMenuRef.setState({
-        notebookPanel
-      });
-
       // Exit early if no change needed
       if (this._notebookPanel == notebookPanel) {
+        // Update current state
+        await this.updateNotebookState();
         return;
       }
 
@@ -209,14 +211,18 @@ export class LeftSideBarWidget extends Widget {
       // Update current notebook
       this._notebookPanel = notebookPanel;
 
-      // Update notebook in injection manager
+      await this.VCSMenuRef.setState({
+        notebookPanel
+      });
+
+      // Update notebook state
+      await this.updateNotebookState();
+
+      // Update notebook in code injection manager
       this.codeInjector.notebookPanel = notebookPanel;
 
       // Reset the UI components
       await this.VCSMenuRef.resetState();
-
-      // Update notebook state
-      await this.updateNotebookState();
 
       // Reset notebook information
       this.dataReaderList = {};
@@ -449,6 +455,8 @@ export class LeftSideBarWidget extends Widget {
    */
   public async recognizeNotebookPanel(): Promise<void> {
     try {
+      this._preparing = true;
+
       // Check the active widget is a notebook panel
       if (this.application.shell.currentWidget instanceof NotebookPanel) {
         await this.setNotebookPanel(this.application.shell.currentWidget);
@@ -499,9 +507,6 @@ export class LeftSideBarWidget extends Widget {
       // Update kernel list to identify this kernel is ready
       this._readyKernels.push(this.notebookPanel.session.kernel.id);
 
-      // Save the notebook to preserve the cell metadata, update state
-      this.state = NOTEBOOK_STATE.VCS_Ready;
-
       // Save the notebook
       this.notebookPanel.context.save();
 
@@ -510,8 +515,13 @@ export class LeftSideBarWidget extends Widget {
 
       // Connect the handler specific to current notebook
       this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
+
+      this.state = NOTEBOOK_STATE.VCS_Ready;
+
+      this._preparing = false;
     } catch (error) {
-      console.log(error);
+      this._preparing = false;
+      throw error;
     }
   }
 
@@ -810,17 +820,20 @@ export class LeftSideBarWidget extends Widget {
             this.state = NOTEBOOK_STATE.VCS_Ready;
           } else {
             // Search for a cell containing the imports key
-            let find: number = CellUtilities.findCellWithMetaKey(
-              this.notebookPanel,
-              IMPORT_CELL_KEY
-            )[0];
-            // Search for a cell containing the canvas variables key
-            find += CellUtilities.findCellWithMetaKey(
-              this.notebookPanel,
-              CANVAS_CELL_KEY
-            )[0];
+            let importKeyFound: boolean =
+              CellUtilities.findCellWithMetaKey(
+                this.notebookPanel,
+                IMPORT_CELL_KEY
+              )[0] >= 0;
 
-            if (find >= 2) {
+            // Search for a cell containing the canvas variables key
+            let canvasKeyFound =
+              CellUtilities.findCellWithMetaKey(
+                this.notebookPanel,
+                CANVAS_CELL_KEY
+              )[0] >= 0;
+
+            if (importKeyFound && canvasKeyFound) {
               // The imports, data and canvas cells were found, but not run yet
               this.state = NOTEBOOK_STATE.InitialCellsReady;
             } else {
@@ -1187,72 +1200,83 @@ export class LeftSideBarWidget extends Widget {
       throw new Error("No file has been set for obtaining variables.");
     }
 
-    // Set the current file and save the meta data
-    await this.setCurrentFile(currentFile, true);
+    this._preparing = true;
 
-    // Grab a notebook panel
-    const newNotebookPanel = await this.getNotebookPanel();
+    try {
+      // Set the current file and save the meta data
+      await this.setCurrentFile(currentFile, true);
 
-    // Set as current notebook (if not already)
-    await this.setNotebookPanel(newNotebookPanel);
+      // Grab a notebook panel
+      const newNotebookPanel = await this.getNotebookPanel();
 
-    // Inject the imports
-    let currentIdx: number = 0;
-    currentIdx = await this.injectImportsCode();
+      // Set as current notebook (if not already)
+      await this.setNotebookPanel(newNotebookPanel);
 
-    // Inject the data file(s)
-    currentIdx = await this.injectDataReaders(currentIdx + 1, currentFile);
+      // Inject the imports
+      let currentIdx: number = 0;
+      currentIdx = await this.injectImportsCode();
 
-    // Inject canvas(es)
-    currentIdx = await this.injectCanvasCode(currentIdx + 1, 1);
+      // Inject the data file(s)
+      currentIdx = await this.injectDataReaders(currentIdx + 1, currentFile);
 
-    // Select last cell in notebook
-    this.notebookPanel.content.activeCellIndex =
-      this.notebookPanel.content.model.cells.length - 1;
+      // Inject canvas(es)
+      currentIdx = await this.injectCanvasCode(currentIdx + 1, 1);
 
-    // Update kernel list to identify this kernel is ready
-    this._readyKernels.push(this.notebookPanel.session.kernel.id);
+      // Select last cell in notebook
+      this.notebookPanel.content.activeCellIndex =
+        this.notebookPanel.content.model.cells.length - 1;
 
-    // Save the notebook to preserve the cell metadata, update state
-    this.state = NOTEBOOK_STATE.VCS_Ready;
+      // Update kernel list to identify this kernel is ready
+      this._readyKernels.push(this.notebookPanel.session.kernel.id);
 
-    // Check if the file has already been loaded
-    const fileLoaded: boolean = Object.keys(this.dataReaderList).some(value => {
-      return this.dataReaderList[value] == currentFile;
-    });
+      // Save the notebook to preserve the cell metadata, update state
+      this.state = NOTEBOOK_STATE.VCS_Ready;
 
-    // If file hasn't been loaded, inject it
-    if (!fileLoaded) {
-      const idx: number = CellUtilities.findCellWithMetaKey(
+      // Check if the file has already been loaded
+      const fileLoaded: boolean = Object.keys(this.dataReaderList).some(
+        value => {
+          return this.dataReaderList[value] == currentFile;
+        }
+      );
+
+      // If file hasn't been loaded, inject it
+      if (!fileLoaded) {
+        const idx: number = CellUtilities.findCellWithMetaKey(
+          this.notebookPanel,
+          READER_CELL_KEY
+        )[0];
+        await this.injectDataReaders(idx, currentFile);
+      }
+
+      // Launch file variable loader if file has variables
+      const fileVars: Variable[] = await this.getFileVariables(currentFile);
+      if (fileVars.length > 0) {
+        await this.VCSMenuRef.launchVarSelect(fileVars);
+      } else {
+        this._currentFile = "";
+      }
+
+      // Update the metadata
+      await NotebookUtilities.setMetaData(
         this.notebookPanel,
-        READER_CELL_KEY
-      )[0];
-      await this.injectDataReaders(idx, currentFile);
+        DATA_LIST_KEY,
+        this.dataReaderList
+      );
+
+      // Save the notebook
+      this.notebookPanel.context.save();
+
+      // Activate current notebook
+      this.application.shell.activateById(this.notebookPanel.id);
+
+      // Connect the handler specific to current notebook
+      this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
+
+      this._preparing = false;
+    } catch (error) {
+      this._preparing = false;
+      throw error;
     }
-
-    // Launch file variable loader if file has variables
-    const fileVars: Variable[] = await this.getFileVariables(currentFile);
-    if (fileVars.length > 0) {
-      await this.VCSMenuRef.launchVarSelect(fileVars);
-    } else {
-      this._currentFile = "";
-    }
-
-    // Update the metadata
-    await NotebookUtilities.setMetaData(
-      this.notebookPanel,
-      DATA_LIST_KEY,
-      this.dataReaderList
-    );
-
-    // Save the notebook
-    this.notebookPanel.context.save();
-
-    // Activate current notebook
-    this.application.shell.activateById(this.notebookPanel.id);
-
-    // Connect the handler specific to current notebook
-    this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
   }
 
   /**

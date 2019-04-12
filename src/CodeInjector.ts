@@ -100,7 +100,13 @@ export class CodeInjector {
       }
     }
 
-    await this.inject(cmd, "Failed to export plot.", "exportPlot", arguments);
+    await this.inject(
+      cmd,
+      undefined,
+      "Failed to export plot.",
+      "exportPlot",
+      arguments
+    );
   }
 
   public async createCopyOfGM(
@@ -120,6 +126,7 @@ export class CodeInjector {
     // Inject the code into the notebook cell
     await this.inject(
       cmd,
+      undefined,
       "Failed to copy graphics method.",
       "createCopyOfGM",
       arguments
@@ -137,6 +144,7 @@ export class CodeInjector {
     // Inject the code into the notebook cell
     await this.inject(
       cmd,
+      undefined,
       "Failed to inject new graphic method.",
       "getGraphicMethod",
       arguments
@@ -149,6 +157,7 @@ export class CodeInjector {
     // Inject the code into the notebook cell
     await this.inject(
       cmd,
+      undefined,
       "Failed to inject new template.",
       "getTemplate",
       arguments
@@ -166,6 +175,7 @@ export class CodeInjector {
     // Inject the code into the notebook cell
     await this.inject(
       cmd,
+      undefined,
       "Failed to load variable.",
       "loadVariable",
       arguments
@@ -173,7 +183,12 @@ export class CodeInjector {
   }
 
   public async clearPlot() {
-    await this.inject("canvas.clear()", "Clearing canvas failed.", "clearPlot");
+    await this.inject(
+      "canvas.clear()",
+      undefined,
+      "Clearing canvas failed.",
+      "clearPlot"
+    );
   }
 
   public async plot(
@@ -211,38 +226,48 @@ export class CodeInjector {
     }
     cmd += `${selectedTemplate}, ${selectedGM})`;
 
-    await this.inject(cmd, "Failed to make plot.", "plot", arguments);
+    await this.inject(
+      cmd,
+      undefined,
+      "Failed to make plot.",
+      "plot",
+      arguments
+    );
   }
 
   /**
    * This is the injection method used by the other code injector functions for injecting code into the notebook
    * @param code The code that will be injected
+   * @param index The index of where the code should be injected (will be that last cell in notebook if undefined)
    * @param errorMsg The error message to provide if injection throws an error
    * @param funcName The name of the function calling the injection
    * @param funcArgs The arguments object of the calling function
    */
   private async inject(
     code: string,
+    index?: number,
     errorMsg?: string,
     funcName?: string,
     funcArgs?: IArguments
   ): Promise<[number, string]> {
     if (this.notebookPanel == null) {
-      throw Error("The notebook panel was empty, code injection cancelled.");
+      throw Error("No notebook, code injection cancelled.");
     }
     try {
-      const [index, result]: [
+      let idx: number =
+        index | (this.notebookPanel.content.model.cells.length - 1);
+      const [newIdx, result]: [
         number,
         string
       ] = await CellUtilities.insertRunShow(
         this.notebookPanel,
         this._commandRegistry,
-        this.notebookPanel.content.model.cells.length - 1,
+        idx,
         code,
         true
       );
-      this.notebookPanel.content.activeCellIndex = index + 1;
-      return [index, result];
+      this.notebookPanel.content.activeCellIndex = newIdx + 1;
+      return [newIdx, result];
     } catch (error) {
       const detailError: InjectionError = new InjectionError(
         error,
