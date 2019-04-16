@@ -164,6 +164,9 @@ class BaseTestCase(unittest.TestCase):
     def click_on_clear(self):
         self.left_side_bar.click_on_clear()
 
+    def select_plot_type(self, plot_type):
+        self.left_side_bar.select_plot_type(plot_type)
+
     #
     # kernel utils
     #
