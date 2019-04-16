@@ -25,6 +25,7 @@ class MainPage(BasePage):
             tab_label_element = self.driver.find_element_by_xpath(tab_locator)
             return tab_label_element
         except NoSuchElementException as e:
+            print("...did not find tab for '{t}'".format(t=tab_name))
             raise e
 
     def find_menu_item_from_tab_drop_down_and_click(self, menu_item_name):

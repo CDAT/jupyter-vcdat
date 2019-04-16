@@ -14,24 +14,41 @@ class VcdatLeftSideBar(BasePage):
     def _validate_page(self):
         print("...VcdatLeftSideBar.validate_page()...NO OP NOW")
 
+    def click_on_icon(self, icon_data_id):
+        '''
+        click on the jupyter vcdat icon on the left side bar if it is
+        not an active tab yet.
+        '''
+        print("...click_on_jp_vcdat_icon...")
+        # jp_vcdat_icon_locator = "//li[@data-id='vcdat-left-side-bar']"
+        icon_locator = "//li[@data-id='{i}']".format(i=icon_data_id)
+        try:
+            icon_element = self.driver.find_element_by_xpath(icon_locator)
+            class_attr = icon_element.get_attribute('class')
+            if "p-mod-current" in class_attr:
+                print("No need to click on '{i}' icon...it is active".format(i=icon_data_id))
+            else:
+                icon_element.click()
+                time.sleep(self._delay)
+        except NoSuchElementException as e:
+            print("...did not find '{i}' icon on left side...".format(i=icon_data_id))
+            raise e
+
     def click_on_jp_vcdat_icon(self):
         '''
         click on the jupyter vcdat icon on the left side bar if it is
         not an active tab yet.
         '''
         print("...click_on_jp_vcdat_icon...")
-        jp_vcdat_icon_locator = "//li[@data-id='vcdat-left-side-bar']"
-        try:
-            jp_vcdat_icon_element = self.driver.find_element_by_xpath(jp_vcdat_icon_locator)
-            class_attr = jp_vcdat_icon_element.get_attribute('class')
-            if "p-mod-current" in class_attr:
-                print("No need to click on jp_vcdat icon...it is active")
-            else:
-                jp_vcdat_icon_element.click()
-                time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print("...did not find VCDAT icon on left side...")
-            raise e
+        self.click_on_icon('vcdat-left-side-bar')
+
+    def click_on_file_folder(self):
+        '''
+        click on the file folder icon on the left side bar if it is
+        not an active tab yet.
+        '''
+        print("...click_on_file_folder...")
+        self.click_on_icon('filebrowser')
 
     def click_on_load_variables(self):
         print("...click_on_load_variables...")

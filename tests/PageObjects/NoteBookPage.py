@@ -107,3 +107,22 @@ class NoteBookPage(MainPage):
         a.send_keys(code_text).key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
         a.perform()
         time.sleep(self._delay)
+
+    def enter_code_list(self, code_list):
+
+        nb_code_area_locator1 = "//div[@class='CodeMirror-code' and @role='presentation']"
+        nb_code_area_locator2 = "//pre[@class=' CodeMirror-line ']"
+        nb_code_area_locator3 = "//span[@role='presentation']//span[@cm-text='']"
+        locator = "{l1}{l2}{l3}".format(l1=nb_code_area_locator1,
+                                        l2=nb_code_area_locator2,
+                                        l3=nb_code_area_locator3)
+        for code_line in code_list[:-1]:
+            code_area_element = self.driver.find_element_by_xpath(locator)
+            ActionChains(self.driver).click(code_area_element).perform()
+            a = ActionChains(self.driver)
+            a.send_keys(code_line).send_keys(Keys.ENTER).perform()
+
+        code_area_element = self.driver.find_element_by_xpath(locator)
+        ActionChains(self.driver).click(code_area_element).perform()
+        a = ActionChains(self.driver)
+        a.send_keys(code_list[-1]).key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT).perform()

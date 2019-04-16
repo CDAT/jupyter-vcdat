@@ -52,6 +52,10 @@ class BaseTestCase(unittest.TestCase):
         utils = JupyterUtils()
         self.server = utils.get_server()
         self.main_page = MainPage(self.driver, self.server)
+        self.left_side_bar = VcdatLeftSideBar(self.driver, None)
+        self.file_browser = FileBrowser(self.driver, None)
+        self.click_on_file_browser_home()
+
         self._test_notebook_file = "{t}.ipynb".format(t=self._testMethodName)
         self.notebook_page = NoteBookPage(self.driver, None)
         self.notebook_page.rename_notebook(self._test_notebook_file)
@@ -120,20 +124,63 @@ class BaseTestCase(unittest.TestCase):
     #
 
     def load_data_file(self, filename):
-        left_side_bar = VcdatLeftSideBar(self.driver, None)
-        left_side_bar.click_on_jp_vcdat_icon()
+        # left_side_bar = VcdatLeftSideBar(self.driver, None)
+        self.left_side_bar.click_on_jp_vcdat_icon()
         time.sleep(self._delay)
-        left_side_bar.click_on_load_variables()
+        self.left_side_bar.click_on_load_variables()
 
-        file_browser = FileBrowser(self.driver, None)
-        file_browser.double_click_on_a_file(filename)
-        # self.main_page.select_kernel()
+        # file_browser = FileBrowser(self.driver, None)
+        self.file_browser.double_click_on_a_file(filename)
         time.sleep(self._delay)
 
-        return left_side_bar
+    def load_sample_data(self, filename):
+        # left_side_bar = VcdatLeftSideBar(self.driver, None)
+        self.left_side_bar.click_on_jp_vcdat_icon()
+        time.sleep(self._delay)
+        self.left_side_bar.click_on_load_variables()
+
+        # file_browser = FileBrowser(self.driver, None)
+        self.click_on_file_browser_home()
+        print("DEBUG DEBUG...returned from click_on_file_browser_home...")
+        time.sleep(5)
+        if "/" in filename:
+            paths = filename.split('/')
+            for f in paths[:-1]:
+                print("xxx double clicking on {f}".format(f=f))
+                self.file_browser.double_click_on_a_file(f, False)
+                time.sleep(self._delay)
+            self.file_browser.double_click_on_a_file(paths[-1])
+        time.sleep(self._delay)
+
+    #
+    #
+    #
+    def click_on_plot(self):
+        self.left_side_bar.click_on_plot()
+
+    def click_on_clear(self):
+        self.left_side_bar.click_on_clear()
 
     #
     # kernel utils
     #
     def select_kernel(self):
         self.main_page.select_kernel()
+
+    def click_on_file_browser_home(self):
+        self.left_side_bar.click_on_file_folder()
+        self.file_browser.click_on_home()
+
+    #
+    # download_sample_data
+    #
+    def download_sample_data(self):
+        vp = "vcs_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse('vcs'), 'share/vcs')"
+        download_code = ["import vcs",
+                         "import cdms2",
+                         "import cdat_info",
+                         "import pkg_resources",
+                         vp,
+                         "path = vcs_egg_path+'/sample_files.txt'",
+                         "cdat_info.download_sample_data_files(path,'sample_data')"]
+        self.notebook_page.enter_code_list(download_code)

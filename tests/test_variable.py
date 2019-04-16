@@ -21,19 +21,19 @@ class TestLoadVariable(BaseTestCase):
         print("\n\n...test_plot_variable_1...")
         print("xxx xxx xxx {t}".format(t=self._testMethodName))
 
-        left_side_bar = self.load_data_file("clt.nc")
+        self.load_data_file("clt.nc")
 
         load_variable_pop_up = LoadVariablePopUp(self.driver)
         load_variable_pop_up.click_on_var('clt')
 
         load_variable_pop_up.load()
 
-        left_side_bar.click_on_plot()
+        self.click_on_plot()
 
         canvas = Canvas(self.driver)
         canvas.check_plot()
 
-        left_side_bar.click_on_clear()
+        self.click_on_clear()
 
     def test_plot_variable_2(self):
         '''
@@ -41,14 +41,14 @@ class TestLoadVariable(BaseTestCase):
         '''
         print("\n\n...test_plot_variable_2...")
 
-        left_side_bar = self.load_data_file("clt.nc")
+        self.load_data_file("clt.nc")
 
         load_variable_pop_up = LoadVariablePopUp(self.driver)
         load_variable_pop_up.click_on_var('u')
         load_variable_pop_up.click_on_var('v')
         load_variable_pop_up.load()
 
-        left_side_bar.click_on_plot()
+        self.click_on_plot()
 
         canvas = Canvas(self.driver)
         canvas.check_plot()
