@@ -90,11 +90,14 @@ class BaseTestCase(unittest.TestCase):
         firefox_capabilities['marionette'] = True
         firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
         options = Options()
-        options.binary_location = "/usr/local/bin/geckodriver"
-        firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
+        # options.binary_location = "/usr/local/bin/geckodriver"
+        # firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
+        # TEMPORARY
+        options.binary_location = "/export/muryanto1/work/selenium/geckodriver"
+        firefox_binary = FirefoxBinary("/usr/bin/firefox")
         self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
                                         firefox_binary=firefox_binary,
-                                        executable_path="/usr/local/bin/geckodriver",
+                                        executable_path="/export/muryanto1/work/selenium/geckodriver",
                                         options=options,
                                         capabilities=firefox_capabilities)
 
