@@ -114,11 +114,6 @@ class BaseTestCase(unittest.TestCase):
             print("No notebook opened")
             pass
 
-    def new_notebook(self, notebook_title):
-        self.main_page.new_notebook()
-        self.main_page.select_kernel()
-        self.main_page.rename_notebook(notebook_title)
-
     def close_current_notebook(self):
         self.main_page.close_current_notebook()
 

@@ -34,7 +34,7 @@ class MainPage(BasePage):
         click on it.
         '''
         print("...find '{m}' from drop down menu".format(m=menu_item_name))
-        menu_item_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{n}')]".format(n=menu_item_name)
+        menu_item_locator = "//div[@class='p-Menu-itemLabel' and contains(text(), '{n}')]".format(n=menu_item_name)
         try:
             m = self.driver.find_element_by_xpath(menu_item_locator)
             if m.is_displayed() and m.is_enabled():
