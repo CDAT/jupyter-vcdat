@@ -17,7 +17,7 @@ import tempfile
 from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
-from selenium.webdriver.firefox.options import Options
+# from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from pyvirtualdisplay import Display
@@ -90,8 +90,8 @@ class BaseTestCase(unittest.TestCase):
         firefox_capabilities = DesiredCapabilities().FIREFOX
         firefox_capabilities['marionette'] = True
         firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
-        options = Options()
-        options.binary_location = "/usr/local/bin"
+        # options = Options()
+        # options.binary_location = "/usr/local/bin"
         firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
         # options.binary_location = "/usr/bin/geckodriver"
         # firefox_binary = FirefoxBinary("/usr/bin/firefox")
@@ -101,7 +101,7 @@ class BaseTestCase(unittest.TestCase):
         self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
                                         firefox_binary=firefox_binary,
                                         executable_path="/usr/local/bin/geckodriver",
-                                        options=options,
+                                        # options=options,
                                         capabilities=firefox_capabilities)
 
     #
