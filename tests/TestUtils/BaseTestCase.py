@@ -18,7 +18,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 # from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+# from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from pyvirtualdisplay import Display
 
@@ -77,16 +77,16 @@ class BaseTestCase(unittest.TestCase):
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
 
     def setup_for_firefox(self, mode):
-        firefox_profile = FirefoxProfile()
-        firefox_profile.set_preference('extensions.logging.enabled', False)
-        firefox_profile.set_preference('network.dns.disableIPv6', False)
-        firefox_profile.set_preference('browser.download.dir', self._download_dir)
-        firefox_profile.set_preference('browser.download.folderList', 2)
-        firefox_profile.set_preference('browser.download.useDownloadDir', True)
-        firefox_profile.set_preference('browser.download.panel.shown', False)
-        firefox_profile.set_preference('browser.download.manager.showWhenStarting', False)
-        firefox_profile.set_preference('browser.download.manager.showAlertOnComplete', False)
-        firefox_profile.set_preference('dom.disable_open_during_load', False)
+        # firefox_profile = FirefoxProfile()
+        # firefox_profile.set_preference('extensions.logging.enabled', False)
+        # firefox_profile.set_preference('network.dns.disableIPv6', False)
+        # firefox_profile.set_preference('browser.download.dir', self._download_dir)
+        # firefox_profile.set_preference('browser.download.folderList', 2)
+        # firefox_profile.set_preference('browser.download.useDownloadDir', True)
+        # firefox_profile.set_preference('browser.download.panel.shown', False)
+        # firefox_profile.set_preference('browser.download.manager.showWhenStarting', False)
+        # firefox_profile.set_preference('browser.download.manager.showAlertOnComplete', False)
+        # firefox_profile.set_preference('dom.disable_open_during_load', False)
         firefox_capabilities = DesiredCapabilities().FIREFOX
         firefox_capabilities['marionette'] = True
         firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
@@ -98,10 +98,13 @@ class BaseTestCase(unittest.TestCase):
         # TEMPORARY
         # options.binary_location = "/export/muryanto1/work/selenium/geckodriver"
         # firefox_binary = FirefoxBinary("/usr/bin/firefox")
-        self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
-                                        firefox_binary=firefox_binary,
+        # self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
+        #                                 firefox_binary=firefox_binary,
+        #                                 executable_path="/usr/local/bin/geckodriver",
+        #                                # options=options,
+        #                                capabilities=firefox_capabilities)
+        self.driver = webdriver.Firefox(firefox_binary=firefox_binary,
                                         executable_path="/usr/local/bin/geckodriver",
-                                        # options=options,
                                         capabilities=firefox_capabilities)
 
     #
