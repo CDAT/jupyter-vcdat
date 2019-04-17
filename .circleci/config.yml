@@ -93,6 +93,21 @@ aliases:
         Xvfb :7055
     background: true
 
+  - &prep_conda_cache
+    name: prep_conda_cache
+    command: |
+       mv $WORKDIR/miniconda miniconda
+
+  - &get_conda_cache
+    name: get_conda_cache
+    command: |
+       mkdir -p $WORKDIR
+       mv miniconda $WORKDIR/
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       conda config --set always_yes yes --set changeps1 no
+       conda update -y -q conda
+       conda config --set anaconda_upload no
+
 jobs:
   linux_docker_chrome_jupyter_vcdat_py3:
     docker:
@@ -135,7 +150,6 @@ jobs:
       - checkout
       - run: which firefox
       - run: which geckodriver
-      - run: *start_xvfb
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
@@ -147,6 +161,9 @@ jobs:
       - store_artifacts:
           path: tests_png
           destination: tests_png
+      - save_cache:
+          key: firefox_v101
+          paths: miniconda
 
 workflows:
   version: 2
