@@ -43,6 +43,23 @@ class MainPage(BasePage):
             print("...did not find tab for '{t}'".format(t=tab_name))
             raise e
 
+    def find_menu_item_from_tab_drop_down_and_clickORIG(self, menu_item_name):
+        '''
+        find the specified menu item from the tab drop down, and
+        click on it.
+        '''
+        print("...find '{m}' from drop down menu".format(m=menu_item_name))
+        menu_item_locator = "//div[@class='p-Menu-itemLabel' and contains(text(), '{n}')]".format(n=menu_item_name)
+        try:
+            m = self.driver.find_element_by_xpath(menu_item_locator)
+            if m.is_displayed() and m.is_enabled():
+                print("...clicking on {i}".format(i=menu_item_name))
+                m.click()
+                time.sleep(self._delay)
+        except NoSuchElementException as e:
+            print("Did not find '{m}' from the drop down menu".format(m=menu_item_name))
+            raise e
+
     def find_menu_item_from_tab_drop_down_and_click(self, menu_item_name):
         '''
         find the specified menu item from the tab drop down, and
@@ -53,10 +70,28 @@ class MainPage(BasePage):
         try:
             m = self.driver.find_element_by_xpath(menu_item_locator)
             if m.is_displayed() and m.is_enabled():
-                m.click()
+                print("...clicking on {i}".format(i=menu_item_name))
+                ac = ActionChains(self.driver)
+                ac.move_to_element(m).click().perform()
+                # m.click()
                 time.sleep(self._delay)
         except NoSuchElementException as e:
             print("Did not find '{m}' from the drop down menu".format(m=menu_item_name))
+            raise e
+
+    def find_menu_item_by_constraint_and_clickORIG(self, constraint):
+        '''
+        find the menu item with the specified constraint from the tab
+        drop down, and click on it.
+        '''
+        menu_item_locator = "//li[@class='p-Menu-item'][{c}]".format(c=constraint)
+        try:
+            m = self.driver.find_element_by_xpath(menu_item_locator)
+            if m.is_displayed() and m.is_enabled():
+                m.click()
+                time.sleep(self._delay)
+        except NoSuchElementException as e:
+            print("Did not find menu item with '{c}' constraint".format(c=constraint))
             raise e
 
     def find_menu_item_by_constraint_and_click(self, constraint):
@@ -68,7 +103,8 @@ class MainPage(BasePage):
         try:
             m = self.driver.find_element_by_xpath(menu_item_locator)
             if m.is_displayed() and m.is_enabled():
-                m.click()
+                ac = ActionChains(self.driver)
+                ac.move_to_element(m).click().perform()
                 time.sleep(self._delay)
         except NoSuchElementException as e:
             print("Did not find menu item with '{c}' constraint".format(c=constraint))
