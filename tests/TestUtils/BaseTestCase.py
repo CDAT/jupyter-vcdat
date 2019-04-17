@@ -99,7 +99,7 @@ class BaseTestCase(unittest.TestCase):
         # firefox_binary = FirefoxBinary("/usr/bin/firefox")
         self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
                                         firefox_binary=firefox_binary,
-                                        executable_path="/export/muryanto1/work/selenium/geckodriver",
+                                        executable_path="/usr/local/bin/geckodriver",
                                         options=options,
                                         capabilities=firefox_capabilities)
 
