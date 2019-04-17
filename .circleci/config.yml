@@ -135,7 +135,7 @@ jobs:
       - checkout
       - run: which firefox
       - run: which geckodriver
-      - run: *start_xvfb
+      #- run: *start_xvfb
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
