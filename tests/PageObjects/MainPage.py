@@ -2,6 +2,7 @@ import time
 
 from BasePage import BasePage
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
 
 
 class MainPage(BasePage):
@@ -24,6 +25,20 @@ class MainPage(BasePage):
         try:
             tab_label_element = self.driver.find_element_by_xpath(tab_locator)
             return tab_label_element
+        except NoSuchElementException as e:
+            print("...did not find tab for '{t}'".format(t=tab_name))
+            raise e
+
+    def find_tab_and_click(self, tab_name):
+        '''
+        find the tab element ('File', 'Edit', 'View', 'Run'...) and
+        return the element
+        '''
+        print("...find tab for '{t}'".format(t=tab_name))
+        tab_locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), '{n}')]".format(n=tab_name)
+        try:
+            tab_label_element = self.driver.find_element_by_xpath(tab_locator)
+            tab_label_element.click()
         except NoSuchElementException as e:
             print("...did not find tab for '{t}'".format(t=tab_name))
             raise e
@@ -59,10 +74,16 @@ class MainPage(BasePage):
             print("Did not find menu item with '{c}' constraint".format(c=constraint))
             raise e
 
-    def click_on_file_tab(self):
-        print("...click on 'File' tab...")
-        file_tab_element = self.find_tab('File')
-        file_tab_element.click()
+    def click_on_tab(self, tab):
+        print("...click on '{t}' tab...".format(t=tab))
+        self.find_tab_and_click(tab)
+        time.sleep(self._delay)
+
+    def hover_over_tab(self, tab):
+        print("...click on '{t}' tab...".format(t=tab))
+        tab_element = self.find_tab(tab)
+        actionChains = ActionChains(self.driver)
+        actionChains.move_to_element(tab_element).perform()
         time.sleep(self._delay)
 
     def select_kernel(self):
@@ -85,8 +106,7 @@ class MainPage(BasePage):
 
     def shutdown_kernel(self):
         print("...shutdown kernel if need to...")
-        kernel_tab_element = self.find_tab('Kernel')
-        kernel_tab_element.click()
+        self.find_tab_and_click('Kernel')
         try:
             shutdown_kernel_locator_contraint = "@data-command='kernelmenu:shutdown'"
             self.find_menu_item_by_constraint_and_click(shutdown_kernel_locator_contraint)

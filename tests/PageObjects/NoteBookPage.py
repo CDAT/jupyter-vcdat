@@ -17,7 +17,8 @@ class NoteBookPage(MainPage):
 
     def _click_on_new_notebook(self):
         print("...click on New Notebook...")
-        self.click_on_file_tab()
+        # self.hover_over_tab('File')
+        self.click_on_tab('File')
         self.find_menu_item_from_tab_drop_down_and_click('New')
 
         # notebook_locator = "//li[@class='p-Menu-item'][@data-command='notebook:create-new']"
@@ -26,7 +27,7 @@ class NoteBookPage(MainPage):
 
     def rename_notebook(self, new_nb_name):
         # look for the 'Rename Notebook...' under File tab menu
-        self.click_on_file_tab()
+        self.click_on_tab('File')
         self.find_menu_item_from_tab_drop_down_and_click('Rename')
 
         # enter the new notebook name
@@ -44,7 +45,7 @@ class NoteBookPage(MainPage):
         self.select_kernel()
 
     def close_current_notebook(self):
-        self.click_on_file_tab()
+        self.click_on_tab('File')
         self.find_menu_item_from_tab_drop_down_and_click('Close Notebook')
 
         # check if we are getting "Close without saving?" pop up
