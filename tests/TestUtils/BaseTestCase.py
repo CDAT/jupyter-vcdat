@@ -86,6 +86,7 @@ class BaseTestCase(unittest.TestCase):
         firefox_profile.set_preference('browser.download.panel.shown', False)
         firefox_profile.set_preference('browser.download.manager.showWhenStarting', False)
         firefox_profile.set_preference('browser.download.manager.showAlertOnComplete', False)
+        firefox_profile.set_preference('dom.disable_open_during_load', False)
         firefox_capabilities = DesiredCapabilities().FIREFOX
         firefox_capabilities['marionette'] = True
         firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
