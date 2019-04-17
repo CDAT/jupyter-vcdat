@@ -86,6 +86,13 @@ aliases:
        coveralls
        source deactivate
 
+  - &start_xvfb
+    name: start_xvfb
+    command: |
+        wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.1.jar -O selenium-server.jar
+        Xvfb :7055
+    background: true
+
 jobs:
   linux_docker_chrome_jupyter_vcdat_py3:
     docker:
@@ -115,8 +122,9 @@ jobs:
 
   linux_docker_firefox_jupyter_vcdat_py3:
     docker:
-      - image: circleci/node:jessie-browsers
-      - image: circleci/python:3.6.2-stretch-browsers
+      - image: selenium/standalone-firefox:latest
+      #- image: circleci/node:jessie-browsers
+      #- image: circleci/python:3.6.2-stretch-browsers
     environment:
       WORKDIR: "workspace/test_firefox"
       PY_VER: "py3"
@@ -127,6 +135,7 @@ jobs:
       - checkout
       - run: which firefox
       - run: which geckodriver
+      - run: *start_xvfb
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
@@ -143,7 +152,7 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_docker_chrome_jupyter_vcdat_py3
+      #- linux_docker_chrome_jupyter_vcdat_py3
       - linux_docker_firefox_jupyter_vcdat_py3
 
 
