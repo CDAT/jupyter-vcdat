@@ -216,7 +216,7 @@ export default class VarMenu extends React.Component<
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
               <Row>
-                <Col sm={6}>
+                <Col>
                   <Button
                     color="info"
                     onClick={this.launchFilebrowser}
@@ -226,19 +226,20 @@ export default class VarMenu extends React.Component<
                     Load Variable(s)
                   </Button>
                 </Col>
-                <Col sm={6}>
-                  <Button
-                    color="info"
-                    onClick={() => {
-                      this.props.updateNotebook();
-                    }}
-                    hidden={!this.props.syncNotebook()}
-                    style={varButtonStyle}
-                    title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
-                  >
-                    Sync Notebook
-                  </Button>
-                </Col>
+                {this.props.syncNotebook() && (
+                  <Col>
+                    <Button
+                      color="info"
+                      onClick={() => {
+                        this.props.updateNotebook();
+                      }}
+                      style={varButtonStyle}
+                      title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
+                    >
+                      Sync Notebook
+                    </Button>
+                  </Col>
+                )}
               </Row>
             </CardSubtitle>
             {this.state.variables.length > 0 && (

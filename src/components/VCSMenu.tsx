@@ -40,7 +40,7 @@ const centered: React.CSSProperties = {
 
 const sidebarOverflow: React.CSSProperties = {
   maxHeight: "100vh",
-  minWidth: "360px",
+  minWidth: "365px",
   overflow: "auto"
 };
 
@@ -54,7 +54,6 @@ export interface VCSMenuProps {
   plotReady: boolean; // The notebook is ready for code injection an plots
   plotExists: boolean; // whether a plot already exists
   plotExistTrue: Function; // sets the widget's plotExist state to true (called by plot function)
-  getDataVarList: Function; // A dictionary containing data variable names and associated file
   getGraphicsList: Function; // function that reads the current graphics list
   refreshGraphicsList: Function; // function that refreshes the graphics method list
   getTemplatesList: Function; // function that reads the widget's current template list
