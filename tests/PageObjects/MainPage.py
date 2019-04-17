@@ -99,7 +99,8 @@ class MainPage(BasePage):
         find the menu item with the specified constraint from the tab
         drop down, and click on it.
         '''
-        menu_item_locator = "//li[@class='p-Menu-item'][{c}]".format(c=constraint)
+        # menu_item_locator = "//li[@class='p-Menu-item'][{c}]".format(c=constraint)
+        menu_item_locator = "//li[@class='p-Menu-item' and {c}]".format(c=constraint)
         try:
             m = self.driver.find_element_by_xpath(menu_item_locator)
             if m.is_displayed() and m.is_enabled():
