@@ -1,11 +1,11 @@
-namespace MiscUtilities {
+export class MiscUtilities {
   /**
    * Converts a number to and ordinal shorthand string.
    * @param value
    * @returns string - The ordinal short name for a number
    * Example: 1 => 1st, 2 => 2nd, 5 => 5th, 32 => 32nd etc.
    */
-  export function numToOrdStr(value: number): string {
+  public static numToOrdStr(value: number): string {
     // Handle the teens
     if (value > 10 && value < 14) {
       return `${value}th`;
@@ -32,7 +32,7 @@ namespace MiscUtilities {
    * Example: ['.clt','.nc','.nc3','.nc4'] can also be ['.clt','.nc[34]?']
    * @returns RegExp - A regular expression that will filter for the specified extensions
    */
-  export function filenameFilter(extensions: string[]): RegExp {
+  public static filenameFilter(extensions: string[]): RegExp {
     let regexStr: string = `.+((${extensions.pop()})`;
     extensions.forEach((ext: string) => {
       regexStr += `|(${ext})`;
@@ -46,7 +46,7 @@ namespace MiscUtilities {
    * Example: test.nc => test, test.sdf.tes.nc43534 => test.sdf.tes, test. => test
    * @param filename The filename/path to remove extension from
    */
-  export function removeExtension(filename: string): string {
+  public static removeExtension(filename: string): string {
     return filename.replace(/\.[^/.]*$/, "");
   }
 
@@ -55,7 +55,7 @@ namespace MiscUtilities {
    * Example: folder/dir/test.nc => folder/dir/, test.sdf.tes.nc43534 => /
    * @param path The filename/path to remove extension from
    */
-  export function removeFilename(path: string): string {
+  public static removeFilename(path: string): string {
     const regEx: RegExp = /[^\/]+$/;
     return path.replace(regEx, "");
   }
@@ -67,8 +67,8 @@ namespace MiscUtilities {
    * @param target The directory path and filename to seek from source Ex: "dir3/dir1/file2"
    * @return string - Relative path (e.g. "../../style.css") from the source to target
    */
-  export function getRelativePath(source: string, target: string) {
-    const sourceArr: string[] = removeFilename(source).split("/");
+  public static getRelativePath(source: string, target: string) {
+    const sourceArr: string[] = MiscUtilities.removeFilename(source).split("/");
     const targetArr: string[] = target.split("/");
     const file: string = targetArr.pop();
     const depth1: number = sourceArr.length;
@@ -76,14 +76,14 @@ namespace MiscUtilities {
     const maxCommon: number = Math.min(depth1, depth2);
     let splitPos: number = 0;
 
-    for (let idx: number = 0; idx < maxCommon; idx++) {
-      if (sourceArr[idx] == targetArr[idx]) {
-        splitPos++;
+    for (let idx: number = 0; idx < maxCommon; idx += 1) {
+      if (sourceArr[idx] === targetArr[idx]) {
+        splitPos += 1;
       }
     }
 
     let relativePath: string = "../".repeat(depth1 - splitPos - 1);
-    for (let idx = splitPos; idx < depth2; idx++) {
+    for (let idx = splitPos; idx < depth2; idx += 1) {
       relativePath += `${targetArr[idx]}/`;
     }
 
@@ -91,31 +91,31 @@ namespace MiscUtilities {
   }
 
   /**
-   * 
+   *
    * @param name The file's name/path to convert to variable name
    * @param removeExt Default: true. Whether the extension of the file name should be removed.
    * @returns string - A string that can be safely used as a Python variable name.
    * (alpha numerical characters and underscore, and no numerical prefix)
    * Example (with extension removed): dir1/dir2/1file_12.sdf.ext -> file_12sdf
    */
-  export function createValidVarName(
+  public static createValidVarName(
     name: string,
     removeExt: boolean = true
   ): string {
     if (removeExt) {
-      name = removeExtension(name);
+      name = MiscUtilities.removeExtension(name);
     }
-    return name.replace(/(.*\/(.*\/)*[0-9]*)|([^a-z0-9_])/ig, "");
+    return name.replace(/(.*\/(.*\/)*[0-9]*)|([^a-z0-9_])/gi, "");
   }
 }
 
-namespace ColorFunctions {
-  export function isHexColor(hexCol: string): boolean {
+export class ColorFunctions {
+  public static isHexColor(hexCol: string): boolean {
     const regex = /^#[0-9a-fA-F]{6}$/i;
     return regex.test(hexCol);
   }
 
-  export function rgbToHexColorStr(RGB: [number, number, number]): string {
+  public static rgbToHexColorStr(RGB: [number, number, number]): string {
     let str: string = "";
     RGB.forEach(val => {
       switch (true) {
@@ -136,8 +136,8 @@ namespace ColorFunctions {
     return `#${str}`;
   }
 
-  export function hexColorStrToRGB(hexColor: string): [number, number, number] {
-    if (!isHexColor(hexColor)) {
+  public static hexColorStrToRGB(hexColor: string): [number, number, number] {
+    if (!ColorFunctions.isHexColor(hexColor)) {
       return [0, 0, 0];
     }
     const hexCol: string = hexColor.replace("#", "");
@@ -149,31 +149,37 @@ namespace ColorFunctions {
     ];
   }
 
-  export function createGradient(
+  public static createGradient(
     numColors: number,
     startColor: string,
     endColor: string
   ): string[] {
-    if (!isHexColor(startColor)) {
-      startColor = "#000000";
+    let firstCol: string = startColor;
+    let lastCol: string = endColor;
+    if (!ColorFunctions.isHexColor(startColor)) {
+      firstCol = "#000000";
     }
 
-    if (!isHexColor(endColor)) {
-      endColor = "#ffffff";
+    if (!ColorFunctions.isHexColor(endColor)) {
+      lastCol = "#ffffff";
     }
 
     if (numColors < 1) {
       return [];
     }
-    if (numColors == 1) {
-      return [startColor];
+    if (numColors === 1) {
+      return [firstCol];
     }
-    if (numColors == 2) {
-      return [startColor, endColor];
+    if (numColors === 2) {
+      return [firstCol, lastCol];
     }
 
-    const startRGB: [number, number, number] = hexColorStrToRGB(startColor);
-    const endRGB: [number, number, number] = hexColorStrToRGB(endColor);
+    const startRGB: [number, number, number] = ColorFunctions.hexColorStrToRGB(
+      firstCol
+    );
+    const endRGB: [number, number, number] = ColorFunctions.hexColorStrToRGB(
+      lastCol
+    );
     const interval: [number, number, number] = [0, 0, 0];
     const currColor: [number, number, number] = [0, 0, 0];
 
@@ -182,19 +188,17 @@ namespace ColorFunctions {
     interval[2] = Math.floor((endRGB[2] - startRGB[2]) / (numColors - 1));
 
     const colors: string[] = new Array<string>();
-    colors.push(startColor);
+    colors.push(firstCol);
 
-    for (let i: number = 1; i < numColors - 1; i++) {
+    for (let i: number = 1; i < numColors - 1; i += 1) {
       currColor[0] = startRGB[0] + interval[0] * i;
       currColor[1] = startRGB[1] + interval[1] * i;
       currColor[2] = startRGB[2] + interval[2] * i;
-      colors.push(rgbToHexColorStr(currColor));
+      colors.push(ColorFunctions.rgbToHexColorStr(currColor));
     }
 
-    colors.push(endColor);
+    colors.push(lastCol);
 
     return colors;
   }
 }
-
-export { MiscUtilities, ColorFunctions };

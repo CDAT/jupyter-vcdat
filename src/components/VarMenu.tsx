@@ -14,8 +14,8 @@ import {
 import { ColorFunctions } from "../Utilities";
 
 // Project Components
-import AxisInfo from "./AxisInfo";
-import Variable from "./Variable";
+import { AxisInfo } from "./AxisInfo";
+import { Variable } from "./Variable";
 import VarLoader from "./VarLoader";
 import VarMini from "./VarMini";
 

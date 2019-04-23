@@ -4,23 +4,21 @@ import { CommandRegistry } from "@phosphor/commands";
 
 // Project Components
 import { CellUtilities } from "./CellUtilities";
-import AxisInfo from "./components/AxisInfo";
-import Variable from "./components/Variable";
+import { AxisInfo } from "./components/AxisInfo";
+import { Variable } from "./components/Variable";
 import {
   CANVAS_CELL_KEY,
   CHECK_MODULES_CMD,
   DATA_LIST_KEY,
+  EXPORT_FORMATS,
   EXTENSIONS_REGEX,
+  IMAGE_UNITS,
   IMPORT_CELL_KEY,
   READER_CELL_KEY,
   REQUIRED_MODULES
 } from "./constants";
 import { NotebookUtilities } from "./NotebookUtilities";
 import { MiscUtilities } from "./Utilities";
-
-// Specifies valid plot export formats
-export type ExportFormats = "png" | "pdf" | "svg" | "ps" | "";
-export type ImageUnits = "pixels" | "in" | "cm" | "mm" | "dot";
 
 /**
  * A class that manages the code injection of vCDAT commands
@@ -148,7 +146,7 @@ export class CodeInjector {
     filePath: string
   ): Promise<number> {
     // If the data file doesn't have correct extension, exit
-    if (filePath == "") {
+    if (filePath === "") {
       throw new Error("The file path was empty.");
     }
 
@@ -187,7 +185,7 @@ export class CodeInjector {
         tmpFilePath = this.dataReaderList[existingDataName];
 
         // Exit early if the filepath has already been opened
-        if (tmpFilePath == filePath) {
+        if (tmpFilePath === filePath) {
           if (idx < 0) {
             return index;
           }
@@ -309,11 +307,11 @@ export class CodeInjector {
    */
 
   public async exportPlot(
-    format: ExportFormats,
+    format: EXPORT_FORMATS,
     name: string,
     width?: string,
     height?: string,
-    units?: ImageUnits,
+    units?: IMAGE_UNITS,
     provenance?: boolean
   ): Promise<void> {
     let cmd: string;
@@ -518,7 +516,7 @@ export class CodeInjector {
     const found: boolean = Object.keys(this.dataReaderList).some(
       (dataVar: string) => {
         dataName = dataVar;
-        return this.dataReaderList[dataVar] == filePath;
+        return this.dataReaderList[dataVar] === filePath;
       }
     );
     if (found) {
@@ -535,7 +533,7 @@ export class CodeInjector {
 
     while (Object.keys(this.dataReaderList).indexOf(newName) >= 0) {
       newName = `${dataName}${count}`;
-      count++;
+      count += 1;
     }
 
     return newName;
@@ -556,7 +554,7 @@ export class CodeInjector {
     funcName?: string,
     funcArgs?: IArguments
   ): Promise<[number, string]> {
-    if (this.notebookPanel == null) {
+    if (this.notebookPanel === null) {
       throw Error("No notebook, code injection cancelled.");
     }
     try {

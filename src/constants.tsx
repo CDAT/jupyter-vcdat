@@ -1,8 +1,8 @@
 import { MiscUtilities } from "./Utilities";
-const MAX_SLABS: number = 2;
-const BASE_URL: string = "/vcs";
-const READY_KEY: string = "vcdat_ready";
-const EXTENSIONS: string[] = [
+export const MAX_SLABS: number = 2;
+export const BASE_URL: string = "/vcs";
+export const READY_KEY: string = "vcdat_ready";
+export const EXTENSIONS: string[] = [
   ".nc",
   ".nc3",
   ".nc4",
@@ -11,23 +11,26 @@ const EXTENSIONS: string[] = [
   ".pp",
   ".cdf"
 ];
-const EXTENSIONS_REGEX: RegExp = MiscUtilities.filenameFilter(EXTENSIONS);
-const OUTPUT_RESULT_NAME = "_private_vcdat_output";
-const FILE_PATH_KEY: string = "vcdat_file_path";
-const IMPORT_CELL_KEY: string = "vcdat_imports";
-const CANVAS_CELL_KEY: string = "vcdat_canvases";
-const READER_CELL_KEY: string = "vcdat_readers";
-const VARIABLES_KEY: string = "selected_variables";
-const DATA_LIST_KEY: string = "data_variable_file_paths";
-const VARIABLE_SOURCES_KEY: string = "variable_source_names";
-const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
-const TEMPLATE_KEY: string = "template_selected";
-const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
-const REQUIRED_MODULES: string = "'cdms2','vcs','sidecar'";
 
-const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
+export const EXTENSIONS_REGEX: RegExp = MiscUtilities.filenameFilter(
+  EXTENSIONS
+);
+export const OUTPUT_RESULT_NAME = "_private_vcdat_output";
+export const FILE_PATH_KEY: string = "vcdat_file_path";
+export const IMPORT_CELL_KEY: string = "vcdat_imports";
+export const CANVAS_CELL_KEY: string = "vcdat_canvases";
+export const READER_CELL_KEY: string = "vcdat_readers";
+export const VARIABLES_KEY: string = "selected_variables";
+export const DATA_LIST_KEY: string = "data_variable_file_paths";
+export const VARIABLE_SOURCES_KEY: string = "variable_source_names";
+export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
+export const TEMPLATE_KEY: string = "template_selected";
+export const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
+export const REQUIRED_MODULES: string = "'cdms2','vcs','sidecar'";
 
-const CHECK_VCS_CMD: string = `import __main__\n\
+export const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
+
+export const CHECK_VCS_CMD: string = `import __main__\n\
 try:\n\
   for nm, obj in __main__.__dict__.items():\n\
     if isinstance(obj, cdms2.MV2.TransientVariable):\n\
@@ -36,7 +39,7 @@ try:\n\
 except:\n\
   ${OUTPUT_RESULT_NAME}=False\n`;
 
-const GET_VARS_CMD: string = `import __main__\n\
+export const GET_VARS_CMD: string = `import __main__\n\
 import json\n\
 def variables():\n\
     out = []\n\
@@ -59,7 +62,7 @@ def list_all():\n\
     return out\n\
 ${OUTPUT_RESULT_NAME} = "{}|{}|{})".format(variables(),templates(),graphic_methods())`;
 
-const REFRESH_NAMES_CMD = `import __main__\n\
+export const REFRESH_NAMES_CMD = `import __main__\n\
 def variables():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
@@ -68,7 +71,7 @@ def variables():\n\
   return out\n\
 ${OUTPUT_RESULT_NAME} = variables()`;
 
-const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
+export const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
 import json\n\
 def graphic_methods():\n\
   out = {}\n\
@@ -77,10 +80,10 @@ def graphic_methods():\n\
   return out\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())`;
 
-const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
+export const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
 ${OUTPUT_RESULT_NAME} = vcs.listelements('template')`;
 
-const CHECK_MODULES_CMD: string = `import types\n\
+export const CHECK_MODULES_CMD: string = `import types\n\
 required = [${REQUIRED_MODULES}]\n\
 def imports():\n\
   for name, val in globals().items():\n\
@@ -89,7 +92,7 @@ def imports():\n\
 found = list(imports())\n\
 ${OUTPUT_RESULT_NAME} = list(set(required)-set(found))`;
 
-const LIST_CANVASES_CMD: string = `import __main__\n\
+export const LIST_CANVASES_CMD: string = `import __main__\n\
 def canvases():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
@@ -98,7 +101,7 @@ def canvases():\n\
   return out\n\
 ${OUTPUT_RESULT_NAME} = canvases()`;
 
-const REFRESH_VAR_CMD: string = `import __main__\n\
+export const REFRESH_VAR_CMD: string = `import __main__\n\
 import json\n\
 import cdms2\n\
 def variables():\n\
@@ -169,7 +172,7 @@ for vname in vars:\n\
 var = None\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(outVars)`;
 
-const GET_AXIS_INFO_CMD: string = `
+export const GET_AXIS_INFO_CMD: string = `
 outAxes = {}\n\
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
@@ -200,7 +203,7 @@ for aname in reader.axes:\n\
 aname = None\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(outAxes)`;
 
-const GET_VARIABLES_CMD: string = `outVars = {}\n\
+export const GET_VARIABLES_CMD: string = `outVars = {}\n\
 for vname in reader.variables:\n\
   var = reader.variables[vname]\n\
   # Get a displayable name for the variable\n\
@@ -292,7 +295,7 @@ ${OUTPUT_RESULT_NAME} = json.dumps({\n\
   'axes': outAxes\n\
   })`;
 
-const BASE_GRAPHICS: any = {
+export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
   "3d_scalar": ["Hovmoller3D", "default"],
   xvsy: [
     "a_1d",
@@ -379,7 +382,7 @@ const BASE_GRAPHICS: any = {
   scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"]
 };
 
-const BASE_TEMPLATES: string[] = [
+export const BASE_TEMPLATES: string[] = [
   "default",
   "ASD",
   "ASD_dud",
@@ -424,7 +427,8 @@ const BASE_TEMPLATES: string[] = [
   "top_of2"
 ];
 
-enum NOTEBOOK_STATE {
+// Specifies the states of the Jupyterlab main area tab/notebook
+export enum NOTEBOOK_STATE {
   Unknown, // The current state of the notebook is unknown and should be updated.
   NoOpenNotebook, // JupyterLab has no notebook opened
   InactiveNotebook, // No notebook is currently active
@@ -434,36 +438,6 @@ enum NOTEBOOK_STATE {
   VCS_Ready // The notebook is ready for code injection
 }
 
-export {
-  MAX_SLABS,
-  BASE_URL,
-  READY_KEY,
-  FILE_PATH_KEY,
-  EXTENSIONS,
-  OUTPUT_RESULT_NAME,
-  EXTENSIONS_REGEX,
-  DATA_LIST_KEY,
-  IMPORT_CELL_KEY,
-  CANVAS_CELL_KEY,
-  READER_CELL_KEY,
-  VARIABLES_KEY,
-  GRAPHICS_METHOD_KEY,
-  TEMPLATE_KEY,
-  VARIABLES_LOADED_KEY,
-  VARIABLE_SOURCES_KEY,
-  REQUIRED_MODULES,
-  CANVAS_DIMENSIONS_CMD,
-  CHECK_VCS_CMD,
-  GET_VARS_CMD,
-  BASE_GRAPHICS,
-  BASE_TEMPLATES,
-  REFRESH_GRAPHICS_CMD,
-  REFRESH_TEMPLATES_CMD,
-  REFRESH_NAMES_CMD,
-  REFRESH_VAR_CMD,
-  GET_AXIS_INFO_CMD,
-  CHECK_MODULES_CMD,
-  LIST_CANVASES_CMD,
-  GET_VARIABLES_CMD,
-  NOTEBOOK_STATE
-};
+// Specifies valid plot export formats
+export type EXPORT_FORMATS = "png" | "pdf" | "svg" | "ps" | "";
+export type IMAGE_UNITS = "pixels" | "in" | "cm" | "mm" | "dot";

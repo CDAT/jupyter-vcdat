@@ -130,7 +130,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
     const content = new NCViewerWidget(context);
     const ncWidget = new DocumentWidget({ content, context });
 
-    if (sidebar == null || context == null) {
+    if (sidebar === null || context === null) {
       return;
     }
 
@@ -139,7 +139,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
 
     // Prepare the notebook for code injection
     sidebar.prepareNotebookPanel(context.session.path).catch(error => {
-      if (error.status == "error") {
+      if (error.status === "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
       } else if (error.message) {
         NotebookUtilities.showMessage("Error", error.message);
