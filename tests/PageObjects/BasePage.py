@@ -24,7 +24,7 @@ class BasePage(object):
     def _validate_page(self):
         return
 
-    def find_element_and_click(self, xpath, descr):
+    def find_element_and_click_ORIG(self, xpath, descr):
         try:
             elem = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
             print("FOUND {d}, clicking it".format(d=descr))
@@ -32,6 +32,18 @@ class BasePage(object):
             time.sleep(self._delay)
         except TimeoutException as e:
             print("TimeoutException...not finding {d} to be clickable".format(d=descr))
+            raise e
+
+    def find_element_and_click(self, xpath, descr):
+        try:
+            elem = self.driver.find_element_by_xpath(xpath)
+            self.driver.execute_script("return arguments[0].scrollIntoView(true);", elem)
+            # elem = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+            print("FOUND {d}, clicking it".format(d=descr))
+            elem.click()
+            time.sleep(self._delay)
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding {d}".format(d=descr))
             raise e
 
     def find_element(self, xpath, descr):
