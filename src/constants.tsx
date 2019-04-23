@@ -1,4 +1,4 @@
-import { MiscUtilities } from "./Utilities";
+import { Utilities } from "./Utilities";
 export const MAX_SLABS: number = 2;
 export const BASE_URL: string = "/vcs";
 export const READY_KEY: string = "vcdat_ready";
@@ -12,7 +12,7 @@ export const EXTENSIONS: string[] = [
   ".cdf"
 ];
 
-export const EXTENSIONS_REGEX: RegExp = MiscUtilities.filenameFilter(
+export const EXTENSIONS_REGEX: RegExp = Utilities.filenameFilter(
   EXTENSIONS
 );
 export const OUTPUT_RESULT_NAME = "_private_vcdat_output";
@@ -26,7 +26,7 @@ export const VARIABLE_SOURCES_KEY: string = "variable_source_names";
 export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
 export const TEMPLATE_KEY: string = "template_selected";
 export const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
-export const REQUIRED_MODULES: string = "'cdms2','vcs','sidecar'";
+export const REQUIRED_MODULES: string = '["cdms2","vcs","sidecar"]';
 
 export const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
 
@@ -39,37 +39,15 @@ try:\n\
 except:\n\
   ${OUTPUT_RESULT_NAME}=False\n`;
 
-export const GET_VARS_CMD: string = `import __main__\n\
-import json\n\
-def variables():\n\
-    out = []\n\
-    for nm, obj in __main__.__dict__.items():\n\
-        if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-            out+=[nm]\n\
-    return out\n\
-def graphic_methods():\n\
-    out = {}\n\
-    for typ in vcs.graphicsmethodlist():\n\
-        out[type] = vcs.listelements(typ)\n\
-    return out\n\
-def templates():\n\
-    return vcs.listelements("template")\n\
-def list_all():\n\
-    out = {}\n\
-    out["variables"] = variables()\n\
-    out["gm"] = graphic_methods()\n\
-    out["template"] = templates()\n\
-    return out\n\
-${OUTPUT_RESULT_NAME} = "{}|{}|{})".format(variables(),templates(),graphic_methods())`;
-
 export const REFRESH_NAMES_CMD = `import __main__\n\
+import json\n\
 def variables():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
     if isinstance(obj, cdms2.MV2.TransientVariable):\n\
       out+=[nm]\n\
   return out\n\
-${OUTPUT_RESULT_NAME} = variables()`;
+${OUTPUT_RESULT_NAME} = json.dumps(variables())`;
 
 export const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
 import json\n\
@@ -81,25 +59,28 @@ def graphic_methods():\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())`;
 
 export const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
-${OUTPUT_RESULT_NAME} = vcs.listelements('template')`;
+import json\n\
+${OUTPUT_RESULT_NAME} = json.dumps(vcs.listelements('template'))`;
 
 export const CHECK_MODULES_CMD: string = `import types\n\
-required = [${REQUIRED_MODULES}]\n\
+import json\n\
+required = ${REQUIRED_MODULES}\n\
 def imports():\n\
   for name, val in globals().items():\n\
     if isinstance(val, types.ModuleType):\n\
       yield val.__name__\n\
 found = list(imports())\n\
-${OUTPUT_RESULT_NAME} = list(set(required)-set(found))`;
+${OUTPUT_RESULT_NAME} = json.dumps(list(set(required)-set(found)))`;
 
 export const LIST_CANVASES_CMD: string = `import __main__\n\
+import json\n\
 def canvases():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
     if isinstance(obj, vcs.Canvas.Canvas):\n\
       out+=[nm]\n\
   return out\n\
-${OUTPUT_RESULT_NAME} = canvases()`;
+${OUTPUT_RESULT_NAME} = json.dumps(canvases())`;
 
 export const REFRESH_VAR_CMD: string = `import __main__\n\
 import json\n\

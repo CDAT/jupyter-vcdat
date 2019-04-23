@@ -34,7 +34,7 @@ import {
   VARIABLES_LOADED_KEY
 } from "./constants";
 import { NotebookUtilities } from "./NotebookUtilities";
-import { MiscUtilities } from "./Utilities";
+import { Utilities } from "./Utilities";
 
 /**
  * This is the main component for the vcdat extension.
@@ -256,12 +256,11 @@ export class LeftSideBarWidget extends Widget {
         }
 
         // Update the list of data variables and associated filepath
-        result = NotebookUtilities.getMetaDataNow(
-          this.notebookPanel,
-          DATA_LIST_KEY
-        );
-        if (result) {
-          this.codeInjector.dataReaderList = result;
+        const readers: {
+          [dataName: string]: string;
+        } = NotebookUtilities.getMetaDataNow(this.notebookPanel, DATA_LIST_KEY);
+        if (readers) {
+          this.codeInjector.dataReaderList = readers;
         } else {
           this.codeInjector.dataReaderList = {};
         }
@@ -550,10 +549,10 @@ export class LeftSideBarWidget extends Widget {
         this.usingKernel = true;
         const output: string = await NotebookUtilities.sendSimpleKernelRequest(
           this.notebookPanel,
-          `${OUTPUT_RESULT_NAME} = canvas.listelements('display')`
+          `import json\n${OUTPUT_RESULT_NAME} = json.dumps(canvas.listelements('display'))`
         );
         this.usingKernel = false;
-        return eval(output).length > 1;
+        return Utilities.strArray(output).length > 1;
       }
       return false;
     } catch (error) {
@@ -594,7 +593,7 @@ export class LeftSideBarWidget extends Widget {
           REFRESH_TEMPLATES_CMD
         );
         // Update the list of latest variables and data
-        this.templatesList = eval(output);
+        this.templatesList = Utilities.strArray(output);
         this.usingKernel = false;
       } else {
         this.templatesList = BASE_TEMPLATES;
@@ -692,7 +691,7 @@ export class LeftSideBarWidget extends Widget {
 
     // Get relative path for the file
     const nbPath: string = `${this.notebookPanel.session.path}`;
-    const relativePath: string = MiscUtilities.getRelativePath(
+    const relativePath: string = Utilities.getRelativePath(
       nbPath,
       sourceFile
     );
@@ -738,7 +737,7 @@ export class LeftSideBarWidget extends Widget {
     try {
       // Get relative path for the file
       const nbPath: string = `${this.notebookPanel.session.path}`;
-      const relativePath: string = MiscUtilities.getRelativePath(
+      const relativePath: string = Utilities.getRelativePath(
         nbPath,
         filePath
       );

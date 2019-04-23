@@ -194,7 +194,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           this.state.notebookPanel,
           CANVAS_DIMENSIONS_CMD
         );
-        const dimensions: [number, number] = eval(output);
+        const dimensions: [number, number] = JSON.parse(output);
         return { width: dimensions[0], height: dimensions[1] };
       }
       return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };

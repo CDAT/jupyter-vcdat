@@ -131,24 +131,20 @@ export default class VarLoader extends React.Component<
    * @param varName the name of the variable to update
    */
   public updateDimInfo(newInfo: any, varName: string): void {
-    this.state.fileVariables.forEach(
-      (fileVariable: Variable, varIndex: number) => {
-        if (fileVariable.name != varName) {
+    let variables: Variable[] = this.state.variables;
+    variables.forEach((variable: Variable, varIndex: number) => {
+      if (variable.name != varName) {
+        return;
+      }
+      variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
+        if (axis.name != newInfo.name) {
           return;
         }
-        fileVariable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-          if (axis.name != newInfo.name) {
-            return;
-          }
-          const fileVariables = this.state.fileVariables;
-          fileVariables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-          fileVariables[varIndex].axisInfo[axisIndex].max = newInfo.max;
-          this.setState({
-            fileVariables
-          });
-        });
-      }
-    );
+        variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
+        variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
+      });
+    });
+    this.setState({ variables: variables });
   }
 
   public render(): JSX.Element {

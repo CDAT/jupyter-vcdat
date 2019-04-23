@@ -172,9 +172,8 @@ export class CellUtilities {
       const output = CellUtilities.readOutput(notebook, index);
       notebook.activeCellIndex = oldIndex;
       return output;
-    } catch (error) {
+    } finally {
       notebook.activeCellIndex = oldIndex;
-      throw error;
     }
   }
 

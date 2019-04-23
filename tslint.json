@@ -5,5 +5,11 @@
     "tslint-eslint-rules",
     "tslint-config-airbnb",
     "tslint-config-prettier"
-  ]
+  ],
+  "rules": {
+    "no-console": {
+      "severity": "warning",
+      "options": ["log", "debug", "info", "time", "timeEnd", "trace"]
+    }
+  }
 }

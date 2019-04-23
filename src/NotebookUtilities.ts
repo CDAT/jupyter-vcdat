@@ -22,7 +22,7 @@ export class NotebookUtilities {
     const buttons: ReadonlyArray<Dialog.IButton> = [
       Dialog.okButton({ label: buttonLabel })
     ];
-    await showDialog({ title, body: msg, buttons });
+    await showDialog({ title, buttons, body: msg });
   }
 
   /**
@@ -182,9 +182,9 @@ export class NotebookUtilities {
    * @description This function runs code directly in the notebook's kernel and then evaluates the
    * result and returns it as a promise.
    * @param notebookPanel The notebook to run the code in.
-   * @param code The code to run in the kernel.
+   * @param runCode The code to run in the kernel.
    * @param userExpressions The expressions used to capture the desired info from the executed code.
-   * @param silent Default is false. If true, kernel will execute as quietly as possible.
+   * @param runSilent Default is false. If true, kernel will execute as quietly as possible.
    * store_history will be set to false, and no broadcast on IOPUB channel will be made.
    * @param storeHistory Default is false. If true, the code executed will be stored in the kernel's history
    * and the counter which is shown in the cells will be incremented to reflect code was run.
@@ -212,9 +212,9 @@ export class NotebookUtilities {
    */
   public static async sendKernelRequest(
     notebookPanel: NotebookPanel,
-    code: string,
+    runCode: string,
     userExpressions: any,
-    silent: boolean = false,
+    runSilent: boolean = false,
     storeHistory: boolean = false,
     allowStdIn: boolean = false,
     stopOnError: boolean = false
@@ -228,14 +228,15 @@ export class NotebookUtilities {
     await notebookPanel.activated;
     await notebookPanel.session.ready;
     await notebookPanel.session.kernel.ready;
+
     const message: KernelMessage.IShellMessage = await notebookPanel.session.kernel.requestExecute(
       {
-        code,
-        silent,
-        store_history: storeHistory,
-        user_expressions: userExpressions,
         allow_stdin: allowStdIn,
-        stop_on_error: stopOnError
+        code: runCode,
+        silent: runSilent,
+        stop_on_error: stopOnError,
+        store_history: storeHistory,
+        user_expressions: userExpressions
       }
     ).done;
 

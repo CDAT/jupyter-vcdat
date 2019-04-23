@@ -12,7 +12,7 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { MiscUtilities } from "../Utilities";
+import { Utilities } from "../Utilities";
 import { AxisInfo } from "./AxisInfo";
 import DimensionSlider from "./DimensionSlider";
 import { Variable } from "./Variable";
@@ -126,7 +126,7 @@ export default class VarMini extends React.Component<
                 ...{ backgroundColor: this.props.buttonColor }
               }}
             >
-              {MiscUtilities.numToOrdStr(this.props.selectOrder)} Variable
+              {Utilities.numToOrdStr(this.props.selectOrder)} Variable
             </Badge>
           )}
         </div>

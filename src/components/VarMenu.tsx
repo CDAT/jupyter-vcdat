@@ -11,7 +11,7 @@ import {
   ListGroupItem,
   Row
 } from "reactstrap";
-import { ColorFunctions } from "../Utilities";
+import { ColorFunctions } from "../ColorFunctions";
 
 // Project Components
 import { AxisInfo } from "./AxisInfo";
