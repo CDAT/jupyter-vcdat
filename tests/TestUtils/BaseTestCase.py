@@ -105,8 +105,8 @@ class BaseTestCase(unittest.TestCase):
         #                                # options=options,
         #                                capabilities=firefox_capabilities)
         if os.getenv("CIRCLECI"):
-            firefox_binary = FirefoxBinary("/usr/bin/firefox")
-            geckodriver_loc = "/usr/bin/geckodriver"
+            firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
+            geckodriver_loc = "/usr/local/bin/geckodriver"
         else:
             # TEMPORARY
             firefox_binary = FirefoxBinary("/Applications/Firefox.app/Contents/MacOS/firefox")
