@@ -87,34 +87,29 @@ class LoadVariablePopUp(BasePage):
                     slider_track = the_axis.find_element_by_xpath(slider_track_locator)
                     slider_width = slider_track.size['width']
 
-                    # print("...scroll so the slider is visible...")
-                    # wait = WebDriverWait(self.driver, 20)
-                    # slider = wait.until(EC.visibility_of_element_located((By.XPATH, slider_track_locator)))
-                    # self.driver.execute_script("return arguments[0].scrollIntoView(true);", slider)
-
                     print("...info...width of slider_track: {w}".format(w=slider_width))
                     # get the slider handle elements - this is the min and max handles
                     slider_handle_locator = ".//div[@class='slider-handles']/div[@role='slider']"
                     min_max_elements = the_axis.find_elements_by_xpath(slider_handle_locator)
-                    ac = ActionChains(self.driver)
                     if min_offset_percent != 0:
                         min_offset = (min_offset_percent/100) * slider_width
                         # needed to work with firefox
                         self.driver.execute_script("return arguments[0].scrollIntoView(true);", min_max_elements[0])
+                        ac = ActionChains(self.driver)
                         ac.click_and_hold(min_max_elements[0]).move_by_offset(min_offset, 0).release().perform()
                         time.sleep(self._delay)
                     if max_offset_percent != 0:
                         max_offset = (max_offset_percent/100) * slider_width
                         # needed to work with firefox
                         self.driver.execute_script("return arguments[0].scrollIntoView(true);", min_max_elements[1])
+                        ac = ActionChains(self.driver)
                         ac.click_and_hold(min_max_elements[1]).move_by_offset(max_offset, 0).release().perform()
                         time.sleep(self._delay)
                     break
             i += 1
 
     def load(self):
-        print("click on load button...")
-
+        print("click on load button on the 'Load Variables' pop up menu...")
         load_button_locator = "//div[@class='modal-footer']//button[contains(text(), 'Load')]"
         self.find_element_and_click(load_button_locator, "...click on 'Load' button...")
         time.sleep(self._delay)

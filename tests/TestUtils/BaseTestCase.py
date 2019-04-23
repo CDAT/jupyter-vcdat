@@ -24,7 +24,14 @@ from pyvirtualdisplay import Display
 
 
 class BaseTestCase(unittest.TestCase):
-
+    '''
+    Following env variable should be set:
+    BROWSER_MODE: '--foreground' or '--headless'
+    BROWSER_TYPE: 'chrome' or 'firefox'
+    BROWSER_DRIVER: full path to your browser driver (chromedriver or geckodriver)
+    If running with firefox on Linux, should also set:
+       BROWSER_BINARY: full path to your firefox binary
+    '''
     _delay = 1
     _wait_timeout = 3
     # _test_notebook_file = 'test_jpvcdat.ipynb'
@@ -73,44 +80,19 @@ class BaseTestCase(unittest.TestCase):
         chrome_options.add_argument(mode)
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("window-size=1200x600")
-        self.driver = webdriver.Chrome(executable_path="/usr/local/bin/chromedriver",
+        self.driver = webdriver.Chrome(executable_path=os.getenv("BROWSER_BINARY", "/usr/local/bin/chromedriver"),
                                        chrome_options=chrome_options,
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
 
     def setup_for_firefox(self, mode):
         firefox_profile = FirefoxProfile()
-        # firefox_profile.set_preference('extensions.logging.enabled', False)
-        # firefox_profile.set_preference('network.dns.disableIPv6', False)
-        # firefox_profile.set_preference('browser.download.dir', self._download_dir)
-        # firefox_profile.set_preference('browser.download.folderList', 2)
-        # firefox_profile.set_preference('browser.download.useDownloadDir', True)
-        # firefox_profile.set_preference('browser.download.panel.shown', False)
-        # firefox_profile.set_preference('browser.download.manager.showWhenStarting', False)
-        # firefox_profile.set_preference('browser.download.manager.showAlertOnComplete', False)
         firefox_profile.set_preference('dom.disable_open_during_load', False)
         firefox_capabilities = DesiredCapabilities().FIREFOX
         firefox_capabilities['marionette'] = True
         firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
-        # options = Options()
-        # options.binary_location = "/usr/local/bin"
-        # firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
-        # options.binary_location = "/usr/bin/geckodriver"
-        # firefox_binary = FirefoxBinary("/usr/bin/firefox")
-        # TEMPORARY
-        # options.binary_location = "/export/muryanto1/work/selenium/geckodriver"
-        # firefox_binary = FirefoxBinary("/usr/bin/firefox")
-        # self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
-        #                                 firefox_binary=firefox_binary,
-        #                                 executable_path="/usr/local/bin/geckodriver",
-        #                                # options=options,
-        #                                capabilities=firefox_capabilities)
-        if os.getenv("CIRCLECI"):
-            firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
-            geckodriver_loc = "/usr/local/bin/geckodriver"
-        else:
-            # TEMPORARY
-            firefox_binary = FirefoxBinary("/Applications/Firefox.app/Contents/MacOS/firefox")
-            geckodriver_loc = "/Users/muryanto1/work/selenium/geckodriver"
+
+        firefox_binary = FirefoxBinary(os.getenv("BROWSER_BINARY", "/usr/bin/firefox"))
+        geckodriver_loc = os.getenv("BROWSER_DRIVER", "/usr/local/bin/geckodriver")
         self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
                                         firefox_binary=firefox_binary,
                                         executable_path=geckodriver_loc,

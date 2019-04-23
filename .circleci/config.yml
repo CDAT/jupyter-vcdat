@@ -119,6 +119,7 @@ jobs:
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       #COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: "chrome"
+      BROWSER_DRIVER: "/usr/local/bin/chromedriver"
     steps:
       - checkout
       - run: *setup_miniconda
@@ -146,6 +147,8 @@ jobs:
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       #COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: "firefox"
+      BROWSER_BINARY: "/usr/local/bin/firefox"
+      BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     steps:
       - checkout
       - run: which firefox

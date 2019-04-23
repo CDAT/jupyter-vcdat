@@ -69,7 +69,7 @@ class MainPage(BasePage):
         find the specified menu item from the tab drop down, and
         click on it.
         '''
-        print("XXX xxx...look for '{m}' from drop down menu".format(m=menu_item_name))
+        print("...look for '{m}' from drop down menu".format(m=menu_item_name))
         menu_with_submenu_loc = "//li[@class='p-Menu-item' and @data-type='submenu']"
         item_label_locator = ".//div[@class='p-Menu-itemLabel']"
         submenu_item_locator = "//ul[@class='p-Menu-content']//li[@class='p-Menu-item' and {c}]".format(c=constraint)
