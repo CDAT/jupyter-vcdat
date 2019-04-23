@@ -18,7 +18,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 # from selenium.webdriver.firefox.options import Options
-# from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from pyvirtualdisplay import Display
 
@@ -63,6 +63,7 @@ class BaseTestCase(unittest.TestCase):
     def tearDown(self):
         print("xxx xxx BaseTestCase.tearDown() xxx xxx")
         self.main_page.shutdown_kernel()
+        self.notebook_page.save_current_notebook()
         self.notebook_page.close_current_notebook()
         self.driver.quit()
         os.remove(self._test_notebook_file)
@@ -77,7 +78,7 @@ class BaseTestCase(unittest.TestCase):
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
 
     def setup_for_firefox(self, mode):
-        # firefox_profile = FirefoxProfile()
+        firefox_profile = FirefoxProfile()
         # firefox_profile.set_preference('extensions.logging.enabled', False)
         # firefox_profile.set_preference('network.dns.disableIPv6', False)
         # firefox_profile.set_preference('browser.download.dir', self._download_dir)
@@ -86,13 +87,13 @@ class BaseTestCase(unittest.TestCase):
         # firefox_profile.set_preference('browser.download.panel.shown', False)
         # firefox_profile.set_preference('browser.download.manager.showWhenStarting', False)
         # firefox_profile.set_preference('browser.download.manager.showAlertOnComplete', False)
-        # firefox_profile.set_preference('dom.disable_open_during_load', False)
+        firefox_profile.set_preference('dom.disable_open_during_load', False)
         firefox_capabilities = DesiredCapabilities().FIREFOX
         firefox_capabilities['marionette'] = True
         firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
         # options = Options()
         # options.binary_location = "/usr/local/bin"
-        firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
+        # firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
         # options.binary_location = "/usr/bin/geckodriver"
         # firefox_binary = FirefoxBinary("/usr/bin/firefox")
         # TEMPORARY
@@ -103,8 +104,16 @@ class BaseTestCase(unittest.TestCase):
         #                                 executable_path="/usr/local/bin/geckodriver",
         #                                # options=options,
         #                                capabilities=firefox_capabilities)
-        self.driver = webdriver.Firefox(firefox_binary=firefox_binary,
-                                        executable_path="/usr/local/bin/geckodriver",
+        if os.getenv("CIRCLECI"):
+            firefox_binary = FirefoxBinary("/usr/bin/firefox")
+            geckodriver_loc = "/usr/bin/geckodriver"
+        else:
+            # TEMPORARY
+            firefox_binary = FirefoxBinary("/Applications/Firefox.app/Contents/MacOS/firefox")
+            geckodriver_loc = "/Users/muryanto1/work/selenium/geckodriver"
+        self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
+                                        firefox_binary=firefox_binary,
+                                        executable_path=geckodriver_loc,
                                         capabilities=firefox_capabilities)
 
     #

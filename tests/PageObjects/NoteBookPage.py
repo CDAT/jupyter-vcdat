@@ -19,7 +19,16 @@ class NoteBookPage(MainPage):
         print("...click on New Notebook...")
         # self.hover_over_tab('File')
         self.click_on_tab('File')
-        self.find_menu_item_from_tab_drop_down_and_click('New')
+        # self.find_menu_item_from_tab_drop_down_and_click('New')
+        notebook_locator_constraint = "@data-command='notebook:create-new'"
+        self.find_menu_item_from_tab_drop_down_find_submenu_by_constraint('New', notebook_locator_constraint)
+
+    def _click_on_new_notebookORIG(self):
+        print("...click on New Notebook...")
+        # self.hover_over_tab('File')
+        self.click_on_tab('File')
+        # self.find_menu_item_from_tab_drop_down_and_click('New')
+        self.find_menu_item_from_tab_drop_down_find_submenu_and_click('New')
 
         # notebook_locator = "//li[@class='p-Menu-item'][@data-command='notebook:create-new']"
         notebook_locator_constraint = "@data-command='notebook:create-new'"
@@ -28,7 +37,10 @@ class NoteBookPage(MainPage):
     def rename_notebook(self, new_nb_name):
         # look for the 'Rename Notebook...' under File tab menu
         self.click_on_tab('File')
-        self.find_menu_item_from_tab_drop_down_and_click('Rename')
+
+        # rename notebook locator data-command
+        loc = "docmanager:rename"
+        self.find_menu_item_with_command_from_tab_drop_down_and_click(loc)
 
         # enter the new notebook name
         rename_notebook_input_locator = "//input[@class='jp-mod-styled']"
@@ -44,10 +56,16 @@ class NoteBookPage(MainPage):
         self._click_on_new_notebook()
         self.select_kernel()
 
+    def save_current_notebook(self):
+        self.click_on_tab('File')
+        # save notebook locator data-command
+        print("...click on 'Save Notebook'...")
+        loc = "docmanager:save"
+        self.find_menu_item_with_command_from_tab_drop_down_and_click(loc)
+
     def close_current_notebook(self):
         self.click_on_tab('File')
         self.find_menu_item_from_tab_drop_down_and_click('Close Notebook')
-
         # check if we are getting "Close without saving?" pop up
         close_without_saving_ok_locator = "//div[contains(text(), 'OK')]"
         try:

@@ -54,7 +54,10 @@ class LoadVariablePopUp(BasePage):
     def adjust_var_axes_slider(self, var, axis, min_offset_percent, max_offset_percent):
         var_row_elements = self._get_var_row_elements()
         print("...# of var_row_elements: {n}".format(n=len(var_row_elements)))
+        i = 0
         for r in var_row_elements:
+            ActionChains(self.driver).move_to_element(var_row_elements[i]).perform()
+
             var_axes_row_locator = ".//div[starts-with(@class, 'col-sm')]//button"
             buttons = r.find_elements_by_xpath(var_axes_row_locator)
             for b in buttons:
@@ -83,6 +86,12 @@ class LoadVariablePopUp(BasePage):
                     slider_track_locator = ".//div[@class='slider-tracks']/div"
                     slider_track = the_axis.find_element_by_xpath(slider_track_locator)
                     slider_width = slider_track.size['width']
+
+                    # print("...scroll so the slider is visible...")
+                    # wait = WebDriverWait(self.driver, 20)
+                    # slider = wait.until(EC.visibility_of_element_located((By.XPATH, slider_track_locator)))
+                    # self.driver.execute_script("return arguments[0].scrollIntoView(true);", slider)
+
                     print("...info...width of slider_track: {w}".format(w=slider_width))
                     # get the slider handle elements - this is the min and max handles
                     slider_handle_locator = ".//div[@class='slider-handles']/div[@role='slider']"
@@ -90,13 +99,18 @@ class LoadVariablePopUp(BasePage):
                     ac = ActionChains(self.driver)
                     if min_offset_percent != 0:
                         min_offset = (min_offset_percent/100) * slider_width
+                        # needed to work with firefox
+                        self.driver.execute_script("return arguments[0].scrollIntoView(true);", min_max_elements[0])
                         ac.click_and_hold(min_max_elements[0]).move_by_offset(min_offset, 0).release().perform()
                         time.sleep(self._delay)
                     if max_offset_percent != 0:
                         max_offset = (max_offset_percent/100) * slider_width
+                        # needed to work with firefox
+                        self.driver.execute_script("return arguments[0].scrollIntoView(true);", min_max_elements[1])
                         ac.click_and_hold(min_max_elements[1]).move_by_offset(max_offset, 0).release().perform()
                         time.sleep(self._delay)
                     break
+            i += 1
 
     def load(self):
         print("click on load button...")
