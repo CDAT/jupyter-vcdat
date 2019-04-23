@@ -51,7 +51,7 @@ aliases:
        pip install nose
        python run_tests.py -H -v2 $COVERAGE tests/test_variable.py
        RESULT=$?
-       echo "**** $PY_VER test result: "${RESULT} 
+       echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
 
   - &conda_upload
