@@ -208,7 +208,6 @@ export default class VarMenu extends React.Component<
       "#28a745",
       "#17a2b8"
     );
-    const syncNotebook: boolean = this.props.syncNotebook();
 
     return (
       <div>
@@ -217,7 +216,7 @@ export default class VarMenu extends React.Component<
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
               <Row>
-                <Col sm={6}>
+                <Col>
                   <Button
                     color="info"
                     onClick={this.launchFilebrowser}
@@ -227,19 +226,20 @@ export default class VarMenu extends React.Component<
                     Load Variable(s)
                   </Button>
                 </Col>
-                <Col sm={6}>
-                  <Button
-                    color="info"
-                    onClick={async () => {
-                      this.props.updateNotebook();
-                    }}
-                    hidden={!syncNotebook}
-                    style={varButtonStyle}
-                    title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
-                  >
-                    Sync Notebook
-                  </Button>
-                </Col>
+                {this.props.syncNotebook() && (
+                  <Col>
+                    <Button
+                      color="info"
+                      onClick={() => {
+                        this.props.updateNotebook();
+                      }}
+                      style={varButtonStyle}
+                      title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
+                    >
+                      Sync Notebook
+                    </Button>
+                  </Col>
+                )}
               </Row>
             </CardSubtitle>
             {this.state.variables.length > 0 && (

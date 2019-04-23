@@ -14,7 +14,7 @@ import {
 } from "reactstrap";
 
 // Project Components
-import Container from "reactstrap/lib/Container";
+import { CodeInjector } from "../CodeInjector";
 import {
   CANVAS_DIMENSIONS_CMD,
   GRAPHICS_METHOD_KEY,
@@ -25,7 +25,6 @@ import {
   VARIABLES_LOADED_KEY
 } from "../constants";
 import { NotebookUtilities } from "../NotebookUtilities";
-import AxisInfo from "./AxisInfo";
 import ExportPlotModal from "./ExportPlotModal";
 import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
@@ -41,7 +40,7 @@ const centered: React.CSSProperties = {
 
 const sidebarOverflow: React.CSSProperties = {
   maxHeight: "100vh",
-  minWidth: "360px",
+  minWidth: "365px",
   overflow: "auto"
 };
 
@@ -50,13 +49,11 @@ const DEFAULT_WIDTH: number = 800;
 const DEFAULT_HEIGHT: number = 600;
 
 export interface VCSMenuProps {
-  inject: Function; // a method to inject code into the controllers notebook
   commands: CommandRegistry; // the command executor
   notebookPanel: NotebookPanel;
   plotReady: boolean; // The notebook is ready for code injection an plots
   plotExists: boolean; // whether a plot already exists
   plotExistTrue: Function; // sets the widget's plotExist state to true (called by plot function)
-  getDataVarList: Function; // A dictionary containing data variable names and associated file
   getGraphicsList: Function; // function that reads the current graphics list
   refreshGraphicsList: Function; // function that refreshes the graphics method list
   getTemplatesList: Function; // function that reads the widget's current template list
@@ -64,6 +61,7 @@ export interface VCSMenuProps {
   updateVariables: Function; // function that updates the variables list in the main widget
   updateNotebookPanel: Function; // Function passed to the var menu
   syncNotebook: Function; // Function passed to the var menu
+  codeInjector: CodeInjector;
 }
 interface VCSMenuState {
   plotReady: boolean; // are we ready to plot
@@ -291,23 +289,26 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     }
 
     // If no duplicates, create command injection string
-    let command: string = `${newName}_${groupName} = `;
-    command += `vcs.create${groupName}('${newName}',source='${methodName}')`;
-    // Attempt code injection
-    await this.props.inject(command).then(async () => {
-      this.props.refreshGraphicsList();
-      // If successful, update the current state
-      await this.setState({
-        selectedGMgroup: groupName,
-        selectedGM: newName
-      });
-      // Save selected graphics method to meta data
-      NotebookUtilities.setMetaData(
-        this.state.notebookPanel,
-        GRAPHICS_METHOD_KEY,
-        [this.state.selectedGMgroup, this.state.selectedGM]
-      );
+    await this.props.codeInjector.createCopyOfGM(
+      newName,
+      groupName,
+      methodName
+    );
+
+    // If successful, update the current state
+    await this.setState({
+      selectedGMgroup: groupName,
+      selectedGM: newName
     });
+
+    await this.props.refreshGraphicsList();
+
+    // Save selected graphics method to meta data
+    NotebookUtilities.setMetaData(
+      this.state.notebookPanel,
+      GRAPHICS_METHOD_KEY,
+      [this.state.selectedGMgroup, this.state.selectedGM]
+    );
   }
 
   /**
@@ -319,45 +320,35 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     group: string,
     name: string
   ): Promise<void> {
-    let cmdString: string = "";
-    if (name.indexOf(group) < 0) {
-      cmdString = `${name}_${group} = vcs.get${group}('${name}')`;
-    } else {
-      cmdString = `${name} = vcs.get${group}('${name}')`;
-    }
-
     // Attempt code injection
-    await this.props.inject(cmdString).then(() => {
-      // If successful, update the state
-      this.setState({
-        selectedGMgroup: group,
-        selectedGM: name
-      });
-      // Save selected graphics method to meta data
-      NotebookUtilities.setMetaData(
-        this.state.notebookPanel,
-        GRAPHICS_METHOD_KEY,
-        [this.state.selectedGMgroup, this.state.selectedGM]
-      );
+    await this.props.codeInjector.getGraphicMethod(group, name);
+
+    // If successful, update the state
+    this.setState({
+      selectedGMgroup: group,
+      selectedGM: name
     });
+    // Save selected graphics method to meta data
+    NotebookUtilities.setMetaData(
+      this.state.notebookPanel,
+      GRAPHICS_METHOD_KEY,
+      [this.state.selectedGMgroup, this.state.selectedGM]
+    );
   }
 
   public async updateTemplateOptions(templateName: string): Promise<void> {
-    const cmdString: string = `${templateName} = vcs.gettemplate('${templateName}')`;
-
     // Attempt code injection
-    await this.props.inject(cmdString).then(() => {
-      // If successful, update the state
-      this.setState({
-        selectedTemplate: templateName
-      });
-      // Save selected graphics method to meta data
-      NotebookUtilities.setMetaData(
-        this.state.notebookPanel,
-        TEMPLATE_KEY,
-        templateName
-      );
+    await this.props.codeInjector.getTemplate(templateName);
+    // If successful, update the state
+    this.setState({
+      selectedTemplate: templateName
     });
+    // Save selected graphics method to meta data
+    NotebookUtilities.setMetaData(
+      this.state.notebookPanel,
+      TEMPLATE_KEY,
+      templateName
+    );
   }
 
   /**
@@ -366,14 +357,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    */
   public async loadVariable(variable: Variable): Promise<any> {
     // inject the code to load the variable into the notebook
-    let cmdString = `${variable.name} = ${variable.sourceName}("${
-      variable.name
-    }"`;
-    variable.axisInfo.forEach((axis: AxisInfo) => {
-      cmdString += `, ${axis.name}=(${axis.min}, ${axis.max})`;
-    });
-    cmdString += ")";
-    await this.props.inject(cmdString);
+    await this.props.codeInjector.loadVariable(variable);
 
     // Save the source of the variable
     const newSource: { [varName: string]: string } = this.state.variableSources;
@@ -450,36 +434,15 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           this.updateSelectedVariables(selection);
         }
 
-        let gm: string = this.state.selectedGM;
+        // Inject the plot
+        this.props.codeInjector.plot(
+          selection,
+          this.state.selectedGM,
+          this.state.selectedGMgroup,
+          this.state.selectedTemplate,
+          this.state.overlayMode
+        );
 
-        if (!gm) {
-          if (selection.length > 1) {
-            gm = '"vector"';
-          } else {
-            gm = '"boxfill"';
-          }
-        } else if (gm.indexOf(this.state.selectedGMgroup) < 0) {
-          gm += `_${this.state.selectedGMgroup}`;
-        }
-
-        let temp = this.state.selectedTemplate;
-        if (temp == null || temp == "") {
-          temp = '"default"';
-        }
-
-        // Create plot injection string
-        let plotString: string = "";
-        if (this.state.overlayMode) {
-          plotString = "canvas.plot(";
-        } else {
-          plotString = "canvas.clear()\ncanvas.plot(";
-        }
-
-        selection.forEach(variableName => {
-          plotString += variableName + ", ";
-        });
-        plotString += `${temp}, ${gm})`;
-        this.props.inject(plotString);
         this.props.plotExistTrue();
       }
     } catch (error) {
@@ -488,7 +451,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   }
 
   public clear(): void {
-    this.props.inject("canvas.clear()");
+    this.props.codeInjector.clearPlot();
   }
 
   /**
@@ -550,10 +513,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     const ExportPlotModalProps = {
       isOpen: this.state.isModalOpen,
       toggle: this.toggleModal,
-      inject: this.props.inject,
       exportAlerts: this.exportPlotAlerts,
       setPlotInfo: this.setPlotInfo,
-      getCanvasDimensions: this.getCanvasDimensions
+      getCanvasDimensions: this.getCanvasDimensions,
+      codeInjector: this.props.codeInjector
     };
 
     return (

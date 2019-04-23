@@ -10,6 +10,7 @@ import * as ReactDOM from "react-dom";
 
 // Project Components
 import { CellUtilities } from "./CellUtilities";
+import { CodeInjector } from "./CodeInjector";
 import AxisInfo from "./components/AxisInfo";
 import Variable from "./components/Variable";
 import { VCSMenu } from "./components/VCSMenu";
@@ -17,10 +18,8 @@ import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
   CANVAS_CELL_KEY,
-  CHECK_MODULES_CMD,
   CHECK_VCS_CMD,
   DATA_LIST_KEY,
-  EXTENSIONS_REGEX,
   FILE_PATH_KEY,
   GET_AXIS_INFO_CMD,
   GET_VARIABLES_CMD,
@@ -31,7 +30,6 @@ import {
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD,
   REFRESH_VAR_CMD,
-  REQUIRED_MODULES,
   VARIABLE_SOURCES_KEY,
   VARIABLES_LOADED_KEY
 } from "./constants";
@@ -48,18 +46,19 @@ export class LeftSideBarWidget extends Widget {
   public application: JupyterLab; // The JupyterLab application object
   public VCSMenuRef: VCSMenu; // the LeftSidebar component
   public variableList: Variable[]; // An array of variable objects
-  public dataReaderList: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
   public graphicsMethods: any; // The current available graphics methods
   public templatesList: string[]; // The list of current templates
   public usingKernel: boolean; // The widgets is running a ker nel command
   public canvasCount: number; // The number of canvases currently in use (just 1 for now)
   public refreshExt: boolean; // Will be false if the app was refreshed
+  public codeInjector: CodeInjector; // The code injector object which is responsible for injecting code into notebooks
 
   private _plotExists: boolean; // True if there exists a plot that can be exported, false if not.
   private _readyKernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
   private _currentFile: string; // The current filepath of the data file being used for variables and data
   private _notebookPanel: NotebookPanel; // The notebook this widget is interacting with
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
+  private _preparing: boolean; // Whether the notebook is currently being prepared
 
   constructor(app: JupyterLab, tracker: NotebookTracker) {
     super();
@@ -68,6 +67,7 @@ export class LeftSideBarWidget extends Widget {
     this.node.appendChild(this.div);
     this.application = app;
     this.commands = app.commands;
+    this.codeInjector = new CodeInjector(app.commands);
     this.notebookTracker = tracker;
     this._state = NOTEBOOK_STATE.Unknown;
     this.usingKernel = false;
@@ -76,12 +76,10 @@ export class LeftSideBarWidget extends Widget {
     this._currentFile = "";
     this._notebookPanel = null;
     this.variableList = new Array<Variable>();
-    this.dataReaderList = {};
     this.graphicsMethods = BASE_GRAPHICS;
     this.templatesList = BASE_TEMPLATES;
     this._readyKernels = [];
     this._plotExists = false;
-    this.tryFilePath = this.tryFilePath.bind(this);
     this.initialize = this.initialize.bind(this);
     this.refreshVarList = this.refreshVarList.bind(this);
     this.setCurrentFile = this.setCurrentFile.bind(this);
@@ -91,15 +89,9 @@ export class LeftSideBarWidget extends Widget {
     this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
     this.getFileVariables = this.getFileVariables.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
-    this.inject = this.inject.bind(this);
-    this.getDataReaderName = this.getDataReaderName.bind(this);
     this.checkVCS = this.checkVCS.bind(this);
     this.checkPlotExists = this.checkPlotExists.bind(this);
-    this.injectAndDisplay = this.injectAndDisplay.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
-    this.injectImportsCode = this.injectImportsCode.bind(this);
-    this.injectCanvasCode = this.injectCanvasCode.bind(this);
-    this.injectDataReaders = this.injectDataReaders.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
     this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
     this.VCSMenuRef = (React as any).createRef();
@@ -108,19 +100,20 @@ export class LeftSideBarWidget extends Widget {
         <VCSMenu
           ref={loader => (this.VCSMenuRef = loader)}
           commands={this.commands}
-          inject={this.inject}
+          codeInjector={this.codeInjector}
           plotReady={this.state == NOTEBOOK_STATE.VCS_Ready}
           plotExists={this.plotExists}
           plotExistTrue={() => {
             this.plotExists = true;
           }}
           syncNotebook={() => {
-            return this.state == NOTEBOOK_STATE.ActiveNotebook;
+            return (
+              !this._preparing &&
+              (this.state == NOTEBOOK_STATE.ActiveNotebook ||
+                this.state == NOTEBOOK_STATE.InitialCellsReady)
+            );
           }}
           getFileVariables={this.getFileVariables}
-          getDataVarList={() => {
-            return this.dataReaderList;
-          }}
           getGraphicsList={() => {
             return this.graphicsMethods;
           }}
@@ -133,7 +126,7 @@ export class LeftSideBarWidget extends Widget {
           refreshGraphicsList={this.refreshGraphicsList}
           notebookPanel={this._notebookPanel}
           updateNotebookPanel={async () => {
-            this.recognizeNotebookPanel();
+            await this.recognizeNotebookPanel();
           }}
         />
       </ErrorBoundary>,
@@ -186,12 +179,10 @@ export class LeftSideBarWidget extends Widget {
    */
   public async setNotebookPanel(notebookPanel: NotebookPanel): Promise<void> {
     try {
-      await this.VCSMenuRef.setState({
-        notebookPanel
-      });
-
       // Exit early if no change needed
       if (this._notebookPanel == notebookPanel) {
+        // Update current state
+        await this.updateNotebookState();
         return;
       }
 
@@ -205,14 +196,21 @@ export class LeftSideBarWidget extends Widget {
       // Update current notebook
       this._notebookPanel = notebookPanel;
 
-      // Reset the UI components
-      await this.VCSMenuRef.resetState();
+      await this.VCSMenuRef.setState({
+        notebookPanel
+      });
 
       // Update notebook state
       await this.updateNotebookState();
 
+      // Update notebook in code injection manager
+      this.codeInjector.notebookPanel = notebookPanel;
+
+      // Reset the UI components
+      await this.VCSMenuRef.resetState();
+
       // Reset notebook information
-      this.dataReaderList = {};
+      this.codeInjector.dataReaderList = {};
 
       // Check if notebook is ready for vcs, and prepare it if so
       if (
@@ -263,9 +261,9 @@ export class LeftSideBarWidget extends Widget {
           DATA_LIST_KEY
         );
         if (result) {
-          this.dataReaderList = result;
+          this.codeInjector.dataReaderList = result;
         } else {
-          this.dataReaderList = {};
+          this.codeInjector.dataReaderList = {};
         }
 
         // Run cells to make notebook vcs ready
@@ -347,7 +345,7 @@ export class LeftSideBarWidget extends Widget {
     } catch (error) {
       if (error.status == "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
-      } else if (error.message != null) {
+      } else if (error.message) {
         NotebookUtilities.showMessage("Error", error.message);
       } else {
         NotebookUtilities.showMessage(
@@ -404,72 +402,13 @@ export class LeftSideBarWidget extends Widget {
       this.state == NOTEBOOK_STATE.VCS_Ready &&
       stateChange.newValue != "edit"
     ) {
-      this.refreshVarList();
-      this.refreshGraphicsList();
-      await this.refreshTemplatesList();
-      this.plotExists = await this.checkPlotExists();
-    }
-  }
-
-  // =======WIDGET COMPONENT METHODS (FOR PROPS)=======
-
-  /**
-   * Injects code into the bottom cell of the notebook, doesn't display results (output or error)
-   * @param code A string that has the code to inject into the notebook cell.
-   * @returns Promise<[number, string]> - A promise for when the cell code has executed containing
-   * the cell's index and output result
-   */
-  public async inject(code: string): Promise<[number, string]> {
-    try {
-      const result = await CellUtilities.insertRunShow(
-        this.notebookPanel,
-        this.commands,
-        this.notebookPanel.content.model.cells.length - 1,
-        code,
-        true
-      );
-      this.notebookPanel.content.activeCellIndex = result[0] + 1;
-      return result;
-    } catch (error) {
-      if (error.status == "error") {
-        NotebookUtilities.showMessage(error.ename, error.evalue);
-      } else if (error.message != null) {
-        NotebookUtilities.showMessage("Error", error.message);
-      } else {
-        NotebookUtilities.showMessage(
-          "Error",
-          "An error occurred when injecting the code."
-        );
-      }
-      console.log(error);
-    }
-  }
-
-  /**
-   * Injects code into the bottom cell of the notebook, and WILL display results (output or error)
-   * @param code A string that has the code to inject into the notebook cell.
-   * @returns any - Results from running the code.
-   */
-  public async injectAndDisplay(code: string): Promise<any> {
-    try {
-      const result: any = await CellUtilities.insertRunShow(
-        this.notebookPanel,
-        this.commands,
-        this.notebookPanel.content.model.cells.length,
-        code,
-        false
-      );
-      return result;
-    } catch (error) {
-      if (error.status == "error") {
-        NotebookUtilities.showMessage(error.ename, error.evalue);
-      } else if (error.message != null) {
-        NotebookUtilities.showMessage("Error", error.message);
-      } else {
-        NotebookUtilities.showMessage(
-          "Error",
-          "An error occurred when injecting the code."
-        );
+      try {
+        this.refreshVarList();
+        this.refreshGraphicsList();
+        await this.refreshTemplatesList();
+        this.plotExists = await this.checkPlotExists();
+      } catch (error) {
+        console.log(error);
       }
     }
   }
@@ -500,66 +439,75 @@ export class LeftSideBarWidget extends Widget {
    * @param currentFile The file path to set for the variable loading. If left blank, an error will occur.
    */
   public async recognizeNotebookPanel(): Promise<void> {
-    // Check the active widget is a notebook panel
-    if (this.application.shell.currentWidget instanceof NotebookPanel) {
-      await this.setNotebookPanel(this.application.shell.currentWidget);
-    } else {
-      // There is no active notebook widget
-      await this.setNotebookPanel(null);
+    try {
+      this._preparing = true;
+
+      // Check the active widget is a notebook panel
+      if (this.application.shell.currentWidget instanceof NotebookPanel) {
+        await this.setNotebookPanel(this.application.shell.currentWidget);
+      } else {
+        // There is no active notebook widget
+        await this.setNotebookPanel(null);
+      }
+
+      // Get notebook state
+      await this.updateNotebookState();
+
+      if (
+        this.state == NOTEBOOK_STATE.Unknown ||
+        this.state == NOTEBOOK_STATE.NoOpenNotebook ||
+        this.state == NOTEBOOK_STATE.InactiveNotebook
+      ) {
+        return;
+      }
+
+      // Check the active widget is a notebook panel
+      if (this.application.shell.currentWidget instanceof NotebookPanel) {
+        await this.setNotebookPanel(this.application.shell.currentWidget);
+      } else {
+        return;
+      }
+
+      // Inject the imports
+      let currentIdx: number =
+        this.notebookPanel.content.model.cells.length - 1;
+      await this.codeInjector.injectImportsCode(currentIdx, true);
+
+      // Inject canvas if needed
+      const canvasExists: boolean = await this.checkCanvasExists();
+      if (!canvasExists) {
+        currentIdx = this.notebookPanel.content.model.cells.length - 1;
+        await this.codeInjector.injectCanvasCode(currentIdx);
+      }
+
+      // Update the selected graphics method, variable list, templates and loaded variables
+      await this.refreshGraphicsList();
+      await this.refreshTemplatesList();
+      await this.refreshVarList();
+
+      // Select last cell in notebook
+      this.notebookPanel.content.activeCellIndex =
+        this.notebookPanel.content.model.cells.length - 1;
+
+      // Update kernel list to identify this kernel is ready
+      this._readyKernels.push(this.notebookPanel.session.kernel.id);
+
+      // Save the notebook
+      this.notebookPanel.context.save();
+
+      // Activate current notebook
+      this.application.shell.activateById(this.notebookPanel.id);
+
+      // Connect the handler specific to current notebook
+      this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
+
+      this.state = NOTEBOOK_STATE.VCS_Ready;
+
+      this._preparing = false;
+    } catch (error) {
+      this._preparing = false;
+      throw error;
     }
-
-    // Get notebook state
-    await this.updateNotebookState();
-
-    if (
-      this.state == NOTEBOOK_STATE.Unknown ||
-      this.state == NOTEBOOK_STATE.NoOpenNotebook ||
-      this.state == NOTEBOOK_STATE.InactiveNotebook
-    ) {
-      return;
-    }
-
-    // Check the active widget is a notebook panel
-    if (this.application.shell.currentWidget instanceof NotebookPanel) {
-      await this.setNotebookPanel(this.application.shell.currentWidget);
-    } else {
-      return;
-    }
-
-    // Inject the imports
-    let currentIdx: number = this.notebookPanel.content.model.cells.length - 1;
-    await this.injectImportsCode(currentIdx, true);
-
-    // Inject canvas if needed
-    const canvasExists: boolean = await this.checkCanvasExists();
-    if (!canvasExists) {
-      currentIdx = this.notebookPanel.content.model.cells.length - 1;
-      await this.injectCanvasCode(currentIdx, 1);
-    }
-
-    // Update the selected graphics method, variable list, templates and loaded variables
-    await this.refreshGraphicsList();
-    await this.refreshTemplatesList();
-    await this.refreshVarList();
-
-    // Select last cell in notebook
-    this.notebookPanel.content.activeCellIndex =
-      this.notebookPanel.content.model.cells.length - 1;
-
-    // Update kernel list to identify this kernel is ready
-    this._readyKernels.push(this.notebookPanel.session.kernel.id);
-
-    // Save the notebook to preserve the cell metadata, update state
-    this.state = NOTEBOOK_STATE.VCS_Ready;
-
-    // Save the notebook
-    this.notebookPanel.context.save();
-
-    // Activate current notebook
-    this.application.shell.activateById(this.notebookPanel.id);
-
-    // Connect the handler specific to current notebook
-    this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
   }
 
   public async checkVCS(): Promise<boolean> {
@@ -707,7 +655,6 @@ export class LeftSideBarWidget extends Widget {
       if (sourceName) {
         v.sourceName = sourceName;
         if (varGroups[v.sourceName]) {
-          // Add variable to group based on source data
           varGroups[v.sourceName].push(v);
         } else {
           // If this source hasn't been initialized, initialize it
@@ -734,7 +681,9 @@ export class LeftSideBarWidget extends Widget {
   // Updates the axes information for each variable based on what source it came from
   public async updateAxesInfo(varGroup: Variable[]): Promise<void> {
     // Get the filepath from the data readerlist
-    const sourceFile: string = this.dataReaderList[varGroup[0].sourceName];
+    const sourceFile: string = this.codeInjector.dataReaderList[
+      varGroup[0].sourceName
+    ];
 
     // Exit early if no source filepath exists
     if (sourceFile == undefined) {
@@ -816,7 +765,7 @@ export class LeftSideBarWidget extends Widget {
           v.axisInfo.push(variableAxes.axes[item]);
         });
         v.units = variableAxes.vars[item].units;
-        v.sourceName = this.getDataReaderName(filePath);
+        v.sourceName = this.codeInjector.getDataReaderName(filePath);
         newVars.push(v);
       });
       return newVars;
@@ -857,17 +806,20 @@ export class LeftSideBarWidget extends Widget {
             this.state = NOTEBOOK_STATE.VCS_Ready;
           } else {
             // Search for a cell containing the imports key
-            let find: number = CellUtilities.findCellWithMetaKey(
-              this.notebookPanel,
-              IMPORT_CELL_KEY
-            )[0];
-            // Search for a cell containing the canvas variables key
-            find += CellUtilities.findCellWithMetaKey(
-              this.notebookPanel,
-              CANVAS_CELL_KEY
-            )[0];
+            const importKeyFound: boolean =
+              CellUtilities.findCellWithMetaKey(
+                this.notebookPanel,
+                IMPORT_CELL_KEY
+              )[0] >= 0;
 
-            if (find >= 2) {
+            // Search for a cell containing the canvas variables key
+            const canvasKeyFound =
+              CellUtilities.findCellWithMetaKey(
+                this.notebookPanel,
+                CANVAS_CELL_KEY
+              )[0] >= 0;
+
+            if (importKeyFound && canvasKeyFound) {
               // The imports, data and canvas cells were found, but not run yet
               this.state = NOTEBOOK_STATE.InitialCellsReady;
             } else {
@@ -889,341 +841,6 @@ export class LeftSideBarWidget extends Widget {
   }
 
   /**
-   * This will construct an import string for the notebook based on the modules passed to it.
-   * @param modules An array of strings representing the modules to include in the import command.
-   * @param lazy Whether to use lazy imports syntax when making the command. Will include lazy_imports
-   * if it is needed.
-   */
-  public buildImportCommand(modules: string[], lazy: boolean): string {
-    let cmd: string = "";
-    // Check for lazy_imports modules first
-    const tmpModules = modules;
-    const idx = modules.indexOf("lazy_import");
-
-    if (lazy) {
-      // Import lazy_imports if it's missing, before doing other imports
-      if (idx >= 0) {
-        tmpModules.splice(idx, 1);
-        cmd = "\nimport lazy_import";
-      }
-      // Import other modules using lazy import syntax
-      tmpModules.forEach(module => {
-        cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
-      });
-    } else {
-      // Remove lazy_imports from required modules if it is there
-      if (idx >= 0) {
-        tmpModules.splice(idx, 1);
-      }
-      // Import modules
-      tmpModules.forEach(module => {
-        cmd += `\nimport ${module}`;
-      });
-    }
-    return cmd;
-  }
-
-  /**
-   * This will inject the required modules into the current notebook (if a module was not already imported)
-   * @param index The index of where the imports cell should be. Default is -1, which will insert at the top.
-   * @param skip Default false. If set to true, a check of the kernel will be made to see if the modules are already
-   * imported and any that are will be skipped (not added) in the import statements of the required code.
-   * @returns The index of where the cell was inserted
-   */
-  public async injectImportsCode(
-    index: number = -1,
-    skip: boolean = false
-  ): Promise<number> {
-    // Check if required modules are imported in notebook
-    let cmd = "#These imports are added for vcdat.";
-
-    if (skip) {
-      // Check if necessary modules are loaded
-      this.usingKernel = true;
-      const output: string = await NotebookUtilities.sendSimpleKernelRequest(
-        this.notebookPanel,
-        CHECK_MODULES_CMD
-      );
-      this.usingKernel = false;
-
-      // Create import string based on missing dependencies
-      const missingModules: string[] = eval(output);
-      if (missingModules.length > 0) {
-        cmd += this.buildImportCommand(missingModules, false);
-      } else {
-        return index;
-      }
-    } else {
-      cmd += this.buildImportCommand(eval(`[${REQUIRED_MODULES}]`), false);
-    }
-
-    // Find the index where the imports code is injected
-    let idx: number = CellUtilities.findCellWithMetaKey(
-      this.notebookPanel,
-      IMPORT_CELL_KEY
-    )[0];
-
-    if (idx < 0) {
-      // Inject imports in a new cell and run
-      const result: [number, string] = await CellUtilities.insertRunShow(
-        this.notebookPanel,
-        this.commands,
-        index,
-        cmd,
-        true
-      );
-      idx = result[0];
-    } else {
-      // Inject code into existing imports cell and run
-      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
-      await CellUtilities.runCellAtIndex(
-        this.commands,
-        this.notebookPanel,
-        idx
-      );
-    }
-
-    // Set cell meta data to identify it as containing imports
-    await CellUtilities.setCellMetaData(
-      this.notebookPanel,
-      idx,
-      IMPORT_CELL_KEY,
-      "saved",
-      true
-    );
-
-    return idx;
-  }
-
-  /**
-   * Gets the name for a data reader object to read data from a file. Creates a new name if one doesn't exist.
-   * @param filePath The file path of the new file added
-   */
-  public getDataReaderName(filePath: string): string {
-    // Check whether that file path is already open, return the data name if so
-    let dataName: string = "";
-    const found: boolean = Object.keys(this.dataReaderList).some(
-      (dataVar: string) => {
-        dataName = dataVar;
-        return this.dataReaderList[dataVar] == filePath;
-      }
-    );
-    if (found) {
-      return dataName;
-    }
-
-    // Filepath hasn't been added before, create the name for data variable based on file path
-    dataName = MiscUtilities.createValidVarName(filePath) + "_data";
-
-    // If the reader name already exist but the path is different (like for two files with
-    // similar names but different paths) add a count to the end until it's unique
-    let count: number = 1;
-    let newName: string = dataName;
-
-    while (Object.keys(this.dataReaderList).indexOf(newName) >= 0) {
-      newName = `${dataName}${count}`;
-      count++;
-    }
-
-    return newName;
-  }
-
-  // Will try to open a file path in cdms2. Returns true if successful.
-  public async tryFilePath(filePath: string) {
-    try {
-      await NotebookUtilities.sendSimpleKernelRequest(
-        this.notebookPanel,
-        `tryOpenFile = cdms2.open('${filePath}')\ntryOpenFile.close()`,
-        false
-      );
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  // Add returns a line of code for adding the specified file to the notebook
-  // If the file couldn't be opened, returns empty string
-  public async addFileCmd(filePath: string): Promise<string> {
-    // Get the relative filepath to open the file
-    const relativePath = MiscUtilities.getRelativePath(
-      this.notebookPanel.session.path,
-      filePath
-    );
-    // Check that file can open before adding it as code
-    const valid: boolean = await this.tryFilePath(relativePath);
-    if (valid) {
-      const addCode: string = `\n${this.getDataReaderName(
-        filePath
-      )} = cdms2.open('${relativePath}')`;
-      return addCode;
-    }
-    return "";
-  }
-
-  /**
-   * This will load data from a file so it can be used by vcdat
-   * @param index The index to use for the cell containing the data variables
-   * @param filePath The filepath of the new file to open
-   */
-  public async injectDataReaders(
-    index: number,
-    filePath: string
-  ): Promise<number> {
-    // If the data file doesn't have correct extension, exit
-    if (filePath == "") {
-      throw new Error("The file path was empty.");
-    }
-
-    // If the data file doesn't have correct extension, exit
-    if (!EXTENSIONS_REGEX.test(filePath)) {
-      throw new Error("The file has the wrong extension type.");
-    }
-
-    // Get the relative path of the file for the injection command
-    const nbPath: string = `${this.notebookPanel.session.path}`;
-    const newFilePath: string = MiscUtilities.getRelativePath(nbPath, filePath);
-
-    // Try opening the file first, before injecting into code, exit if failed
-    const isValidPath: boolean = await this.tryFilePath(newFilePath);
-    if (!isValidPath) {
-      throw new Error(`The file failed to open. Path: ${newFilePath}`);
-    }
-
-    // If file opened fine, find the index where the file data code is injected
-    let idx: number = CellUtilities.findCellWithMetaKey(
-      this.notebookPanel,
-      READER_CELL_KEY
-    )[0];
-
-    // Get list of data files to open
-    const dataVarNames: string[] = Object.keys(this.dataReaderList);
-
-    // Build command that opens any existing data file(s)
-    let cmd: string;
-    let tmpFilePath: string;
-    const addCmds: Array<Promise<string>> = new Array<Promise<string>>();
-
-    if (dataVarNames.length > 0) {
-      cmd = "#Open the files for reading";
-      dataVarNames.forEach((existingDataName: string, idx: number) => {
-        tmpFilePath = this.dataReaderList[existingDataName];
-
-        // Exit early if the filepath has already been opened
-        if (tmpFilePath == filePath) {
-          if (idx < 0) {
-            return index;
-          }
-          return idx;
-        }
-
-        // Add file open command to the list
-        addCmds.push(this.addFileCmd(tmpFilePath));
-      });
-
-      const allFiles: string[] = await Promise.all(addCmds);
-      cmd += allFiles.join("");
-    } else {
-      cmd = `#Open the file for reading`;
-    }
-
-    const newName: string = this.getDataReaderName(filePath);
-    const addCmd: string = `\n${newName} = cdms2.open('${newFilePath}')`;
-
-    cmd += addCmd;
-
-    if (idx < 0) {
-      // Insert a new cell with given command and run
-      const result: [number, string] = await CellUtilities.insertRunShow(
-        this.notebookPanel,
-        this.commands,
-        index,
-        cmd,
-        true
-      );
-      idx = result[0];
-    } else {
-      // Inject code into existing data variables cell and run
-      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
-      await CellUtilities.runCellAtIndex(
-        this.commands,
-        this.notebookPanel,
-        index
-      );
-    }
-
-    // Update or add the file path to the data readers list
-    this.dataReaderList[newName] = filePath;
-
-    // Set cell meta data to identify it as containing data variables
-    await CellUtilities.setCellMetaData(
-      this.notebookPanel,
-      idx,
-      READER_CELL_KEY,
-      "saved",
-      true
-    );
-    return idx;
-  }
-
-  /**
-   * Looks for a cell containing the canvas declarations and updates its code
-   * to contain the specified number of canvases.
-   * If no cell containing canvas code is found a whole new one is inserted.
-   * @param title The base title to use for the sidecars of this notebook
-   * @param index The index of the cell to replace or insert the canvas code
-   * @param canvasCount The number of canvases that the canvas cell should contain
-   */
-  public async injectCanvasCode(
-    // title: string,
-    index: number,
-    canvasCount: number
-  ): Promise<number> {
-    // Creates canvas(es)
-    const cmd: string = `#Create canvas and sidecar\ncanvas = vcs.init()`;
-
-    // Find the index where the canvas code is injected
-    let idx: number = CellUtilities.findCellWithMetaKey(
-      this.notebookPanel,
-      CANVAS_CELL_KEY
-    )[0];
-
-    if (idx < 0) {
-      // Inject the code for starting the canvases
-      const result: [number, string] = await CellUtilities.insertRunShow(
-        this.notebookPanel,
-        this.commands,
-        index,
-        cmd,
-        true
-      );
-      idx = result[0];
-    } else {
-      // Replace code in canvas cell and run
-      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, idx, cmd);
-      await CellUtilities.runCellAtIndex(
-        this.commands,
-        this.notebookPanel,
-        idx
-      );
-    }
-
-    // Set cell meta data to identify it as containing canvases
-    await CellUtilities.setCellMetaData(
-      this.notebookPanel,
-      idx,
-      CANVAS_CELL_KEY,
-      "saved",
-      true
-    );
-
-    // Update the current canvas count
-    this.canvasCount = canvasCount;
-
-    return idx;
-  }
-
-  /**
    * Prepares the current widget notebook to be a vcsReady notebook. Will create a new one if none exists.
    * @param currentFile The file path to set for the variable loading. If left blank, an error will occur.
    */
@@ -1234,72 +851,80 @@ export class LeftSideBarWidget extends Widget {
       throw new Error("No file has been set for obtaining variables.");
     }
 
-    // Set the current file and save the meta data
-    await this.setCurrentFile(currentFile, true);
+    this._preparing = true;
 
-    // Grab a notebook panel
-    const newNotebookPanel = await this.getNotebookPanel();
+    try {
+      // Set the current file and save the meta data
+      await this.setCurrentFile(currentFile, true);
 
-    // Set as current notebook (if not already)
-    await this.setNotebookPanel(newNotebookPanel);
+      // Grab a notebook panel
+      const newNotebookPanel = await this.getNotebookPanel();
 
-    // Inject the imports
-    let currentIdx: number = 0;
-    currentIdx = await this.injectImportsCode();
+      // Set as current notebook (if not already)
+      await this.setNotebookPanel(newNotebookPanel);
 
-    // Inject the data file(s)
-    currentIdx = await this.injectDataReaders(currentIdx + 1, currentFile);
+      // Inject the imports
+      let currentIdx: number = 0;
+      currentIdx = await this.codeInjector.injectImportsCode();
 
-    // Inject canvas(es)
-    currentIdx = await this.injectCanvasCode(currentIdx + 1, 1);
+      // Inject the data file(s)
+      currentIdx = await this.codeInjector.injectDataReaders(
+        currentIdx + 1,
+        currentFile
+      );
 
-    // Select last cell in notebook
-    this.notebookPanel.content.activeCellIndex =
-      this.notebookPanel.content.model.cells.length - 1;
+      // Inject canvas(es)
+      currentIdx = await this.codeInjector.injectCanvasCode(currentIdx + 1);
 
-    // Update kernel list to identify this kernel is ready
-    this._readyKernels.push(this.notebookPanel.session.kernel.id);
+      // Select last cell in notebook
+      this.notebookPanel.content.activeCellIndex =
+        this.notebookPanel.content.model.cells.length - 1;
 
-    // Save the notebook to preserve the cell metadata, update state
-    this.state = NOTEBOOK_STATE.VCS_Ready;
+      // Update kernel list to identify this kernel is ready
+      this._readyKernels.push(this.notebookPanel.session.kernel.id);
 
-    // Check if the file has already been loaded
-    const fileLoaded: boolean = Object.keys(this.dataReaderList).some(value => {
-      return this.dataReaderList[value] == currentFile;
-    });
+      // Save the notebook to preserve the cell metadata, update state
+      this.state = NOTEBOOK_STATE.VCS_Ready;
 
-    // If file hasn't been loaded, inject it
-    if (!fileLoaded) {
-      const idx: number = CellUtilities.findCellWithMetaKey(
-        this.notebookPanel,
-        READER_CELL_KEY
-      )[0];
-      await this.injectDataReaders(idx, currentFile);
+      // Check if the file has already been loaded
+      const fileLoaded: boolean = Object.keys(
+        this.codeInjector.dataReaderList
+      ).some(value => {
+        return this.codeInjector.dataReaderList[value] == currentFile;
+      });
+
+      // If file hasn't been loaded, inject it
+      if (!fileLoaded) {
+        const idx: number = CellUtilities.findCellWithMetaKey(
+          this.notebookPanel,
+          READER_CELL_KEY
+        )[0];
+
+        await this.codeInjector.injectDataReaders(idx, currentFile);
+      }
+
+      // Launch file variable loader if file has variables
+      const fileVars: Variable[] = await this.getFileVariables(currentFile);
+      if (fileVars.length > 0) {
+        await this.VCSMenuRef.launchVarSelect(fileVars);
+      } else {
+        this._currentFile = "";
+      }
+
+      // Save the notebook
+      this.notebookPanel.context.save();
+
+      // Activate current notebook
+      this.application.shell.activateById(this.notebookPanel.id);
+
+      // Connect the handler specific to current notebook
+      this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
+
+      this._preparing = false;
+    } catch (error) {
+      this._preparing = false;
+      throw error;
     }
-
-    // Launch file variable loader if file has variables
-    const fileVars: Variable[] = await this.getFileVariables(currentFile);
-    if (fileVars.length > 0) {
-      await this.VCSMenuRef.launchVarSelect(fileVars);
-    } else {
-      this._currentFile = "";
-    }
-
-    // Update the metadata
-    await NotebookUtilities.setMetaData(
-      this.notebookPanel,
-      DATA_LIST_KEY,
-      this.dataReaderList
-    );
-
-    // Save the notebook
-    this.notebookPanel.context.save();
-
-    // Activate current notebook
-    this.application.shell.activateById(this.notebookPanel.id);
-
-    // Connect the handler specific to current notebook
-    this._notebookPanel.content.stateChanged.connect(this.handleStateChanged);
   }
 
   /**
