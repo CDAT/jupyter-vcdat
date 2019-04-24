@@ -14,7 +14,7 @@ import {
 // Project Components
 import { NotebookUtilities } from "../NotebookUtilities";
 import { AxisInfo } from "./AxisInfo";
-import DimensionSlider from "./DimensionSlider";
+import { DimensionSlider } from "./DimensionSlider";
 import { Variable } from "./Variable";
 
 const cardStyle: React.CSSProperties = {

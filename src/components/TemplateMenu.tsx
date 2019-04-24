@@ -50,10 +50,10 @@ export default class TemplateMenu extends React.Component<
   // Resets the graphics menu to initial, (for when a new notebook is selected)
   public resetTemplateMenuState(): void {
     this.setState({
+      optionsChanged: false,
       selectedTemplate: "",
       showDropdown: false,
-      showMenu: false,
-      optionsChanged: false
+      showMenu: false
     });
   }
 

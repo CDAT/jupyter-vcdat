@@ -56,7 +56,7 @@ interface IVCSMenuProps {
   plotExistTrue: Function; // sets the widget's plotExist state to true (called by plot function)
   getGraphicsList: () => any; // function that reads the current graphics list
   refreshGraphicsList: Function; // function that refreshes the graphics method list
-  getTemplatesList: ()=>string[]; // function that reads the widget's current template list
+  getTemplatesList: () => string[]; // function that reads the widget's current template list
   getFileVariables: Function; // Function that reads the current notebook file and retrieves variable data
   updateVariables: Function; // function that updates the variables list in the main widget
   updateNotebookPanel: Function; // Function passed to the var menu

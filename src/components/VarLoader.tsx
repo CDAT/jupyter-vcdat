@@ -27,7 +27,10 @@ interface IVarLoaderState {
   selectedVariables: string[]; // the variables the user has selected to be loaded
 }
 
-export class VarLoader extends React.Component<IVarLoaderProps, IVarLoaderState> {
+export class VarLoader extends React.Component<
+  IVarLoaderProps,
+  IVarLoaderState
+> {
   constructor(props: IVarLoaderProps) {
     super(props);
     this.state = {

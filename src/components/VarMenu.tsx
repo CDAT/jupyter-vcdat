@@ -247,21 +247,23 @@ export default class VarMenu extends React.Component<
             {this.state.variables.length > 0 && (
               <ListGroup style={formOverflow}>
                 {this.state.variables.map((item: Variable, idx: number) => {
+                  const reloadItem = () => {
+                    this.reloadVariable(item);
+                  };
+                  const toggleSelection = () => {
+                    if (this.isSelected(item.name)) {
+                      this.deselectVariable(item.name);
+                    } else {
+                      this.selectVariable(item.name);
+                    }
+                  };
                   return (
                     <ListGroupItem
                       key={`${item.name}${idx}`}
-                      onClick={() => {
-                        if (this.isSelected(item.name)) {
-                          this.deselectVariable(item.name);
-                        } else {
-                          this.selectVariable(item.name);
-                        }
-                      }}
+                      onClick={toggleSelection}
                     >
                       <VarMini
-                        reload={() => {
-                          this.reloadVariable(item);
-                        }}
+                        reload={reloadItem}
                         buttonColor={Colors[this.getOrder(item.name) - 1]}
                         allowReload={true}
                         isSelected={this.isSelected}
