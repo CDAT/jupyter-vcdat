@@ -5,7 +5,7 @@ import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 // Project Components
 import { AxisInfo } from "./AxisInfo";
-import VarCard from "./VarCard";
+import { VarCard } from "./VarCard";
 import { Variable } from "./Variable";
 
 const modalOverflow: React.CSSProperties = {
@@ -27,10 +27,7 @@ interface VarLoaderState {
   selectedVariables: string[]; // the variables the user has selected to be loaded
 }
 
-export default class VarLoader extends React.Component<
-  VarLoaderProps,
-  VarLoaderState
-> {
+export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
   constructor(props: VarLoaderProps) {
     super(props);
     this.state = {
@@ -66,7 +63,7 @@ export default class VarLoader extends React.Component<
   // Loads all the selected variables into the notebook, returns the number loaded
   public async loadSelectedVariables(): Promise<void> {
     // Exit early if no variable selected for loading
-    if (this.state.selectedVariables.length == 0) {
+    if (this.state.selectedVariables.length === 0) {
       this.setState({ selectedVariables: new Array<string>() });
       return;
     }
@@ -131,20 +128,24 @@ export default class VarLoader extends React.Component<
    * @param varName the name of the variable to update
    */
   public updateDimInfo(newInfo: any, varName: string): void {
-    let variables: Variable[] = this.state.variables;
-    variables.forEach((variable: Variable, varIndex: number) => {
-      if (variable.name != varName) {
-        return;
-      }
-      variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-        if (axis.name != newInfo.name) {
+    this.state.fileVariables.forEach(
+      (fileVariable: Variable, varIndex: number) => {
+        if (fileVariable.name !== varName) {
           return;
         }
-        variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-        variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
-      });
-    });
-    this.setState({ variables: variables });
+        fileVariable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
+          if (axis.name !== newInfo.name) {
+            return;
+          }
+          const fileVariables = this.state.fileVariables;
+          fileVariables[varIndex].axisInfo[axisIndex].min = newInfo.min;
+          fileVariables[varIndex].axisInfo[axisIndex].max = newInfo.max;
+          this.setState({
+            fileVariables
+          });
+        });
+      }
+    );
   }
 
   public render(): JSX.Element {
@@ -158,7 +159,7 @@ export default class VarLoader extends React.Component<
         >
           <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
           <ModalBody style={modalOverflow}>
-            {this.state.fileVariables.length != 0 &&
+            {this.state.fileVariables.length !== 0 &&
               this.state.fileVariables.map((item: Variable) => {
                 return (
                   <VarCard

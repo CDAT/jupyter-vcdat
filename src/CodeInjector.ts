@@ -24,6 +24,7 @@ import { Utilities } from "./Utilities";
  * A class that manages the code injection of vCDAT commands
  */
 export class CodeInjector {
+  private busy: boolean;
   private nbPanel: NotebookPanel;
   private cmdRegistry: CommandRegistry;
   private logErrorsToConsole: boolean; // Whether errors should log to console. Should be false during production.
@@ -31,6 +32,7 @@ export class CodeInjector {
 
   constructor(commands: CommandRegistry) {
     this.nbPanel = null;
+    this.busy = false;
     this.cmdRegistry = commands;
     this.logErrorsToConsole = true;
     this.dataReaders = {};
@@ -49,6 +51,10 @@ export class CodeInjector {
     this.clearPlot = this.clearPlot.bind(this);
     this.tryFilePath = this.tryFilePath.bind(this);
     this.getDataReaderName = this.getDataReaderName.bind(this);
+  }
+
+  get isBusy(): boolean {
+    return this.busy;
   }
 
   get notebookPanel(): NotebookPanel {
@@ -552,6 +558,7 @@ export class CodeInjector {
       throw Error("No notebook, code injection cancelled.");
     }
     try {
+      this.busy = true;
       const idx: number =
         index || this.notebookPanel.content.model.cells.length - 1;
       const [newIdx, result]: [
@@ -580,6 +587,8 @@ export class CodeInjector {
         console.error(message);
       }
       NotebookUtilities.showMessage("Command Error", error.message);
+    } finally {
+      this.busy = false;
     }
   }
 

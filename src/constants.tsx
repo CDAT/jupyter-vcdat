@@ -12,9 +12,7 @@ export const EXTENSIONS: string[] = [
   ".cdf"
 ];
 
-export const EXTENSIONS_REGEX: RegExp = Utilities.filenameFilter(
-  EXTENSIONS
-);
+export const EXTENSIONS_REGEX: RegExp = Utilities.filenameFilter(EXTENSIONS);
 export const OUTPUT_RESULT_NAME = "_private_vcdat_output";
 export const FILE_PATH_KEY: string = "vcdat_file_path";
 export const IMPORT_CELL_KEY: string = "vcdat_imports";
@@ -277,29 +275,24 @@ ${OUTPUT_RESULT_NAME} = json.dumps({\n\
   })`;
 
 export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
-  "3d_scalar": ["Hovmoller3D", "default"],
-  xvsy: [
+  "1d": [
     "a_1d",
+    "a_scatter_scatter_",
     "a_xvsy_xvsy_",
+    "a_xyvsy_xyvsy_",
     "a_yxvsx_yxvsx_",
     "blue_yxvsx",
     "default",
+    "default_scatter_",
     "default_xvsy_",
+    "default_xyvsy_",
     "default_yxvsx_",
+    "quick_scatter",
     "red_yxvsx"
   ],
-  xyvsy: ["a_xyvsy_xyvsy_", "default_xyvsy_"],
-  isoline: [
-    "P_and_height",
-    "a_isoline",
-    "a_lambert_isoline",
-    "a_mollweide_isoline",
-    "a_polar_isoline",
-    "a_robinson_isoline",
-    "default",
-    "polar",
-    "quick"
-  ],
+  "3d_dual_scalar": ["default"],
+  "3d_scalar": ["default", "Hovmoller3D"],
+  "3d_vector": ["default"],
   boxfill: [
     "a_boxfill",
     "a_lambert_boxfill",
@@ -322,8 +315,17 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "quick",
     "robinson"
   ],
-  streamline: ["default"],
-  "3d_dual_scalar": ["default"],
+  isoline: [
+    "a_isoline",
+    "a_lambert_isoline",
+    "a_mollweide_isoline",
+    "a_polar_isoline",
+    "a_robinson_isoline",
+    "default",
+    "P_and_height",
+    "polar",
+    "quick"
+  ],
   meshfill: [
     "a_lambert_meshfill",
     "a_meshfill",
@@ -332,7 +334,21 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "a_robinson_meshfill",
     "default"
   ],
-  "3d_vector": ["default"],
+  scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"],
+  streamline: ["default"],
+  taylordiagram: ["default"],
+  vector: ["default"],
+  xvsy: [
+    "a_1d",
+    "a_xvsy_xvsy_",
+    "a_yxvsx_yxvsx_",
+    "blue_yxvsx",
+    "default",
+    "default_xvsy_",
+    "default_yxvsx_",
+    "red_yxvsx"
+  ],
+  xyvsy: ["a_xyvsy_xyvsy_", "default_xyvsy_"],
   yxvsx: [
     "a_1d",
     "a_xvsy_xvsy_",
@@ -342,25 +358,7 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "default_xvsy_",
     "default_yxvsx_",
     "red_yxvsx"
-  ],
-  taylordiagram: ["default"],
-  vector: ["default"],
-  "1d": [
-    "a_1d",
-    "a_scatter_scatter_",
-    "a_xvsy_xvsy_",
-    "a_xyvsy_xyvsy_",
-    "a_yxvsx_yxvsx_",
-    "blue_yxvsx",
-    "default",
-    "default_scatter_",
-    "default_xvsy_",
-    "default_xyvsy_",
-    "default_yxvsx_",
-    "quick_scatter",
-    "red_yxvsx"
-  ],
-  scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"]
+  ]
 };
 
 export const BASE_TEMPLATES: string[] = [

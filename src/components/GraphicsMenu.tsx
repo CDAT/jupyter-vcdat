@@ -306,7 +306,7 @@ export default class GraphicsMenu extends React.Component<
                           nameValue: ""
                         });
                       } catch (error) {
-                        console.log(error);
+                        console.error(error);
                       }
                     } else {
                       NotebookUtilities.showMessage(

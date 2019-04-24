@@ -194,12 +194,12 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           this.state.notebookPanel,
           CANVAS_DIMENSIONS_CMD
         );
-        const dimensions: [number, number] = JSON.parse(output);
+        const dimensions: [number, number] = eval(output);
         return { width: dimensions[0], height: dimensions[1] };
       }
       return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
     }
   }
@@ -446,7 +446,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
         this.props.plotExistTrue();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
@@ -462,10 +462,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     await this.varMenuRef.launchVarLoader(variables);
   }
 
-  public updateVariables(variables: Variable[]) {
-    this.setState({ variables });
-    this.varMenuRef.setState({ variables });
-    this.varMenuRef.varLoaderRef.setState({ variables });
+  public async updateVariables(variables: Variable[]) {
+    await this.setState({ variables });
+    await this.varMenuRef.setState({ variables });
+    await this.varMenuRef.varLoaderRef.setState({ variables });
     this.props.updateVariables(variables);
   }
 

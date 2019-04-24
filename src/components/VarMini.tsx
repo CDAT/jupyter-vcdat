@@ -43,7 +43,7 @@ interface VarMiniState {
   showAxis: boolean; // should the edit axis modal be shown
 }
 
-export default class VarMini extends React.Component<
+export class VarMini extends React.Component<
   VarMiniProps,
   VarMiniState
 > {

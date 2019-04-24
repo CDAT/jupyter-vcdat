@@ -16,8 +16,8 @@ import { ColorFunctions } from "../ColorFunctions";
 // Project Components
 import { AxisInfo } from "./AxisInfo";
 import { Variable } from "./Variable";
-import VarLoader from "./VarLoader";
-import VarMini from "./VarMini";
+import { VarLoader } from "./VarLoader";
+import { VarMini } from "./VarMini";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -176,7 +176,8 @@ export default class VarMenu extends React.Component<
    * @param varName the name of the variable to update
    */
   public async updateDimInfo(newInfo: any, varName: string): Promise<void> {
-    this.state.variables.forEach((variable: Variable, varIndex: number) => {
+    let newVariables: Variable[] = this.state.variables;
+    newVariables.forEach((variable: Variable, varIndex: number) => {
       if (variable.name != varName) {
         return;
       }
@@ -184,10 +185,11 @@ export default class VarMenu extends React.Component<
         if (axis.name != newInfo.name) {
           return;
         }
-        this.state.variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-        this.state.variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
+        newVariables[varIndex].axisInfo[axisIndex].min = newInfo.min;
+        newVariables[varIndex].axisInfo[axisIndex].max = newInfo.max;
       });
     });
+    await this.props.updateVariables(newVariables);
   }
 
   public async reloadVariable(variable: Variable): Promise<void> {
@@ -244,10 +246,10 @@ export default class VarMenu extends React.Component<
             </CardSubtitle>
             {this.state.variables.length > 0 && (
               <ListGroup style={formOverflow}>
-                {this.state.variables.map(item => {
+                {this.state.variables.map((item: Variable, idx: number) => {
                   return (
                     <ListGroupItem
-                      key={item.name}
+                      key={`${item.name}${idx}`}
                       onClick={() => {
                         if (this.isSelected(item.name)) {
                           this.deselectVariable(item.name);
