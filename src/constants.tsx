@@ -419,4 +419,4 @@ export enum NOTEBOOK_STATE {
 
 // Specifies valid plot export formats
 export type EXPORT_FORMATS = "png" | "pdf" | "svg" | "ps" | "";
-export type IMAGE_UNITS = "pixels" | "in" | "cm" | "mm" | "dot";
+export type IMAGE_UNITS = "px" | "in" | "cm" | "mm" | "dot";

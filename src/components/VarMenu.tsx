@@ -121,7 +121,7 @@ export default class VarMenu extends React.Component<
     let replaced: boolean = false;
     await this.state.variables.forEach(
       async (loadedVar: Variable, idx: number) => {
-        if (variable.name == loadedVar.name) {
+        if (variable.name === loadedVar.name) {
           newVariables[idx] = variable;
           await this.props.updateVariables(newVariables);
           replaced = true;
@@ -198,7 +198,7 @@ export default class VarMenu extends React.Component<
   }
 
   public getOrder(varName: string): number {
-    if (this.state.selectedVariables.length == 0) {
+    if (this.state.selectedVariables.length === 0) {
       return -1;
     }
     return this.state.selectedVariables.indexOf(varName) + 1;

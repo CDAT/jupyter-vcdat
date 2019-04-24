@@ -344,14 +344,18 @@ export class CodeInjector {
     if (width && height) {
       let w: number;
       let h: number;
-      if (units === "pixels" || units === "dot") {
+      let unit: string = units;
+      if (units === "px" || units === "dot") {
         w = Number.parseInt(width, 10);
         h = Number.parseInt(height, 10);
       } else {
         w = Number.parseFloat(width);
         h = Number.parseFloat(height);
       }
-      cmd += `, width=${w}, height=${h}, units='${units}'`;
+      if (units === "px") {
+        unit = "pixels";
+      }
+      cmd += `, width=${w}, height=${h}, units='${unit}'`;
       // Export of png plot can include provenance
       if (format === "png" && provenance !== undefined) {
         if (provenance) {

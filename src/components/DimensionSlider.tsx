@@ -16,20 +16,20 @@ import {
 import { Handle, Tick, Track } from "./Tracks";
 
 const sliderStyle: React.CSSProperties = {
+  marginBottom: "5%",
   marginLeft: "5%",
   marginRight: "5%",
-  marginBottom: "5%",
   position: "relative",
   width: "90%"
 };
 
 const railStyle: React.CSSProperties = {
-  position: "absolute",
-  width: "100%",
-  height: 14,
+  backgroundColor: "rgb(155,155,155)",
   borderRadius: 7,
   cursor: "pointer",
-  backgroundColor: "rgb(155,155,155)"
+  height: 14,
+  position: "absolute",
+  width: "100%"
 };
 
 const centered: React.CSSProperties = {
@@ -38,7 +38,7 @@ const centered: React.CSSProperties = {
   paddingTop: "0.5em"
 };
 
-interface DimensionSliderProps {
+interface IDimensionSliderProps {
   varName: string; // the name of the variable this axis belongs to
   min: number;
   max: number;
@@ -49,25 +49,25 @@ interface DimensionSliderProps {
   name: string; // the cdms2 name of the axis
   shape: number[]; // the shape of the axis
   units: string; // the units of the axis
-  updateDimInfo: Function; // method to be called updating the parent when the slider values change
+  // method to be called updating the parent when the slider values change
+  updateDimInfo: (newInfo: any, varName: string) => Promise<void>;
 }
 
-interface DimensionSliderState {
+interface IDimensionSliderState {
   min: number; // the current minimum value
   max: number; // the current max value
   tickValues: number[]; // the absolute min and absolute max values
   possibleValues: number[];
-  // initialValues: [number, number]; // The slider values to be selected at startup
 }
 
 export default class DimensionSlider extends React.Component<
-  DimensionSliderProps,
-  DimensionSliderState
+  IDimensionSliderProps,
+  IDimensionSliderState
 > {
   public singleValue: boolean; // Whether the slider range contains only a single value
   public tickCount: number = 10; // The number of ticks to display for slider
   private domain: [number, number]; // The domain to use for the slider
-  constructor(props: DimensionSliderProps) {
+  constructor(props: IDimensionSliderProps) {
     super(props);
     this.handleSliderChange = this.handleSliderChange.bind(this);
     this.handleSliderUpdate = this.handleSliderUpdate.bind(this);
@@ -96,7 +96,7 @@ export default class DimensionSlider extends React.Component<
           format = "YYYY-MM-DD HH:mm:ss";
           break;
       }
-      this.formatter = function(data) {
+      this.formatter = (data: any) => {
         return moment(startTime, "YYYY-MM-DD")
           .add(data, span)
           .format(format);
@@ -126,7 +126,7 @@ export default class DimensionSlider extends React.Component<
     if (lastIdx >= this.tickCount) {
       tickVals = Array<number>();
       skipVal = lastIdx / (this.tickCount - 1);
-      for (let idx = 0; idx < this.tickCount; idx++) {
+      for (let idx = 0; idx < this.tickCount; idx += 1) {
         tickVals.push(Math.floor(idx * skipVal));
       }
     }
@@ -146,8 +146,8 @@ export default class DimensionSlider extends React.Component<
 
     // Update initial state
     this.state = {
-      min: idxMin,
       max: idxMax,
+      min: idxMin,
       possibleValues: pValues,
       tickValues: tickVals
     };
@@ -259,25 +259,25 @@ export default class DimensionSlider extends React.Component<
     );
   }
   public handleSliderUpdate(e: any): void {
-    if (e.length != 2) {
+    if (e.length !== 2) {
       return;
     }
 
     this.setState({
-      min: e[0],
-      max: e[1]
+      max: e[1],
+      min: e[0]
     });
   }
 
   public handleSliderChange(e: any): void {
-    if (e.length != 2) {
+    if (e.length !== 2) {
       return;
     }
     this.props.updateDimInfo(
       {
-        name: this.props.name,
+        max: this.state.possibleValues[e[1]],
         min: this.state.possibleValues[e[0]],
-        max: this.state.possibleValues[e[1]]
+        name: this.props.name
       },
       this.props.varName
     );

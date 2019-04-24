@@ -45,8 +45,8 @@ const sidebarOverflow: React.CSSProperties = {
 };
 
 // The defaults export size to use if the canvas dimensions weren't obtained
-const DEFAULT_WIDTH: number = 800;
-const DEFAULT_HEIGHT: number = 600;
+const DEFAULT_WIDTH: string = "800";
+const DEFAULT_HEIGHT: string = "600";
 
 export interface VCSMenuProps {
   commands: CommandRegistry; // the command executor
@@ -132,7 +132,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.setPlotInfo = this.setPlotInfo.bind(this);
   }
 
-  public saveNotebook() {
+  public saveNotebook(): void {
     this.state.notebookPanel.context.save();
   }
 
@@ -140,15 +140,15 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     this.setState({ plotName, plotFormat });
   }
 
-  public dismissSavePlotSpinnerAlert() {
+  public dismissSavePlotSpinnerAlert(): void {
     this.setState({ savePlotAlert: false });
   }
 
-  public dismissExportSuccessAlert() {
+  public dismissExportSuccessAlert(): void {
     this.setState({ exportSuccessAlert: false });
   }
 
-  public exportPlotAlerts() {
+  public exportPlotAlerts(): void {
     this.setState({ savePlotAlert: true }, () => {
       window.setTimeout(() => {
         this.setState({ savePlotAlert: false });
@@ -161,15 +161,15 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     });
   }
 
-  public toggleModal() {
+  public toggleModal(): void {
     this.setState({ isModalOpen: !this.state.isModalOpen });
   }
 
-  public toggleOverlayMode() {
+  public toggleOverlayMode(): void {
     this.setState({ overlayMode: !this.state.overlayMode });
   }
 
-  public async resetState() {
+  public async resetState(): Promise<void> {
     this.varMenuRef.resetVarMenuState();
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
@@ -184,8 +184,8 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
   }
 
   public async getCanvasDimensions(): Promise<{
-    width: number;
-    height: number;
+    width: string;
+    height: string;
   }> {
     try {
       if (this.state.plotReady) {
@@ -195,7 +195,10 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
           CANVAS_DIMENSIONS_CMD
         );
         const dimensions: [number, number] = eval(output);
-        return { width: dimensions[0], height: dimensions[1] };
+        return {
+          width: dimensions[0].toString(10),
+          height: dimensions[1].toString(10)
+        };
       }
       return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
     } catch (error) {
@@ -212,7 +215,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     );
 
     // No meta data means fresh notebook with no selections
-    if (selection == null) {
+    if (!selection) {
       this.varMenuRef.resetVarMenuState();
       this.setState({
         selectedVariables: new Array<string>()
@@ -232,7 +235,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       GRAPHICS_METHOD_KEY
     );
 
-    if (gmData == null) {
+    if (!gmData) {
       // No meta data means fresh notebook, reset the graphics
       this.graphicsMenuRef.resetGraphicsState();
       this.setState({
@@ -262,7 +265,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     );
 
     // If the data is not null, set the selected graphic method and group
-    if (template == null) {
+    if (!template) {
       // No meta data means fresh notebook, reset the graphics
       this.templateMenuRef.resetTemplateMenuState();
       return;
@@ -378,7 +381,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     );
 
     // If no variables are stored in the metadata, save the new variable to meta data
-    if (result == null) {
+    if (!result) {
       const varArray = new Array<Variable>();
       varArray.push(variable);
       await NotebookUtilities.setMetaDataNow(
@@ -391,7 +394,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
       const newVariableArray = result.slice();
       let found: boolean = false;
       result.forEach((storedVar: Variable, varIndex: number) => {
-        if (storedVar.name == variable.name) {
+        if (storedVar.name === variable.name) {
           newVariableArray[varIndex] = variable;
           found = true;
         }
@@ -421,7 +424,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
    */
   public plot(): void {
     try {
-      if (this.state.selectedVariables.length == 0) {
+      if (this.state.selectedVariables.length === 0) {
         NotebookUtilities.showMessage(
           "Notice",
           "Please select a variable from the left panel."
@@ -462,7 +465,7 @@ export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
     await this.varMenuRef.launchVarLoader(variables);
   }
 
-  public async updateVariables(variables: Variable[]) {
+  public async updateVariables(variables: Variable[]): Promise<void> {
     await this.setState({ variables });
     await this.varMenuRef.setState({ variables });
     await this.varMenuRef.varLoaderRef.setState({ variables });

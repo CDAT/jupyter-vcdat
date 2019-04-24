@@ -22,23 +22,23 @@ import {
 import { NotebookUtilities } from "../NotebookUtilities";
 
 const dropdownMenuStyle: React.CSSProperties = {
-  maxHeight: "250px",
-  padding: "2px",
   marginTop: "5px",
-  overflow: "auto"
+  maxHeight: "250px",
+  overflow: "auto",
+  padding: "2px"
 };
 const listItemStyle: React.CSSProperties = {
   padding: "2px 7px",
   textAlign: "left"
 };
 
-interface GraphicsMenuProps {
+interface IGraphicsMenuProps {
   plotReady: boolean;
   getGraphicsList: Function; // a method that gets the current list of graphics methods
   updateGraphicsOptions: Function; // a method to call when the user has selected their desired graphics method
   copyGraphicsMethod: Function; // a method that will create a copy of the currently selected graphics method.
 }
-interface GraphicsMenuState {
+interface IGraphicsMenuState {
   showMenu: boolean;
   showDropdown: boolean;
   selectedMethod: string;
@@ -51,11 +51,11 @@ interface GraphicsMenuState {
 }
 
 export default class GraphicsMenu extends React.Component<
-  GraphicsMenuProps,
-  GraphicsMenuState
+  IGraphicsMenuProps,
+  IGraphicsMenuState
 > {
   public nameInputRef: Input;
-  constructor(props: GraphicsMenuProps) {
+  constructor(props: IGraphicsMenuProps) {
     super(props);
     this.state = {
       showMenu: false,
@@ -138,8 +138,8 @@ export default class GraphicsMenu extends React.Component<
                 this.selectItem(item);
               }}
               color={
-                this.state.selectedGroup == group &&
-                this.state.selectedMethod == item
+                this.state.selectedGroup === group &&
+                this.state.selectedMethod === item
                   ? "info"
                   : ""
               }
@@ -156,7 +156,7 @@ export default class GraphicsMenu extends React.Component<
     // Set the dropdown title based on state
     let dropdownTitle = "Select Plot Type";
     if (this.state.tempGroup != "") {
-      if (this.state.tempGroup == this.state.selectedGroup) {
+      if (this.state.tempGroup === this.state.selectedGroup) {
         dropdownTitle = `${this.state.tempGroup} (${
           this.state.selectedMethod
         })`;
@@ -253,7 +253,7 @@ export default class GraphicsMenu extends React.Component<
                   !this.state.plotReady ||
                   this.state.showMenu ||
                   this.state.enterName ||
-                  this.state.selectedGroup == ""
+                  this.state.selectedGroup === ""
                 }
                 outline={true}
                 onClick={() => {
@@ -326,7 +326,7 @@ export default class GraphicsMenu extends React.Component<
             <Card
               style={{ marginTop: "5px" }}
               hidden={
-                this.state.tempGroup == "" ||
+                this.state.tempGroup === "" ||
                 !this.state.showMenu ||
                 this.state.enterName
               }

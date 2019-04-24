@@ -71,7 +71,7 @@ export default class TemplateMenu extends React.Component<
 
   public render(): JSX.Element {
     let dropDownTitle: string = this.state.selectedTemplate;
-    if (this.state.selectedTemplate == "") {
+    if (this.state.selectedTemplate === "") {
       dropDownTitle = "Select A Template";
     }
     return (

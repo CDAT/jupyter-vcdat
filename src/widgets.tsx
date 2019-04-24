@@ -513,7 +513,7 @@ export class LeftSideBarWidget extends Widget {
   }
 
   public async checkVCS(): Promise<boolean> {
-    if (this.notebookPanel == null) {
+    if (!this.notebookPanel) {
       return false;
     }
 

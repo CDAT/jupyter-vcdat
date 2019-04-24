@@ -43,10 +43,7 @@ interface VarMiniState {
   showAxis: boolean; // should the edit axis modal be shown
 }
 
-export class VarMini extends React.Component<
-  VarMiniProps,
-  VarMiniState
-> {
+export class VarMini extends React.Component<VarMiniProps, VarMiniState> {
   public varName: string;
   constructor(props: VarMiniProps) {
     super(props);
@@ -103,12 +100,12 @@ export class VarMini extends React.Component<
             outline={true}
             style={axisStyle}
             title={
-              this.props.variable.sourceName == ""
+              this.props.variable.sourceName === ""
                 ? "Editing of modified variables disabled for now."
                 : ""
             }
-            disabled={this.props.variable.sourceName == ""}
-            color={this.props.variable.sourceName == "" ? "dark" : "danger"}
+            disabled={this.props.variable.sourceName === ""}
+            color={this.props.variable.sourceName === "" ? "dark" : "danger"}
             onClick={(clickEvent: React.MouseEvent<HTMLButtonElement>) => {
               this.setState({
                 showAxis: !this.state.showAxis

@@ -49,10 +49,7 @@ interface VarCardState {
   isChanged: boolean;
 }
 
-export class VarCard extends React.Component<
-  VarCardProps,
-  VarCardState
-> {
+export class VarCard extends React.Component<VarCardProps, VarCardState> {
   public varName: string;
   constructor(props: VarCardProps) {
     super(props);
