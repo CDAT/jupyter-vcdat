@@ -21,25 +21,22 @@ import {
 // Project Components
 import { Variable } from "./Variable";
 
-interface PlotMenuProps {
-  updatePlotOptions: Function; // the method to call when the users wants to update the plot options
+interface IPlotMenuProps {
+  updatePlotOptions: (plotOptions: any) => void; // the method to call when the users wants to update the plot options
   varInfo: Variable; // variable information about the selected variable
 }
-interface PlotMenuState {
+interface IPlotMenuState {
+  dropdownOptions: string[]; // options to select for the plot mode
+  optionsChanged: boolean; // have the options been changed
+  plotOptions: any; // the currently selected plot options
+  selectedDropdownOption: string; // the currently selected plot mode
   showMenu: boolean; // should the menu be expanded or not
   showDropdown: boolean; // should the drop down be open
-  dropdownOptions: string[]; // options to select for the plot mode
-  selectedDropdownOption: string; // the currently selected plot mode
-  plotOptions: any; // the currently selected plot options
   validName: boolean; // is the given plot name valid
-  optionsChanged: boolean; // have the options been changed
 }
 
-export default class PlotMenu extends React.Component<
-  PlotMenuProps,
-  PlotMenuState
-> {
-  constructor(props: PlotMenuProps) {
+export class PlotMenu extends React.Component<IPlotMenuProps, IPlotMenuState> {
+  constructor(props: IPlotMenuProps) {
     super(props);
     this.state = {
       showMenu: false,

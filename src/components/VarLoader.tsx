@@ -13,13 +13,13 @@ const modalOverflow: React.CSSProperties = {
   overflow: "auto"
 };
 
-interface VarLoaderProps {
+interface IVarLoaderProps {
   loadFileVariable: Function; // function to call when user hits load
   variables: Variable[]; // list of all currently available variables
   updateSelectedVariables: Function; // update the list of selected variables
   saveNotebook: Function; // function that saves the current notebook
 }
-interface VarLoaderState {
+interface IVarLoaderState {
   show: boolean; // should the modal be shown
   variables: Variable[]; // list of already loaded variables
   fileVariables: Variable[]; // the list of variables from within the file
@@ -27,8 +27,8 @@ interface VarLoaderState {
   selectedVariables: string[]; // the variables the user has selected to be loaded
 }
 
-export class VarLoader extends React.Component<VarLoaderProps, VarLoaderState> {
-  constructor(props: VarLoaderProps) {
+export class VarLoader extends React.Component<IVarLoaderProps, IVarLoaderState> {
+  constructor(props: IVarLoaderProps) {
     super(props);
     this.state = {
       show: false,

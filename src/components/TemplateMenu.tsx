@@ -16,12 +16,12 @@ const dropdownMenuStype: React.CSSProperties = {
   overflow: "auto"
 };
 
-interface TemplateMenuProps {
+interface ITemplateMenuProps {
   plotReady: boolean;
-  getTemplatesList: Function; // a method to call when the user has seleted a template
-  updateTemplateOptions: Function;
+  getTemplatesList: () => string[]; // a method to call when the user has seleted a template
+  updateTemplateOptions: (templateName: string) => Promise<void>;
 }
-interface TemplateMenuState {
+interface ITemplateMenuState {
   showMenu: boolean;
   showDropdown: boolean;
   selectedTemplate: string;
@@ -30,17 +30,17 @@ interface TemplateMenuState {
 }
 
 export default class TemplateMenu extends React.Component<
-  TemplateMenuProps,
-  TemplateMenuState
+  ITemplateMenuProps,
+  ITemplateMenuState
 > {
-  constructor(props: TemplateMenuProps) {
+  constructor(props: ITemplateMenuProps) {
     super(props);
     this.state = {
-      showMenu: false,
-      showDropdown: false,
-      selectedTemplate: "",
       optionsChanged: false,
-      plotReady: this.props.plotReady
+      plotReady: this.props.plotReady,
+      selectedTemplate: "",
+      showDropdown: false,
+      showMenu: false
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
@@ -50,9 +50,9 @@ export default class TemplateMenu extends React.Component<
   // Resets the graphics menu to initial, (for when a new notebook is selected)
   public resetTemplateMenuState(): void {
     this.setState({
-      showMenu: false,
-      showDropdown: false,
       selectedTemplate: "",
+      showDropdown: false,
+      showMenu: false,
       optionsChanged: false
     });
   }
@@ -89,19 +89,17 @@ export default class TemplateMenu extends React.Component<
                 </DropdownToggle>
                 <DropdownMenu style={dropdownMenuStype}>
                   {this.props.getTemplatesList().map((item: string) => {
+                    const handleClick = () => {
+                      this.props.updateTemplateOptions(item);
+                      this.setState({
+                        optionsChanged: false,
+                        selectedTemplate: item,
+                        showDropdown: false,
+                        showMenu: false
+                      });
+                    };
                     return (
-                      <DropdownItem
-                        onClick={() => {
-                          this.props.updateTemplateOptions(item);
-                          this.setState({
-                            showDropdown: false,
-                            showMenu: false,
-                            optionsChanged: false,
-                            selectedTemplate: item
-                          });
-                        }}
-                        key={item}
-                      >
+                      <DropdownItem onClick={handleClick} key={item}>
                         {item}
                       </DropdownItem>
                     );

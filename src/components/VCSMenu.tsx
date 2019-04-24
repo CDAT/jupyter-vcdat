@@ -48,7 +48,7 @@ const sidebarOverflow: React.CSSProperties = {
 const DEFAULT_WIDTH: string = "800";
 const DEFAULT_HEIGHT: string = "600";
 
-export interface VCSMenuProps {
+interface IVCSMenuProps {
   commands: CommandRegistry; // the command executor
   notebookPanel: NotebookPanel;
   plotReady: boolean; // The notebook is ready for code injection an plots
@@ -56,14 +56,14 @@ export interface VCSMenuProps {
   plotExistTrue: Function; // sets the widget's plotExist state to true (called by plot function)
   getGraphicsList: () => any; // function that reads the current graphics list
   refreshGraphicsList: Function; // function that refreshes the graphics method list
-  getTemplatesList: Function; // function that reads the widget's current template list
+  getTemplatesList: ()=>string[]; // function that reads the widget's current template list
   getFileVariables: Function; // Function that reads the current notebook file and retrieves variable data
   updateVariables: Function; // function that updates the variables list in the main widget
   updateNotebookPanel: Function; // Function passed to the var menu
   syncNotebook: Function; // Function passed to the var menu
   codeInjector: CodeInjector;
 }
-interface VCSMenuState {
+interface IVCSMenuState {
   plotReady: boolean; // are we ready to plot
   plotExists: boolean; // whether a plot already exists
   variables: Variable[]; // All the variables, loaded from files and derived by users
@@ -81,11 +81,11 @@ interface VCSMenuState {
   overlayMode: boolean;
 }
 
-export class VCSMenu extends React.Component<VCSMenuProps, VCSMenuState> {
+export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
   public varMenuRef: VarMenu;
   public graphicsMenuRef: GraphicsMenu;
   public templateMenuRef: TemplateMenu;
-  constructor(props: VCSMenuProps) {
+  constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
       plotReady: this.props.plotReady,

@@ -30,7 +30,7 @@ const modalOverflow: React.CSSProperties = {
   overflow: "auto"
 };
 
-interface VarMiniProps {
+interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
   updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
@@ -39,13 +39,13 @@ interface VarMiniProps {
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: Function; // a function to reload the variable
 }
-interface VarMiniState {
+interface IVarMiniState {
   showAxis: boolean; // should the edit axis modal be shown
 }
 
-export class VarMini extends React.Component<VarMiniProps, VarMiniState> {
+export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   public varName: string;
-  constructor(props: VarMiniProps) {
+  constructor(props: IVarMiniProps) {
     super(props);
     this.state = {
       showAxis: false

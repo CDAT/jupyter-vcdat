@@ -28,7 +28,7 @@ const formOverflow: React.CSSProperties = {
   overflow: "auto"
 };
 
-interface VarMenuProps {
+interface IVarMenuProps {
   loadVariable: Function; // a method to call when loading the variable
   commands?: any; // the command executer
   variables: Variable[]; // an array of all current variables
@@ -40,17 +40,17 @@ interface VarMenuProps {
   syncNotebook: Function; // Function that check if the Notebook should be synced/prepared
 }
 
-interface VarMenuState {
+interface IVarMenuState {
   variables: Variable[]; // all variables for list (derived and loaded)
   selectedVariables: string[]; // the names of the variables the user has selected
 }
 
 export default class VarMenu extends React.Component<
-  VarMenuProps,
-  VarMenuState
+  IVarMenuProps,
+  IVarMenuState
 > {
   public varLoaderRef: VarLoader;
-  constructor(props: VarMenuProps) {
+  constructor(props: IVarMenuProps) {
     super(props);
     this.state = {
       selectedVariables: this.props.selectedVariables,
