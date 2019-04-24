@@ -430,7 +430,10 @@ export class CodeInjector {
     // inject the code to load the variable into the notebook
     let cmd = `${variable.name} = ${variable.sourceName}("${variable.name}"`;
     variable.axisInfo.forEach((axis: AxisInfo) => {
-      cmd += `, ${axis.name}=(${axis.min}, ${axis.max})`;
+      cmd +=
+        axis.min === axis.max
+          ? `, ${axis.name}=(${axis.min})`
+          : `, ${axis.name}=(${axis.min}, ${axis.max})`;
     });
     cmd += ")";
 

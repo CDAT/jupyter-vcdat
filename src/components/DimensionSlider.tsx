@@ -188,7 +188,7 @@ export default class DimensionSlider extends React.Component<
               </Row>
             </div>
             <Slider
-              mode={2}
+              mode={1}
               step={1}
               domain={this.domain}
               rootStyle={sliderStyle}

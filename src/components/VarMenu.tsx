@@ -176,7 +176,7 @@ export default class VarMenu extends React.Component<
    * @param varName the name of the variable to update
    */
   public async updateDimInfo(newInfo: any, varName: string): Promise<void> {
-    let newVariables: Variable[] = this.state.variables;
+    const newVariables: Variable[] = this.state.variables;
     newVariables.forEach((variable: Variable, varIndex: number) => {
       if (variable.name != varName) {
         return;
