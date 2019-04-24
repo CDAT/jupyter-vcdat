@@ -127,7 +127,7 @@ export class LeftSideBarWidget extends Widget {
   }
 
   // =======PROPS FUNCTIONS=======
-  public plotExistTrue = () => {
+  public plotExistTrue = (): void => {
     this.plotExists = true;
   };
 
@@ -555,7 +555,7 @@ export class LeftSideBarWidget extends Widget {
           `import json\n${OUTPUT_RESULT_NAME} = json.dumps(canvas.listelements('display'))`
         );
         this.usingKernel = false;
-        return Utilities.strArray(output).length > 1;
+        return Utilities.strToArray(output).length > 1;
       }
       return false;
     } catch (error) {
@@ -596,7 +596,7 @@ export class LeftSideBarWidget extends Widget {
           REFRESH_TEMPLATES_CMD
         );
         // Update the list of latest variables and data
-        this.templatesList = Utilities.strArray(output);
+        this.templatesList = Utilities.strToArray(output);
         this.usingKernel = false;
       } else {
         this.templatesList = BASE_TEMPLATES;

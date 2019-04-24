@@ -113,7 +113,7 @@ export class Utilities {
    * Converts a string to an array of strings using JSON parse
    * @param inStr String to convert
    */
-  public static strArray(inStr: string): string[] {
+  public static strToArray(inStr: string): any[] {
     return JSON.parse(inStr.replace(/^'|'$/g, ""));
   }
 }

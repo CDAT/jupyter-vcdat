@@ -95,7 +95,7 @@ export class CodeInjector {
       );
 
       // Create import string based on missing dependencies
-      const missingModules: string[] = Utilities.strArray(output);
+      const missingModules: string[] = Utilities.strToArray(output);
       if (missingModules.length > 0) {
         cmd += this.buildImportCommand(missingModules, false);
       } else {

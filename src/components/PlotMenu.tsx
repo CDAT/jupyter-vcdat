@@ -1,3 +1,5 @@
+/* tslint:disable */
+// LINTING TURNED OFF UNTIL THIS FILE IS ACTUALLY USED
 // Dependencies
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 import * as React from "react";
