@@ -33,9 +33,9 @@ interface IVarMenuProps {
   commands?: any; // the command executer
   variables: Variable[]; // an array of all current variables
   selectedVariables: string[]; // array of names for variables that have been selected
-  updateSelectedVariables: Function; // update the list of selected variables
+  updateSelectedVariables: (selection: string[]) => Promise<any>; // update the list of selected variables
   updateVariables: Function; // update the list of all variables
-  saveNotebook: Function; // function that saves the current notebook
+  saveNotebook: () => void; // function that saves the current notebook
   updateNotebook: Function; // Updates the current notebook to check if it is vcdat ready
   syncNotebook: Function; // Function that check if the Notebook should be synced/prepared
 }
@@ -92,7 +92,7 @@ export default class VarMenu extends React.Component<
    */
   public async launchVarLoader(fileVariables: Variable[]): Promise<void> {
     // Look through current loaded variable names to see if any haven't been loaded
-    const unloaded: string[] = new Array<string>();
+    const unloaded: string[] = Array<string>();
     const loadedVars: string[] = this.state.variables.map(
       (variable: Variable) => {
         return variable.name;

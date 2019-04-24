@@ -136,7 +136,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             {this.state.showAxis &&
               this.props.variable.axisInfo.length > 0 &&
               this.props.variable.axisInfo.map((item: AxisInfo) => {
-                if (item.data.length <= 1) {
+                if (!item || item.data.length <= 1) {
                   return;
                 }
                 item.updateDimInfo = this.updateDimInfo;

@@ -32,13 +32,12 @@ const buttonsStyle: React.CSSProperties = {
 
 interface IVarCardProps {
   variable: Variable;
-  selectVariable: Function; // method to call to add this variable to the list to get loaded
-  deselectVariable: Function; // method to call to remove a variable from the list
-  hidden: boolean; // should the axis be hidden by default
-  updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
-  isSelected: Function; // method to check if this variable is selected in parent
+  selectVariable: (varName: string) => void; // method to call to add this variable to the list to get loaded
+  deselectVariable: (varName: string) => void; // method to call to remove a variable from the list
+  updateDimInfo: (newInfo: any, varName: string) => void; // method passed by the parent to update their copy of the variables dimension info
+  isSelected: (varName: string) => boolean; // method to check if this variable is selected in parent
   allowReload: boolean;
-  reload: Function;
+  hidden: boolean; // should the axis be hidden by default
   isLoaded: boolean; // Whether a variable already exists/was loaded
 }
 interface IVarCardState {
@@ -54,16 +53,18 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
   constructor(props: IVarCardProps) {
     super(props);
     this.state = {
-      loadOrder: -1,
       axisState: [],
-      showAxis: false,
       hidden: props.hidden,
-      isChanged: false
+      isChanged: false,
+      loadOrder: -1,
+      showAxis: false
     };
     this.varName = this.props.variable.name;
     this.openMenu = this.openMenu.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
+    this.handleAxesClick = this.handleAxesClick.bind(this);
+    this.handleWarningsClick = this.handleWarningsClick.bind(this);
   }
 
   /**
@@ -133,12 +134,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                         outline={true}
                         color={"danger"}
                         active={this.state.showAxis}
-                        onClick={() => {
-                          this.setState({
-                            showAxis: !this.state.showAxis,
-                            hidden: !this.state.hidden
-                          });
-                        }}
+                        onClick={this.handleAxesClick}
                         style={buttonsStyle}
                       >
                         Axes
@@ -149,17 +145,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                     <Col xs="sm-3">
                       <Button
                         color={"warning"}
-                        onClick={() => {
-                          NotebookUtilities.showMessage(
-                            "Warning",
-                            `Loading '${
-                              this.varName
-                            }' from this file will overwrite the previous '${
-                              this.varName
-                            }' variable.`,
-                            "Dismiss"
-                          );
-                        }}
+                        onClick={this.handleWarningsClick}
                       >
                         !
                       </Button>
@@ -190,6 +176,23 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
           <CardFooter />
         </Card>
       </div>
+    );
+  }
+
+  private handleAxesClick(): void {
+    this.setState({
+      hidden: !this.state.hidden,
+      showAxis: !this.state.showAxis
+    });
+  }
+
+  private handleWarningsClick(): void {
+    NotebookUtilities.showMessage(
+      "Warning",
+      `Loading '${this.varName}' from this file will overwrite the previous '${
+        this.varName
+      }' variable.`,
+      "Dismiss"
     );
   }
 }
