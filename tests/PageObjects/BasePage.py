@@ -5,14 +5,13 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
 
 
 class BasePage(object):
     """ All page objects inherit from this """
 
-    _wait_timeout = 3
-    _delay = 2
+    _wait_timeout = 10
+    _delay = 0.5
 
     def __init__(self, driver, server):
         self.driver = driver
@@ -24,21 +23,19 @@ class BasePage(object):
     def _validate_page(self):
         return
 
-    def find_element_and_click_ORIG(self, xpath, descr):
-        try:
-            elem = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
-            print("FOUND {d}, clicking it".format(d=descr))
-            elem.click()
-            time.sleep(self._delay)
-        except TimeoutException as e:
-            print("TimeoutException...not finding {d} to be clickable".format(d=descr))
-            raise e
-
     def find_element_and_click(self, xpath, descr):
+        '''
+        finds an element with the specified xpath.
+        If failed to find the element, log with with the specified description.
+        xpath: XPath describing the element to locate
+        descr: a description for logging
+
+        This method does 'scrollIntoView' to make sure the element to be
+        located is within view. Otherwise, it does not work with Firefox.
+        '''
         try:
             elem = self.driver.find_element_by_xpath(xpath)
             self.driver.execute_script("return arguments[0].scrollIntoView(true);", elem)
-            # elem = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
             print("FOUND {d}, clicking it".format(d=descr))
             elem.click()
             time.sleep(self._delay)
@@ -53,19 +50,7 @@ class BasePage(object):
         except NoSuchElementException as e:
             print("NoSuchElementException...not finding {d}".format(d=descr))
             raise e
-
         return element
-
-    def action_chains_find_element_and_click(self, xpath, descr):
-        try:
-            element = self.driver.find_element_by_xpath(xpath)
-            action_chains = ActionChains(self.driver)
-            action_chains.move_to_element(element)
-            action_chains.click(element)
-            time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding {d}".format(d=descr))
-            raise e
 
     def load_page(self, server, expected_element=(By.TAG_NAME, 'html'),
                   timeout=_wait_timeout):

@@ -32,9 +32,8 @@ class BaseTestCase(unittest.TestCase):
     If running with firefox on Linux, should also set:
        BROWSER_BINARY: full path to your firefox binary
     '''
-    _delay = 1
-    _wait_timeout = 3
-    # _test_notebook_file = 'test_jpvcdat.ipynb'
+    _delay = 0.1
+    _wait_timeout = 10
 
     def setUp(self):
         self._download_dir = tempfile.mkdtemp()
@@ -68,7 +67,7 @@ class BaseTestCase(unittest.TestCase):
         self.notebook_page.rename_notebook(self._test_notebook_file)
 
     def tearDown(self):
-        print("xxx xxx BaseTestCase.tearDown() xxx xxx")
+        print("...BaseTestCase.tearDown()...")
         self.main_page.shutdown_kernel()
         self.notebook_page.save_current_notebook()
         self.notebook_page.close_current_notebook()

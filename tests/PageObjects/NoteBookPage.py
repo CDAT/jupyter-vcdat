@@ -15,25 +15,6 @@ class NoteBookPage(MainPage):
     def _validate_page(self):
         print("...NoteBookPage.validatePage()")
 
-    def _click_on_new_notebook(self):
-        print("...click on New Notebook...")
-        # self.hover_over_tab('File')
-        self.click_on_tab('File')
-        # self.find_menu_item_from_tab_drop_down_and_click('New')
-        notebook_locator_constraint = "@data-command='notebook:create-new'"
-        self.find_menu_item_from_tab_drop_down_find_submenu_by_constraint('New', notebook_locator_constraint)
-
-    def _click_on_new_notebookORIG(self):
-        print("...click on New Notebook...")
-        # self.hover_over_tab('File')
-        self.click_on_tab('File')
-        # self.find_menu_item_from_tab_drop_down_and_click('New')
-        self.find_menu_item_from_tab_drop_down_find_submenu_and_click('New')
-
-        # notebook_locator = "//li[@class='p-Menu-item'][@data-command='notebook:create-new']"
-        notebook_locator_constraint = "@data-command='notebook:create-new'"
-        self.find_menu_item_by_constraint_and_click(notebook_locator_constraint)
-
     def rename_notebook(self, new_nb_name):
         # look for the 'Rename Notebook...' under File tab menu
         self.click_on_tab('File')
@@ -50,20 +31,23 @@ class NoteBookPage(MainPage):
         input_area.clear()
         action_chains = ActionChains(self.driver)
         action_chains.click(input_area).send_keys(new_nb_name).key_down(Keys.ENTER).perform()
-        time.sleep(self._delay * 2)
+        time.sleep(self._delay)
 
     def new_notebook(self):
-        self._click_on_new_notebook()
+        print("...new_notebook...")
+        self.click_on_tab('File')
+        notebook_locator_constraint = "notebook:create-new"
+        self.find_menu_item_from_tab_drop_down_find_submenu_with_command('New', notebook_locator_constraint)
         self.select_kernel()
 
     def save_current_notebook(self):
+        print("...save_current_notebook...")
         self.click_on_tab('File')
-        # save notebook locator data-command
-        print("...click on 'Save Notebook'...")
         loc = "docmanager:save"
         self.find_menu_item_with_command_from_tab_drop_down_and_click(loc)
 
     def close_current_notebook(self):
+        print("...close_current_notebook...")
         self.click_on_tab('File')
         self.find_menu_item_from_tab_drop_down_and_click('Close Notebook')
         # check if we are getting "Close without saving?" pop up

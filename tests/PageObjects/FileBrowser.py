@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
-
+from selenium.common.exceptions import TimeoutException
 
 class FileBrowser(BasePage):
 
@@ -26,13 +26,16 @@ class FileBrowser(BasePage):
         print("...click on file browser home icon...")
         home_locator = "//span[@title='Home']"
         try:
-            home_element = self.driver.find_element_by_xpath(home_locator)
             print("...clicking on the File Browser Home icon...")
-            home_element.click()
+            wait = WebDriverWait(self.driver, 10)
+            m = wait.until(EC.element_to_be_clickable((By.XPATH,
+                                                       home_locator)))
+            time.sleep(self._delay)
+            ActionChains(self.driver).move_to_element(m).click().perform()
             print("...after clicking on the File Browser Home icon...")
             time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print("Error...did not find file browser home icon")
+        except TimeoutException as e:
+            print("Error...Timeout...did not find file browser home icon")
             raise e
 
     def double_click_on_a_file(self, fname, expect_file_load_error=True):
