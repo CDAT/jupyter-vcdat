@@ -54,7 +54,7 @@ export interface VCSMenuProps {
   plotReady: boolean; // The notebook is ready for code injection an plots
   plotExists: boolean; // whether a plot already exists
   plotExistTrue: Function; // sets the widget's plotExist state to true (called by plot function)
-  getGraphicsList: Function; // function that reads the current graphics list
+  getGraphicsList: () => any; // function that reads the current graphics list
   refreshGraphicsList: Function; // function that refreshes the graphics method list
   getTemplatesList: Function; // function that reads the widget's current template list
   getFileVariables: Function; // Function that reads the current notebook file and retrieves variable data

@@ -34,9 +34,14 @@ const listItemStyle: React.CSSProperties = {
 
 interface IGraphicsMenuProps {
   plotReady: boolean;
-  getGraphicsList: Function; // a method that gets the current list of graphics methods
-  updateGraphicsOptions: Function; // a method to call when the user has selected their desired graphics method
-  copyGraphicsMethod: Function; // a method that will create a copy of the currently selected graphics method.
+  getGraphicsList: () => any; // a method that gets the current list of graphics methods
+  // a method to call when the user has selected their desired graphics method
+  updateGraphicsOptions: (group: string, name: string) => Promise<void>;
+  copyGraphicsMethod: (
+    groupName: string,
+    methodName: string,
+    newName: string
+  ) => Promise<void>; // a method that will create a copy of the currently selected graphics method.
 }
 interface IGraphicsMenuState {
   showMenu: boolean;
@@ -58,17 +63,22 @@ export default class GraphicsMenu extends React.Component<
   constructor(props: IGraphicsMenuProps) {
     super(props);
     this.state = {
-      showMenu: false,
-      showDropdown: false,
-      selectedMethod: "",
-      selectedGroup: "",
-      tempGroup: "",
       enterName: false,
-      nameValue: "",
       invalidName: false,
-      plotReady: this.props.plotReady
+      nameValue: "",
+      plotReady: this.props.plotReady,
+      selectedGroup: "",
+      selectedMethod: "",
+      showDropdown: false,
+      showMenu: false,
+      tempGroup: ""
     };
     this.handleNameInput = this.handleNameInput.bind(this);
+    this.handleCloseClick = this.handleCloseClick.bind(this);
+    this.handleCopyClick = this.handleCopyClick.bind(this);
+    this.handleCloseClick = this.handleCloseClick.bind(this);
+    this.handleCancelClick = this.handleCancelClick.bind(this);
+    this.handleEnterClick = this.handleEnterClick.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.graphicsOptions = this.graphicsOptions.bind(this);
     this.resetGraphicsState = this.resetGraphicsState.bind(this);
@@ -96,28 +106,27 @@ export default class GraphicsMenu extends React.Component<
   // Resets the graphics menu to initial, (for when a new notebook is selected)
   public async resetGraphicsState(): Promise<void> {
     this.setState({
-      showMenu: false,
-      showDropdown: false,
-      selectedMethod: "",
-      selectedGroup: "",
-      tempGroup: "",
       enterName: false,
+      invalidName: false,
       nameValue: "",
-      invalidName: false
+      selectedGroup: "",
+      selectedMethod: "",
+      showDropdown: false,
+      showMenu: false,
+      tempGroup: ""
     });
   }
 
   public async selectItem(item: string): Promise<void> {
     if (
-      this.state.tempGroup != this.state.selectedGroup ||
-      this.state.selectedMethod != item
+      this.state.tempGroup !== this.state.selectedGroup ||
+      this.state.selectedMethod !== item
     ) {
       await this.props.updateGraphicsOptions(this.state.tempGroup, item);
-
       this.setState({
-        showMenu: false,
+        selectedGroup: this.state.tempGroup,
         selectedMethod: item,
-        selectedGroup: this.state.tempGroup
+        showMenu: false
       });
     } else {
       this.setState({ showMenu: false });
@@ -128,15 +137,16 @@ export default class GraphicsMenu extends React.Component<
     return (
       <ListGroup flush={true}>
         {this.props.getGraphicsList()[group].map((item: string) => {
+          const select = () => {
+            this.selectItem(item);
+          };
           return (
             <ListGroupItem
               className="text-muted"
               key={group + item}
               style={listItemStyle}
               tag="button"
-              onClick={() => {
-                this.selectItem(item);
-              }}
+              onClick={select}
               color={
                 this.state.selectedGroup === group &&
                 this.state.selectedMethod === item
@@ -155,7 +165,7 @@ export default class GraphicsMenu extends React.Component<
   public render(): JSX.Element {
     // Set the dropdown title based on state
     let dropdownTitle = "Select Plot Type";
-    if (this.state.tempGroup != "") {
+    if (this.state.tempGroup) {
       if (this.state.tempGroup === this.state.selectedGroup) {
         dropdownTitle = `${this.state.tempGroup} (${
           this.state.selectedMethod
@@ -163,7 +173,7 @@ export default class GraphicsMenu extends React.Component<
       } else {
         dropdownTitle = `${this.state.tempGroup}`;
       }
-    } else if (this.state.selectedMethod != "") {
+    } else if (this.state.selectedMethod) {
       dropdownTitle = `${this.state.selectedGroup} (${
         this.state.selectedMethod
       })`;
@@ -194,38 +204,30 @@ export default class GraphicsMenu extends React.Component<
                 <DropdownMenu style={dropdownMenuStyle}>
                   {Object.keys(this.props.getGraphicsList()).map(item => {
                     const methods: any = this.props.getGraphicsList()[item];
+                    const clickMethodGroup = () => {
+                      this.setState({
+                        showDropdown: false,
+                        showMenu: true,
+                        tempGroup: item
+                      });
+                    };
+                    const clickMethod = async () => {
+                      await this.setState({
+                        showDropdown: false,
+                        showMenu: false,
+                        tempGroup: item
+                      });
+                      this.selectItem(methods[0]);
+                    };
                     if (methods.length > 1) {
                       return (
-                        <DropdownItem
-                          onClick={() => {
-                            this.setState({
-                              tempGroup: item,
-                              showDropdown: false,
-                              showMenu: true
-                            });
-                          }}
-                          key={item}
-                        >
+                        <DropdownItem onClick={clickMethodGroup} key={item}>
                           {item}
                         </DropdownItem>
                       );
                     }
                     return (
-                      <DropdownItem
-                        onClick={() => {
-                          this.setState(
-                            {
-                              tempGroup: item,
-                              showDropdown: false,
-                              showMenu: false
-                            },
-                            () => {
-                              this.selectItem(methods[0]);
-                            }
-                          );
-                        }}
-                        key={item}
-                      >
+                      <DropdownItem onClick={clickMethod} key={item}>
                         {item} ({methods[0]})
                       </DropdownItem>
                     );
@@ -236,13 +238,7 @@ export default class GraphicsMenu extends React.Component<
                 className="float-left"
                 hidden={!this.state.showMenu || this.state.enterName}
                 style={{ marginLeft: "5px" }}
-                onClick={() => {
-                  this.setState({
-                    showMenu: false,
-                    showDropdown: false,
-                    tempGroup: this.state.selectedGroup
-                  });
-                }}
+                onClick={this.handleCloseClick}
                 color="danger"
               >
                 X
@@ -256,9 +252,7 @@ export default class GraphicsMenu extends React.Component<
                   this.state.selectedGroup === ""
                 }
                 outline={true}
-                onClick={() => {
-                  this.setState({ enterName: true });
-                }}
+                onClick={this.handleCopyClick}
                 color="info"
               >
                 Copy
@@ -266,13 +260,7 @@ export default class GraphicsMenu extends React.Component<
               <Button
                 className="float-right"
                 hidden={!this.state.enterName}
-                onClick={() => {
-                  this.setState({
-                    enterName: false,
-                    nameValue: "",
-                    invalidName: false
-                  });
-                }}
+                onClick={this.handleCancelClick}
                 color="danger"
               >
                 Cancel
@@ -291,31 +279,7 @@ export default class GraphicsMenu extends React.Component<
               <InputGroupAddon addonType="append">
                 <Button
                   className="float-right"
-                  onClick={async () => {
-                    if (this.state.nameValue != "" && !this.state.invalidName) {
-                      try {
-                        await this.props.copyGraphicsMethod(
-                          this.state.selectedGroup,
-                          this.state.selectedMethod,
-                          this.state.nameValue
-                        );
-                        this.setState({
-                          selectedMethod: this.state.nameValue,
-                          invalidName: false,
-                          enterName: false,
-                          nameValue: ""
-                        });
-                      } catch (error) {
-                        console.error(error);
-                      }
-                    } else {
-                      NotebookUtilities.showMessage(
-                        "Notice",
-                        "Name cannot be empty."
-                      );
-                      this.setState({ invalidName: true });
-                    }
-                  }}
+                  onClick={this.handleEnterClick}
                   color={validInputColor}
                   disabled={this.state.invalidName}
                 >
@@ -326,7 +290,7 @@ export default class GraphicsMenu extends React.Component<
             <Card
               style={{ marginTop: "5px" }}
               hidden={
-                this.state.tempGroup === "" ||
+                !this.state.tempGroup ||
                 !this.state.showMenu ||
                 this.state.enterName
               }
@@ -334,12 +298,12 @@ export default class GraphicsMenu extends React.Component<
               <Collapse
                 style={dropdownMenuStyle}
                 isOpen={
-                  this.state.tempGroup != "" &&
+                  !!this.state.tempGroup &&
                   this.state.showMenu &&
                   !this.state.enterName
                 }
               >
-                {this.state.tempGroup != "" &&
+                {!!this.state.tempGroup &&
                   this.graphicsOptions(this.state.tempGroup)}
               </Collapse>
             </Card>
@@ -347,5 +311,49 @@ export default class GraphicsMenu extends React.Component<
         </Card>
       </div>
     );
+  }
+
+  // ======= REACT COMPONENT HANDLERS =======
+  private handleCloseClick(): void {
+    this.setState({
+      showDropdown: false,
+      showMenu: false,
+      tempGroup: this.state.selectedGroup
+    });
+  }
+
+  private handleCopyClick(): void {
+    this.setState({ enterName: true });
+  }
+
+  private handleCancelClick(): void {
+    this.setState({
+      enterName: false,
+      invalidName: false,
+      nameValue: ""
+    });
+  }
+
+  private async handleEnterClick(): Promise<void> {
+    if (this.state.nameValue && !this.state.invalidName) {
+      try {
+        await this.props.copyGraphicsMethod(
+          this.state.nameValue,
+          this.state.selectedGroup,
+          this.state.selectedMethod
+        );
+        this.setState({
+          enterName: false,
+          invalidName: false,
+          nameValue: "",
+          selectedMethod: this.state.nameValue
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      NotebookUtilities.showMessage("Notice", "Name cannot be empty.");
+      this.setState({ invalidName: true });
+    }
   }
 }
