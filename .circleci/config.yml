@@ -86,13 +86,6 @@ aliases:
        coveralls
        source deactivate
 
-  - &start_xvfb
-    name: start_xvfb
-    command: |
-        wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.1.jar -O selenium-server.jar
-        Xvfb :7055
-    background: true
-
   - &prep_conda_cache
     name: prep_conda_cache
     command: |
