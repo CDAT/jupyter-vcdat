@@ -367,7 +367,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     const newSource: { [varName: string]: string } = this.state.variableSources;
     newSource[variable.name] = variable.sourceName;
     this.setState({ variableSources: newSource });
-    // Also save to meta data
+    // Also save source to meta data
     await NotebookUtilities.setMetaData(
       this.state.notebookPanel,
       VARIABLE_SOURCES_KEY,
@@ -375,43 +375,34 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       true
     );
 
-    // Get variables from meta data
-    const result: any = await NotebookUtilities.getMetaData(
-      this.state.notebookPanel,
-      VARIABLES_LOADED_KEY
-    );
+    let currentVars: Variable[] = this.state.variables;
 
-    // If no variables are stored in the metadata, save the new variable to meta data
-    if (!result) {
-      const varArray = Array<Variable>();
-      varArray.push(variable);
-      await NotebookUtilities.setMetaDataNow(
-        this.state.notebookPanel,
-        VARIABLES_LOADED_KEY,
-        varArray
-      );
+    // If no variables are in the list, update meta data and variables list
+    if (!currentVars || currentVars.length < 1) {
+      currentVars = Array<Variable>();
+      currentVars.push(variable);
     } else {
-      // If there are already variables stored but this one isn't present then save it
-      const newVariableArray = result.slice();
+      // If there are already variables stored check if variable exists and replace if so
       let found: boolean = false;
-      result.forEach((storedVar: Variable, varIndex: number) => {
+      currentVars.forEach((storedVar: Variable, varIndex: number) => {
         if (storedVar.name === variable.name) {
-          newVariableArray[varIndex] = variable;
+          currentVars[varIndex] = variable;
           found = true;
         }
       });
       if (!found) {
-        newVariableArray.push(variable);
+        currentVars.push(variable);
       }
-
-      // Update meta data
-      await NotebookUtilities.setMetaData(
-        this.state.notebookPanel,
-        VARIABLES_LOADED_KEY,
-        newVariableArray,
-        true
-      );
     }
+
+    this.updateVariables(currentVars);
+    // Update meta data
+    await NotebookUtilities.setMetaData(
+      this.state.notebookPanel,
+      VARIABLES_LOADED_KEY,
+      currentVars,
+      true
+    );
   }
 
   public updatePlotReady(value: boolean): void {

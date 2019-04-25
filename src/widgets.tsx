@@ -59,6 +59,7 @@ export class LeftSideBarWidget extends Widget {
   private nbPanel: NotebookPanel; // The notebook this widget is interacting with
   private nbState: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
   private preparing: boolean; // Whether the notebook is currently being prepared
+  private isBusy: boolean;
 
   constructor(app: JupyterLab, tracker: NotebookTracker) {
     super();
@@ -94,6 +95,8 @@ export class LeftSideBarWidget extends Widget {
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
     this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
+    this.setVariables = this.setVariables.bind(this);
+    this.setBusy = this.setBusy.bind(this);
     this.vcsMenuRef = (React as any).createRef();
     ReactDOM.render(
       <ErrorBoundary>
@@ -108,9 +111,7 @@ export class LeftSideBarWidget extends Widget {
           getFileVariables={this.getFileVariables}
           getGraphicsList={this.getGraphics}
           getTemplatesList={this.getTemplates}
-          updateVariables={(variables: Variable[]) => {
-            this.variableList = variables;
-          }}
+          updateVariables={this.setVariables}
           refreshGraphicsList={this.refreshGraphicsList}
           notebookPanel={this.nbPanel}
           updateNotebookPanel={this.recognizeNotebookPanel}
@@ -177,6 +178,14 @@ export class LeftSideBarWidget extends Widget {
 
   public get plotExists(): boolean {
     return this.pltExists;
+  }
+
+  public setVariables(variables: Variable[]): void {
+    this.variableList = variables;
+  }
+
+  public setBusy(value: boolean): void {
+    this.isBusy = value;
   }
 
   // =======ASYNC SETTER FUNCTIONS=======
@@ -400,6 +409,7 @@ export class LeftSideBarWidget extends Widget {
   ): Promise<void> {
     // Perform actions when the notebook state has a command run and the notebook is vcs ready
     if (
+      !this.isBusy &&
       !this.codeInjector.isBusy &&
       this.state === NOTEBOOK_STATE.VCS_Ready &&
       stateChange.newValue !== "edit"

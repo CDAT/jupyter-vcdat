@@ -29,15 +29,15 @@ const formOverflow: React.CSSProperties = {
 };
 
 interface IVarMenuProps {
-  loadVariable: Function; // a method to call when loading the variable
+  loadVariable: (variable: Variable) => Promise<any>; // a method to call when loading the variable
   commands?: any; // the command executer
   variables: Variable[]; // an array of all current variables
   selectedVariables: string[]; // array of names for variables that have been selected
   updateSelectedVariables: (selection: string[]) => Promise<any>; // update the list of selected variables
-  updateVariables: Function; // update the list of all variables
+  updateVariables: (variables: Variable[]) => Promise<void>; // update the list of all variables
   saveNotebook: () => void; // function that saves the current notebook
-  updateNotebook: Function; // Updates the current notebook to check if it is vcdat ready
-  syncNotebook: Function; // Function that check if the Notebook should be synced/prepared
+  updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
+  syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
 }
 
 interface IVarMenuState {
@@ -106,8 +106,8 @@ export default class VarMenu extends React.Component<
     // Update state to show launcher with variables
     this.varLoaderRef.setState({
       fileVariables,
-      unloadedVariables: unloaded,
-      show: true
+      show: true,
+      unloadedVariables: unloaded
     });
   }
 
@@ -123,7 +123,6 @@ export default class VarMenu extends React.Component<
       async (loadedVar: Variable, idx: number) => {
         if (variable.name === loadedVar.name) {
           newVariables[idx] = variable;
-          await this.props.updateVariables(newVariables);
           replaced = true;
           return;
         }
@@ -131,7 +130,6 @@ export default class VarMenu extends React.Component<
     );
     if (!replaced) {
       newVariables.push(variable);
-      await this.props.updateVariables(newVariables);
     }
 
     await this.props.loadVariable(variable);
@@ -178,11 +176,11 @@ export default class VarMenu extends React.Component<
   public async updateDimInfo(newInfo: any, varName: string): Promise<void> {
     const newVariables: Variable[] = this.state.variables;
     newVariables.forEach((variable: Variable, varIndex: number) => {
-      if (variable.name != varName) {
+      if (variable.name !== varName) {
         return;
       }
       variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-        if (axis.name != newInfo.name) {
+        if (axis.name !== newInfo.name) {
           return;
         }
         newVariables[varIndex].axisInfo[axisIndex].min = newInfo.min;
@@ -205,7 +203,7 @@ export default class VarMenu extends React.Component<
   }
 
   public render(): JSX.Element {
-    const Colors: string[] = ColorFunctions.createGradient(
+    const colors: string[] = ColorFunctions.createGradient(
       this.state.selectedVariables.length,
       "#28a745",
       "#17a2b8"
@@ -232,9 +230,7 @@ export default class VarMenu extends React.Component<
                   <Col>
                     <Button
                       color="info"
-                      onClick={() => {
-                        this.props.updateNotebook();
-                      }}
+                      onClick={this.props.updateNotebook}
                       style={varButtonStyle}
                       title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
                     >
@@ -264,7 +260,7 @@ export default class VarMenu extends React.Component<
                     >
                       <VarMini
                         reload={reloadItem}
-                        buttonColor={Colors[this.getOrder(item.name) - 1]}
+                        buttonColor={colors[this.getOrder(item.name) - 1]}
                         allowReload={true}
                         isSelected={this.isSelected}
                         selectOrder={this.getOrder(item.name)}
