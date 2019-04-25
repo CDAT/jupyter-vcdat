@@ -2,11 +2,14 @@ import time
 
 from BasePage import BasePage
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class VcdatLeftSideBar(BasePage):
-
-    _variable_options_locator = "//div[@id='vcdat-left-side-bar']//h5[contains(text(), 'Variable Options')]"
 
     def __init__(self, driver, server=None):
         super(VcdatLeftSideBar, self).__init__(driver, server)
@@ -14,24 +17,49 @@ class VcdatLeftSideBar(BasePage):
     def _validate_page(self):
         print("...VcdatLeftSideBar.validate_page()...NO OP NOW")
 
+    def click_on_icon(self, icon_data_id):
+        '''
+        click on an icon  on the left side bar if it is not an active tab yet.
+        icon_data_id: data-id locator for the icon
+        '''
+        print("...click_on_icon...icon_data_id: {id}".format(id=icon_data_id))
+        icon_locator = "//li[@data-id='{i}']".format(i=icon_data_id)
+        try:
+            icon_element = self.driver.find_element_by_xpath(icon_locator)
+            class_attr = icon_element.get_attribute('class')
+            print("DEBUG DEBUG...class_attr: {ca}".format(ca=class_attr))
+            if "p-mod-current" in class_attr:
+                print("No need to click on '{i}' icon...it is active".format(i=icon_data_id))
+                return
+        except NoSuchElementException as e:
+            print("...did not find '{i}' icon on left side...".format(i=icon_data_id))
+            raise e
+        try:
+            wait = WebDriverWait(self.driver, 10)
+            m = wait.until(EC.element_to_be_clickable((By.XPATH, icon_locator)))
+            time.sleep(self._delay)
+            ActionChains(self.driver).move_to_element(m).click().perform()
+            time.sleep(self._delay)
+            print("...AFTER click_on_icon...icon_data_id: {id}".format(id=icon_data_id))
+        except TimeoutException as e:
+            print("...did not find '{i}' icon on left side...".format(i=icon_data_id))
+            raise e
+
     def click_on_jp_vcdat_icon(self):
         '''
         click on the jupyter vcdat icon on the left side bar if it is
         not an active tab yet.
         '''
         print("...click_on_jp_vcdat_icon...")
-        jp_vcdat_icon_locator = "//li[@data-id='vcdat-left-side-bar']"
-        try:
-            jp_vcdat_icon_element = self.driver.find_element_by_xpath(jp_vcdat_icon_locator)
-            class_attr = jp_vcdat_icon_element.get_attribute('class')
-            if "p-mod-current" in class_attr:
-                print("No need to click on jp_vcdat icon...it is active")
-            else:
-                jp_vcdat_icon_element.click()
-                time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print("...did not find VCDAT icon on left side...")
-            raise e
+        self.click_on_icon('vcdat-left-side-bar')
+
+    def click_on_file_folder(self):
+        '''
+        click on the file folder icon on the left side bar if it is
+        not an active tab yet.
+        '''
+        print("...click_on_file_folder...")
+        self.click_on_icon('filebrowser')
 
     def click_on_load_variables(self):
         print("...click_on_load_variables...")

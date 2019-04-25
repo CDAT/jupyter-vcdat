@@ -49,7 +49,7 @@ aliases:
        pip install selenium
        pip install pyvirtualdisplay
        pip install nose
-       python run_tests.py -H -v2 $COVERAGE
+       python run_tests.py -H -v2 $COVERAGE tests/test_variable.py
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
@@ -86,17 +86,33 @@ aliases:
        coveralls
        source deactivate
 
+  - &prep_conda_cache
+    name: prep_conda_cache
+    command: |
+       mv $WORKDIR/miniconda miniconda
+
+  - &get_conda_cache
+    name: get_conda_cache
+    command: |
+       mkdir -p $WORKDIR
+       mv miniconda $WORKDIR/
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       conda config --set always_yes yes --set changeps1 no
+       conda update -y -q conda
+       conda config --set anaconda_upload no
+
 jobs:
   linux_docker_chrome_jupyter_vcdat_py3:
     docker:
       - image: circleci/node:jessie-browsers
       - image: circleci/python:3.6.2-stretch-browsers
     environment:
-      WORKDIR: "workspace/test_docker_linux_jupyter_vcdat_py3"
+      WORKDIR: "workspace/test_chrome"
       PY_VER: "py3"
       #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
       #COVERAGE_PKGS: "coverage coveralls"
       BROWSER_TYPE: "chrome"
+      BROWSER_DRIVER: "/usr/local/bin/chromedriver"
     steps:
       - checkout
       - run: *setup_miniconda
@@ -113,11 +129,44 @@ jobs:
           path: tests_png
           destination: tests_png
 
+  linux_docker_firefox_jupyter_vcdat_py3:
+    docker:
+      #- image: circleci/node:jessie-browsers
+      - image: circleci/python:3-stretch-node-browsers
+      - image: selenium/standalone-firefox:latest
+    environment:
+      WORKDIR: "workspace/test_firefox"
+      PY_VER: "py3"
+      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      #COVERAGE_PKGS: "coverage coveralls"
+      BROWSER_TYPE: "firefox"
+      BROWSER_BINARY: "/usr/local/bin/firefox"
+      BROWSER_DRIVER: "/usr/local/bin/geckodriver"
+    steps:
+      - checkout
+      - run: which firefox
+      - run: which geckodriver
+      - run: *setup_miniconda
+      - run: *setup_jupyter_vcdat
+      - run: *run_jupyter_vcdat
+      - run: *run_jupyter_vcdat_tests
+      - run: *conda_upload
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
+      - store_artifacts:
+          path: tests_png
+          destination: tests_png
+      - save_cache:
+          key: firefox_v101
+          paths: miniconda
+
 workflows:
   version: 2
   jupyter_vcdat:
     jobs:
       - linux_docker_chrome_jupyter_vcdat_py3
+      - linux_docker_firefox_jupyter_vcdat_py3
 
 
 
