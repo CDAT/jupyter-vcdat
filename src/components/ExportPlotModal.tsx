@@ -124,7 +124,7 @@ export class ExportPlotModal extends React.Component<
     }
     this.setState({ validateFileFormat: false });
 
-    this.props.codeInjector.exportPlot(
+    await this.props.codeInjector.exportPlot(
       fileFormat,
       plotName,
       this.state.width,
@@ -132,7 +132,6 @@ export class ExportPlotModal extends React.Component<
       this.state.plotUnits,
       this.state.captureProvenance
     );
-
     this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
     this.props.exportAlerts();
     this.toggleModal();

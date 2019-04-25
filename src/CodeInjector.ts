@@ -358,15 +358,11 @@ export class CodeInjector {
       cmd += `, width=${w}, height=${h}, units='${unit}'`;
       // Export of png plot can include provenance
       if (format === "png" && provenance !== undefined) {
-        if (provenance) {
-          cmd += `, provenance=True)`;
-        } else {
-          cmd += `, provenance=False)`;
-        }
-      } else {
-        cmd += `)`;
+        cmd += provenance ? `, provenance=True` : `, provenance=False`;
       }
     }
+    // Close command
+    cmd += `)`;
 
     await this.inject(
       cmd,
@@ -594,6 +590,7 @@ export class CodeInjector {
         console.error(message);
       }
       NotebookUtilities.showMessage("Command Error", error.message);
+      throw error;
     } finally {
       this.busy = false;
     }
