@@ -30,8 +30,12 @@ source $CONDA_BASE/etc/profile.d/conda.sh
 conda activate jupyter-vcdat
 
 # Install sidecar
+<<<<<<< HEAD
 python -m pip install sidecar || pip install sidecar
 
+=======
+python -m pip install sidecar
+>>>>>>> 2e5fb6a0ea5df681eec5961f38ff807e68541a13
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
