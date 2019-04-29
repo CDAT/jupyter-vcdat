@@ -1,8 +1,8 @@
-import { MiscUtilities } from "./Utilities";
-const MAX_SLABS: number = 2;
-const BASE_URL: string = "/vcs";
-const READY_KEY: string = "vcdat_ready";
-const EXTENSIONS: string[] = [
+import { Utilities } from "./Utilities";
+export const MAX_SLABS: number = 2;
+export const BASE_URL: string = "/vcs";
+export const READY_KEY: string = "vcdat_ready";
+export const EXTENSIONS: string[] = [
   ".nc",
   ".nc3",
   ".nc4",
@@ -11,23 +11,24 @@ const EXTENSIONS: string[] = [
   ".pp",
   ".cdf"
 ];
-const EXTENSIONS_REGEX: RegExp = MiscUtilities.filenameFilter(EXTENSIONS);
-const OUTPUT_RESULT_NAME = "_private_vcdat_output";
-const FILE_PATH_KEY: string = "vcdat_file_path";
-const IMPORT_CELL_KEY: string = "vcdat_imports";
-const CANVAS_CELL_KEY: string = "vcdat_canvases";
-const READER_CELL_KEY: string = "vcdat_readers";
-const VARIABLES_KEY: string = "selected_variables";
-const DATA_LIST_KEY: string = "data_variable_file_paths";
-const VARIABLE_SOURCES_KEY: string = "variable_source_names";
-const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
-const TEMPLATE_KEY: string = "template_selected";
-const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
-const REQUIRED_MODULES: string = "'cdms2','vcs','sidecar'";
 
-const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
+export const EXTENSIONS_REGEX: RegExp = Utilities.filenameFilter(EXTENSIONS);
+export const OUTPUT_RESULT_NAME = "_private_vcdat_output";
+export const FILE_PATH_KEY: string = "vcdat_file_path";
+export const IMPORT_CELL_KEY: string = "vcdat_imports";
+export const CANVAS_CELL_KEY: string = "vcdat_canvases";
+export const READER_CELL_KEY: string = "vcdat_readers";
+export const VARIABLES_KEY: string = "selected_variables";
+export const DATA_LIST_KEY: string = "data_variable_file_paths";
+export const VARIABLE_SOURCES_KEY: string = "variable_source_names";
+export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
+export const TEMPLATE_KEY: string = "template_selected";
+export const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
+export const REQUIRED_MODULES: string = '["cdms2","vcs","sidecar"]';
 
-const CHECK_VCS_CMD: string = `import __main__\n\
+export const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
+
+export const CHECK_VCS_CMD: string = `import __main__\n\
 try:\n\
   for nm, obj in __main__.__dict__.items():\n\
     if isinstance(obj, cdms2.MV2.TransientVariable):\n\
@@ -36,39 +37,17 @@ try:\n\
 except:\n\
   ${OUTPUT_RESULT_NAME}=False\n`;
 
-const GET_VARS_CMD: string = `import __main__\n\
+export const REFRESH_NAMES_CMD = `import __main__\n\
 import json\n\
-def variables():\n\
-    out = []\n\
-    for nm, obj in __main__.__dict__.items():\n\
-        if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-            out+=[nm]\n\
-    return out\n\
-def graphic_methods():\n\
-    out = {}\n\
-    for typ in vcs.graphicsmethodlist():\n\
-        out[type] = vcs.listelements(typ)\n\
-    return out\n\
-def templates():\n\
-    return vcs.listelements("template")\n\
-def list_all():\n\
-    out = {}\n\
-    out["variables"] = variables()\n\
-    out["gm"] = graphic_methods()\n\
-    out["template"] = templates()\n\
-    return out\n\
-${OUTPUT_RESULT_NAME} = "{}|{}|{})".format(variables(),templates(),graphic_methods())`;
-
-const REFRESH_NAMES_CMD = `import __main__\n\
 def variables():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
     if isinstance(obj, cdms2.MV2.TransientVariable):\n\
       out+=[nm]\n\
   return out\n\
-${OUTPUT_RESULT_NAME} = variables()`;
+${OUTPUT_RESULT_NAME} = json.dumps(variables())`;
 
-const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
+export const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
 import json\n\
 def graphic_methods():\n\
   out = {}\n\
@@ -77,28 +56,31 @@ def graphic_methods():\n\
   return out\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())`;
 
-const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
-${OUTPUT_RESULT_NAME} = vcs.listelements('template')`;
+export const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
+import json\n\
+${OUTPUT_RESULT_NAME} = json.dumps(vcs.listelements('template'))`;
 
-const CHECK_MODULES_CMD: string = `import types\n\
-required = [${REQUIRED_MODULES}]\n\
+export const CHECK_MODULES_CMD: string = `import types\n\
+import json\n\
+required = ${REQUIRED_MODULES}\n\
 def imports():\n\
   for name, val in globals().items():\n\
     if isinstance(val, types.ModuleType):\n\
       yield val.__name__\n\
 found = list(imports())\n\
-${OUTPUT_RESULT_NAME} = list(set(required)-set(found))`;
+${OUTPUT_RESULT_NAME} = json.dumps(list(set(required)-set(found)))`;
 
-const LIST_CANVASES_CMD: string = `import __main__\n\
+export const LIST_CANVASES_CMD: string = `import __main__\n\
+import json\n\
 def canvases():\n\
   out = []\n\
   for nm, obj in __main__.__dict__.items():\n\
     if isinstance(obj, vcs.Canvas.Canvas):\n\
       out+=[nm]\n\
   return out\n\
-${OUTPUT_RESULT_NAME} = canvases()`;
+${OUTPUT_RESULT_NAME} = json.dumps(canvases())`;
 
-const REFRESH_VAR_CMD: string = `import __main__\n\
+export const REFRESH_VAR_CMD: string = `import __main__\n\
 import json\n\
 import cdms2\n\
 def variables():\n\
@@ -169,7 +151,7 @@ for vname in vars:\n\
 var = None\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(outVars)`;
 
-const GET_AXIS_INFO_CMD: string = `
+export const GET_AXIS_INFO_CMD: string = `
 outAxes = {}\n\
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
@@ -200,7 +182,7 @@ for aname in reader.axes:\n\
 aname = None\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(outAxes)`;
 
-const GET_VARIABLES_CMD: string = `outVars = {}\n\
+export const GET_VARIABLES_CMD: string = `outVars = {}\n\
 for vname in reader.variables:\n\
   var = reader.variables[vname]\n\
   # Get a displayable name for the variable\n\
@@ -292,30 +274,25 @@ ${OUTPUT_RESULT_NAME} = json.dumps({\n\
   'axes': outAxes\n\
   })`;
 
-const BASE_GRAPHICS: any = {
-  "3d_scalar": ["Hovmoller3D", "default"],
-  xvsy: [
+export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
+  "1d": [
     "a_1d",
+    "a_scatter_scatter_",
     "a_xvsy_xvsy_",
+    "a_xyvsy_xyvsy_",
     "a_yxvsx_yxvsx_",
     "blue_yxvsx",
     "default",
+    "default_scatter_",
     "default_xvsy_",
+    "default_xyvsy_",
     "default_yxvsx_",
+    "quick_scatter",
     "red_yxvsx"
   ],
-  xyvsy: ["a_xyvsy_xyvsy_", "default_xyvsy_"],
-  isoline: [
-    "P_and_height",
-    "a_isoline",
-    "a_lambert_isoline",
-    "a_mollweide_isoline",
-    "a_polar_isoline",
-    "a_robinson_isoline",
-    "default",
-    "polar",
-    "quick"
-  ],
+  "3d_dual_scalar": ["default"],
+  "3d_scalar": ["default", "Hovmoller3D"],
+  "3d_vector": ["default"],
   boxfill: [
     "a_boxfill",
     "a_lambert_boxfill",
@@ -338,8 +315,17 @@ const BASE_GRAPHICS: any = {
     "quick",
     "robinson"
   ],
-  streamline: ["default"],
-  "3d_dual_scalar": ["default"],
+  isoline: [
+    "a_isoline",
+    "a_lambert_isoline",
+    "a_mollweide_isoline",
+    "a_polar_isoline",
+    "a_robinson_isoline",
+    "default",
+    "P_and_height",
+    "polar",
+    "quick"
+  ],
   meshfill: [
     "a_lambert_meshfill",
     "a_meshfill",
@@ -348,7 +334,21 @@ const BASE_GRAPHICS: any = {
     "a_robinson_meshfill",
     "default"
   ],
-  "3d_vector": ["default"],
+  scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"],
+  streamline: ["default"],
+  taylordiagram: ["default"],
+  vector: ["default"],
+  xvsy: [
+    "a_1d",
+    "a_xvsy_xvsy_",
+    "a_yxvsx_yxvsx_",
+    "blue_yxvsx",
+    "default",
+    "default_xvsy_",
+    "default_yxvsx_",
+    "red_yxvsx"
+  ],
+  xyvsy: ["a_xyvsy_xyvsy_", "default_xyvsy_"],
   yxvsx: [
     "a_1d",
     "a_xvsy_xvsy_",
@@ -358,28 +358,10 @@ const BASE_GRAPHICS: any = {
     "default_xvsy_",
     "default_yxvsx_",
     "red_yxvsx"
-  ],
-  taylordiagram: ["default"],
-  vector: ["default"],
-  "1d": [
-    "a_1d",
-    "a_scatter_scatter_",
-    "a_xvsy_xvsy_",
-    "a_xyvsy_xyvsy_",
-    "a_yxvsx_yxvsx_",
-    "blue_yxvsx",
-    "default",
-    "default_scatter_",
-    "default_xvsy_",
-    "default_xyvsy_",
-    "default_yxvsx_",
-    "quick_scatter",
-    "red_yxvsx"
-  ],
-  scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"]
+  ]
 };
 
-const BASE_TEMPLATES: string[] = [
+export const BASE_TEMPLATES: string[] = [
   "default",
   "ASD",
   "ASD_dud",
@@ -424,7 +406,8 @@ const BASE_TEMPLATES: string[] = [
   "top_of2"
 ];
 
-enum NOTEBOOK_STATE {
+// Specifies the states of the Jupyterlab main area tab/notebook
+export enum NOTEBOOK_STATE {
   Unknown, // The current state of the notebook is unknown and should be updated.
   NoOpenNotebook, // JupyterLab has no notebook opened
   InactiveNotebook, // No notebook is currently active
@@ -434,36 +417,6 @@ enum NOTEBOOK_STATE {
   VCS_Ready // The notebook is ready for code injection
 }
 
-export {
-  MAX_SLABS,
-  BASE_URL,
-  READY_KEY,
-  FILE_PATH_KEY,
-  EXTENSIONS,
-  OUTPUT_RESULT_NAME,
-  EXTENSIONS_REGEX,
-  DATA_LIST_KEY,
-  IMPORT_CELL_KEY,
-  CANVAS_CELL_KEY,
-  READER_CELL_KEY,
-  VARIABLES_KEY,
-  GRAPHICS_METHOD_KEY,
-  TEMPLATE_KEY,
-  VARIABLES_LOADED_KEY,
-  VARIABLE_SOURCES_KEY,
-  REQUIRED_MODULES,
-  CANVAS_DIMENSIONS_CMD,
-  CHECK_VCS_CMD,
-  GET_VARS_CMD,
-  BASE_GRAPHICS,
-  BASE_TEMPLATES,
-  REFRESH_GRAPHICS_CMD,
-  REFRESH_TEMPLATES_CMD,
-  REFRESH_NAMES_CMD,
-  REFRESH_VAR_CMD,
-  GET_AXIS_INFO_CMD,
-  CHECK_MODULES_CMD,
-  LIST_CANVASES_CMD,
-  GET_VARIABLES_CMD,
-  NOTEBOOK_STATE
-};
+// Specifies valid plot export formats
+export type EXPORT_FORMATS = "png" | "pdf" | "svg" | "ps" | "";
+export type IMAGE_UNITS = "px" | "in" | "cm" | "mm" | "dot";

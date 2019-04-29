@@ -4,41 +4,41 @@ import { CommandRegistry } from "@phosphor/commands";
 
 // Project Components
 import { CellUtilities } from "./CellUtilities";
-import AxisInfo from "./components/AxisInfo";
-import Variable from "./components/Variable";
+import { AxisInfo } from "./components/AxisInfo";
+import { Variable } from "./components/Variable";
 import {
   CANVAS_CELL_KEY,
   CHECK_MODULES_CMD,
   DATA_LIST_KEY,
+  EXPORT_FORMATS,
   EXTENSIONS_REGEX,
+  IMAGE_UNITS,
   IMPORT_CELL_KEY,
   READER_CELL_KEY,
   REQUIRED_MODULES
 } from "./constants";
 import { NotebookUtilities } from "./NotebookUtilities";
-import { MiscUtilities } from "./Utilities";
-
-// Specifies valid plot export formats
-export type ExportFormats = "png" | "pdf" | "svg" | "ps" | "";
-export type ImageUnits = "pixels" | "in" | "cm" | "mm" | "dot";
+import { Utilities } from "./Utilities";
 
 /**
  * A class that manages the code injection of vCDAT commands
  */
 export class CodeInjector {
-  private _notebookPanel: NotebookPanel;
-  private _commandRegistry: CommandRegistry;
-  private _logErrorsToConsole: boolean; // Whether errors should log to console. Should be false during production.
-  private _dataReaderList: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
+  private busy: boolean;
+  private nbPanel: NotebookPanel;
+  private cmdRegistry: CommandRegistry;
+  private logErrorsToConsole: boolean; // Whether errors should log to console. Should be false during production.
+  private dataReaders: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
 
   constructor(commands: CommandRegistry) {
-    this._notebookPanel = null;
-    this._commandRegistry = commands;
-    this._logErrorsToConsole = true;
-    this._dataReaderList = {};
-    this._inject = this._inject.bind(this);
-    this._addFileCmd = this._addFileCmd.bind(this);
-    this._buildImportCommand = this._buildImportCommand.bind(this);
+    this.nbPanel = null;
+    this.busy = false;
+    this.cmdRegistry = commands;
+    this.logErrorsToConsole = true;
+    this.dataReaders = {};
+    this.inject = this.inject.bind(this);
+    this.addFileCmd = this.addFileCmd.bind(this);
+    this.buildImportCommand = this.buildImportCommand.bind(this);
     this.injectImportsCode = this.injectImportsCode.bind(this);
     this.injectDataReaders = this.injectDataReaders.bind(this);
     this.injectCanvasCode = this.injectCanvasCode.bind(this);
@@ -53,20 +53,24 @@ export class CodeInjector {
     this.getDataReaderName = this.getDataReaderName.bind(this);
   }
 
+  get isBusy(): boolean {
+    return this.busy;
+  }
+
   get notebookPanel(): NotebookPanel {
-    return this._notebookPanel;
+    return this.nbPanel;
   }
 
   set notebookPanel(notebookPanel: NotebookPanel) {
-    this._notebookPanel = notebookPanel;
+    this.nbPanel = notebookPanel;
   }
 
   get dataReaderList(): { [dataName: string]: string } {
-    return this._dataReaderList;
+    return this.dataReaders;
   }
 
   set dataReaderList(dataReaderList: { [dataName: string]: string }) {
-    this._dataReaderList = dataReaderList;
+    this.dataReaders = dataReaderList;
   }
 
   /**
@@ -91,14 +95,14 @@ export class CodeInjector {
       );
 
       // Create import string based on missing dependencies
-      const missingModules: string[] = eval(output);
+      const missingModules: string[] = Utilities.strToArray(output);
       if (missingModules.length > 0) {
-        cmd += this._buildImportCommand(missingModules, false);
+        cmd += this.buildImportCommand(missingModules);
       } else {
         return index;
       }
     } else {
-      cmd += this._buildImportCommand(eval(`[${REQUIRED_MODULES}]`), false);
+      cmd += this.buildImportCommand(JSON.parse(`${REQUIRED_MODULES}`));
     }
 
     // Find the index where the imports code is injected
@@ -108,7 +112,7 @@ export class CodeInjector {
     )[0];
 
     if (cellIdx < 0) {
-      const [newIdx]: [number, string] = await this._inject(
+      const [newIdx]: [number, string] = await this.inject(
         cmd,
         index,
         "Error occured when adding imports.",
@@ -120,8 +124,8 @@ export class CodeInjector {
       // Inject code into existing imports cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
-        this._commandRegistry,
-        this._notebookPanel,
+        this.cmdRegistry,
+        this.nbPanel,
         cellIdx
       );
     }
@@ -148,7 +152,7 @@ export class CodeInjector {
     filePath: string
   ): Promise<number> {
     // If the data file doesn't have correct extension, exit
-    if (filePath == "") {
+    if (filePath === "") {
       throw new Error("The file path was empty.");
     }
 
@@ -159,7 +163,7 @@ export class CodeInjector {
 
     // Get the relative path of the file for the injection command
     const nbPath: string = `${this.notebookPanel.session.path}`;
-    const newFilePath: string = MiscUtilities.getRelativePath(nbPath, filePath);
+    const newFilePath: string = Utilities.getRelativePath(nbPath, filePath);
 
     // Try opening the file first, before injecting into code, exit if failed
     const isValidPath: boolean = await this.tryFilePath(newFilePath);
@@ -179,7 +183,7 @@ export class CodeInjector {
     // Build command that opens any existing data file(s)
     let cmd: string;
     let tmpFilePath: string;
-    const addCmds: Array<Promise<string>> = new Array<Promise<string>>();
+    const addCmds = Array<Promise<string>>();
 
     if (dataVarNames.length > 0) {
       cmd = "#Open the files for reading";
@@ -187,7 +191,7 @@ export class CodeInjector {
         tmpFilePath = this.dataReaderList[existingDataName];
 
         // Exit early if the filepath has already been opened
-        if (tmpFilePath == filePath) {
+        if (tmpFilePath === filePath) {
           if (idx < 0) {
             return index;
           }
@@ -195,7 +199,7 @@ export class CodeInjector {
         }
 
         // Add file open command to the list
-        addCmds.push(this._addFileCmd(tmpFilePath));
+        addCmds.push(this.addFileCmd(tmpFilePath));
       });
 
       const allFiles: string[] = await Promise.all(addCmds);
@@ -211,7 +215,7 @@ export class CodeInjector {
 
     if (cellIdx < 0) {
       // Insert a new cell with given command and run
-      const [newIdx]: [number, string] = await this._inject(
+      const [newIdx]: [number, string] = await this.inject(
         cmd,
         index,
         "Error occured when opening data readers.",
@@ -224,7 +228,7 @@ export class CodeInjector {
       // Inject code into existing data variables cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
-        this._commandRegistry,
+        this.cmdRegistry,
         this.notebookPanel,
         index
       );
@@ -270,7 +274,7 @@ export class CodeInjector {
 
     if (cellIdx < 0) {
       // Inject the code for starting the canvases
-      const [newIdx]: [number, string] = await this._inject(
+      const [newIdx]: [number, string] = await this.inject(
         cmd,
         index,
         "Error occurred when injecting canvas code.",
@@ -283,7 +287,7 @@ export class CodeInjector {
       // Replace code in canvas cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
-        this._commandRegistry,
+        this.cmdRegistry,
         this.notebookPanel,
         cellIdx
       );
@@ -309,11 +313,11 @@ export class CodeInjector {
    */
 
   public async exportPlot(
-    format: ExportFormats,
+    format: EXPORT_FORMATS,
     name: string,
     width?: string,
     height?: string,
-    units?: ImageUnits,
+    units?: IMAGE_UNITS,
     provenance?: boolean
   ): Promise<void> {
     let cmd: string;
@@ -338,28 +342,29 @@ export class CodeInjector {
 
     // If width and height specified, add to command based on units
     if (width && height) {
-      let w, h: number;
-      if (units === "pixels" || units === "dot") {
-        w = Number.parseInt(width);
-        h = Number.parseInt(height);
+      let w: number;
+      let h: number;
+      let unit: string = units;
+      if (units === "px" || units === "dot") {
+        w = Number.parseInt(width, 10);
+        h = Number.parseInt(height, 10);
       } else {
         w = Number.parseFloat(width);
         h = Number.parseFloat(height);
       }
-      cmd += `, width=${w}, height=${h}, units='${units}'`;
+      if (units === "px") {
+        unit = "pixels";
+      }
+      cmd += `, width=${w}, height=${h}, units='${unit}'`;
       // Export of png plot can include provenance
       if (format === "png" && provenance !== undefined) {
-        if (provenance) {
-          cmd += `, provenance=True)`;
-        } else {
-          cmd += `, provenance=False)`;
-        }
-      } else {
-        cmd += `)`;
+        cmd += provenance ? `, provenance=True` : `, provenance=False`;
       }
     }
+    // Close command
+    cmd += `)`;
 
-    await this._inject(
+    await this.inject(
       cmd,
       undefined,
       "Failed to export plot.",
@@ -383,7 +388,7 @@ export class CodeInjector {
     cmd += `vcs.create${groupName}('${newName}',source='${methodName}')`;
 
     // Inject the code into the notebook cell
-    await this._inject(
+    await this.inject(
       cmd,
       undefined,
       "Failed to copy graphics method.",
@@ -393,15 +398,13 @@ export class CodeInjector {
   }
 
   public async getGraphicMethod(group: string, name: string) {
-    let cmd: string = "";
-    if (name.indexOf(group) < 0) {
-      cmd = `${name}_${group} = vcs.get${group}('${name}')`;
-    } else {
-      cmd = `${name} = vcs.get${group}('${name}')`;
-    }
+    const cmd: string =
+      name.indexOf(group) < 0
+        ? `${name}_${group} = vcs.get${group}('${name}')`
+        : `${name} = vcs.get${group}('${name}')`;
 
     // Inject the code into the notebook cell
-    await this._inject(
+    await this.inject(
       cmd,
       undefined,
       "Failed to inject new graphic method.",
@@ -414,7 +417,7 @@ export class CodeInjector {
     const cmd: string = `${templateName} = vcs.gettemplate('${templateName}')`;
 
     // Inject the code into the notebook cell
-    await this._inject(
+    await this.inject(
       cmd,
       undefined,
       "Failed to inject new template.",
@@ -427,12 +430,15 @@ export class CodeInjector {
     // inject the code to load the variable into the notebook
     let cmd = `${variable.name} = ${variable.sourceName}("${variable.name}"`;
     variable.axisInfo.forEach((axis: AxisInfo) => {
-      cmd += `, ${axis.name}=(${axis.min}, ${axis.max})`;
+      cmd +=
+        axis.min === axis.max
+          ? `, ${axis.name}=(${axis.min})`
+          : `, ${axis.name}=(${axis.min}, ${axis.max})`;
     });
     cmd += ")";
 
     // Inject the code into the notebook cell
-    await this._inject(
+    await this.inject(
       cmd,
       undefined,
       "Failed to load variable.",
@@ -442,7 +448,7 @@ export class CodeInjector {
   }
 
   public async clearPlot() {
-    await this._inject(
+    await this.inject(
       "canvas.clear()",
       undefined,
       "Clearing canvas failed.",
@@ -458,34 +464,29 @@ export class CodeInjector {
     overlayMode: boolean
   ) {
     // Create graphics method code
+    let gmParam: string = selectedGM;
     if (!selectedGM) {
-      if (selectedVariables.length > 1) {
-        selectedGM = '"vector"';
-      } else {
-        selectedGM = '"boxfill"';
-      }
+      gmParam = selectedVariables.length > 1 ? '"vector"' : '"boxfill"';
     } else if (selectedGM.indexOf(selectedGMGroup) < 0) {
-      selectedGM += `_${selectedGMGroup}`;
+      gmParam += `_${selectedGMGroup}`;
     }
 
     // Create template code
+    let templateParam: string = selectedTemplate;
     if (!selectedTemplate) {
-      selectedTemplate = '"default"';
+      templateParam = '"default"';
     }
 
     // Create plot injection command string
-    let cmd: string = "";
-    if (overlayMode) {
-      cmd = "canvas.plot(";
-    } else {
-      cmd = "canvas.clear()\ncanvas.plot(";
-    }
+    let cmd: string = overlayMode
+      ? "canvas.plot("
+      : "canvas.clear()\ncanvas.plot(";
     for (const varName of selectedVariables) {
-      cmd += varName + ", ";
+      cmd += `${varName}, `;
     }
-    cmd += `${selectedTemplate}, ${selectedGM})`;
+    cmd += `${templateParam}, ${gmParam})`;
 
-    await this._inject(
+    await this.inject(
       cmd,
       undefined,
       "Failed to make plot.",
@@ -518,7 +519,7 @@ export class CodeInjector {
     const found: boolean = Object.keys(this.dataReaderList).some(
       (dataVar: string) => {
         dataName = dataVar;
-        return this.dataReaderList[dataVar] == filePath;
+        return this.dataReaderList[dataVar] === filePath;
       }
     );
     if (found) {
@@ -526,7 +527,7 @@ export class CodeInjector {
     }
 
     // Filepath hasn't been added before, create the name for data variable based on file path
-    dataName = MiscUtilities.createValidVarName(filePath) + "_data";
+    dataName = `${Utilities.createValidVarName(filePath)}_data`;
 
     // If the reader name already exist but the path is different (like for two files with
     // similar names but different paths) add a count to the end until it's unique
@@ -535,7 +536,7 @@ export class CodeInjector {
 
     while (Object.keys(this.dataReaderList).indexOf(newName) >= 0) {
       newName = `${dataName}${count}`;
-      count++;
+      count += 1;
     }
 
     return newName;
@@ -549,25 +550,26 @@ export class CodeInjector {
    * @param funcName The name of the function calling the injection
    * @param funcArgs The arguments object of the calling function
    */
-  private async _inject(
+  private async inject(
     code: string,
     index?: number,
     errorMsg?: string,
     funcName?: string,
     funcArgs?: IArguments
   ): Promise<[number, string]> {
-    if (this.notebookPanel == null) {
+    if (this.notebookPanel === null) {
       throw Error("No notebook, code injection cancelled.");
     }
     try {
+      this.busy = true;
       const idx: number =
-        index | (this.notebookPanel.content.model.cells.length - 1);
+        index || this.notebookPanel.content.model.cells.length - 1;
       const [newIdx, result]: [
         number,
         string
       ] = await CellUtilities.insertRunShow(
         this.notebookPanel,
-        this._commandRegistry,
+        this.cmdRegistry,
         idx,
         code,
         true
@@ -575,63 +577,45 @@ export class CodeInjector {
       this.notebookPanel.content.activeCellIndex = newIdx + 1;
       return [newIdx, result];
     } catch (error) {
-      const detailError: InjectionError = new InjectionError(
-        error,
-        code,
-        errorMsg,
-        funcName,
-        funcArgs
-      );
-      if (this._logErrorsToConsole) {
-        console.log(detailError.getRawError());
+      const argStr =
+        funcArgs && funcArgs.length > 0 ? `(${[...funcArgs]})` : "()";
+      const funcStr = funcName ? `\nFunction Name: ${funcName}${argStr}` : "";
+
+      let message = errorMsg || "An error occurred.";
+      message = `${message}${funcStr}\nCode Injected: ${code}\nOriginal${
+        error.stack
+      }`;
+
+      if (this.logErrorsToConsole) {
+        console.error(message);
       }
-      NotebookUtilities.showMessage(
-        "Command Error",
-        detailError.getUserErrorMsg()
-      );
+      NotebookUtilities.showMessage("Command Error", error.message);
+      throw error;
+    } finally {
+      this.busy = false;
     }
   }
 
   /**
    * This will construct an import string for the notebook based on the modules passed to it. It is used for imports injection.
    * @param modules An array of strings representing the modules to include in the import command.
-   * @param lazy Whether to use lazy imports syntax when making the command. Will include lazy_imports
-   * if it is needed.
    */
-  private _buildImportCommand(modules: string[], lazy: boolean): string {
+  private buildImportCommand(modules: string[]): string {
     let cmd: string = "";
-    // Check for lazy_imports modules first
-    const tmpModules = modules;
-    const idx = modules.indexOf("lazy_import");
 
-    if (lazy) {
-      // Import lazy_imports if it's missing, before doing other imports
-      if (idx >= 0) {
-        tmpModules.splice(idx, 1);
-        cmd = "\nimport lazy_import";
-      }
-      // Import other modules using lazy import syntax
-      tmpModules.forEach(module => {
-        cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
-      });
-    } else {
-      // Remove lazy_imports from required modules if it is there
-      if (idx >= 0) {
-        tmpModules.splice(idx, 1);
-      }
-      // Import modules
-      tmpModules.forEach(module => {
-        cmd += `\nimport ${module}`;
-      });
-    }
+    // Import modules
+    modules.forEach(module => {
+      cmd += `\nimport ${module}`;
+    });
+
     return cmd;
   }
 
   // Add returns a line of code for adding the specified file to the notebook
   // If the file couldn't be opened, returns empty string
-  private async _addFileCmd(filePath: string): Promise<string> {
+  private async addFileCmd(filePath: string): Promise<string> {
     // Get the relative filepath to open the file
-    const relativePath = MiscUtilities.getRelativePath(
+    const relativePath = Utilities.getRelativePath(
       this.notebookPanel.session.path,
       filePath
     );
@@ -644,41 +628,5 @@ export class CodeInjector {
       return addCode;
     }
     return "";
-  }
-}
-
-/**
- * Provides more detail for code injection related errors. For use only within code injector class.
- */
-class InjectionError {
-  private _error: Error; // The original error thrown
-  private _message: string; // A detailed message for the error
-  constructor(
-    error: Error, // The error that occurred
-    code: string, // Injection code used in the function that caused error
-    msg?: string, // Error message to use
-    funcName?: string, // The name of the injection function
-    args?: IArguments // The arguments passed to the injection function
-  ) {
-    const message = msg || "An error occurred.";
-    const codeStr = code || "Not applicable.";
-    let funcStr = funcName || "No function name provided.";
-    if (args) {
-      funcStr += `(${[...args]})`;
-    } else {
-      funcStr = "()";
-    }
-    this._message = `${message}\nFunction call: ${funcStr} \
-    \nCode injected: ${codeStr}\nOriginal${error.stack}`;
-    this._error = error;
-  }
-  // Returns the error object created by this class
-  public getRawError(): Error {
-    return new Error(this._message);
-  }
-
-  // Returns an error message for user display
-  public getUserErrorMsg(): string {
-    return `${this._error.message}`;
   }
 }

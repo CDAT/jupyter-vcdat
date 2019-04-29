@@ -12,10 +12,11 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { MiscUtilities } from "../Utilities";
-import AxisInfo from "./AxisInfo";
-import DimensionSlider from "./DimensionSlider";
-import Variable from "./Variable";
+import { Utilities } from "../Utilities";
+import { AxisInfo } from "./AxisInfo";
+import { DimensionSlider } from "./DimensionSlider";
+import { Variable } from "./Variable";
+import { Handle } from "./Tracks";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
@@ -30,25 +31,22 @@ const modalOverflow: React.CSSProperties = {
   overflow: "auto"
 };
 
-interface VarMiniProps {
+interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
-  updateDimInfo: Function; // method passed by the parent to update their copy of the variables dimension info
-  isSelected: Function; // method to check if this variable is selected in parent
+  updateDimInfo: (newInfo: any, varName: string) => Promise<void>; // method passed by the parent to update their copy of the variables dimension info
+  isSelected: (varName: string) => boolean; // method to check if this variable is selected in parent
   selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
-  reload: Function; // a function to reload the variable
+  reload: () => void; // a function to reload the variable
 }
-interface VarMiniState {
+interface IVarMiniState {
   showAxis: boolean; // should the edit axis modal be shown
 }
 
-export default class VarMini extends React.Component<
-  VarMiniProps,
-  VarMiniState
-> {
+export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   public varName: string;
-  constructor(props: VarMiniProps) {
+  constructor(props: IVarMiniProps) {
     super(props);
     this.state = {
       showAxis: false
@@ -57,6 +55,8 @@ export default class VarMini extends React.Component<
     this.openMenu = this.openMenu.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
+    this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleUpdateClick = this.handleUpdateClick.bind(this);
   }
 
   /**
@@ -103,18 +103,13 @@ export default class VarMini extends React.Component<
             outline={true}
             style={axisStyle}
             title={
-              this.props.variable.sourceName == ""
+              this.props.variable.sourceName === ""
                 ? "Editing of modified variables disabled for now."
                 : ""
             }
-            disabled={this.props.variable.sourceName == ""}
-            color={this.props.variable.sourceName == "" ? "dark" : "danger"}
-            onClick={(clickEvent: React.MouseEvent<HTMLButtonElement>) => {
-              this.setState({
-                showAxis: !this.state.showAxis
-              });
-              clickEvent.stopPropagation();
-            }}
+            disabled={this.props.variable.sourceName === ""}
+            color={this.props.variable.sourceName === "" ? "dark" : "danger"}
+            onClick={this.handleEditClick}
           >
             edit
           </Button>
@@ -126,7 +121,7 @@ export default class VarMini extends React.Component<
                 ...{ backgroundColor: this.props.buttonColor }
               }}
             >
-              {MiscUtilities.numToOrdStr(this.props.selectOrder)} Variable
+              {Utilities.numToOrdStr(this.props.selectOrder)} Variable
             </Badge>
           )}
         </div>
@@ -141,7 +136,7 @@ export default class VarMini extends React.Component<
             {this.state.showAxis &&
               this.props.variable.axisInfo.length > 0 &&
               this.props.variable.axisInfo.map((item: AxisInfo) => {
-                if (item.data.length <= 1) {
+                if (!item.data || item.data.length <= 1) {
                   return;
                 }
                 item.updateDimInfo = this.updateDimInfo;
@@ -157,18 +152,26 @@ export default class VarMini extends React.Component<
               })}
           </ModalBody>
           <ModalFooter>
-            <Button
-              color="primary"
-              onClick={() => {
-                this.toggleModal();
-                this.props.reload(this.props.variable);
-              }}
-            >
+            <Button color="primary" onClick={this.handleUpdateClick}>
               Update
             </Button>
           </ModalFooter>
         </Modal>
       </div>
     );
+  }
+
+  private handleEditClick(
+    clickEvent: React.MouseEvent<HTMLButtonElement>
+  ): void {
+    this.setState({
+      showAxis: !this.state.showAxis
+    });
+    clickEvent.stopPropagation();
+  }
+
+  private handleUpdateClick(): void {
+    this.toggleModal();
+    this.props.reload();
   }
 }

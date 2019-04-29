@@ -18,8 +18,9 @@ import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 // Project Components
 import "../style/css/index.css";
 import { EXTENSIONS } from "./constants";
+import { LeftSideBarWidget } from "./widgets";
+import { NCViewerWidget } from "./NCViewerWidget";
 import { NotebookUtilities } from "./NotebookUtilities";
-import { LeftSideBarWidget, NCViewerWidget } from "./widgets";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcs";
@@ -33,10 +34,10 @@ let mainMenu: MainMenu;
  * Initialization data for the jupyter-vcdat extension.
  */
 const extension: JupyterLabPlugin<void> = {
-  id: "jupyter-vcdat",
+  activate,
   autoStart: true,
-  requires: [INotebookTracker, IMainMenu],
-  activate
+  id: "jupyter-vcdat",
+  requires: [INotebookTracker, IMainMenu]
 };
 
 export default extension;
@@ -53,18 +54,18 @@ function activate(
   mainMenu = menu;
 
   const factory = new NCViewerFactory({
-    name: FACTORY_NAME,
-    fileTypes: [FILETYPE],
     defaultFor: [FILETYPE],
+    fileTypes: [FILETYPE],
+    name: FACTORY_NAME,
     readOnly: true
   });
 
   const ft: DocumentRegistry.IFileType = {
-    name: FILETYPE,
-    extensions: EXTENSIONS,
-    mimeTypes: ["application/netcdf"],
     contentType: "file",
-    fileFormat: "base64"
+    extensions: EXTENSIONS,
+    fileFormat: "base64",
+    mimeTypes: ["application/netcdf"],
+    name: FILETYPE
   };
 
   app.docRegistry.addFileType(ft);
@@ -85,7 +86,7 @@ function activate(
       shell.activateById(sidebar.id);
     })
     .catch(error => {
-      console.log(error);
+      console.error(error);
     });
 
   // Initializes the sidebar widget once the application shell has been restored
@@ -105,14 +106,14 @@ function activate(
       sidebar.initialize();
     })
     .catch(error => {
-      console.log(error);
+      console.error(error);
     });
 }
 
 // Adds a reference link to the help menu in JupyterLab
-function addHelpReference(mainMenu: MainMenu, text: string, url: string): void {
+function addHelpReference(menu: MainMenu, text: string, url: string): void {
   // Add item to help menu
-  mainMenu.helpMenu.menu.addItem({
+  menu.helpMenu.menu.addItem({
     args: { text, url },
     command: "help:open"
   });
@@ -130,7 +131,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
     const content = new NCViewerWidget(context);
     const ncWidget = new DocumentWidget({ content, context });
 
-    if (sidebar == null || context == null) {
+    if (sidebar === null || context === null) {
       return;
     }
 
@@ -139,7 +140,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
 
     // Prepare the notebook for code injection
     sidebar.prepareNotebookPanel(context.session.path).catch(error => {
-      if (error.status == "error") {
+      if (error.status === "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
       } else if (error.message) {
         NotebookUtilities.showMessage("Error", error.message);

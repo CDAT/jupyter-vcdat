@@ -17,6 +17,7 @@ interface IHandleProps {
   getHandleProps: GetHandleProps;
 }
 
+// tslint:disable-next-line
 export const Handle: React.SFC<IHandleProps> = ({
   domain: [min, max],
   handle: { id, value, percent },
@@ -28,17 +29,17 @@ export const Handle: React.SFC<IHandleProps> = ({
     aria-valuemax={max}
     aria-valuenow={value}
     style={{
-      left: `${percent}%`,
-      position: "absolute",
-      marginLeft: "-11px",
-      marginTop: "-6px",
-      zIndex: 2,
-      width: 24,
-      height: 24,
-      cursor: "pointer",
+      backgroundColor: "#34568f",
       borderRadius: "50%",
       boxShadow: "1px 1px 1px 1px rgba(0, 0, 0, 0.2)",
-      backgroundColor: "#34568f"
+      cursor: "pointer",
+      height: 24,
+      left: `${percent}%`,
+      marginLeft: "-11px",
+      marginTop: "-6px",
+      position: "absolute",
+      width: 24,
+      zIndex: 2
     }}
     {...getHandleProps(id)}
   />
@@ -53,6 +54,7 @@ interface ITrackProps {
   getTrackProps: GetTrackProps;
 }
 
+// tslint:disable-next-line
 export const Track: React.SFC<ITrackProps> = ({
   source,
   target,
@@ -60,14 +62,14 @@ export const Track: React.SFC<ITrackProps> = ({
 }) => (
   <div
     style={{
-      position: "absolute",
-      height: 14,
-      zIndex: 1,
       backgroundColor: "#7aa0c4",
       borderRadius: 7,
       cursor: "pointer",
+      height: 14,
       left: `${source.percent}%`,
-      width: `${target.percent - source.percent}%`
+      position: "absolute",
+      width: `${target.percent - source.percent}%`,
+      zIndex: 1
     }}
     {...getTrackProps()}
   />
@@ -83,27 +85,28 @@ interface ITickProps {
   count: number;
 }
 
+// tslint:disable-next-line
 export const Tick: React.SFC<ITickProps> = ({ tick, count, value }) => (
   <div>
     <div
       style={{
-        position: "absolute",
-        marginTop: 14,
-        width: 1,
-        height: 5,
         backgroundColor: "rgb(200,200,200)",
-        left: `${tick.percent}%`
+        height: 5,
+        left: `${tick.percent}%`,
+        marginTop: 14,
+        position: "absolute",
+        width: 1
       }}
     />
     <div
       style={{
-        position: "absolute",
-        marginTop: 22,
         fontSize: 10,
-        textAlign: "center",
+        left: `${tick.percent}%`,
         marginLeft: `${-(100 / count) / 2}%`,
-        width: `${100 / count}%`,
-        left: `${tick.percent}%`
+        marginTop: 22,
+        position: "absolute",
+        textAlign: "center",
+        width: `${100 / count}%`
       }}
     >
       {value}

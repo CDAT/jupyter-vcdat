@@ -15,21 +15,23 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { CodeInjector, ExportFormats, ImageUnits } from "../CodeInjector";
+import { CodeInjector } from "../CodeInjector";
+import { EXPORT_FORMATS, IMAGE_UNITS } from "../constants";
 
-export interface ExportPlotModalProps {
+export interface IExportPlotModalProps {
   isOpen: boolean;
-  toggle: Function;
-  exportAlerts: Function;
-  setPlotInfo: Function;
+  toggle: () => void;
+  exportAlerts: () => void;
+  setPlotInfo: (plotName: string, plotFormat: string) => void;
   codeInjector: CodeInjector;
-  getCanvasDimensions: Function; // a method that gets the current plot dimensions
+  // a method that gets the current plot dimensions
+  getCanvasDimensions: () => Promise<{ width: string; height: string }>;
 }
 
-interface ExportPlotModalState {
+interface IExportPlotModalState {
   modal: boolean;
   plotName: string;
-  plotFileFormat: ExportFormats;
+  plotFileFormat: EXPORT_FORMATS;
   validateExportName: boolean;
   validateFileFormat: boolean;
   displayDimensions: boolean;
@@ -37,27 +39,27 @@ interface ExportPlotModalState {
   captureProvenance: boolean;
   width: string;
   height: string;
-  plotUnits: ImageUnits;
+  plotUnits: IMAGE_UNITS;
 }
 
 export class ExportPlotModal extends React.Component<
-  ExportPlotModalProps,
-  ExportPlotModalState
+  IExportPlotModalProps,
+  IExportPlotModalState
 > {
-  constructor(props: ExportPlotModalProps) {
+  constructor(props: IExportPlotModalProps) {
     super(props);
     this.state = {
+      captureProvenance: false,
+      disableProvenance: true,
+      displayDimensions: false,
+      height: "",
       modal: false,
-      plotName: "",
       plotFileFormat: "",
+      plotName: "",
+      plotUnits: "px",
       validateExportName: false,
       validateFileFormat: false,
-      disableProvenance: true,
-      captureProvenance: false,
-      displayDimensions: false,
-      width: "",
-      height: "",
-      plotUnits: "pixels"
+      width: ""
     };
     this.save = this.save.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
@@ -67,13 +69,17 @@ export class ExportPlotModal extends React.Component<
     );
     this.toggleDimensionsDisplay = this.toggleDimensionsDisplay.bind(this);
     this.toggleCaptureProvenance = this.toggleCaptureProvenance.bind(this);
+    this.renderFormatBtns = this.renderFormatBtns.bind(this);
+    this.renderUnitBtns = this.renderUnitBtns.bind(this);
+    this.onInputChange = this.onInputChange.bind(this);
+    this.onHeightChange = this.onHeightChange.bind(this);
+    this.onWidthChange = this.onWidthChange.bind(this);
   }
 
   public async toggleDimensionsDisplay() {
     if (!this.state.displayDimensions) {
       const dimensions = await this.props.getCanvasDimensions();
-      this.setState({ width: dimensions.width });
-      this.setState({ height: dimensions.height });
+      this.setState({ height: dimensions.height, width: dimensions.width });
     }
     this.setState(prevState => ({
       displayDimensions: !prevState.displayDimensions
@@ -95,13 +101,57 @@ export class ExportPlotModal extends React.Component<
   }
 
   public toggleModal() {
-    this.setState({ validateExportName: false });
-    this.setState({ validateFileFormat: false });
+    this.setState({
+      plotName: "",
+      validateExportName: false,
+      validateFileFormat: false
+    });
     this.props.toggle();
-    this.setState({ plotName: "" });
   }
 
-  public onRadioBtnClick(rSelected: ExportFormats) {
+  public async save() {
+    const plotName = this.state.plotName;
+    if (!plotName) {
+      this.setState({ validateExportName: true });
+      return;
+    }
+    this.setState({ validateExportName: false });
+
+    const fileFormat = this.state.plotFileFormat;
+    if (!fileFormat) {
+      this.setState({ validateFileFormat: true });
+      return;
+    }
+    this.setState({ validateFileFormat: false });
+
+    await this.props.codeInjector.exportPlot(
+      fileFormat,
+      plotName,
+      this.state.width,
+      this.state.height,
+      this.state.plotUnits,
+      this.state.captureProvenance
+    );
+    this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
+    this.props.exportAlerts();
+    this.toggleModal();
+    this.setState({ displayDimensions: false });
+  }
+
+  // ======= REACT COMPONENT FUNCTIONS =======
+  public onInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({ plotName: event.target.value });
+  }
+
+  public onWidthChange(event: React.ChangeEvent<HTMLInputElement>): void {
+    this.setState({ width: event.target.value });
+  }
+
+  public onHeightChange(event: React.ChangeEvent<HTMLInputElement>): void {
+    this.setState({ height: event.target.value });
+  }
+
+  public onFmtRadioBtnClick(rSelected: EXPORT_FORMATS) {
     this.setState({ plotFileFormat: rSelected });
     if (rSelected === "png") {
       this.setState({ disableProvenance: false });
@@ -110,38 +160,8 @@ export class ExportPlotModal extends React.Component<
     }
   }
 
-  public onUnitRadioBtnClick(rSelected: ImageUnits) {
+  public onUnitRadioBtnClick(rSelected: IMAGE_UNITS) {
     this.setState({ plotUnits: rSelected });
-  }
-
-  public async save() {
-    const plotName = this.state.plotName;
-    if (plotName == null || plotName == "") {
-      this.setState({ validateExportName: true });
-      return;
-    }
-    this.setState({ validateExportName: false });
-
-    const fileFormat = this.state.plotFileFormat;
-    if (fileFormat == null || fileFormat == "") {
-      this.setState({ validateFileFormat: true });
-      return;
-    }
-    this.setState({ validateFileFormat: false });
-
-    this.props.codeInjector.exportPlot(
-      fileFormat,
-      plotName,
-      this.state.width,
-      this.state.height,
-      this.state.plotUnits,
-      this.state.captureProvenance
-    );
-
-    this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
-    this.props.exportAlerts();
-    this.toggleModal();
-    this.setState({ displayDimensions: false });
   }
 
   public render(): JSX.Element {
@@ -155,9 +175,7 @@ export class ExportPlotModal extends React.Component<
             name="text"
             placeholder="Name"
             value={this.state.plotName}
-            onChange={e => {
-              this.setState({ plotName: e.target.value });
-            }}
+            onChange={this.onInputChange}
           />
           <br />
           <Alert
@@ -168,44 +186,7 @@ export class ExportPlotModal extends React.Component<
             The export name can not be blank
           </Alert>
           <div>
-            <ButtonGroup>
-              <Button
-                color="primary"
-                onClick={() => {
-                  this.onRadioBtnClick("png");
-                }}
-                active={this.state.plotFileFormat === "png"}
-              >
-                PNG
-              </Button>
-              <Button
-                color="primary"
-                onClick={() => {
-                  this.onRadioBtnClick("svg");
-                }}
-                active={this.state.plotFileFormat === "svg"}
-              >
-                SVG
-              </Button>
-              <Button
-                color="primary"
-                onClick={() => {
-                  this.onRadioBtnClick("pdf");
-                }}
-                active={this.state.plotFileFormat === "pdf"}
-              >
-                PDF
-              </Button>
-              <Button
-                color="primary"
-                onClick={() => {
-                  this.onRadioBtnClick("ps");
-                }}
-                active={this.state.plotFileFormat === "ps"}
-              >
-                PS
-              </Button>
-            </ButtonGroup>
+            {this.renderFormatBtns()}
             <Alert
               color="danger"
               isOpen={this.state.validateFileFormat}
@@ -225,73 +206,23 @@ export class ExportPlotModal extends React.Component<
             <br />
             <div>
               <Collapse isOpen={this.state.displayDimensions}>
-                <ButtonGroup>
-                  <Button
-                    color="primary"
-                    onClick={() => {
-                      this.onUnitRadioBtnClick("pixels");
-                    }}
-                    active={this.state.plotUnits === "pixels"}
-                  >
-                    px
-                  </Button>
-                  <Button
-                    color="primary"
-                    onClick={() => {
-                      this.onUnitRadioBtnClick("in");
-                    }}
-                    active={this.state.plotUnits === "in"}
-                  >
-                    in
-                  </Button>
-                  <Button
-                    color="primary"
-                    onClick={() => {
-                      this.onUnitRadioBtnClick("cm");
-                    }}
-                    active={this.state.plotUnits === "cm"}
-                  >
-                    cm
-                  </Button>
-                  <Button
-                    color="primary"
-                    onClick={() => {
-                      this.onUnitRadioBtnClick("mm");
-                    }}
-                    active={this.state.plotUnits === "mm"}
-                  >
-                    mm
-                  </Button>
-                  <Button
-                    color="primary"
-                    onClick={() => {
-                      this.onUnitRadioBtnClick("dot");
-                    }}
-                    active={this.state.plotUnits === "dot"}
-                  >
-                    dot
-                  </Button>
-                </ButtonGroup>
+                {this.renderUnitBtns()}
                 <br />
                 <Label for="width">Width</Label>
                 <Input
-                  type="text"
+                  type="number"
                   name="width"
                   placeholder="Width"
                   value={this.state.width}
-                  onChange={e => {
-                    this.setState({ width: e.target.value });
-                  }}
+                  onChange={this.onWidthChange}
                 />
                 <Label for="height">Height</Label>
                 <Input
-                  type="text"
+                  type="number"
                   name="height"
                   placeholder="Height"
                   value={this.state.height}
-                  onChange={e => {
-                    this.setState({ height: e.target.value });
-                  }}
+                  onChange={this.onHeightChange}
                 />
               </Collapse>
             </div>
@@ -316,6 +247,55 @@ export class ExportPlotModal extends React.Component<
           </Button>
         </ModalFooter>
       </Modal>
+    );
+  }
+
+  private renderFormatBtns(): JSX.Element {
+    // List of choices that will have buttons
+    const formats: EXPORT_FORMATS[] = ["png", "pdf", "svg", "ps"];
+    return (
+      <ButtonGroup>
+        {formats.map((format: EXPORT_FORMATS) => {
+          const clickHandler = () => {
+            this.onFmtRadioBtnClick(format);
+          };
+          return (
+            <Button
+              key={format}
+              color="primary"
+              onClick={clickHandler}
+              active={this.state.plotFileFormat === format}
+            >
+              {format.toUpperCase()}
+            </Button>
+          );
+        })}
+      </ButtonGroup>
+    );
+  }
+
+  private renderUnitBtns(): JSX.Element {
+    // List of choices that will have buttons
+    const units: IMAGE_UNITS[] = ["cm", "dot", "in", "mm", "px"];
+
+    return (
+      <ButtonGroup>
+        {units.map((unit: IMAGE_UNITS) => {
+          const clickHandler = () => {
+            this.onUnitRadioBtnClick(unit);
+          };
+          return (
+            <Button
+              key={unit}
+              color="primary"
+              onClick={clickHandler}
+              active={this.state.plotUnits === unit}
+            >
+              {unit}
+            </Button>
+          );
+        })}
+      </ButtonGroup>
     );
   }
 }

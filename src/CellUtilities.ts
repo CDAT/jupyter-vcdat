@@ -6,7 +6,7 @@ import { CommandRegistry } from "@phosphor/commands";
 import { NotebookUtilities } from "./NotebookUtilities";
 
 /** Contains some utility functions for handling notebook cells */
-namespace CellUtilities {
+export class CellUtilities {
   /**
    * @description Reads the output at a cell within the specified notebook and returns it as a string
    * @param notebook The notebook to get the cell from
@@ -15,8 +15,8 @@ namespace CellUtilities {
    * notebook and cell index, or null if there is no output.
    * @throws An error message if there are issues in getting the output
    */
-  export function readOutput(notebook: Notebook, index: number): any {
-    if (notebook == null) {
+  public static readOutput(notebook: Notebook, index: number): any {
+    if (notebook === null) {
       throw new Error("Notebook was null!");
     }
     if (index < 0 || index >= notebook.model.cells.length) {
@@ -39,7 +39,7 @@ namespace CellUtilities {
     }
     if (nbformat.isError(out)) {
       const errData: nbformat.IError = out;
-      errData.evalue;
+
       throw new Error(
         `Code resulted in errors. Error name: ${errData.ename}.\nMessage: ${
           errData.evalue
@@ -55,12 +55,12 @@ namespace CellUtilities {
    * @param key The key of the value.
    * @returns any - The value of the metadata. Returns null if the key doesn't exist.
    */
-  export function getCellMetaData(
+  public static getCellMetaData(
     notebook: Notebook,
     index: number,
     key: string
   ): any {
-    if (notebook == null) {
+    if (notebook === null) {
       throw new Error("Notebook was null!");
     }
     if (index < 0 || index >= notebook.model.cells.length) {
@@ -83,14 +83,14 @@ namespace CellUtilities {
    * Note: This function will not wait for the save to complete, it only sends a save request.
    * @returns any - The old value for the key, or undefined if it did not exist.
    */
-  export function setCellMetaData(
+  public static setCellMetaData(
     notebookPanel: NotebookPanel,
     index: number,
     key: string,
     value: any,
     save: boolean = false
   ): any {
-    if (notebookPanel == null) {
+    if (notebookPanel === null) {
       throw new Error("Notebook was null!");
     }
     if (index < 0 || index >= notebookPanel.model.cells.length) {
@@ -115,13 +115,13 @@ namespace CellUtilities {
    * @returns [number, ICellModel] - A pair of values, the first is the index of where the cell was found
    * and the second is a reference to the cell itself. Returns [-1, null] if cell not found.
    */
-  export function findCellWithMetaKey(
+  public static findCellWithMetaKey(
     notebookPanel: NotebookPanel,
     key: string
   ): [number, ICellModel] {
     const cells = notebookPanel.model.cells;
     let cell: ICellModel;
-    for (let idx = 0; idx < cells.length; idx++) {
+    for (let idx = 0; idx < cells.length; idx += 1) {
       cell = cells.get(idx);
       if (cell.metadata.has(key)) {
         return [idx, cell];
@@ -136,7 +136,7 @@ namespace CellUtilities {
    * @param index The index for the cell
    * @returns Cell - The cell at specified index, or null if not found
    */
-  export function getCell(notebook: Notebook, index: number): ICellModel {
+  public static getCell(notebook: Notebook, index: number): ICellModel {
     if (notebook && index >= 0 && index < notebook.model.cells.length) {
       return notebook.model.cells.get(index);
     }
@@ -149,12 +149,12 @@ namespace CellUtilities {
    * @param notebook The notebook panel to run the cell in
    * @returns Promise<string> - A promise containing the output after the code has executed.
    */
-  export async function runCellAtIndex(
+  public static async runCellAtIndex(
     command: CommandRegistry,
     notebookPanel: NotebookPanel,
     index: number
   ): Promise<string> {
-    if (command == null || notebookPanel == null) {
+    if (command === null || notebookPanel === null) {
       throw new Error(
         "Null or undefined parameter was given for command or notebook argument."
       );
@@ -169,12 +169,11 @@ namespace CellUtilities {
     notebook.activeCellIndex = index;
     try {
       await command.execute("notebook:run-cell");
-      const output = readOutput(notebook, index);
+      const output = CellUtilities.readOutput(notebook, index);
       notebook.activeCellIndex = oldIndex;
       return output;
-    } catch (error) {
+    } finally {
       notebook.activeCellIndex = oldIndex;
-      throw error;
     }
   }
 
@@ -184,11 +183,11 @@ namespace CellUtilities {
    * @param index The index that the cell will be deleted at
    * @returns void
    */
-  export function deleteCellAtIndex(
+  public static deleteCellAtIndex(
     notebookPanel: NotebookPanel,
     index: number
   ): void {
-    if (notebookPanel == null) {
+    if (notebookPanel === null) {
       throw new Error(
         "Null or undefined parameter was given for notebook argument."
       );
@@ -201,7 +200,7 @@ namespace CellUtilities {
     let oldIndex = notebook.activeCellIndex;
     notebook.model.cells.remove(index);
     // Adjust old index to account for deleted cell.
-    if (oldIndex == index) {
+    if (oldIndex === index) {
       if (oldIndex > 0) {
         oldIndex -= 1;
       } else {
@@ -221,7 +220,7 @@ namespace CellUtilities {
    * If the cell index is greater than the last index, it will be added at the bottom.
    * @returns number - The index it where the cell was inserted
    */
-  export function insertCellAtIndex(
+  public static insertCellAtIndex(
     notebookPanel: NotebookPanel,
     index: number
   ): number {
@@ -235,7 +234,7 @@ namespace CellUtilities {
 
     // Adjust old index for cells inserted above active cell.
     if (oldIndex >= index) {
-      oldIndex++;
+      oldIndex += 1;
     }
     if (index <= 0) {
       notebook.model.cells.insert(0, cell);
@@ -261,12 +260,12 @@ namespace CellUtilities {
    * @throws An error message if there are issues with injecting code at a particular cell
    * @returns void
    */
-  export function injectCodeAtIndex(
+  public static injectCodeAtIndex(
     notebook: Notebook,
     index: number,
     code: string
   ): void {
-    if (notebook == null) {
+    if (notebook === null) {
       throw new Error("Notebook was null or undefined.");
     }
     if (index < 0 || index >= notebook.model.cells.length) {
@@ -289,13 +288,13 @@ namespace CellUtilities {
    * @param code The code to inject into the cell after it has been inserted
    * @returns number - index of where the cell was inserted
    */
-  export function insertInjectCode(
+  public static insertInjectCode(
     notebookPanel: NotebookPanel,
     index: number,
     code: string
   ): number {
-    const newIndex = insertCellAtIndex(notebookPanel, index);
-    injectCodeAtIndex(notebookPanel.content, newIndex, code);
+    const newIndex = CellUtilities.insertCellAtIndex(notebookPanel, index);
+    CellUtilities.injectCodeAtIndex(notebookPanel.content, newIndex, code);
     return newIndex;
   }
 
@@ -311,7 +310,7 @@ namespace CellUtilities {
    * @returns Promise<[number, string]> - A promise for when the cell code has executed
    * containing the cell's index and output result
    */
-  export async function insertAndRun(
+  public static async insertAndRun(
     notebookPanel: NotebookPanel,
     index: number,
     code: string,
@@ -319,7 +318,11 @@ namespace CellUtilities {
   ): Promise<[number, string]> {
     let insertionIndex;
     try {
-      insertionIndex = insertInjectCode(notebookPanel, index, code);
+      insertionIndex = CellUtilities.insertInjectCode(
+        notebookPanel,
+        index,
+        code
+      );
       const output: string = await NotebookUtilities.sendSimpleKernelRequest(
         notebookPanel,
         code,
@@ -328,7 +331,7 @@ namespace CellUtilities {
       return [insertionIndex, output];
     } catch (error) {
       if (deleteOnError) {
-        deleteCellAtIndex(notebookPanel, insertionIndex);
+        CellUtilities.deleteCellAtIndex(notebookPanel, insertionIndex);
       }
       throw error;
     }
@@ -347,7 +350,7 @@ namespace CellUtilities {
    * @returns Promise<[number, string]> - A promise for when the cell code has executed
    * containing the cell's index and output result
    */
-  export async function insertRunShow(
+  public static async insertRunShow(
     notebookPanel: NotebookPanel,
     command: CommandRegistry,
     index: number,
@@ -356,8 +359,12 @@ namespace CellUtilities {
   ): Promise<[number, string]> {
     let insertionIndex;
     try {
-      insertionIndex = insertInjectCode(notebookPanel, index, code);
-      const output: string = await runCellAtIndex(
+      insertionIndex = CellUtilities.insertInjectCode(
+        notebookPanel,
+        index,
+        code
+      );
+      const output: string = await CellUtilities.runCellAtIndex(
         command,
         notebookPanel,
         insertionIndex
@@ -365,7 +372,7 @@ namespace CellUtilities {
       return [insertionIndex, output];
     } catch (error) {
       if (deleteOnError) {
-        deleteCellAtIndex(notebookPanel, insertionIndex);
+        CellUtilities.deleteCellAtIndex(notebookPanel, insertionIndex);
       }
       throw error;
     }
@@ -382,7 +389,7 @@ namespace CellUtilities {
    * @param insertAtEnd True means the cell will be inserted at the bottom
    * @returns Promise<string> - A promise when the cell has been deleted, containing the execution result as a string
    */
-  export async function runAndDelete(
+  public static async runAndDelete(
     notebookPanel: NotebookPanel,
     code: string,
     insertAtEnd = true
@@ -391,15 +398,13 @@ namespace CellUtilities {
     if (insertAtEnd) {
       idx = notebookPanel.content.model.cells.length;
     }
-    const [index, result]: [number, string] = await insertAndRun(
+    const [index, result]: [number, string] = await CellUtilities.insertAndRun(
       notebookPanel,
       idx,
       code,
       true
     );
-    deleteCellAtIndex(notebookPanel, index);
+    CellUtilities.deleteCellAtIndex(notebookPanel, index);
     return result;
   }
 }
-
-export { CellUtilities };

@@ -1,6 +1,6 @@
-import AxisInfo from "./AxisInfo";
+import { AxisInfo } from "./AxisInfo";
 
-export default class Variable {
+export class Variable {
   public name: string; // the name of the variable
   public longName: string; // the long name of the variable
   public axisList: string[]; // list of the axis names
