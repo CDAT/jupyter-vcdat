@@ -27,7 +27,7 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        ./install_script.sh
-       conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner cdat_info $COVERAGE_PKGS
+       conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner cdat_info
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
@@ -52,7 +52,7 @@ aliases:
        pip install selenium
        pip install pyvirtualdisplay
        pip install nose
-       python run_tests.py -H -v2 $COVERAGE tests/test_variable.py
+       python run_tests.py -H -v2
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
@@ -68,7 +68,7 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       python run_tests.py -H -v2 $COVERAGE tests/test_variable.py
+       python run_tests.py -H -v2
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
