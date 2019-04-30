@@ -70,7 +70,7 @@ aliases:
        source activate jupyter-vcdat
        python run_tests.py -H -v2
        RESULT=$?
-       echo "**** $PY_VER test result: "${RESULT} 
+       echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
 
   - &conda_upload
