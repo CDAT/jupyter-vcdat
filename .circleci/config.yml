@@ -129,8 +129,6 @@ jobs:
     environment:
       WORKDIR: "workspace/test_firefox"
       PY_VER: "py3"
-      #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-      #COVERAGE_PKGS: "coverage coveralls"
     steps:
       - checkout
       - run: which firefox
@@ -142,7 +140,6 @@ jobs:
       - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
-      - run: rm tests_html
       - run: *run_tests_with_firefox
       - run: *conda_upload
       - store_artifacts:
