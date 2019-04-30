@@ -1,25 +1,27 @@
-// Dependencies
+// tslint:disable-next-line
 import "bootstrap/dist/css/bootstrap.min.css";
+
+// Dependencies
 import * as React from "react";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 // Project Components
-import AxisInfo from "./AxisInfo";
-import VarCard from "./VarCard";
-import Variable from "./Variable";
+import { AxisInfo } from "./AxisInfo";
+import { VarCard } from "./VarCard";
+import { Variable } from "./Variable";
 
 const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
   overflow: "auto"
 };
 
-interface VarLoaderProps {
-  loadFileVariable: Function; // function to call when user hits load
+interface IVarLoaderProps {
   variables: Variable[]; // list of all currently available variables
-  updateSelectedVariables: Function; // update the list of selected variables
-  saveNotebook: Function; // function that saves the current notebook
+  loadFileVariable: (variable: Variable) => Promise<void>; // function to call when user hits load
+  updateSelectedVariables: (selection: string[]) => Promise<any>; // update the list of selected variables
+  saveNotebook: () => void; // function that saves the current notebook
 }
-interface VarLoaderState {
+interface IVarLoaderState {
   show: boolean; // should the modal be shown
   variables: Variable[]; // list of already loaded variables
   fileVariables: Variable[]; // the list of variables from within the file
@@ -27,18 +29,18 @@ interface VarLoaderState {
   selectedVariables: string[]; // the variables the user has selected to be loaded
 }
 
-export default class VarLoader extends React.Component<
-  VarLoaderProps,
-  VarLoaderState
+export class VarLoader extends React.Component<
+  IVarLoaderProps,
+  IVarLoaderState
 > {
-  constructor(props: VarLoaderProps) {
+  constructor(props: IVarLoaderProps) {
     super(props);
     this.state = {
+      fileVariables: Array<Variable>(),
+      selectedVariables: Array<string>(),
       show: false,
-      variables: this.props.variables,
-      unloadedVariables: new Array<string>(),
-      fileVariables: new Array<Variable>(),
-      selectedVariables: new Array<string>()
+      unloadedVariables: Array<string>(),
+      variables: this.props.variables
     };
 
     this.toggle = this.toggle.bind(this);
@@ -48,6 +50,7 @@ export default class VarLoader extends React.Component<
     this.selectVariableForLoad = this.selectVariableForLoad.bind(this);
     this.deselectVariableForLoad = this.deselectVariableForLoad.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
+    this.handleLoadClick = this.handleLoadClick.bind(this);
   }
 
   /**
@@ -66,8 +69,8 @@ export default class VarLoader extends React.Component<
   // Loads all the selected variables into the notebook, returns the number loaded
   public async loadSelectedVariables(): Promise<void> {
     // Exit early if no variable selected for loading
-    if (this.state.selectedVariables.length == 0) {
-      this.setState({ selectedVariables: new Array<string>() });
+    if (this.state.selectedVariables.length === 0) {
+      this.setState({ selectedVariables: Array<string>() });
       return;
     }
     // Once the load button is clicked, load only the variables that were selected
@@ -84,10 +87,10 @@ export default class VarLoader extends React.Component<
 
     // Reset the state of the var loader when done
     this.setState({
-      selectedVariables: new Array<string>(),
-      unloadedVariables: new Array<string>(),
-      fileVariables: new Array<Variable>(),
-      variables: new Array<Variable>()
+      fileVariables: Array<Variable>(),
+      selectedVariables: Array<string>(),
+      unloadedVariables: Array<string>(),
+      variables: Array<Variable>()
     });
 
     // Save the notebook after variables have been added
@@ -133,11 +136,11 @@ export default class VarLoader extends React.Component<
   public updateDimInfo(newInfo: any, varName: string): void {
     this.state.fileVariables.forEach(
       (fileVariable: Variable, varIndex: number) => {
-        if (fileVariable.name != varName) {
+        if (fileVariable.name !== varName) {
           return;
         }
         fileVariable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-          if (axis.name != newInfo.name) {
+          if (axis.name !== newInfo.name) {
             return;
           }
           const fileVariables = this.state.fileVariables;
@@ -162,11 +165,10 @@ export default class VarLoader extends React.Component<
         >
           <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
           <ModalBody style={modalOverflow}>
-            {this.state.fileVariables.length != 0 &&
+            {this.state.fileVariables.length !== 0 &&
               this.state.fileVariables.map((item: Variable) => {
                 return (
                   <VarCard
-                    reload={() => {}}
                     allowReload={false}
                     updateDimInfo={this.updateDimInfo}
                     isSelected={this.isSelected}
@@ -185,10 +187,7 @@ export default class VarLoader extends React.Component<
               outline={true}
               active={this.state.selectedVariables.length > 0}
               color="primary"
-              onClick={() => {
-                this.setState({ show: false });
-                this.loadSelectedVariables();
-              }}
+              onClick={this.handleLoadClick}
             >
               Load
             </Button>
@@ -196,5 +195,10 @@ export default class VarLoader extends React.Component<
         </Modal>
       </div>
     );
+  }
+
+  private handleLoadClick(): void {
+    this.setState({ show: false });
+    this.loadSelectedVariables();
   }
 }

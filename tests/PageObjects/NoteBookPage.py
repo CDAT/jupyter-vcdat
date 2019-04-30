@@ -15,19 +15,13 @@ class NoteBookPage(MainPage):
     def _validate_page(self):
         print("...NoteBookPage.validatePage()")
 
-    def _click_on_new_notebook(self):
-        print("...click on New Notebook...")
-        self.click_on_file_tab()
-        self.find_menu_item_from_tab_drop_down_and_click('New')
-
-        # notebook_locator = "//li[@class='p-Menu-item'][@data-command='notebook:create-new']"
-        notebook_locator_constraint = "@data-command='notebook:create-new'"
-        self.find_menu_item_by_constraint_and_click(notebook_locator_constraint)
-
     def rename_notebook(self, new_nb_name):
         # look for the 'Rename Notebook...' under File tab menu
-        self.click_on_file_tab()
-        self.find_menu_item_from_tab_drop_down_and_click('Rename')
+        self.click_on_tab('File')
+
+        # rename notebook locator data-command
+        loc = "docmanager:rename"
+        self.find_menu_item_with_command_from_tab_drop_down_and_click(loc)
 
         # enter the new notebook name
         rename_notebook_input_locator = "//input[@class='jp-mod-styled']"
@@ -37,16 +31,25 @@ class NoteBookPage(MainPage):
         input_area.clear()
         action_chains = ActionChains(self.driver)
         action_chains.click(input_area).send_keys(new_nb_name).key_down(Keys.ENTER).perform()
-        time.sleep(self._delay * 2)
+        time.sleep(self._delay)
 
     def new_notebook(self):
-        self._click_on_new_notebook()
+        print("...new_notebook...")
+        self.click_on_tab('File')
+        notebook_locator_constraint = "notebook:create-new"
+        self.find_menu_item_from_tab_drop_down_find_submenu_with_command('New', notebook_locator_constraint)
         self.select_kernel()
 
-    def close_current_notebook(self):
-        self.click_on_file_tab()
-        self.find_menu_item_from_tab_drop_down_and_click('Close Notebook')
+    def save_current_notebook(self):
+        print("...save_current_notebook...")
+        self.click_on_tab('File')
+        loc = "docmanager:save"
+        self.find_menu_item_with_command_from_tab_drop_down_and_click(loc)
 
+    def close_current_notebook(self):
+        print("...close_current_notebook...")
+        self.click_on_tab('File')
+        self.find_menu_item_from_tab_drop_down_and_click('Close Notebook')
         # check if we are getting "Close without saving?" pop up
         close_without_saving_ok_locator = "//div[contains(text(), 'OK')]"
         try:
@@ -107,3 +110,22 @@ class NoteBookPage(MainPage):
         a.send_keys(code_text).key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT)
         a.perform()
         time.sleep(self._delay)
+
+    def enter_code_list(self, code_list):
+
+        nb_code_area_locator1 = "//div[@class='CodeMirror-code' and @role='presentation']"
+        nb_code_area_locator2 = "//pre[@class=' CodeMirror-line ']"
+        nb_code_area_locator3 = "//span[@role='presentation']//span[@cm-text='']"
+        locator = "{l1}{l2}{l3}".format(l1=nb_code_area_locator1,
+                                        l2=nb_code_area_locator2,
+                                        l3=nb_code_area_locator3)
+        for code_line in code_list[:-1]:
+            code_area_element = self.driver.find_element_by_xpath(locator)
+            ActionChains(self.driver).click(code_area_element).perform()
+            a = ActionChains(self.driver)
+            a.send_keys(code_line).send_keys(Keys.ENTER).perform()
+
+        code_area_element = self.driver.find_element_by_xpath(locator)
+        ActionChains(self.driver).click(code_area_element).perform()
+        a = ActionChains(self.driver)
+        a.send_keys(code_list[-1]).key_down(Keys.SHIFT).send_keys(Keys.ENTER).key_up(Keys.SHIFT).perform()

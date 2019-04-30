@@ -1,3 +1,5 @@
+/* tslint:disable */
+// LINTING TURNED OFF UNTIL THIS FILE IS ACTUALLY USED
 // Dependencies
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 import * as React from "react";
@@ -19,27 +21,24 @@ import {
 } from "reactstrap";
 
 // Project Components
-import Variable from "./Variable";
+import { Variable } from "./Variable";
 
-interface PlotMenuProps {
-  updatePlotOptions: Function; // the method to call when the users wants to update the plot options
+interface IPlotMenuProps {
+  updatePlotOptions: (plotOptions: any) => void; // the method to call when the users wants to update the plot options
   varInfo: Variable; // variable information about the selected variable
 }
-interface PlotMenuState {
+interface IPlotMenuState {
+  dropdownOptions: string[]; // options to select for the plot mode
+  optionsChanged: boolean; // have the options been changed
+  plotOptions: any; // the currently selected plot options
+  selectedDropdownOption: string; // the currently selected plot mode
   showMenu: boolean; // should the menu be expanded or not
   showDropdown: boolean; // should the drop down be open
-  dropdownOptions: string[]; // options to select for the plot mode
-  selectedDropdownOption: string; // the currently selected plot mode
-  plotOptions: any; // the currently selected plot options
   validName: boolean; // is the given plot name valid
-  optionsChanged: boolean; // have the options been changed
 }
 
-export default class PlotMenu extends React.Component<
-  PlotMenuProps,
-  PlotMenuState
-> {
-  constructor(props: PlotMenuProps) {
+export class PlotMenu extends React.Component<IPlotMenuProps, IPlotMenuState> {
+  constructor(props: IPlotMenuProps) {
     super(props);
     this.state = {
       showMenu: false,
@@ -149,10 +148,10 @@ export default class PlotMenu extends React.Component<
     });
   }
   public plotOptions(): JSX.Element {
-    if (this.state.selectedDropdownOption == "1D") {
+    if (this.state.selectedDropdownOption === "1D") {
       return <div>One Deee</div>;
     }
-    if (this.state.selectedDropdownOption == "2D") {
+    if (this.state.selectedDropdownOption === "2D") {
       return (
         <div>
           <Form className={"jp-vcsWidget-Form"}>
@@ -249,7 +248,7 @@ export default class PlotMenu extends React.Component<
         </div>
       );
     }
-    if (this.state.selectedDropdownOption == "3D") {
+    if (this.state.selectedDropdownOption === "3D") {
       return <div>Three Deee</div>;
     }
   }

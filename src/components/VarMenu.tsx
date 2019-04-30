@@ -11,13 +11,13 @@ import {
   ListGroupItem,
   Row
 } from "reactstrap";
-import { ColorFunctions } from "../Utilities";
+import { ColorFunctions } from "../ColorFunctions";
 
 // Project Components
-import AxisInfo from "./AxisInfo";
-import Variable from "./Variable";
-import VarLoader from "./VarLoader";
-import VarMini from "./VarMini";
+import { AxisInfo } from "./AxisInfo";
+import { Variable } from "./Variable";
+import { VarLoader } from "./VarLoader";
+import { VarMini } from "./VarMini";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -28,29 +28,29 @@ const formOverflow: React.CSSProperties = {
   overflow: "auto"
 };
 
-interface VarMenuProps {
-  loadVariable: Function; // a method to call when loading the variable
+interface IVarMenuProps {
+  loadVariable: (variable: Variable) => Promise<any>; // a method to call when loading the variable
   commands?: any; // the command executer
   variables: Variable[]; // an array of all current variables
   selectedVariables: string[]; // array of names for variables that have been selected
-  updateSelectedVariables: Function; // update the list of selected variables
-  updateVariables: Function; // update the list of all variables
-  saveNotebook: Function; // function that saves the current notebook
-  updateNotebook: Function; // Updates the current notebook to check if it is vcdat ready
-  syncNotebook: Function; // Function that check if the Notebook should be synced/prepared
+  updateSelectedVariables: (selection: string[]) => Promise<any>; // update the list of selected variables
+  updateVariables: (variables: Variable[]) => Promise<void>; // update the list of all variables
+  saveNotebook: () => void; // function that saves the current notebook
+  updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
+  syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
 }
 
-interface VarMenuState {
+interface IVarMenuState {
   variables: Variable[]; // all variables for list (derived and loaded)
   selectedVariables: string[]; // the names of the variables the user has selected
 }
 
 export default class VarMenu extends React.Component<
-  VarMenuProps,
-  VarMenuState
+  IVarMenuProps,
+  IVarMenuState
 > {
   public varLoaderRef: VarLoader;
-  constructor(props: VarMenuProps) {
+  constructor(props: IVarMenuProps) {
     super(props);
     this.state = {
       selectedVariables: this.props.selectedVariables,
@@ -92,7 +92,7 @@ export default class VarMenu extends React.Component<
    */
   public async launchVarLoader(fileVariables: Variable[]): Promise<void> {
     // Look through current loaded variable names to see if any haven't been loaded
-    const unloaded: string[] = new Array<string>();
+    const unloaded: string[] = Array<string>();
     const loadedVars: string[] = this.state.variables.map(
       (variable: Variable) => {
         return variable.name;
@@ -106,8 +106,8 @@ export default class VarMenu extends React.Component<
     // Update state to show launcher with variables
     this.varLoaderRef.setState({
       fileVariables,
-      unloadedVariables: unloaded,
-      show: true
+      show: true,
+      unloadedVariables: unloaded
     });
   }
 
@@ -121,9 +121,8 @@ export default class VarMenu extends React.Component<
     let replaced: boolean = false;
     await this.state.variables.forEach(
       async (loadedVar: Variable, idx: number) => {
-        if (variable.name == loadedVar.name) {
+        if (variable.name === loadedVar.name) {
           newVariables[idx] = variable;
-          await this.props.updateVariables(newVariables);
           replaced = true;
           return;
         }
@@ -131,7 +130,6 @@ export default class VarMenu extends React.Component<
     );
     if (!replaced) {
       newVariables.push(variable);
-      await this.props.updateVariables(newVariables);
     }
 
     await this.props.loadVariable(variable);
@@ -176,18 +174,20 @@ export default class VarMenu extends React.Component<
    * @param varName the name of the variable to update
    */
   public async updateDimInfo(newInfo: any, varName: string): Promise<void> {
-    this.state.variables.forEach((variable: Variable, varIndex: number) => {
-      if (variable.name != varName) {
+    const newVariables: Variable[] = this.state.variables;
+    newVariables.forEach((variable: Variable, varIndex: number) => {
+      if (variable.name !== varName) {
         return;
       }
       variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-        if (axis.name != newInfo.name) {
+        if (axis.name !== newInfo.name) {
           return;
         }
-        this.state.variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-        this.state.variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
+        newVariables[varIndex].axisInfo[axisIndex].min = newInfo.min;
+        newVariables[varIndex].axisInfo[axisIndex].max = newInfo.max;
       });
     });
+    await this.props.updateVariables(newVariables);
   }
 
   public async reloadVariable(variable: Variable): Promise<void> {
@@ -196,19 +196,18 @@ export default class VarMenu extends React.Component<
   }
 
   public getOrder(varName: string): number {
-    if (this.state.selectedVariables.length == 0) {
+    if (this.state.selectedVariables.length === 0) {
       return -1;
     }
     return this.state.selectedVariables.indexOf(varName) + 1;
   }
 
   public render(): JSX.Element {
-    const Colors: string[] = ColorFunctions.createGradient(
+    const colors: string[] = ColorFunctions.createGradient(
       this.state.selectedVariables.length,
       "#28a745",
       "#17a2b8"
     );
-    const syncNotebook: boolean = this.props.syncNotebook();
 
     return (
       <div>
@@ -217,7 +216,7 @@ export default class VarMenu extends React.Component<
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
               <Row>
-                <Col sm={6}>
+                <Col>
                   <Button
                     color="info"
                     onClick={this.launchFilebrowser}
@@ -227,40 +226,41 @@ export default class VarMenu extends React.Component<
                     Load Variable(s)
                   </Button>
                 </Col>
-                <Col sm={6}>
-                  <Button
-                    color="info"
-                    onClick={async () => {
-                      this.props.updateNotebook();
-                    }}
-                    hidden={!syncNotebook}
-                    style={varButtonStyle}
-                    title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
-                  >
-                    Sync Notebook
-                  </Button>
-                </Col>
+                {this.props.syncNotebook() && (
+                  <Col>
+                    <Button
+                      color="info"
+                      onClick={this.props.updateNotebook}
+                      style={varButtonStyle}
+                      title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
+                    >
+                      Sync Notebook
+                    </Button>
+                  </Col>
+                )}
               </Row>
             </CardSubtitle>
             {this.state.variables.length > 0 && (
               <ListGroup style={formOverflow}>
-                {this.state.variables.map(item => {
+                {this.state.variables.map((item: Variable, idx: number) => {
+                  const reloadItem = () => {
+                    this.reloadVariable(item);
+                  };
+                  const toggleSelection = () => {
+                    if (this.isSelected(item.name)) {
+                      this.deselectVariable(item.name);
+                    } else {
+                      this.selectVariable(item.name);
+                    }
+                  };
                   return (
                     <ListGroupItem
-                      key={item.name}
-                      onClick={() => {
-                        if (this.isSelected(item.name)) {
-                          this.deselectVariable(item.name);
-                        } else {
-                          this.selectVariable(item.name);
-                        }
-                      }}
+                      key={`${item.name}${idx}`}
+                      onClick={toggleSelection}
                     >
                       <VarMini
-                        reload={() => {
-                          this.reloadVariable(item);
-                        }}
-                        buttonColor={Colors[this.getOrder(item.name) - 1]}
+                        reload={reloadItem}
+                        buttonColor={colors[this.getOrder(item.name) - 1]}
                         allowReload={true}
                         isSelected={this.isSelected}
                         selectOrder={this.getOrder(item.name)}
