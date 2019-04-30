@@ -68,7 +68,7 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       python run_tests.py -H -v2
+       python run_tests.py -H -v2 tests/test_variable.py
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
