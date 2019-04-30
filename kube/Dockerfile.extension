@@ -4,4 +4,4 @@ ENV CDAT_ANONYMOUS_LOG false
 # extension
 # run with --build-args BRANCH=master
 # e.g.: sudo docker build --build-arg BRANCH=master -f kube/Dockerfile.extension .
-RUN git clone https://github.com/CDAT/jupyter-vcdat.git && cd jupyter-vcdat && git checkout $BRANCH && python setup.py install && npm install && npm run build && jupyter lab build && jupyter-labextension install . && cd .. && rm -rf jupyter-vcdat
+RUN git clone https://github.com/CDAT/jupyter-vcdat.git && cd jupyter-vcdat && git checkout $BRANCH && npm install && npm run build && jupyter lab build && jupyter-labextension install . && cd .. && rm -rf jupyter-vcdat
