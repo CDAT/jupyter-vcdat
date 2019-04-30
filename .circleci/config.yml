@@ -36,9 +36,6 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       pip install selenium
-       pip install pyvirtualdisplay
-       pip install nose
        jupyter lab --ip='127.0.0.1'
     background: true
 
@@ -67,6 +64,9 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
+       pip install selenium
+       pip install pyvirtualdisplay
+       pip install nose
        python run_tests.py -H -v2 $COVERAGE tests/test_variable.py
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
