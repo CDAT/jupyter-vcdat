@@ -1,11 +1,11 @@
 """
 Use the following examples to see the syntax used for adding update-able tags (id or class) to components:
 <component id={/* tag<nameForTag>*/ "oldID" } />
----> <component id={/* tag<nameForTag>*/ "nameForTag_suffix" } /
+    ---> <component id={/* tag<nameForTag>*/ "nameForTag_suffix" } /
 <component className={/* tag<newNameForTag> */ "oldClassName" } />
-----> <component className={/* tag<newNameForTag> */ "newNameForTag" } />
+    ---> <component className={/* tag<newNameForTag> */ "newNameForTag" } />
 <component className={/* tag<otherClass OtherClass2 newInsertClass>*/ "otherClass OtherClass2 oldClass" } />
---> <component className={/* tag<otherClass OtherClass2 newInsertClass>*/ "otherClass OtherClass2 newInsertClass" } />
+    ---> <component className={/* tag<otherClass newInsertClass>*/ "otherClass newInsertClass" } />
 """
 
 import re
@@ -13,23 +13,21 @@ import argparse
 
 desc = '''
 Use the following example to see the syntax for adding update-able tags to components:
-<component id={/* tag<nameForTag>*/ "oldID" } />
+    <component id={/* tag<nameForTag>*/ "oldID" } />
 result:
-<component id={/* tag<nameForTag>*/ "nameForTag_suffix" } /
+    <component id={/* tag<nameForTag>*/ "nameForTag_suffix" } /
 '''
 parser = argparse.ArgumentParser(description=desc)
 
 # Add argument options
-parser.add_argument('--log', '-l',
-                    help=('<Optional> Specify the path where to save the log \
-                          containing tag names, values and thier locations.'),
+parser.add_argument('--log', '-l', help='<Optional> Specify the path where to save the log containing tag names, \
+                    values and thier locations.',
                     default="tests/component_tags.txt")
-parser.add_argument('--source', '-so', nargs='+', help='<Required> The path of the file or files to update.',
-                    required=True)
-parser.add_argument('--suffix', '-s',
-                    help=("<Required> The string value to attach to the end of the tags. Ex: -su='-1234' \
-                          tagName' --> 'tagName-1234'"),
-                    required=True)
+parser.add_argument('--source', '-so', nargs='+',
+                    help='<Required> The path of the file or files to update.', required=True)
+parser.add_argument(
+    '--suffix', '-s', help="<Required> The string value to attach to the end of the tags. Ex: -su='-1234' tagName' --> \
+    'tagName-1234'", required=True)
 
 args = parser.parse_args()
 
