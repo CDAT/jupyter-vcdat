@@ -75,7 +75,7 @@ function activate(
   app.started
     .then(() => {
       sidebar = new LeftSideBarWidget(app, tracker);
-      sidebar.id = "vcdat-left-side-bar";
+      sidebar.id = /*@tag<vcdat-left-side-bar>*/ "vcdat-left-side-bar-test";
       sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";
       sidebar.title.closable = true;
 
