@@ -51,7 +51,6 @@ aliases:
        source activate jupyter-vcdat
        pip install selenium
        pip install pyvirtualdisplay
-       pip install nose
        python run_tests.py -H -v2
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
