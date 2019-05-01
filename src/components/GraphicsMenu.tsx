@@ -87,7 +87,7 @@ export default class GraphicsMenu extends React.Component<
 
   public handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
     // Regex filter for unallowed name characters
-    const forbidden: RegExp = /^[^a-z_]|[^a-z0-9]+/i;
+    const forbidden: RegExp = /^[^a-z]|[^a-z0-9_]+/i;
     const invalid: boolean = forbidden.test(event.target.value);
     this.setState({ nameValue: event.target.value, invalidName: invalid });
   }
@@ -186,7 +186,7 @@ export default class GraphicsMenu extends React.Component<
     return (
       <div>
         <Card>
-          <CardBody>
+          <CardBody className=/*@tag<graphics-menu>*/ "graphics-menu-vcdat">
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle className="clearfix">
               <Dropdown
@@ -196,6 +196,7 @@ export default class GraphicsMenu extends React.Component<
                 toggle={this.toggleDropdown}
               >
                 <DropdownToggle
+                  className=/*@tag<graphics-dropdown>*/ "graphics-dropdown-vcdat"
                   disabled={!this.state.plotReady || this.state.enterName}
                   caret={true}
                 >
@@ -221,13 +222,13 @@ export default class GraphicsMenu extends React.Component<
                     };
                     if (methods.length > 1) {
                       return (
-                        <DropdownItem onClick={clickMethodGroup} key={item}>
+                        <DropdownItem className=/*@tag<graphics-dropdown-item>*/ "graphics-dropdown-item-vcdat" onClick={clickMethodGroup} key={item}>
                           {item}
                         </DropdownItem>
                       );
                     }
                     return (
-                      <DropdownItem onClick={clickMethod} key={item}>
+                      <DropdownItem className=/*@tag<graphics-dropdown-item>*/ "graphics-dropdown-item-vcdat" onClick={clickMethod} key={item}>
                         {item} ({methods[0]})
                       </DropdownItem>
                     );
@@ -235,7 +236,7 @@ export default class GraphicsMenu extends React.Component<
                 </DropdownMenu>
               </Dropdown>
               <Button
-                className="float-left"
+                className=/*@tag<float-left graphics-close-btn>*/ "float-left graphics-close-btn-vcdat"
                 hidden={!this.state.showMenu || this.state.enterName}
                 style={{ marginLeft: "5px" }}
                 onClick={this.handleCloseClick}
@@ -244,7 +245,7 @@ export default class GraphicsMenu extends React.Component<
                 X
               </Button>
               <Button
-                className="float-right"
+                className=/*@tag<float-right graphics-copy-btn>*/ "float-right graphics-copy-btn-vcdat"
                 hidden={
                   !this.state.plotReady ||
                   this.state.showMenu ||
@@ -258,7 +259,7 @@ export default class GraphicsMenu extends React.Component<
                 Copy
               </Button>
               <Button
-                className="float-right"
+                className=/*@tag<float-right graphics-cancel-btn>*/ "float-right graphics-cancel-btn-vcdat"
                 hidden={!this.state.enterName}
                 onClick={this.handleCancelClick}
                 color="danger"
@@ -271,14 +272,14 @@ export default class GraphicsMenu extends React.Component<
               style={{ marginTop: "5px" }}
             >
               <Input
+                className=/*@tag<float-left graphics-name-input>*/ "float-left graphics-name-input-vcdat"
                 onChange={this.handleNameInput}
-                className="float-left"
                 value={this.state.nameValue}
                 placeholder="Enter new name here."
               />
               <InputGroupAddon addonType="append">
                 <Button
-                  className="float-right"
+                  className=/*@tag<float-right graphics-enter-btn>*/ "float-right graphics-enter-btn-vcdat"
                   onClick={this.handleEnterClick}
                   color={validInputColor}
                   disabled={this.state.invalidName}
@@ -338,9 +339,9 @@ export default class GraphicsMenu extends React.Component<
     if (this.state.nameValue && !this.state.invalidName) {
       try {
         await this.props.copyGraphicsMethod(
-          this.state.nameValue,
           this.state.selectedGroup,
-          this.state.selectedMethod
+          this.state.selectedMethod,
+          this.state.nameValue
         );
         this.setState({
           enterName: false,

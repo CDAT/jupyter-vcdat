@@ -178,7 +178,7 @@ export class DimensionSlider extends React.Component<
 
   public render(): JSX.Element {
     return (
-      <div className="dimension-slider">
+      <div className=/*@tag<slider-main>*/ "slider-main-vcdat">
         {!this.singleValue && (
           <div className="form-inline">
             <div style={centered}>
@@ -203,7 +203,7 @@ export class DimensionSlider extends React.Component<
               </Rail>
               <Handles>
                 {({ handles, getHandleProps }) => (
-                  <div className="slider-handles">
+                  <div className=/*@tag<slider-handles>*/ "slider-handles-vcdat">
                     {handles.map(handle => (
                       <Handle
                         key={handle.id}
@@ -217,7 +217,7 @@ export class DimensionSlider extends React.Component<
               </Handles>
               <Tracks left={false} right={false}>
                 {({ tracks, getTrackProps }) => (
-                  <div className="slider-tracks">
+                  <div className=/*@tag<slider-tracks>*/ "slider-tracks-vcdat">
                     {tracks.map(({ id, source, target }) => (
                       <Track
                         key={id}
@@ -231,7 +231,7 @@ export class DimensionSlider extends React.Component<
               </Tracks>
               <Ticks values={this.state.tickValues}>
                 {({ ticks }) => (
-                  <div className="slider-ticks">
+                  <div className=/*@tag<slider-ticks>*/ "slider-ticks-vcdat">
                     {ticks.map((tick: SliderItem, idx: number) => (
                       <Tick
                         key={tick.id}

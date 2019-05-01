@@ -220,7 +220,7 @@ export class PlotMenu extends React.Component<IPlotMenuProps, IPlotMenuState> {
               <FormGroup>
                 <Input
                   type="text"
-                  id="plotNameInput"
+                  className="plotNameInput"
                   placeholder="Plot Name"
                   onChange={event => {
                     const newPlotOptions = this.state.plotOptions;

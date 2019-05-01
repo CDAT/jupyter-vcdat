@@ -212,12 +212,13 @@ export default class VarMenu extends React.Component<
     return (
       <div>
         <Card>
-          <CardBody>
+          <CardBody className=/*@tag<varmenu-main>*/"varmenu-main-vcdat">
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
               <Row>
                 <Col>
                   <Button
+                    className=/*@tag<varmenu-load-variables-btn>*/"varmenu-load-variables-btn-vcdat"
                     color="info"
                     onClick={this.launchFilebrowser}
                     style={varButtonStyle}
@@ -229,6 +230,7 @@ export default class VarMenu extends React.Component<
                 {this.props.syncNotebook() && (
                   <Col>
                     <Button
+                      className=/*@tag<varmenu-sync-btn>*/"varmenu-sync-btn-vcdat"
                       color="info"
                       onClick={this.props.updateNotebook}
                       style={varButtonStyle}
@@ -241,7 +243,7 @@ export default class VarMenu extends React.Component<
               </Row>
             </CardSubtitle>
             {this.state.variables.length > 0 && (
-              <ListGroup style={formOverflow}>
+              <ListGroup className=/*@tag<varmenu-varlist>*/"varmenu-varlist-vcdat" style={formOverflow}>
                 {this.state.variables.map((item: Variable, idx: number) => {
                   const reloadItem = () => {
                     this.reloadVariable(item);

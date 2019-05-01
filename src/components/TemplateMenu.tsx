@@ -77,14 +77,14 @@ export default class TemplateMenu extends React.Component<
     return (
       <div>
         <Card>
-          <CardBody>
+          <CardBody className=/*@tag<template-main>*/"template-main-vcdat">
             <CardTitle>Layout Template</CardTitle>
             <CardSubtitle>
               <Dropdown
                 isOpen={this.state.showDropdown}
                 toggle={this.toggleDropdown}
               >
-                <DropdownToggle disabled={!this.state.plotReady} caret={true}>
+                <DropdownToggle className=/*@tag<template-dropdown>*/"template-dropdown-vcdat" disabled={!this.state.plotReady} caret={true}>
                   {dropDownTitle}
                 </DropdownToggle>
                 <DropdownMenu style={dropdownMenuStype}>
@@ -99,7 +99,7 @@ export default class TemplateMenu extends React.Component<
                       });
                     };
                     return (
-                      <DropdownItem onClick={handleClick} key={item}>
+                      <DropdownItem className=/*@tag<template-item>*/"template-item-vcdat" onClick={handleClick} key={item}>
                         {item}
                       </DropdownItem>
                     );
