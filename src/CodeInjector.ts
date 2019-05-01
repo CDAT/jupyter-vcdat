@@ -97,12 +97,12 @@ export class CodeInjector {
       // Create import string based on missing dependencies
       const missingModules: string[] = Utilities.strToArray(output);
       if (missingModules.length > 0) {
-        cmd += this.buildImportCommand(missingModules, false);
+        cmd += this.buildImportCommand(missingModules);
       } else {
         return index;
       }
     } else {
-      cmd += this.buildImportCommand(JSON.parse(`${REQUIRED_MODULES}`), false);
+      cmd += this.buildImportCommand(JSON.parse(`${REQUIRED_MODULES}`));
     }
 
     // Find the index where the imports code is injected
@@ -599,35 +599,15 @@ export class CodeInjector {
   /**
    * This will construct an import string for the notebook based on the modules passed to it. It is used for imports injection.
    * @param modules An array of strings representing the modules to include in the import command.
-   * @param lazy Whether to use lazy imports syntax when making the command. Will include lazy_imports
-   * if it is needed.
    */
-  private buildImportCommand(modules: string[], lazy: boolean): string {
+  private buildImportCommand(modules: string[]): string {
     let cmd: string = "";
-    // Check for lazy_imports modules first
-    const tmpModules = modules;
-    const idx = modules.indexOf("lazy_import");
 
-    if (lazy) {
-      // Import lazy_imports if it's missing, before doing other imports
-      if (idx >= 0) {
-        tmpModules.splice(idx, 1);
-        cmd = "\nimport lazy_import";
-      }
-      // Import other modules using lazy import syntax
-      tmpModules.forEach(module => {
-        cmd += `\n${module} = lazy_import.lazy_module("${module}")`;
-      });
-    } else {
-      // Remove lazy_imports from required modules if it is there
-      if (idx >= 0) {
-        tmpModules.splice(idx, 1);
-      }
-      // Import modules
-      tmpModules.forEach(module => {
-        cmd += `\nimport ${module}`;
-      });
-    }
+    // Import modules
+    modules.forEach(module => {
+      cmd += `\nimport ${module}`;
+    });
+
     return cmd;
   }
 

@@ -29,10 +29,9 @@ CONDA_BASE=$(conda info --base)
 source $CONDA_BASE/etc/profile.d/conda.sh
 conda activate jupyter-vcdat
 
-# Install lazy_import
-pip install lazy_import
 # Install sidecar
-pip install sidecar
+python -m pip install sidecar || pip install sidecar
+
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 

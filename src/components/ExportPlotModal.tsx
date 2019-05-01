@@ -166,15 +166,12 @@ export class ExportPlotModal extends React.Component<
 
   public render(): JSX.Element {
     return (
-      <Modal
-        isOpen={this.props.isOpen}
-        toggle={this.toggleModal}
-      >
+      <Modal isOpen={this.props.isOpen} toggle={this.toggleModal}>
         <ModalHeader toggle={this.toggleModal}>Save Plot</ModalHeader>
-        <ModalBody className=/*@tag<export-modal>*/ "export-modal-vcdat">
+        <ModalBody className={/*@tag<export-modal>*/ "export-modal-vcdat"}>
           <Label>Name:</Label>
           <Input
-            className=/*@tag<export-name-input>*/ "export-name-input-vcdat"
+            className={/*@tag<export-name-input>*/ "export-name-input-vcdat"}
             type="text"
             name="text"
             placeholder="Name"
@@ -201,7 +198,9 @@ export class ExportPlotModal extends React.Component<
             <br />
             <CustomInput
               type="switch"
-              id=/*@tag<export-dimension-switch>*/ "export-dimension-switch-vcdat"
+              id={
+                /*@tag<export-dimension-switch>*/ "export-dimension-switch-vcdat"
+              }
               name="dimensionsSwitch"
               label="Custom dimensions"
               checked={this.state.displayDimensions}
@@ -214,7 +213,9 @@ export class ExportPlotModal extends React.Component<
                 <br />
                 <Label for="width">Width</Label>
                 <Input
-                  className=/*@tag<export-width-input>*/ "export-width-input-vcdat"
+                  className={
+                    /*@tag<export-width-input>*/ "export-width-input-vcdat"
+                  }
                   type="number"
                   name="width"
                   placeholder="Width"
@@ -223,7 +224,9 @@ export class ExportPlotModal extends React.Component<
                 />
                 <Label for="height">Height</Label>
                 <Input
-                  className=/*@tag<export-height-input>*/ "export-height-input-vcdat"
+                  className={
+                    /*@tag<export-height-input>*/ "export-height-input-vcdat"
+                  }
                   type="number"
                   name="height"
                   placeholder="Height"
@@ -235,8 +238,10 @@ export class ExportPlotModal extends React.Component<
           </div>
           <br />
           <CustomInput
-            id=/*@tag<export-capture-provenance-switch>*/ "export-capture-provenance-switch-vcdat"
-            type="switch"           
+            id={
+              /*@tag<export-capture-provenance-switch>*/ "export-capture-provenance-switch-vcdat"
+            }
+            type="switch"
             name="customSwitch"
             label="Capture Provenance"
             disabled={this.state.disableProvenance}
@@ -246,14 +251,16 @@ export class ExportPlotModal extends React.Component<
         </ModalBody>
         <ModalFooter>
           <Button
-            className=/*@tag<export-button>*/ "export-button-vcdat"
+            className={/*@tag<export-button>*/ "export-button-vcdat"}
             color="primary"
             onClick={this.save}
           >
             Export
           </Button>{" "}
           <Button
-            className=/*@tag<export-cancel-button>*/ "export-cancel-button-vcdat"
+            className={
+              /*@tag<export-cancel-button>*/ "export-cancel-button-vcdat"
+            }
             color="secondary"
             onClick={this.toggleModal}
           >
@@ -275,7 +282,7 @@ export class ExportPlotModal extends React.Component<
           };
           return (
             <Button
-              className=/*@tag<export-format-btn>*/ "export-format-btn-vcdat"
+              className={/*@tag<export-format-btn>*/ "export-format-btn-vcdat"}
               key={format}
               color="primary"
               onClick={clickHandler}
@@ -301,7 +308,7 @@ export class ExportPlotModal extends React.Component<
           };
           return (
             <Button
-              className=/*@tag<export-unit-btn>*/ "export-unit-btn-vcdat"
+              className={/*@tag<export-unit-btn>*/ "export-unit-btn-vcdat"}
               key={unit}
               color="primary"
               onClick={clickHandler}
