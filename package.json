@@ -37,7 +37,8 @@
     "lint-file": "npx tslint ",
     "lint-fix-file": "npx tslint --fix ",
     "format": "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
-    "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
+    "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py",
+    "test-quick": "nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_1"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [

@@ -112,10 +112,10 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
     return (
       <div>
         <Card style={cardStyle}>
-          <CardBody className={/*@tag<varcard-main>*/ "varcard-main-vcdat"}>
+          <CardBody>
             <CardTitle>
               <div style={centered}>
-                <Row>
+                <Row className={/*@tag<varcard-main>*/ "varcard-main-vcdat"}>
                   <Col xs="sm-5">
                     <Button
                       className={

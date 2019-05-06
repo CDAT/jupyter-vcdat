@@ -75,7 +75,7 @@ export class DimensionSlider extends React.Component<
 
     // Set slider values and formatting
     let format: any;
-    let pValues = props.data;
+    const pValues = props.data;
     if (_.includes(props.units, "since")) {
       const [span, , startTime] = props.units.split(" ");
       switch (span) {
@@ -102,16 +102,6 @@ export class DimensionSlider extends React.Component<
           .format(format);
       };
       this.formatter.bind(this);
-    }
-
-    // Calculate values based on modulo
-    if (props.modulo) {
-      const newPossibleValues = [];
-      const step = Math.abs(props.data[0] - props.data[1]);
-      for (let i = -props.modulo; i <= props.modulo; i += step) {
-        newPossibleValues.push(i);
-      }
-      pValues = newPossibleValues;
     }
 
     // Calculate display tick values and values
@@ -178,7 +168,7 @@ export class DimensionSlider extends React.Component<
 
   public render(): JSX.Element {
     return (
-      <div className={/*@tag<dimension-slider>*/ "slider-main-vcdat"}>
+      <div className={/*@tag<dimension-slider>*/ "dimension-slider-vcdat"}>
         {!this.singleValue && (
           <div className={"form-inline"}>
             <div style={centered}>
