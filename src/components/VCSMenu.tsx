@@ -510,6 +510,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       exportAlerts: this.exportPlotAlerts,
       getCanvasDimensions: this.getCanvasDimensions,
       isOpen: this.state.isModalOpen,
+      notebookPanel: this.state.notebookPanel,
       setPlotInfo: this.setPlotInfo,
       toggle: this.toggleModal
     };

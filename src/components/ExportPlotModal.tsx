@@ -1,5 +1,6 @@
 // Dependencies
 import * as React from "react";
+import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Alert,
   Button,
@@ -16,12 +17,14 @@ import {
 
 // Project Components
 import { CodeInjector } from "../CodeInjector";
-import { EXPORT_FORMATS, IMAGE_UNITS } from "../constants";
+import { NotebookUtilities } from "../NotebookUtilities";
+import { EXPORT_FORMATS, IMAGE_UNITS, OUTPUT_RESULT_NAME } from "../constants";
 
 export interface IExportPlotModalProps {
   isOpen: boolean;
   toggle: () => void;
   exportAlerts: () => void;
+  notebookPanel: NotebookPanel;
   setPlotInfo: (plotName: string, plotFormat: string) => void;
   codeInjector: CodeInjector;
   // a method that gets the current plot dimensions
@@ -37,6 +40,7 @@ interface IExportPlotModalState {
   displayDimensions: boolean;
   disableProvenance: boolean;
   captureProvenance: boolean;
+  notebookPanel: NotebookPanel;
   width: string;
   height: string;
   plotUnits: IMAGE_UNITS;
@@ -54,6 +58,7 @@ export class ExportPlotModal extends React.Component<
       displayDimensions: false,
       height: "",
       modal: false,
+      notebookPanel: this.props.notebookPanel,
       plotFileFormat: "",
       plotName: "",
       plotUnits: "px",
@@ -134,6 +139,12 @@ export class ExportPlotModal extends React.Component<
     );
     this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
     this.props.exportAlerts();
+    const plotFileName = `${plotName}.${fileFormat}`;
+    const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+      this.state.notebookPanel,
+      `import os\nimport time\nwhile not os.path.exists(os.path.join(os.getcwd(), ${plotFileName}):\n\ttime.sleep(1)\n${OUTPUT_RESULT_NAME}=True\n`
+    );
+    console.log("result output:", result);
     this.toggleModal();
     this.setState({ displayDimensions: false });
   }
