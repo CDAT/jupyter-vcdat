@@ -63,7 +63,7 @@ class LocatorBaseTestCase(unittest.TestCase):
         chrome_options.add_argument(mode)
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("window-size=1200x600")
-        self.driver = webdriver.Chrome(executable_path=os.getenv("BROWSER_BINARY", "/usr/local/bin/chromedriver"),
+        self.driver = webdriver.Chrome(executable_path=os.getenv("BROWSER_DRIVER", "/usr/local/bin/chromedriver"),
                                        chrome_options=chrome_options,
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
 

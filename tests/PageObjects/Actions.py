@@ -12,6 +12,7 @@ class Actions(object):
 
     _wait_timeout = 10
     _delay = 0.5
+    _a_bit_delay = 0.5
 
     def __init__(self, driver, server):
         self.driver = driver

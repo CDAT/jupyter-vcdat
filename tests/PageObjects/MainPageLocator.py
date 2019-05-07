@@ -1,6 +1,8 @@
 from Actions import Actions
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
+
+import time
 
 VCDAT_LEFT_SIDEBAR_ID = "left-side-bar-vcdat"
 VCDAT_ICON_CLASS = "jp-icon-vcdat"
@@ -36,12 +38,14 @@ class MainPageLocator(Actions):
         '''
         click the tab element ('File', 'Edit', 'View', 'Run'...)
         '''
+        locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), '{}')]".format(name)
         try:
-            item_locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), '{n}')]".format(
-                n=name)
-            self.wait_click(By.XPATH, item_locator)
+            element = self.find_element_by_xpath(locator,
+                                                 "top menu item name: {}".format(name))
+            time.sleep(self._a_bit_delay)
+            ActionChains(self.driver).move_to_element(element).click().perform()
         except NoSuchElementException as e:
-            print("NoSuchElementException...not finding '{n}'".format(n=name))
+            print("...did not find tab for '{}'".format(name))
             raise e
 
     def select_file_tab(self):
