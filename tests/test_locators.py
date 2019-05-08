@@ -78,7 +78,7 @@ class TestLocators(LocatorBaseTestCase):
         locator.select_jp_tool_bar_icon("Upload Files")
         locator.select_jp_tool_bar_icon("Refresh File List")
 
-    def ABCtest_new_notebook(self):
+    def test_new_notebook(self):
 
         print("\n\n...{}...".format(self._testMethodName))
         locator = self.main_page
@@ -86,12 +86,6 @@ class TestLocators(LocatorBaseTestCase):
         locator.click_on_submenu("New")
         locator.click_on_submenu_with_data_command("notebook:create-new", "Notebook")
         locator.click_on_select_kernel()
-
-    def test_new_notebook(self):
-        print("\n\n...test_new_notebook...")
-        locator = self.main_page
-        locator.click_on_new_launcher_icon()
-        
 
     def test_all_locators(self):
         '''
