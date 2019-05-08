@@ -7,6 +7,7 @@ sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
 from MainPageLocator import MainPageLocator
+from NoteBookPage import NoteBookPage
 from LocatorBaseTestCase import LocatorBaseTestCase
 
 # from selenium.webdriver.firefox.options import Options
@@ -86,6 +87,11 @@ class TestLocators(LocatorBaseTestCase):
         locator.click_on_submenu("New")
         locator.click_on_submenu_with_data_command("notebook:create-new", "Notebook")
         locator.click_on_select_kernel()
+
+    def test_new_notebook_use_launcher(self):
+        print("\n\n...test_new_notebook...")
+        notebook = NoteBookPage(self.driver, None)
+        notebook.new_notebook("Python 3")
 
     def test_all_locators(self):
         '''

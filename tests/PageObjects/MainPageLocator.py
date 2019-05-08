@@ -65,7 +65,9 @@ class MainPageLocator(Actions):
         click on submenu item that has 'data-command' attribute
         '''
         try:
-            submenu_locator = "//li[@data-command='{dc}']//div[@class='p-Menu-itemLabel'][contains(text(), '{name}')]".format(dc=submenu_data_command, name=submenu_name)
+            data_command = "//li[@data-command='{dc}']".format(dc=submenu_data_command)
+            text_label = "//div[@class='p-Menu-itemLabel'][contains(text(), '{name}')]".format(name=submenu_name)
+            submenu_locator = "{dc}{text}".format(dc=data_command, text=text_label)
             print("DEBUG....submenu_locator: {}".format(submenu_locator))
             submenu = self.find_element_by_xpath(submenu_locator,
                                                  "sub menu item name: {}".format(submenu_locator))
@@ -87,11 +89,12 @@ class MainPageLocator(Actions):
         return self.find_element_by_class("jp-PaletteIcon", "Jupyter lab command palette tab")
 
     def select_vcdat_icon(self):
-        return self.find_element_by_class(VCDAT_ICON_CLASS, "VCDAT icon")
+        # return self.find_element_by_class(VCDAT_ICON_CLASS, "VCDAT icon")
+        # cl = "p-TabBar-tabIcon jp-SideBar-tabIcon jp-icon-vcdat"
+        return self.find_element_by_class("jp-icon-vcdat", "VCDAT icon")
 
     def select_open_tabs_tab(self):
         return self.find_element_by_class("jp-SideBar-tabIcon", "Jupyter lab open tabs sidebar tab")
-
 
     def select_notebook_launcher_cards(self):
         try:
@@ -128,14 +131,14 @@ class MainPageLocator(Actions):
             "jp-folder": {'class': "jp-FolderIcon", 'descr': "Jupyter lab file tab"},
             "jp-direction-run": {'class': "jp-DirectionsRunIcon", 'descr': "Running terminals and kernels tab"},
             "jp-pallette": {'class': "jp-PaletteIcon", 'descr': "Jupyter lab command palette tab"},
-            "vcdat-icon" : {'class': VCDAT_ICON_CLASS, 'descr': "VCDAT icon"},
-            "jp-tab-icon" : {'class': "jp-SideBar-tabIcon", 'descr': "Jupyter lab open tabs sidebar tab"}
+            "vcdat-icon": {'class': VCDAT_ICON_CLASS, 'descr': "VCDAT icon"},
+            "jp-tab-icon": {'class': "jp-SideBar-tabIcon", 'descr': "Jupyter lab open tabs sidebar tab"}
             }
         tab_class = tab_mapping[tab_name]["class"]
         tab_descr = tab_mapping[tab_name]["descr"]
         element = self.find_element_by_class(tab_class, tab_descr)
         # time.sleep(self._a_bit_delay)
-        ActionChains(self.driver).move_to_element(element).click().perform()        
+        ActionChains(self.driver).move_to_element(element).click().perform()
         time.sleep(self._delay)
 
     def click_on_jp_folder_icon(self):
@@ -176,22 +179,23 @@ class MainPageLocator(Actions):
         except NoSuchElementException as e:
             print("Did not find jp tool bar '{}' icon".format(icon_title))
             raise e
+        return element
 
     def click_on_jp_tool_bar_icon(self, icon_title):
-        element = select_jp_tool_bar_icon(icon_title)
+        element = self.select_jp_tool_bar_icon(icon_title)
         self.move_to_click(element)
 
     def click_on_new_launcher_icon(self):
-        click_on_jp_tool_bar_icon("New Launcher")
+        self.click_on_jp_tool_bar_icon("New Launcher")
 
     def click_on_new_folder_icon(self):
-        click_on_jp_tool_bar_icon("New Folder")
+        self.click_on_jp_tool_bar_icon("New Folder")
 
     def click_on_upload_files_icon(self):
-        click_on_jp_tool_bar_icon("Upload Files")
+        self.click_on_jp_tool_bar_icon("Upload Files")
 
     def click_on_refresh_file_list_icon(self):
-        click_on_jp_tool_bar_icon("Refresh File List")
+        self.click_on_jp_tool_bar_icon("Refresh File List")
 
     #
     #
@@ -224,7 +228,6 @@ class MainPageLocator(Actions):
                 shutdown_kernel_locator)
         except NoSuchElementException:
             print("No need to shutdown kernel")
-        
 
     """
     def find_tab(self, tab_name):
