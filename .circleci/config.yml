@@ -26,6 +26,8 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
+       git checkout -b ${CIRCLE_BRANCH}
+       git pull origin ${CIRCLE_BRANCH}
        ./install_script.sh
        conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner cdat_info
 

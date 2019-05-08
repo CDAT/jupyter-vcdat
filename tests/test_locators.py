@@ -82,13 +82,16 @@ class TestLocators(LocatorBaseTestCase):
 
         print("\n\n...{}...".format(self._testMethodName))
         locator = self.main_page
-        print(".. attempting to click top item...")
-        # locator.click_top_menu_submenu("File", "New")
-        # locator.click_top_menu_submenu_submenu("File", "New", "Notebook")
         locator.click_top_menu_item("File")
         locator.click_on_submenu("New")
         locator.click_on_submenu_with_data_command("notebook:create-new", "Notebook")
         locator.click_on_select_kernel()
+
+    def test_new_notebook(self):
+        print("\n\n...test_new_notebook...")
+        locator = self.main_page
+        locator.click_on_new_launcher_icon()
+        
 
     def test_all_locators(self):
         '''
