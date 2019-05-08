@@ -43,6 +43,7 @@ class Actions(object):
 
     def find_element_by_class(self, class_name, descr):
         try:
+            print("xxx xxx find_element_by_class, class_name: '{}'".format(class_name))
             element = self.driver.find_element_by_class_name(class_name)
             print("FOUND {}".format(descr))
         except NoSuchElementException as e:
