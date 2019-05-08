@@ -24,8 +24,10 @@ export interface IExportPlotModalProps {
   isOpen: boolean;
   toggle: () => void;
   exportAlerts: () => void;
+  dismissSavePlotSpinnerAlert: () => void;
   notebookPanel: NotebookPanel;
   setPlotInfo: (plotName: string, plotFormat: string) => void;
+  showExportSuccessAlert: () => void;
   codeInjector: CodeInjector;
   // a method that gets the current plot dimensions
   getCanvasDimensions: () => Promise<{ width: string; height: string }>;
@@ -52,6 +54,7 @@ export class ExportPlotModal extends React.Component<
 > {
   constructor(props: IExportPlotModalProps) {
     super(props);
+    console.log("ExportPlotModal props in constructor:", this.props);
     this.state = {
       captureProvenance: false,
       disableProvenance: true,
@@ -140,11 +143,38 @@ export class ExportPlotModal extends React.Component<
     this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
     this.props.exportAlerts();
     const plotFileName = `${plotName}.${fileFormat}`;
-    const result: string = await NotebookUtilities.sendSimpleKernelRequest(
-      this.state.notebookPanel,
-      `import os\nimport time\nwhile not os.path.exists(os.path.join(os.getcwd(), ${plotFileName}):\n\ttime.sleep(1)\n${OUTPUT_RESULT_NAME}=True\n`
-    );
-    console.log("result output:", result);
+    // console.log("ExportPlotModal state:", this.state)
+    // console.log("plotFileName:", plotFileName)
+    // console.log("ExportPlotModal props in save:", this.props);
+    // console.log("this.state.notebookPanel:", this.state.notebookPanel)
+    // console.log("this.props.notebookPanel:", this.props.notebookPanel)
+    try {
+      const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+        this.props.notebookPanel,
+        `import os\n\
+import time\n\
+def check_for_exported_file():\n\
+  exported_file_path = os.path.join(os.getcwd(), '${plotFileName}')\n\
+  counter = 0\n\
+  while not os.path.exists(exported_file_path):\n\
+    time.sleep(1)\n\
+    counter +=1\n\
+    if counter == 15:\n\
+      raise Exception("Exporting plot timed out.")\n\
+  return True\n\
+${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
+      );
+      console.log("result output:", result);
+      console.assert(result === "True", "assertion failed.");
+      if (result === "True") {
+        console.log("File found");
+        console.log("Dismissing alert");
+        this.props.dismissSavePlotSpinnerAlert();
+        this.props.showExportSuccessAlert();
+      }
+    } catch (error) {
+      console.log("error with checking file:", error);
+    }
     this.toggleModal();
     this.setState({ displayDimensions: false });
   }
