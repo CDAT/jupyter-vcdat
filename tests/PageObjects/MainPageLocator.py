@@ -91,7 +91,8 @@ class MainPageLocator(Actions):
     def select_vcdat_icon(self):
         # return self.find_element_by_class(VCDAT_ICON_CLASS, "VCDAT icon")
         # cl = "p-TabBar-tabIcon jp-SideBar-tabIcon jp-icon-vcdat"
-        return self.find_element_by_class("jp-icon-vcdat", "VCDAT icon")
+        loc = "//div[@class='p-TabBar-tabIcon jp-SideBar-tabIcon jp-icon-vcdat']"
+        return self.find_element_by_xpath(loc, "VCDAT icon")
 
     def select_open_tabs_tab(self):
         return self.find_element_by_class("jp-SideBar-tabIcon", "Jupyter lab open tabs sidebar tab")
