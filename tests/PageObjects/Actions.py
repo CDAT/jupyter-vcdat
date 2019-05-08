@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 
 """ All page objects inherit from this """
 
@@ -93,6 +94,10 @@ class Actions(object):
             print("NoSuchElementException...not finding '{}'".format(descr))
             raise e
         return elements
+
+    def move_to_click(self, element):
+        time.sleep(self._a_bit_delay)
+        ActionChains(self.driver).move_to_element(element).click().perform()
 
     def scroll_click(self, element):
         try:

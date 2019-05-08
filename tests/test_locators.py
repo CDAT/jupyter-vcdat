@@ -18,10 +18,8 @@ class TestLocators(LocatorBaseTestCase):
         '''
             Obtaining all top menu jupyter locators
         '''
-        print("\n\n...test_jupyter_top_locators...")
-        print("xxx xxx xxx {t}".format(t=self._testMethodName))
-
-        locator = MainPageLocator(self.driver, self.server)
+        print("\n\n...test_jupyter_top_menu_locators...")
+        locator = self.main_page
 
         # Select each element in the top left menu bar
         locator.select_top_menu_item("File")
@@ -38,9 +36,7 @@ class TestLocators(LocatorBaseTestCase):
             Obtaining all left tab jupyter locators
         '''
         print("\n\n...test_jupyter_left_tab_locators...")
-        print("xxx xxx xxx {t}".format(t=self._testMethodName))
-
-        locator = MainPageLocator(self.driver, self.server)
+        locator = self.main_page
 
         # Select each left sidebar tab
         locator.select_file_tab()
@@ -53,9 +49,7 @@ class TestLocators(LocatorBaseTestCase):
         '''
             Obtaining jupyter launcher locators.
         '''
-        print("\n\n...test_jupyter_left_tab_locators...")
-        print("xxx xxx xxx {t}".format(t=self._testMethodName))
-
+        print("\n\n...test_launcher_locators...")
         locator = MainPageLocator(self.driver, self.server)
 
         # Select each notebook launcher
@@ -63,13 +57,38 @@ class TestLocators(LocatorBaseTestCase):
         locator.select_notebook_launcher("Python [conda env:jupyter-vcdat] *")
 
     def test_open_widgets(self):
+        print("\n\n...test_open_widgets...")
+        # locator = MainPageLocator(self.driver, self.server)
+        locator = self.main_page
 
-        print("\n\n...test_jupyter_left_tab_locators...")
-        print("xxx xxx xxx {t}".format(t=self._testMethodName))
-        locator = MainPageLocator(self.driver, self.server)
+        locator.click_on_jp_folder_icon()
+        locator.click_on_jp_direction_run_icon()
+        locator.click_on_jp_pallette_icon()
+        locator.click_on_vcdat_icon()
+        locator.click_on_jp_tab_icon()
 
+    def test_jp_tool_bar(self):
+        '''
+           locate all jupyter tool bar icons
+        '''
+        locator = self.main_page
+
+        locator.select_jp_tool_bar_icon("New Launcher")
+        locator.select_jp_tool_bar_icon("New Folder")
+        locator.select_jp_tool_bar_icon("Upload Files")
+        locator.select_jp_tool_bar_icon("Refresh File List")
+
+    def ABCtest_new_notebook(self):
+
+        print("\n\n...{}...".format(self._testMethodName))
+        locator = self.main_page
         print(".. attempting to click top item...")
+        # locator.click_top_menu_submenu("File", "New")
+        # locator.click_top_menu_submenu_submenu("File", "New", "Notebook")
         locator.click_top_menu_item("File")
+        locator.click_on_submenu("New")
+        locator.click_on_submenu_with_data_command("notebook:create-new", "Notebook")
+        locator.click_on_select_kernel()
 
     def test_all_locators(self):
         '''

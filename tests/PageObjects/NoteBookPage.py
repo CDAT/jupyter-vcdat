@@ -35,10 +35,11 @@ class NoteBookPage(MainPage):
 
     def new_notebook(self):
         print("...new_notebook...")
-        self.click_on_tab('File')
-        notebook_locator_constraint = "notebook:create-new"
-        self.find_menu_item_from_tab_drop_down_find_submenu_with_command('New', notebook_locator_constraint)
-        self.select_kernel()
+        # self.click_on_tab('File')
+        # notebook_locator_constraint = "notebook:create-new"
+        # self.find_menu_item_from_tab_drop_down_find_submenu_with_command('New', notebook_locator_constraint)
+        # self.click_on_select_kernel()
+
 
     def save_current_notebook(self):
         print("...save_current_notebook...")

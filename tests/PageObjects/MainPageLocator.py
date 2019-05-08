@@ -28,7 +28,6 @@ class MainPageLocator(Actions):
         try:
             item_element = self.find_element_by_xpath(
                 item_locator, " top menu item {n}".format(n=name))
-            print("FOUND '{n}' top menu item.".format(n=name))
             return item_element
         except NoSuchElementException as e:
             print("NoSuchElementException...not finding '{n}'".format(n=name))
@@ -38,14 +37,44 @@ class MainPageLocator(Actions):
         '''
         click the tab element ('File', 'Edit', 'View', 'Run'...)
         '''
-        locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), '{}')]".format(name)
         try:
-            element = self.find_element_by_xpath(locator,
-                                                 "top menu item name: {}".format(name))
+            element = self.select_top_menu_item(name)
             time.sleep(self._a_bit_delay)
             ActionChains(self.driver).move_to_element(element).click().perform()
         except NoSuchElementException as e:
             print("...did not find tab for '{}'".format(name))
+            raise e
+
+    def click_on_submenu(self, submenu_name):
+        '''
+        click on submenu that shows up as a result of click_top_menu_item()
+        '''
+        try:
+            submenu_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{}')]".format(submenu_name)
+            print("DEBUG....submenu_locator: {}".format(submenu_locator))
+            submenu = self.find_element_by_xpath(submenu_locator,
+                                                 "sub menu item name: {}".format(submenu_name))
+            time.sleep(self._a_bit_delay * 2)
+            ActionChains(self.driver).move_to_element(submenu).click().perform()
+            time.sleep(5)
+        except NoSuchElementException as e:
+            raise e
+
+    def click_on_submenu_with_data_command(self, submenu_data_command, submenu_name):
+        '''
+        click on submenu item that has 'data-command' attribute
+        '''
+        try:
+            submenu_locator = "//li[@data-command='{dc}']//div[@class='p-Menu-itemLabel'][contains(text(), '{name}')]".format(dc=submenu_data_command, name=submenu_name)
+            print("DEBUG....submenu_locator: {}".format(submenu_locator))
+            submenu = self.find_element_by_xpath(submenu_locator,
+                                                 "sub menu item name: {}".format(submenu_locator))
+            time.sleep(self._a_bit_delay * 2)
+            ActionChains(self.driver).move_to_element(submenu).click().perform()
+            print("DEBUG...after clicking")
+            time.sleep(10)
+
+        except NoSuchElementException as e:
             raise e
 
     def select_file_tab(self):
@@ -62,6 +91,7 @@ class MainPageLocator(Actions):
 
     def select_open_tabs_tab(self):
         return self.find_element_by_class("jp-SideBar-tabIcon", "Jupyter lab open tabs sidebar tab")
+
 
     def select_notebook_launcher_cards(self):
         try:
@@ -89,6 +119,112 @@ class MainPageLocator(Actions):
             print(
                 "NoSuchElementException...did not find specified launcher {}".format(title))
             raise e
+
+    #
+    # click on icons on left side bar
+    #
+    def click_on_left_side_tab(self, tab_name):
+        tab_mapping = {
+            "jp-folder": {'class': "jp-FolderIcon", 'descr': "Jupyter lab file tab"},
+            "jp-direction-run": {'class': "jp-DirectionsRunIcon", 'descr': "Running terminals and kernels tab"},
+            "jp-pallette": {'class': "jp-PaletteIcon", 'descr': "Jupyter lab command palette tab"},
+            "vcdat-icon" : {'class': VCDAT_ICON_CLASS, 'descr': "VCDAT icon"},
+            "jp-tab-icon" : {'class': "jp-SideBar-tabIcon", 'descr': "Jupyter lab open tabs sidebar tab"}
+            }
+        tab_class = tab_mapping[tab_name]["class"]
+        tab_descr = tab_mapping[tab_name]["descr"]
+        element = self.find_element_by_class(tab_class, tab_descr)
+        # time.sleep(self._a_bit_delay)
+        ActionChains(self.driver).move_to_element(element).click().perform()        
+        time.sleep(self._delay)
+
+    def click_on_jp_folder_icon(self):
+        '''
+        click on jp folder icon on left side
+        '''
+        self.click_on_left_side_tab('jp-folder')
+        # validate that there is a 'New Launcher' icon (+)
+
+    def click_on_jp_direction_run_icon(self):
+        self.click_on_left_side_tab('jp-direction-run')
+
+    def click_on_jp_pallette_icon(self):
+        self.click_on_left_side_tab('jp-pallette')
+
+    def click_on_vcdat_icon(self):
+        self.click_on_left_side_tab('vcdat-icon')
+
+    def click_on_jp_tab_icon(self):
+        self.click_on_left_side_tab('jp-tab-icon')
+
+    #
+    # select jp tool bar icon
+    #
+    def select_jp_tool_bar_icon(self, icon_title):
+        '''
+        clicks on the specified icon on the jp tool bar.
+        icon_title: title/name of icon, can be one of these:
+            "New Launcher"
+            "New Folder"
+            "Upload Files"
+            "Refresh File List"
+        '''
+        # all jp tool bar buttons are of class 'jp-ToolbarButtonComponent'
+        loc = "//button[@class='jp-ToolbarButtonComponent' and @title='{}']".format(icon_title)
+        try:
+            element = self.find_element_by_xpath(loc, icon_title)
+        except NoSuchElementException as e:
+            print("Did not find jp tool bar '{}' icon".format(icon_title))
+            raise e
+
+    def click_on_jp_tool_bar_icon(self, icon_title):
+        element = select_jp_tool_bar_icon(icon_title)
+        self.move_to_click(element)
+
+    def click_on_new_launcher_icon(self):
+        click_on_jp_tool_bar_icon("New Launcher")
+
+    def click_on_new_folder_icon(self):
+        click_on_jp_tool_bar_icon("New Folder")
+
+    def click_on_upload_files_icon(self):
+        click_on_jp_tool_bar_icon("Upload Files")
+
+    def click_on_refresh_file_list_icon(self):
+        click_on_jp_tool_bar_icon("Refresh File List")
+
+    #
+    #
+    #
+
+    def click_on_select_kernel(self):
+        '''
+        click on the 'SELECT' button in the 'Select Kernel' pop up.
+        '''
+        select_kernel_popup_locator = "//span[contains(text(), 'Select Kernel')]"
+        kernel_select_button_locator = "//button//div[contains(text(), 'SELECT')]"
+
+        print("...click on 'SELECT' in the 'Select Kernel' pop up")
+        try:
+            self.find_element_by_xpath(select_kernel_popup_locator, "Select Kernel popup")
+            el = self.find_element_by_xpath(kernel_select_button_locator, "Kernel Select button")
+            time.sleep(self._a_bit_delay)
+            self.move_to_click(el)
+            time.sleep(self._delay)
+        except NoSuchElementException as e:
+            print("did not find 'Select Kernel' pop up")
+            raise e
+
+    def shutdown_kernel(self):
+        print("...shutdown kernel if need to...")
+        self.find_tab_and_click('Kernel')
+        try:
+            shutdown_kernel_locator = "kernelmenu:shutdown"
+            self.find_menu_item_with_command_from_tab_drop_down_and_click(
+                shutdown_kernel_locator)
+        except NoSuchElementException:
+            print("No need to shutdown kernel")
+        
 
     """
     def find_tab(self, tab_name):
@@ -204,31 +340,4 @@ class MainPageLocator(Actions):
         self.find_tab_and_click(tab)
         time.sleep(self._delay)
 
-    def select_kernel(self):
-        '''
-        click on the 'SELECT' button in the 'Select Kernel' pop up.
-        '''
-        select_kernel_popup_locator = "//span[contains(text(), 'Select Kernel')]"
-        kernel_select_button_locator = "//button//div[contains(text(), 'SELECT')]"
-
-        print("...click on 'SELECT' in the 'Select Kernel' pop up")
-        try:
-            self.driver.find_element_by_xpath(select_kernel_popup_locator)
-            time.sleep(self._delay)
-            self.find_element_by_xpath_and_click(
-                kernel_select_button_locator, "Kernel Select button")
-            time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print("did not find 'Select Kernel' pop up")
-            raise e
-
-    def shutdown_kernel(self):
-        print("...shutdown kernel if need to...")
-        self.find_tab_and_click('Kernel')
-        try:
-            shutdown_kernel_locator = "kernelmenu:shutdown"
-            self.find_menu_item_with_command_from_tab_drop_down_and_click(
-                shutdown_kernel_locator)
-        except NoSuchElementException:
-            print("No need to shutdown kernel")
     """
