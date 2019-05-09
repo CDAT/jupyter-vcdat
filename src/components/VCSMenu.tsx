@@ -19,9 +19,9 @@ import {
   CANVAS_DIMENSIONS_CMD,
   GRAPHICS_METHOD_KEY,
   MAX_SLABS,
+  SELECTED_VARIABLES_KEY,
   TEMPLATE_KEY,
   VARIABLE_SOURCES_KEY,
-  VARIABLES_KEY,
   VARIABLES_LOADED_KEY
 } from "../constants";
 import { NotebookUtilities } from "../NotebookUtilities";
@@ -31,6 +31,7 @@ import TemplateMenu from "./TemplateMenu";
 import { Variable } from "./Variable";
 import VarMenu from "./VarMenu";
 import { Utilities } from "../Utilities";
+import { VariableTracker } from "../VariableTracker";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -58,18 +59,19 @@ interface IVCSMenuProps {
   getGraphicsList: () => any; // function that reads the current graphics list
   refreshGraphicsList: () => Promise<void>; // function that refreshes the graphics method list
   getTemplatesList: () => string[]; // function that reads the widget's current template list
-  getFileVariables: (filePath: string) => Promise<Variable[]>; // Function that reads the current notebook file and retrieves variable data
-  updateVariables: (variables: Variable[]) => void; // function that updates the variables list in the main widget
+  // getFileVariables: (filePath: string) => Promise<Variable[]>; // Function that reads the current notebook file and retrieves variable data
+  // updateVariables: (variables: Variable[]) => void; // function that updates the variables list in the main widget
   updateNotebookPanel: () => Promise<void>; // Function passed to the var menu
   syncNotebook: () => boolean; // Function passed to the var menu
   codeInjector: CodeInjector;
+  varTracker: VariableTracker;
 }
 interface IVCSMenuState {
   plotReady: boolean; // are we ready to plot
   plotExists: boolean; // whether a plot already exists
-  variables: Variable[]; // All the variables, loaded from files and derived by users
-  variableSources: { [varName: string]: string }; // Tracks what data reader each variable came from
-  selectedVariables: string[]; // Unique names of all the variables that are currently selected
+  // variables: Variable[]; // All the variables, loaded from files and derived by users
+  // variableSources: { [varName: string]: string }; // Tracks what data reader each variable came from
+  // selectedVariables: string[]; // Unique names of all the variables that are currently selected
   selectedGM: string;
   selectedGMgroup: string;
   selectedTemplate: string;
@@ -100,29 +102,28 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       savePlotAlert: false,
       selectedGM: "",
       selectedGMgroup: "",
-      selectedTemplate: "",
-      selectedVariables: Array<string>(),
-      variableSources: {},
-      variables: Array<Variable>()
+      selectedTemplate: ""
+      // selectedVariables: Array<string>(),
+      // variableSources: {},
+      // variables: Array<Variable>()
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
     this.plot = this.plot.bind(this);
     this.clear = this.clear.bind(this);
-    this.saveNotebook = this.saveNotebook.bind(this);
     this.resetState = this.resetState.bind(this);
     this.getCanvasDimensions = this.getCanvasDimensions.bind(this);
     this.copyGraphicsMethod = this.copyGraphicsMethod.bind(this);
     this.getGraphicsSelections = this.getGraphicsSelections.bind(this);
-    this.getVariableSelections = this.getVariableSelections.bind(this);
+    // this.getVariableSelections = this.getVariableSelections.bind(this);
     this.getTemplateSelection = this.getTemplateSelection.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
     this.launchVarSelect = this.launchVarSelect.bind(this);
     this.updatePlotReady = this.updatePlotReady.bind(this);
-    this.updateVariables = this.updateVariables.bind(this);
-    this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
+    // this.updateVariables = this.updateVariables.bind(this);
+    // this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
     this.exportPlotAlerts = this.exportPlotAlerts.bind(this);
@@ -131,10 +132,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     );
     this.dismissExportSuccessAlert = this.dismissExportSuccessAlert.bind(this);
     this.setPlotInfo = this.setPlotInfo.bind(this);
-  }
-
-  public saveNotebook(): void {
-    this.state.notebookPanel.context.save();
+    this.saveNotebook = this.saveNotebook.bind(this);
   }
 
   public setPlotInfo(plotName: string, plotFormat: string) {
@@ -170,17 +168,21 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.setState({ overlayMode: !this.state.overlayMode });
   }
 
+  public saveNotebook() {
+    NotebookUtilities.saveNotebook(this.props.notebookPanel);
+  }
+
   public async resetState(): Promise<void> {
-    this.varMenuRef.resetVarMenuState();
+    // this.varMenuRef.resetVarMenuState();
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
     this.setState({
       plotReady: false,
       selectedGM: "",
       selectedGMgroup: "",
-      selectedTemplate: "",
-      selectedVariables: Array<string>(),
-      variables: Array<Variable>()
+      selectedTemplate: ""
+      // selectedVariables: Array<string>(),
+      // variables: Array<Variable>()
     });
   }
 
@@ -208,11 +210,11 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     }
   }
 
-  public getVariableSelections(): void {
+  /*public getVariableSelections(): void {
     // Load the selected graphics method from meta data (if exists)
     const selection: string[] = NotebookUtilities.getMetaDataNow(
       this.state.notebookPanel,
-      VARIABLES_KEY
+      SELECTED_VARIABLES_KEY
     );
 
     // No meta data means fresh notebook with no selections
@@ -227,7 +229,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     // Set state based on meta data from notebook
     this.setState({ selectedVariables: selection });
     this.varMenuRef.setState({ selectedVariables: selection });
-  }
+  }*/
 
   public getGraphicsSelections(): void {
     // Load the selected graphics method from meta data (if exists)
@@ -364,18 +366,12 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     await this.props.codeInjector.loadVariable(variable);
 
     // Save the source of the variable
-    const newSource: { [varName: string]: string } = this.state.variableSources;
+    const newSource: { [varName: string]: string } = this.props.varTracker
+      .variableSources;
     newSource[variable.name] = variable.sourceName;
-    this.setState({ variableSources: newSource });
-    // Also save source to meta data
-    await NotebookUtilities.setMetaData(
-      this.state.notebookPanel,
-      VARIABLE_SOURCES_KEY,
-      newSource,
-      true
-    );
+    this.props.varTracker.variableSources = newSource;
 
-    let currentVars: Variable[] = this.state.variables;
+    let currentVars: Variable[] = this.props.varTracker.variables;
 
     // If no variables are in the list, update meta data and variables list
     if (!currentVars || currentVars.length < 1) {
@@ -395,14 +391,15 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       }
     }
 
-    this.updateVariables(currentVars);
+    // this.updateVariables(currentVars);
+    this.props.varTracker.variables = currentVars;
     // Update meta data
-    await NotebookUtilities.setMetaData(
+    /*await NotebookUtilities.setMetaData(
       this.state.notebookPanel,
       VARIABLES_LOADED_KEY,
       currentVars,
       true
-    );
+    );*/
   }
 
   public updatePlotReady(value: boolean): void {
@@ -416,17 +413,18 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
    */
   public plot(): void {
     try {
-      if (this.state.selectedVariables.length === 0) {
+      if (this.props.varTracker.selectedVariables.length === 0) {
         NotebookUtilities.showMessage(
           "Notice",
           "Please select a variable from the left panel."
         );
       } else {
         // Limit selection to MAX_SLABS
-        let selection: string[] = this.state.selectedVariables;
+        let selection: string[] = this.props.varTracker.selectedVariables;
         if (selection.length > MAX_SLABS) {
           selection = selection.slice(0, MAX_SLABS);
-          this.updateSelectedVariables(selection);
+          this.props.varTracker.selectedVariables = selection;
+          // this.updateSelectedVariables(selection);
         }
 
         // Inject the plot
@@ -457,18 +455,20 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     await this.varMenuRef.launchVarLoader(variables);
   }
 
-  public async updateVariables(variables: Variable[]): Promise<void> {
+  /*public async updateVariables(variables: Variable[]): Promise<void> {
     await this.setState({ variables });
     await this.varMenuRef.setState({ variables });
     await this.varMenuRef.varLoaderRef.setState({ variables });
     this.props.updateVariables(variables);
-  }
+  }*
 
   /**
    * @description Adds a list of variables to the selectedVariables list after checking that they're not already there
    * @param selection the list of variables to add to the selectedVariables list
    */
+  /*
   public async updateSelectedVariables(selection: string[]): Promise<any> {
+    await this.props.varTracker.updateSelectedVariables(selection, true);
     // Update meta data
     await NotebookUtilities.setMetaData(
       this.state.notebookPanel,
@@ -479,7 +479,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       this.setState({ selectedVariables: selection }),
       this.varMenuRef.setState({ selectedVariables: selection })
     ]);
-  }
+  }*/
 
   public render(): JSX.Element {
     const graphicsMenuProps = {
@@ -490,15 +490,16 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       varInfo: new Variable()
     };
     const varMenuProps = {
+      varTracker: this.props.varTracker,
       commands: this.props.commands,
       loadVariable: this.loadVariable,
       saveNotebook: this.saveNotebook,
-      selectedVariables: this.state.selectedVariables,
+      // selectedVariables: this.state.selectedVariables,
       syncNotebook: this.props.syncNotebook,
-      updateNotebook: this.props.updateNotebookPanel,
-      updateSelectedVariables: this.updateSelectedVariables,
-      updateVariables: this.updateVariables,
-      variables: this.state.variables
+      updateNotebook: this.props.updateNotebookPanel
+      // updateSelectedVariables: this.updateSelectedVariables,
+      // updateVariables: this.updateVariables,
+      // variables: this.state.variables
     };
     const templateMenuProps = {
       getTemplatesList: this.props.getTemplatesList,

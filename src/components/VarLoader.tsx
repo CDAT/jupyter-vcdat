@@ -18,7 +18,7 @@ const modalOverflow: React.CSSProperties = {
 interface IVarLoaderProps {
   variables: Variable[]; // list of all currently available variables
   loadFileVariable: (variable: Variable) => Promise<void>; // function to call when user hits load
-  updateSelectedVariables: (selection: string[]) => Promise<any>; // update the list of selected variables
+  updateSelectedVariables: (selection: string[]) => void; // update the list of selected variables
   saveNotebook: () => void; // function that saves the current notebook
 }
 interface IVarLoaderState {
@@ -83,7 +83,7 @@ export class VarLoader extends React.Component<
     });
 
     // Update the main widget's current selected variables
-    await this.props.updateSelectedVariables(this.state.selectedVariables);
+    this.props.updateSelectedVariables(this.state.selectedVariables);
 
     // Reset the state of the var loader when done
     this.setState({

@@ -43,6 +43,21 @@ export class NotebookUtilities {
   }
 
   /**
+   * Safely saves the Jupyter notebook document contents to disk
+   * @param notebookPanel The notebook panel containing the notebook to save
+   */
+  public static async saveNotebook(
+    notebookPanel: NotebookPanel
+  ): Promise<boolean> {
+    if (notebookPanel) {
+      await notebookPanel.context.ready;
+      notebookPanel.context.save();
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * @description Gets the value of a key from specified notebook's metadata.
    * This asynchronous version checks the notebook session is ready before getting metadata.
    * If the notebook is null, an error will occur.
@@ -108,7 +123,7 @@ export class NotebookUtilities {
     await notebookPanel.session.ready;
     const oldVal: any = notebookPanel.content.model.metadata.set(key, value);
     if (save) {
-      await notebookPanel.context.save();
+      this.saveNotebook(notebookPanel);
     }
     return oldVal;
   }
@@ -131,7 +146,7 @@ export class NotebookUtilities {
   ): any {
     const oldVal = notebookPanel.content.model.metadata.set(key, value);
     if (save) {
-      notebookPanel.context.save();
+      this.saveNotebook(notebookPanel);
     }
     return oldVal;
   }

@@ -18,6 +18,7 @@ import { AxisInfo } from "./AxisInfo";
 import { Variable } from "./Variable";
 import { VarLoader } from "./VarLoader";
 import { VarMini } from "./VarMini";
+import { VariableTracker } from "../VariableTracker";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -30,11 +31,12 @@ const formOverflow: React.CSSProperties = {
 
 interface IVarMenuProps {
   loadVariable: (variable: Variable) => Promise<any>; // a method to call when loading the variable
+  varTracker: VariableTracker;
   commands?: any; // the command executer
-  variables: Variable[]; // an array of all current variables
-  selectedVariables: string[]; // array of names for variables that have been selected
-  updateSelectedVariables: (selection: string[]) => Promise<any>; // update the list of selected variables
-  updateVariables: (variables: Variable[]) => Promise<void>; // update the list of all variables
+  // variables: Variable[]; // an array of all current variables
+  // selectedVariables: string[]; // array of names for variables that have been selected
+  // updateSelectedVariables: (selection: string[]) => Promise<any>; // update the list of selected variables
+  // updateVariables: (variables: Variable[]) => Promise<void>; // update the list of all variables
   saveNotebook: () => void; // function that saves the current notebook
   updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
   syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
@@ -53,8 +55,8 @@ export default class VarMenu extends React.Component<
   constructor(props: IVarMenuProps) {
     super(props);
     this.state = {
-      selectedVariables: this.props.selectedVariables,
-      variables: this.props.variables
+      selectedVariables: this.props.varTracker.selectedVariables,
+      variables: this.props.varTracker.variables
     };
     this.varLoaderRef = (React as any).createRef();
     this.launchFilebrowser = this.launchFilebrowser.bind(this);
@@ -63,21 +65,35 @@ export default class VarMenu extends React.Component<
     this.isSelected = this.isSelected.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
-    this.updateDimInfo = this.updateDimInfo.bind(this);
+    // this.updateDimInfo = this.updateDimInfo.bind(this);
     this.reloadVariable = this.reloadVariable.bind(this);
-    this.resetVarMenuState = this.resetVarMenuState.bind(this);
+    this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
+    this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
+    this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
+
+    this.props.varTracker.selectedVariablesChanged.connect(
+      this.handleSelectionChanged
+    );
+    this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
   }
 
-  // Resets the graphics menu to initial, (for when a new notebook is selected)
-  public async resetVarMenuState(): Promise<void> {
-    this.setState({
-      selectedVariables: this.props.selectedVariables,
-      variables: this.props.variables
-    });
+  public handleSelectionChanged(
+    varTracker: VariableTracker,
+    selectedVariables: string[]
+  ): void {
+    this.setState({ selectedVariables });
+  }
+
+  public handleVariablesChanged(
+    varTracker: VariableTracker,
+    variables: Variable[]
+  ): void {
+    this.setState({ variables });
   }
 
   public isSelected(varName: string): boolean {
     return this.state.selectedVariables.indexOf(varName) >= 0;
+    // return this.state.selectedVariables.indexOf(varName) >= 0;
   }
 
   /**
@@ -93,6 +109,7 @@ export default class VarMenu extends React.Component<
   public async launchVarLoader(fileVariables: Variable[]): Promise<void> {
     // Look through current loaded variable names to see if any haven't been loaded
     const unloaded: string[] = Array<string>();
+    // const loadedVars: string[] = this.state.variables.map(
     const loadedVars: string[] = this.state.variables.map(
       (variable: Variable) => {
         return variable.name;
@@ -117,8 +134,10 @@ export default class VarMenu extends React.Component<
    */
   public async loadFileVariable(variable: Variable): Promise<void> {
     // if the variable ISNT already loaded, add it to the loaded list
+    // const newVariables: Variable[] = this.state.variables;
     const newVariables: Variable[] = this.state.variables;
     let replaced: boolean = false;
+    // await this.state.variables.forEach(
     await this.state.variables.forEach(
       async (loadedVar: Variable, idx: number) => {
         if (variable.name === loadedVar.name) {
@@ -136,14 +155,18 @@ export default class VarMenu extends React.Component<
   }
 
   public async selectVariable(variableName: string): Promise<void> {
+    // const idx: number = this.state.selectedVariables.indexOf(variableName);
     const idx: number = this.state.selectedVariables.indexOf(variableName);
 
     if (idx < 0) {
       // Limit number of variables selected by deselecting last element
-      const selection = this.state.selectedVariables;
-      selection.push(variableName);
+      // const selection = this.state.selectedVariables;
+      const newSelection = this.state.selectedVariables;
+      newSelection.push(variableName);
 
-      await this.props.updateSelectedVariables(selection);
+      this.props.varTracker.selectedVariables = newSelection;
+      // this.setState({ selectedVariables: newSelection });
+      // await this.props.updateSelectedVariables(selection);
     }
   }
 
@@ -152,19 +175,24 @@ export default class VarMenu extends React.Component<
    * @param variable the variable to remove from the selected list
    */
   public async deselectVariable(variableName: string): Promise<void> {
+    // const idx: number = this.state.selectedVariables.indexOf(variableName);
     const idx: number = this.state.selectedVariables.indexOf(variableName);
 
     if (idx >= 0) {
+      // const newSelection = this.state.selectedVariables;
       const newSelection = this.state.selectedVariables;
       newSelection.splice(idx, 1);
-      await this.setState(
+      this.props.varTracker.selectedVariables = newSelection;
+      // this.setState({selectedVariables: newSelection})
+      /*await this.setState(
         {
           selectedVariables: newSelection
         },
         () => {
-          this.props.updateSelectedVariables(this.state.selectedVariables);
+          //this.props.updateSelectedVariables(this.state.selectedVariables);
+          this.props.varTracker.updateSelectedVariables(this.state.selectedVariables, true);
         }
-      );
+      );*/
     }
   }
 
@@ -173,7 +201,7 @@ export default class VarMenu extends React.Component<
    * @param newInfo new dimension info for the variables axis
    * @param varName the name of the variable to update
    */
-  public async updateDimInfo(newInfo: any, varName: string): Promise<void> {
+  /*public async updateDimInfo(newInfo: any, varName: string): Promise<void> {
     const newVariables: Variable[] = this.state.variables;
     newVariables.forEach((variable: Variable, varIndex: number) => {
       if (variable.name !== varName) {
@@ -188,7 +216,7 @@ export default class VarMenu extends React.Component<
       });
     });
     await this.props.updateVariables(newVariables);
-  }
+  }*/
 
   public async reloadVariable(variable: Variable): Promise<void> {
     await this.props.loadVariable(variable);
@@ -201,6 +229,10 @@ export default class VarMenu extends React.Component<
     }
     return this.state.selectedVariables.indexOf(varName) + 1;
   }
+
+  public updateSelectedVariables = (newSelection: string[]) => {
+    this.props.varTracker.selectedVariables = newSelection;
+  };
 
   public render(): JSX.Element {
     const colors: string[] = ColorFunctions.createGradient(
@@ -240,7 +272,7 @@ export default class VarMenu extends React.Component<
                 )}
               </Row>
             </CardSubtitle>
-            {this.state.variables.length > 0 && (
+            {this.props.varTracker.variables.length > 0 && (
               <ListGroup style={formOverflow}>
                 {this.state.variables.map((item: Variable, idx: number) => {
                   const reloadItem = () => {
@@ -264,7 +296,7 @@ export default class VarMenu extends React.Component<
                         allowReload={true}
                         isSelected={this.isSelected}
                         selectOrder={this.getOrder(item.name)}
-                        updateDimInfo={this.updateDimInfo}
+                        updateDimInfo={this.props.varTracker.updateDimInfo}
                         variable={item}
                       />
                     </ListGroupItem>
@@ -275,9 +307,9 @@ export default class VarMenu extends React.Component<
           </CardBody>
         </Card>
         <VarLoader
-          updateSelectedVariables={this.props.updateSelectedVariables}
+          updateSelectedVariables={this.updateSelectedVariables}
           loadFileVariable={this.loadFileVariable}
-          variables={this.state.variables}
+          variables={this.props.varTracker.variables}
           saveNotebook={this.props.saveNotebook}
           ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />

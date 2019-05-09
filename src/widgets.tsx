@@ -35,6 +35,7 @@ import {
 } from "./constants";
 import { NotebookUtilities } from "./NotebookUtilities";
 import { Utilities } from "./Utilities";
+import { VariableTracker } from "./VariableTracker";
 
 /**
  * This is the main component for the vcdat extension.
@@ -52,6 +53,7 @@ export class LeftSideBarWidget extends Widget {
   public canvasCount: number; // The number of canvases currently in use (just 1 for now)
   public refreshExt: boolean; // Will be false if the app was refreshed
   public codeInjector: CodeInjector; // The code injector object which is responsible for injecting code into notebooks
+  public varTracker: VariableTracker; // The variable tracker
 
   private pltExists: boolean; // True if there exists a plot that can be exported, false if not.
   private kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
@@ -68,7 +70,8 @@ export class LeftSideBarWidget extends Widget {
     this.node.appendChild(this.div);
     this.application = app;
     this.commands = app.commands;
-    this.codeInjector = new CodeInjector(app.commands);
+    this.varTracker = new VariableTracker();
+    this.codeInjector = new CodeInjector(app.commands, this.varTracker);
     this.notebookTracker = tracker;
     this.nbState = NOTEBOOK_STATE.Unknown;
     this.usingKernel = false;
@@ -82,20 +85,20 @@ export class LeftSideBarWidget extends Widget {
     this.kernels = [];
     this.pltExists = false;
     this.initialize = this.initialize.bind(this);
-    this.refreshVarList = this.refreshVarList.bind(this);
+    // this.refreshVarList = this.refreshVarList.bind(this);
     this.setCurrentFile = this.setCurrentFile.bind(this);
     this.setNotebookPanel = this.setNotebookPanel.bind(this);
     this.updateNotebookState = this.updateNotebookState.bind(this);
     this.handleStateChanged = this.handleStateChanged.bind(this);
     this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
-    this.getFileVariables = this.getFileVariables.bind(this);
+    // this.getFileVariables = this.getFileVariables.bind(this);
     this.handleNotebooksChanged = this.handleNotebooksChanged.bind(this);
     this.checkVCS = this.checkVCS.bind(this);
     this.checkPlotExists = this.checkPlotExists.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
     this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
-    this.setVariables = this.setVariables.bind(this);
+    // this.setVariables = this.setVariables.bind(this);
     this.setBusy = this.setBusy.bind(this);
     this.vcsMenuRef = (React as any).createRef();
     ReactDOM.render(
@@ -104,14 +107,15 @@ export class LeftSideBarWidget extends Widget {
           ref={loader => (this.vcsMenuRef = loader)}
           commands={this.commands}
           codeInjector={this.codeInjector}
+          varTracker={this.varTracker}
           plotReady={this.state === NOTEBOOK_STATE.VCS_Ready}
           plotExists={this.plotExists}
           plotExistTrue={this.plotExistTrue}
           syncNotebook={this.syncNotebook}
-          getFileVariables={this.getFileVariables}
+          // getFileVariables={this.getFileVariables}
           getGraphicsList={this.getGraphics}
           getTemplatesList={this.getTemplates}
-          updateVariables={this.setVariables}
+          // updateVariables={this.varTrackersetVariables}
           refreshGraphicsList={this.refreshGraphicsList}
           notebookPanel={this.nbPanel}
           updateNotebookPanel={this.recognizeNotebookPanel}
@@ -180,10 +184,6 @@ export class LeftSideBarWidget extends Widget {
     return this.pltExists;
   }
 
-  public setVariables(variables: Variable[]): void {
-    this.variableList = variables;
-  }
-
   public setBusy(value: boolean): void {
     this.isBusy = value;
   }
@@ -218,19 +218,18 @@ export class LeftSideBarWidget extends Widget {
       await this.updateNotebookState();
 
       // Update notebook in code injection manager
-      this.codeInjector.notebookPanel = notebookPanel;
+      await this.codeInjector.setNotebook(notebookPanel);
+      await this.varTracker.setNotebook(notebookPanel);
 
       // Reset the UI components
       await this.vcsMenuRef.resetState();
-
-      // Reset notebook information
-      this.codeInjector.dataReaderList = {};
 
       // Check if notebook is ready for vcs, and prepare it if so
       if (
         this.state === NOTEBOOK_STATE.VCS_Ready ||
         this.state === NOTEBOOK_STATE.InitialCellsReady
       ) {
+        /*
         // Update current file
         const lastFileOpened:
           | string
@@ -273,7 +272,7 @@ export class LeftSideBarWidget extends Widget {
         const readers: {
           [dataName: string]: string;
         } = NotebookUtilities.getMetaDataNow(this.notebookPanel, DATA_LIST_KEY);
-        this.codeInjector.dataReaderList = readers ? readers : {};
+        this.codeInjector.dataReaderList = readers ? readers : {};*/
 
         // Run cells to make notebook vcs ready
         if (this.state === NOTEBOOK_STATE.InitialCellsReady) {
@@ -333,8 +332,9 @@ export class LeftSideBarWidget extends Widget {
         await this.refreshGraphicsList();
         await this.refreshTemplatesList();
         await this.refreshVarList();
+        // await this.varTracker.refreshVariables();
 
-        this.vcsMenuRef.getVariableSelections();
+        // this.vcsMenuRef.getVariableSelection();
         this.vcsMenuRef.getGraphicsSelections();
         this.vcsMenuRef.getTemplateSelection();
 
@@ -348,7 +348,9 @@ export class LeftSideBarWidget extends Widget {
       } else {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
         await this.refreshVarList();
-        this.setCurrentFile("", false);
+        // await this.varTracker.refreshVariables();
+        this.varTracker.lastFileViewed = "";
+        // this.setCurrentFile("", false);
         this.plotExists = false;
       }
     } catch (error) {
@@ -381,6 +383,7 @@ export class LeftSideBarWidget extends Widget {
         filePath
       );
     }
+    // await this.varTracker.refreshVariables();
     await this.refreshVarList();
   }
 
@@ -411,11 +414,13 @@ export class LeftSideBarWidget extends Widget {
     if (
       !this.isBusy &&
       !this.codeInjector.isBusy &&
+      !this.varTracker.isBusy &&
       this.state === NOTEBOOK_STATE.VCS_Ready &&
       stateChange.newValue !== "edit"
     ) {
       try {
         this.refreshVarList();
+        // this.varTracker.refreshVariables();
         this.refreshGraphicsList();
         await this.refreshTemplatesList();
         this.plotExists = await this.checkPlotExists();
@@ -496,6 +501,7 @@ export class LeftSideBarWidget extends Widget {
       await this.refreshGraphicsList();
       await this.refreshTemplatesList();
       await this.refreshVarList();
+      // await this.varTracker.refreshVariables();
 
       // Select last cell in notebook
       this.notebookPanel.content.activeCellIndex =
@@ -505,7 +511,7 @@ export class LeftSideBarWidget extends Widget {
       this.kernels.push(this.notebookPanel.session.kernel.id);
 
       // Save the notebook
-      this.notebookPanel.context.save();
+      NotebookUtilities.saveNotebook(this.notebookPanel);
 
       // Activate current notebook
       this.application.shell.activateById(this.notebookPanel.id);
@@ -625,7 +631,9 @@ export class LeftSideBarWidget extends Widget {
       this.state !== NOTEBOOK_STATE.VCS_Ready &&
       this.state !== NOTEBOOK_STATE.InitialCellsReady
     ) {
-      await this.vcsMenuRef.updateVariables(Array<Variable>());
+      this.varTracker.variables = Array<Variable>();
+      // this.varTracker.variables = Array<Variable>();
+      // await this.vcsMenuRef.updateVariables(Array<Variable>());
       return;
     }
 
@@ -633,6 +641,9 @@ export class LeftSideBarWidget extends Widget {
       this.refreshExt = false;
     }
 
+    this.varTracker.refreshVariables();
+
+    /*
     this.usingKernel = true;
     // Get the variables info
     const result: string = await NotebookUtilities.sendSimpleKernelRequest(
@@ -688,12 +699,14 @@ export class LeftSideBarWidget extends Widget {
     }
 
     await this.vcsMenuRef.updateVariables(newVars);
+    */
   }
 
   // Updates the axes information for each variable based on what source it came from
+  /*
   public async updateAxesInfo(varGroup: Variable[]): Promise<void> {
     // Get the filepath from the data readerlist
-    const sourceFile: string = this.codeInjector.dataReaderList[
+    const sourceFile: string = this.varTracker.dataReaderList[
       varGroup[0].sourceName
     ];
 
@@ -731,7 +744,7 @@ export class LeftSideBarWidget extends Widget {
         }
       });
     });
-  }
+  }*/
 
   /**
    * Opens a '.nc' file to read in it's variables via a kernel request.
@@ -739,6 +752,7 @@ export class LeftSideBarWidget extends Widget {
    * @returns Promise<Array<Variable>> -- A promise contianing an array of variables
    * that were found in the file.
    */
+  /*
   public async getFileVariables(filePath: string): Promise<Variable[]> {
     if (!filePath) {
       return Array<Variable>();
@@ -771,7 +785,7 @@ export class LeftSideBarWidget extends Widget {
           v.axisInfo.push(variableAxes.axes[item]);
         });
         v.units = variableAxes.vars[varName].units;
-        v.sourceName = this.codeInjector.getDataReaderName(filePath);
+        v.sourceName = this.varTracker.getDataReaderName(filePath);
         newVars.push(v);
       });
       return newVars;
@@ -788,7 +802,7 @@ export class LeftSideBarWidget extends Widget {
       }
       return Array<Variable>();
     }
-  }
+  }*/
 
   /**
    * Will update the state of the widget's current notebook panel.
@@ -869,6 +883,17 @@ export class LeftSideBarWidget extends Widget {
       let currentIdx: number = 0;
       currentIdx = await this.codeInjector.injectImportsCode();
 
+      // Open the variable launcher modal
+      const fileVars: Variable[] = await this.varTracker.getFileVariables(
+        currentFile
+      );
+
+      if (fileVars.length > 0) {
+        await this.vcsMenuRef.launchVarSelect(fileVars);
+      } else {
+        this.lastFile = "";
+      }
+
       // Inject the data file(s)
       currentIdx = await this.codeInjector.injectDataReaders(
         currentIdx + 1,
@@ -889,10 +914,10 @@ export class LeftSideBarWidget extends Widget {
       this.state = NOTEBOOK_STATE.VCS_Ready;
 
       // Check if the file has already been loaded
-      const fileLoaded: boolean = Object.keys(
-        this.codeInjector.dataReaderList
+      /*const fileLoaded: boolean = Object.keys(
+        this.varTracker.dataReaderList
       ).some(value => {
-        return this.codeInjector.dataReaderList[value] === currentFile;
+        return this.varTracker.dataReaderList[value] === currentFile;
       });
 
       // If file hasn't been loaded, inject it
@@ -903,29 +928,20 @@ export class LeftSideBarWidget extends Widget {
         )[0];
 
         await this.codeInjector.injectDataReaders(idx, currentFile);
-      }
-
-      // Launch file variable loader if file has variables
-      const fileVars: Variable[] = await this.getFileVariables(currentFile);
-      if (fileVars.length > 0) {
-        await this.vcsMenuRef.launchVarSelect(fileVars);
-      } else {
-        this.lastFile = "";
-      }
+      }*/
 
       // Save the notebook
-      this.notebookPanel.context.save();
+      await NotebookUtilities.saveNotebook(this.notebookPanel);
 
       // Activate current notebook
       this.application.shell.activateById(this.notebookPanel.id);
 
       // Connect the handler specific to current notebook
       this.nbPanel.content.stateChanged.connect(this.handleStateChanged);
-
-      this.preparing = false;
     } catch (error) {
-      this.preparing = false;
       throw error;
+    } finally {
+      this.preparing = false;
     }
   }
 
