@@ -159,18 +159,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
   }
 
   public exportPlotAlerts(): void {
-    console.log("Displaying spinner.");
     this.setState({ savePlotAlert: false });
-    // this.setState({ savePlotAlert: true }, () => {
-    //   window.setTimeout(() => {
-    //     this.setState({ savePlotAlert: false });
-    //     this.setState({ exportSuccessAlert: true }, () => {
-    //       window.setTimeout(() => {
-    //         this.setState({ exportSuccessAlert: false });
-    //       }, 5000);
-    //     });
-    //   }, 5000);
-    // });
   }
 
   public toggleModal(): void {

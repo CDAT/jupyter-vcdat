@@ -54,7 +54,6 @@ export class ExportPlotModal extends React.Component<
 > {
   constructor(props: IExportPlotModalProps) {
     super(props);
-    console.log("ExportPlotModal props in constructor:", this.props);
     this.state = {
       captureProvenance: false,
       disableProvenance: true,
@@ -143,11 +142,6 @@ export class ExportPlotModal extends React.Component<
     this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
     this.props.exportAlerts();
     const plotFileName = `${plotName}.${fileFormat}`;
-    // console.log("ExportPlotModal state:", this.state)
-    // console.log("plotFileName:", plotFileName)
-    // console.log("ExportPlotModal props in save:", this.props);
-    // console.log("this.state.notebookPanel:", this.state.notebookPanel)
-    // console.log("this.props.notebookPanel:", this.props.notebookPanel)
     try {
       const result: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.props.notebookPanel,
@@ -164,11 +158,7 @@ def check_for_exported_file():\n\
   return True\n\
 ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
       );
-      console.log("result output:", result);
-      console.assert(result === "True", "assertion failed.");
       if (result === "True") {
-        console.log("File found");
-        console.log("Dismissing alert");
         this.props.dismissSavePlotSpinnerAlert();
         this.props.showExportSuccessAlert();
       }
