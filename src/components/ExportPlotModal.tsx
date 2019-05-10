@@ -81,6 +81,7 @@ export class ExportPlotModal extends React.Component<
     this.onInputChange = this.onInputChange.bind(this);
     this.onHeightChange = this.onHeightChange.bind(this);
     this.onWidthChange = this.onWidthChange.bind(this);
+    this.clearExportInfo = this.clearExportInfo.bind(this);
   }
 
   public async toggleDimensionsDisplay() {
@@ -107,6 +108,15 @@ export class ExportPlotModal extends React.Component<
     this.setState({ validateExportName: false });
   }
 
+  public clearExportInfo() {
+    this.setState({
+      captureProvenance: false,
+      displayDimensions: false,
+      plotName: "",
+      validateExportName: false,
+      validateFileFormat: false
+    });
+  }
   public toggleModal() {
     this.setState({
       plotName: "",
@@ -131,6 +141,9 @@ export class ExportPlotModal extends React.Component<
     }
     this.setState({ validateFileFormat: false });
 
+    this.props.toggle();
+    this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
+    this.props.exportAlerts();
     await this.props.codeInjector.exportPlot(
       fileFormat,
       plotName,
@@ -139,8 +152,6 @@ export class ExportPlotModal extends React.Component<
       this.state.plotUnits,
       this.state.captureProvenance
     );
-    this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
-    this.props.exportAlerts();
     const plotFileName = `${plotName}.${fileFormat}`;
     try {
       const result: string = await NotebookUtilities.sendSimpleKernelRequest(
@@ -159,14 +170,15 @@ def check_for_exported_file():\n\
 ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
       );
       if (result === "True") {
-        this.props.dismissSavePlotSpinnerAlert();
-        this.props.showExportSuccessAlert();
+        window.setTimeout(() => {
+          this.props.dismissSavePlotSpinnerAlert();
+          this.props.showExportSuccessAlert();
+        }, 3000);
       }
     } catch (error) {
       console.log("error with checking file:", error);
     }
-    this.toggleModal();
-    this.setState({ displayDimensions: false });
+    this.clearExportInfo();
   }
 
   // ======= REACT COMPONENT FUNCTIONS =======
