@@ -10,6 +10,8 @@ import {
   DropdownMenu,
   DropdownToggle
 } from "reactstrap";
+import { ISignal } from "@phosphor/signaling";
+import { LeftSideBarWidget } from "../widgets";
 
 const dropdownMenuStype: React.CSSProperties = {
   maxHeight: "250px",
@@ -18,6 +20,7 @@ const dropdownMenuStype: React.CSSProperties = {
 
 interface ITemplateMenuProps {
   plotReady: boolean;
+  plotReadyChanged: ISignal<LeftSideBarWidget, boolean>;
   getTemplatesList: () => string[]; // a method to call when the user has seleted a template
   updateTemplateOptions: (templateName: string) => Promise<void>;
 }
@@ -37,14 +40,21 @@ export default class TemplateMenu extends React.Component<
     super(props);
     this.state = {
       optionsChanged: false,
-      plotReady: this.props.plotReady,
       selectedTemplate: "",
       showDropdown: false,
-      showMenu: false
+      showMenu: false,
+      plotReady: this.props.plotReady
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.resetTemplateMenuState = this.resetTemplateMenuState.bind(this);
+    this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
+
+    this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
+  }
+
+  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
+    this.setState({ plotReady: value });
   }
 
   // Resets the graphics menu to initial, (for when a new notebook is selected)

@@ -69,15 +69,14 @@ export class NotebookUtilities {
     notebookPanel: NotebookPanel,
     key: string
   ): Promise<any> {
-    if (notebookPanel === null) {
+    if (!notebookPanel) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
-    await notebookPanel.activated;
-    await notebookPanel.session.ready;
-    if (notebookPanel.content.model.metadata.has(key)) {
-      return notebookPanel.content.model.metadata.get(key);
+    await notebookPanel.session.ready; // Wait for session to load in notebook
+    if (notebookPanel.model && notebookPanel.model.metadata.has(key)) {
+      return notebookPanel.model.metadata.get(key);
     }
     return null;
   }
@@ -89,13 +88,13 @@ export class NotebookUtilities {
    * @returns any -The value of the metadata. Returns null if the key doesn't exist.
    */
   public static getMetaDataNow(notebookPanel: NotebookPanel, key: string): any {
-    if (notebookPanel === null) {
+    if (!notebookPanel) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
-    if (notebookPanel.content.model.metadata.has(key)) {
-      return notebookPanel.content.model.metadata.get(key);
+    if (notebookPanel.model && notebookPanel.model.metadata.has(key)) {
+      return notebookPanel.model.metadata.get(key);
     }
     return null;
   }
@@ -115,13 +114,13 @@ export class NotebookUtilities {
     value: any,
     save: boolean = false
   ): Promise<any> {
-    if (notebookPanel === null) {
+    if (!notebookPanel) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
     await notebookPanel.session.ready;
-    const oldVal: any = notebookPanel.content.model.metadata.set(key, value);
+    const oldVal: any = notebookPanel.model.metadata.set(key, value);
     if (save) {
       this.saveNotebook(notebookPanel);
     }
@@ -144,7 +143,12 @@ export class NotebookUtilities {
     value: any,
     save: boolean = false
   ): any {
-    const oldVal = notebookPanel.content.model.metadata.set(key, value);
+    if (!notebookPanel) {
+      throw new Error(
+        "The notebook is null or undefined. No meta data available."
+      );
+    }
+    const oldVal = notebookPanel.model.metadata.set(key, value);
     if (save) {
       this.saveNotebook(notebookPanel);
     }

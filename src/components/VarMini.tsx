@@ -89,9 +89,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
         <div className="clearfix">
           <Button
             outline={true}
-            color={
-              this.props.isSelected(this.varName) ? "success" : "secondary"
-            }
+            color={"success"}
             style={{ backgroundColor: this.props.buttonColor }}
             active={this.props.isSelected(this.varName)}
           >

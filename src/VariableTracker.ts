@@ -17,42 +17,42 @@ import { Utilities } from "./Utilities";
 import { AxisInfo } from "./components/AxisInfo";
 
 export class VariableTracker {
-  // Signals for use within components
-  private _variablesChanged: Signal<this, Variable[]>;
-  private _selectedVariablesChanged: Signal<this, string[]>;
-  private _variableSourcesChanged: Signal<this, { [varName: string]: string }>;
-  private _dataReaderListChanged: Signal<this, { [dataName: string]: string }>;
-
   private _isBusy: boolean;
   private _notebookPanel: NotebookPanel;
   private logErrorsToConsole: boolean; // Whether errors should log to console. Should be false during production.
 
-  private _lastFileViewed: string; // The last file source that was used
+  private _currentFile: string; // The last file source that was used
+  private _currentFileChanged: Signal<this, string>;
   private _variableSources: { [varName: string]: string }; // Tracks what data reader each variable came from
+  private _variableSourcesChanged: Signal<this, { [varName: string]: string }>;
   private _dataReaderList: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
+  private _dataReaderListChanged: Signal<this, { [dataName: string]: string }>;
   private _variables: Variable[];
+  private _variablesChanged: Signal<this, Variable[]>;
   private _selectedVariables: string[];
+  private _selectedVariablesChanged: Signal<this, string[]>;
 
   constructor() {
     this._notebookPanel = null;
     this._isBusy = false;
     this.logErrorsToConsole = true;
 
-    this._lastFileViewed = "";
+    this._currentFile = "";
+    this._currentFileChanged = new Signal<this, string>(this);
     this._variableSources = {};
-    this._dataReaderList = {};
-    this._variables = Array<Variable>();
-    this._selectedVariables = Array<string>();
-    this._variablesChanged = new Signal<this, Variable[]>(this);
-    this._selectedVariablesChanged = new Signal<this, string[]>(this);
     this._variableSourcesChanged = new Signal<
       this,
       { [varName: string]: string }
     >(this);
+    this._dataReaderList = {};
     this._dataReaderListChanged = new Signal<
       this,
       { [dataName: string]: string }
     >(this);
+    this._selectedVariables = Array<string>();
+    this._selectedVariablesChanged = new Signal<this, string[]>(this);
+    this._variables = Array<Variable>();
+    this._variablesChanged = new Signal<this, Variable[]>(this);
 
     this.addVariable = this.addVariable.bind(this);
     this.getDataReaderName = this.getDataReaderName.bind(this);
@@ -77,28 +77,33 @@ export class VariableTracker {
     return this._variables;
   }
 
-  get variablesChanged(): Signal<this, Variable[]> {
+  get variablesChanged(): ISignal<this, Variable[]> {
     return this._variablesChanged;
   }
 
   set variables(newVariables: Variable[]) {
     this._variables = newVariables;
-    this._variablesChanged.emit(this._variables);
+    this._variablesChanged.emit(newVariables);
   }
 
-  get lastFileViewed(): string {
-    return this._lastFileViewed;
+  get currentFile(): string {
+    return this._currentFile;
   }
 
-  set lastFileViewed(filePath: string) {
-    this._lastFileViewed = filePath;
+  get currentFileChanged(): ISignal<this, string> {
+    return this._currentFileChanged;
+  }
+
+  set currentFile(filePath: string) {
+    this._currentFile = filePath;
+    this._currentFileChanged.emit(filePath);
   }
 
   get dataReaderList(): { [dataName: string]: string } {
     return this._dataReaderList;
   }
 
-  get dataReaderListChanged(): Signal<this, { [dataName: string]: string }> {
+  get dataReaderListChanged(): ISignal<this, { [dataName: string]: string }> {
     return this._dataReaderListChanged;
   }
 
@@ -106,30 +111,33 @@ export class VariableTracker {
     return this._selectedVariables;
   }
 
-  get selectedVariablesChanged(): Signal<this, string[]> {
+  get selectedVariablesChanged(): ISignal<this, string[]> {
     return this._selectedVariablesChanged;
   }
 
   set selectedVariables(selection: string[]) {
     this._selectedVariables = selection;
-    this._selectedVariablesChanged.emit(this._selectedVariables); // Publish that selected variables changed
+    this._selectedVariablesChanged.emit(selection); // Publish that selected variables changed
   }
 
   get variableSources(): { [varName: string]: string } {
     return this._variableSources;
   }
 
-  get variableSourcesChanged(): Signal<this, { [varName: string]: string }> {
+  get variableSourcesChanged(): ISignal<this, { [varName: string]: string }> {
     return this._variableSourcesChanged;
   }
 
   set variableSources(newSources: { [varName: string]: string }) {
     this._variableSources = newSources;
+    this._variableSourcesChanged.emit(newSources);
   }
 
   public async setNotebook(notebookPanel: NotebookPanel) {
-    // Save meta data in previous notebook
-    await this.saveMetaData();
+    if (this.notebookPanel) {
+      // Save meta data in current notebook before switching
+      await this.saveMetaData();
+    }
 
     // Update to new notebook
     if (notebookPanel) {
@@ -149,7 +157,8 @@ export class VariableTracker {
     readerName: string,
     filePath: string
   ): Promise<void> {
-    this.dataReaderList[readerName] = filePath;
+    this._dataReaderList[readerName] = filePath;
+    this._dataReaderListChanged.emit(this._dataReaderList);
   }
 
   /**
@@ -186,50 +195,57 @@ export class VariableTracker {
   }
 
   public async saveMetaData() {
-    if (this.notebookPanel) {
-      // Save name of last file viewed in the notebook
-      NotebookUtilities.setMetaData(
-        this.notebookPanel,
-        FILE_PATH_KEY,
-        this._lastFileViewed
-      );
+    await this.notebookPanel.session.ready;
 
-      // Save data reader list to meta data
-      NotebookUtilities.setMetaDataNow(
-        this.notebookPanel,
-        DATA_LIST_KEY,
-        this.dataReaderList
-      );
-
-      // Save the selected variables inbto  meta data
-      NotebookUtilities.setMetaDataNow(
-        this.notebookPanel,
-        SELECTED_VARIABLES_KEY,
-        this.selectedVariables
-      );
-
-      // Save variables to meta data
-      NotebookUtilities.setMetaDataNow(
-        this.notebookPanel,
-        VARIABLES_LOADED_KEY,
-        this.variables
-      );
-
-      // Save the variable file sources
-      NotebookUtilities.setMetaData(
-        this.notebookPanel,
-        VARIABLE_SOURCES_KEY,
-        this._variableSources,
-        true
-      );
-
-      await NotebookUtilities.saveNotebook(this.notebookPanel);
+    if (!this.notebookPanel || !this.notebookPanel.model) {
+      return;
     }
+
+    // Save name of last file viewed in the notebook
+    NotebookUtilities.setMetaData(
+      this.notebookPanel,
+      FILE_PATH_KEY,
+      this.currentFile
+    );
+
+    // Save data reader list to meta data
+    NotebookUtilities.setMetaDataNow(
+      this.notebookPanel,
+      DATA_LIST_KEY,
+      this.dataReaderList
+    );
+
+    // Save the selected variables inbto  meta data
+    NotebookUtilities.setMetaDataNow(
+      this.notebookPanel,
+      SELECTED_VARIABLES_KEY,
+      this.selectedVariables
+    );
+
+    // Save variables to meta data
+    NotebookUtilities.setMetaDataNow(
+      this.notebookPanel,
+      VARIABLES_LOADED_KEY,
+      this.variables
+    );
+
+    // Save the variable file sources
+    NotebookUtilities.setMetaData(
+      this.notebookPanel,
+      VARIABLE_SOURCES_KEY,
+      this._variableSources,
+      true
+    );
+
+    await NotebookUtilities.saveNotebook(this.notebookPanel);
   }
 
   public async loadMetaData() {
-    await this.notebookPanel.activated;
     await this.notebookPanel.session.ready;
+
+    if (!this.notebookPanel || !this.notebookPanel.model) {
+      return;
+    }
 
     // Update last file opened
     const lastSource: string | null = await NotebookUtilities.getMetaDataNow(
@@ -237,9 +253,9 @@ export class VariableTracker {
       FILE_PATH_KEY
     );
     if (lastSource) {
-      this.lastFileViewed = lastSource;
+      this.currentFile = lastSource;
     } else {
-      this.lastFileViewed = "";
+      this.currentFile = "";
     }
 
     // Update the loaded variables data from meta data
@@ -271,10 +287,10 @@ export class VariableTracker {
       SELECTED_VARIABLES_KEY
     );
     // No meta data means fresh notebook with no selections
-    if (!selection) {
-      this._selectedVariables = selection;
+    if (selection) {
+      this.selectedVariables = selection;
     } else {
-      this._selectedVariables = Array<string>();
+      this.selectedVariables = Array<string>();
     }
 
     // Update the list of data variables and associated filepath
@@ -282,6 +298,7 @@ export class VariableTracker {
       [dataName: string]: string;
     } = NotebookUtilities.getMetaDataNow(this.notebookPanel, DATA_LIST_KEY);
     this._dataReaderList = readers ? readers : {};
+    this._dataReaderListChanged.emit(this._dataReaderList);
   }
 
   // Will try to open a file path in cdms2. Returns true if successful.
@@ -305,10 +322,10 @@ export class VariableTracker {
   public getDataReaderName(filePath: string): string {
     // Check whether that file path is already open, return the data name if so
     let dataName: string = "";
-    const found: boolean = Object.keys(this._dataReaderList).some(
+    const found: boolean = Object.keys(this.dataReaderList).some(
       (dataVar: string) => {
         dataName = dataVar;
-        return this._dataReaderList[dataVar] === filePath;
+        return this.dataReaderList[dataVar] === filePath;
       }
     );
     if (found) {
@@ -323,7 +340,7 @@ export class VariableTracker {
     let count: number = 1;
     let newName: string = dataName;
 
-    while (Object.keys(this._dataReaderList).indexOf(newName) >= 0) {
+    while (Object.keys(this.dataReaderList).indexOf(newName) >= 0) {
       newName = `${dataName}${count}`;
       count += 1;
     }
@@ -381,6 +398,9 @@ export class VariableTracker {
    * This updates the current variable list by sending a command to the kernel directly.
    */
   public async refreshVariables(): Promise<void> {
+    if (!this.notebookPanel) {
+      return;
+    }
     this._isBusy = true;
     // Get the variables info
     const result: string = await NotebookUtilities.sendSimpleKernelRequest(
@@ -442,7 +462,7 @@ export class VariableTracker {
   // Updates the axes information for each variable based on what source it came from
   public async updateAxesInfo(varGroup: Variable[]): Promise<void> {
     // Get the filepath from the data readerlist
-    const sourceFile: string = this._dataReaderList[varGroup[0].sourceName];
+    const sourceFile: string = this.dataReaderList[varGroup[0].sourceName];
 
     // Exit early if no source filepath exists
     if (!sourceFile) {

@@ -30,8 +30,10 @@ import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import { Variable } from "./Variable";
 import VarMenu from "./VarMenu";
-import { Utilities } from "../Utilities";
 import { VariableTracker } from "../VariableTracker";
+import { Utilities } from "../Utilities";
+import { ISignal } from "@phosphor/signaling";
+import { LeftSideBarWidget } from "../widgets";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -54,8 +56,10 @@ interface IVCSMenuProps {
   commands: CommandRegistry; // the command executor
   notebookPanel: NotebookPanel;
   plotReady: boolean; // The notebook is ready for code injection an plots
+  plotReadyChanged: ISignal<LeftSideBarWidget, boolean>;
   plotExists: boolean; // whether a plot already exists
-  plotExistTrue: () => void; // sets the widget's plotExist state to true (called by plot function)
+  plotExistsChanged: ISignal<LeftSideBarWidget, boolean>;
+  setPlotExists: (value: boolean) => void; // sets the widget's plotExist state to true (called by plot function)
   getGraphicsList: () => any; // function that reads the current graphics list
   refreshGraphicsList: () => Promise<void>; // function that refreshes the graphics method list
   getTemplatesList: () => string[]; // function that reads the widget's current template list
@@ -67,9 +71,7 @@ interface IVCSMenuProps {
   varTracker: VariableTracker;
 }
 interface IVCSMenuState {
-  plotReady: boolean; // are we ready to plot
-  plotExists: boolean; // whether a plot already exists
-  // variables: Variable[]; // All the variables, loaded from files and derived by users
+  variables: Variable[]; // All the variables, loaded from files and derived by users
   // variableSources: { [varName: string]: string }; // Tracks what data reader each variable came from
   // selectedVariables: string[]; // Unique names of all the variables that are currently selected
   selectedGM: string;
@@ -82,6 +84,8 @@ interface IVCSMenuState {
   plotName: string;
   plotFormat: string;
   overlayMode: boolean;
+  plotReady: boolean;
+  plotExists: boolean;
 }
 
 export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
@@ -95,17 +99,16 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       isModalOpen: false,
       notebookPanel: this.props.notebookPanel,
       overlayMode: false,
-      plotExists: this.props.plotExists,
       plotFormat: "",
       plotName: "",
       plotReady: this.props.plotReady,
+      plotExists: this.props.plotExists,
       savePlotAlert: false,
       selectedGM: "",
       selectedGMgroup: "",
-      selectedTemplate: ""
-      // selectedVariables: Array<string>(),
+      selectedTemplate: "",
       // variableSources: {},
-      // variables: Array<Variable>()
+      variables: this.props.varTracker.variables
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
@@ -121,7 +124,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
     this.launchVarSelect = this.launchVarSelect.bind(this);
-    this.updatePlotReady = this.updatePlotReady.bind(this);
     // this.updateVariables = this.updateVariables.bind(this);
     // this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
@@ -133,6 +135,21 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.dismissExportSuccessAlert = this.dismissExportSuccessAlert.bind(this);
     this.setPlotInfo = this.setPlotInfo.bind(this);
     this.saveNotebook = this.saveNotebook.bind(this);
+    this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
+    this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
+    this.handlePlotExistsChanged = this.handlePlotExistsChanged.bind(this);
+
+    this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
+    this.props.plotExistsChanged.connect(this.handlePlotExistsChanged);
+    this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
+  }
+
+  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
+    this.setState({ plotReady: value });
+  }
+
+  private handlePlotExistsChanged(sidebar: LeftSideBarWidget, value: boolean) {
+    this.setState({ plotExists: value });
   }
 
   public setPlotInfo(plotName: string, plotFormat: string) {
@@ -177,7 +194,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
     this.setState({
-      plotReady: false,
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: ""
@@ -371,7 +387,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     newSource[variable.name] = variable.sourceName;
     this.props.varTracker.variableSources = newSource;
 
-    let currentVars: Variable[] = this.props.varTracker.variables;
+    let currentVars: Variable[] = this.state.variables;
 
     // If no variables are in the list, update meta data and variables list
     if (!currentVars || currentVars.length < 1) {
@@ -402,12 +418,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     );*/
   }
 
-  public updatePlotReady(value: boolean): void {
-    this.setState({ plotReady: value });
-    this.graphicsMenuRef.setState({ plotReady: value });
-    this.templateMenuRef.setState({ plotReady: value });
-  }
-
   /**
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
@@ -419,24 +429,14 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
           "Please select a variable from the left panel."
         );
       } else {
-        // Limit selection to MAX_SLABS
-        let selection: string[] = this.props.varTracker.selectedVariables;
-        if (selection.length > MAX_SLABS) {
-          selection = selection.slice(0, MAX_SLABS);
-          this.props.varTracker.selectedVariables = selection;
-          // this.updateSelectedVariables(selection);
-        }
-
         // Inject the plot
         this.props.codeInjector.plot(
-          selection,
           this.state.selectedGM,
           this.state.selectedGMgroup,
           this.state.selectedTemplate,
           this.state.overlayMode
         );
-
-        this.props.plotExistTrue();
+        this.props.setPlotExists(true);
       }
     } catch (error) {
       console.error(error);
@@ -486,6 +486,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       copyGraphicsMethod: this.copyGraphicsMethod,
       getGraphicsList: this.props.getGraphicsList,
       plotReady: this.state.plotReady,
+      plotReadyChanged: this.props.plotReadyChanged,
       updateGraphicsOptions: this.updateGraphicsOptions,
       varInfo: new Variable()
     };
@@ -504,6 +505,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     const templateMenuProps = {
       getTemplatesList: this.props.getTemplatesList,
       plotReady: this.state.plotReady,
+      plotReadyChanged: this.props.plotReadyChanged,
       updateTemplateOptions: this.updateTemplateOptions
     };
     const exportPlotModalProps = {
@@ -599,6 +601,13 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
         </div>
       </div>
     );
+  }
+
+  private handleVariablesChanged(
+    varTracker: VariableTracker,
+    variables: Variable[]
+  ) {
+    this.setState({ variables });
   }
 }
 

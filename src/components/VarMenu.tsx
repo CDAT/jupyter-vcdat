@@ -77,20 +77,6 @@ export default class VarMenu extends React.Component<
     this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
   }
 
-  public handleSelectionChanged(
-    varTracker: VariableTracker,
-    selectedVariables: string[]
-  ): void {
-    this.setState({ selectedVariables });
-  }
-
-  public handleVariablesChanged(
-    varTracker: VariableTracker,
-    variables: Variable[]
-  ): void {
-    this.setState({ variables });
-  }
-
   public isSelected(varName: string): boolean {
     return this.state.selectedVariables.indexOf(varName) >= 0;
     // return this.state.selectedVariables.indexOf(varName) >= 0;
@@ -272,7 +258,7 @@ export default class VarMenu extends React.Component<
                 )}
               </Row>
             </CardSubtitle>
-            {this.props.varTracker.variables.length > 0 && (
+            {this.state.variables.length > 0 && (
               <ListGroup style={formOverflow}>
                 {this.state.variables.map((item: Variable, idx: number) => {
                   const reloadItem = () => {
@@ -309,11 +295,25 @@ export default class VarMenu extends React.Component<
         <VarLoader
           updateSelectedVariables={this.updateSelectedVariables}
           loadFileVariable={this.loadFileVariable}
-          variables={this.props.varTracker.variables}
+          variables={this.state.variables}
           saveNotebook={this.props.saveNotebook}
           ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />
       </div>
     );
+  }
+
+  private handleSelectionChanged(
+    varTracker: VariableTracker,
+    selectedVariables: string[]
+  ): void {
+    this.setState({ selectedVariables });
+  }
+
+  private handleVariablesChanged(
+    varTracker: VariableTracker,
+    variables: Variable[]
+  ): void {
+    this.setState({ variables });
   }
 }

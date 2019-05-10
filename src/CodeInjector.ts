@@ -15,6 +15,7 @@ import {
   EXTENSIONS_REGEX,
   IMAGE_UNITS,
   IMPORT_CELL_KEY,
+  MAX_SLABS,
   READER_CELL_KEY,
   REQUIRED_MODULES
 } from "./constants";
@@ -25,16 +26,16 @@ import { Utilities } from "./Utilities";
  * A class that manages the code injection of vCDAT commands
  */
 export class CodeInjector {
-  private busy: boolean;
-  private nbPanel: NotebookPanel;
+  private _isBusy: boolean;
+  private _notebookPanel: NotebookPanel;
   private cmdRegistry: CommandRegistry;
   private varTracker: VariableTracker;
   private logErrorsToConsole: boolean; // Whether errors should log to console. Should be false during production.
   // private dataReaders: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
 
   constructor(commands: CommandRegistry, variableTracker: VariableTracker) {
-    this.nbPanel = null;
-    this.busy = false;
+    this._notebookPanel = null;
+    this._isBusy = false;
     this.cmdRegistry = commands;
     this.varTracker = variableTracker;
     this.logErrorsToConsole = true;
@@ -57,11 +58,11 @@ export class CodeInjector {
   }
 
   get isBusy(): boolean {
-    return this.busy;
+    return this._isBusy;
   }
 
   get notebookPanel(): NotebookPanel {
-    return this.nbPanel;
+    return this._notebookPanel;
   }
 
   /*get dataReaderList(): { [dataName: string]: string } {
@@ -76,9 +77,9 @@ export class CodeInjector {
     if (notebookPanel) {
       await notebookPanel.activated;
       await notebookPanel.session.ready;
-      this.nbPanel = notebookPanel;
+      this._notebookPanel = notebookPanel;
     } else {
-      this.nbPanel = null;
+      this._notebookPanel = null;
     }
   }
 
@@ -134,7 +135,7 @@ export class CodeInjector {
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
         this.cmdRegistry,
-        this.nbPanel,
+        this._notebookPanel,
         cellIdx
       );
     }
@@ -354,15 +355,18 @@ export class CodeInjector {
         w = Number.parseFloat(width);
         h = Number.parseFloat(height);
       }
+
       if (units === "px") {
         unit = "pixels";
       }
       cmd += `, width=${w}, height=${h}, units='${unit}'`;
-      // Export of png plot can include provenance
-      if (format === "png" && provenance !== undefined) {
-        cmd += provenance ? `, provenance=True` : `, provenance=False`;
-      }
     }
+
+    // Export of png plot can include provenance
+    if (format === "png" && provenance !== undefined) {
+      cmd += provenance ? `, provenance=True` : `, provenance=False`;
+    }
+
     // Close command
     cmd += `)`;
 
@@ -459,12 +463,18 @@ export class CodeInjector {
   }
 
   public async plot(
-    selectedVariables: string[],
     selectedGM: string,
     selectedGMGroup: string,
     selectedTemplate: string,
     overlayMode: boolean
   ) {
+    // Limit selection to MAX_SLABS
+    let selectedVariables: string[] = this.varTracker.selectedVariables;
+    if (selectedVariables.length > MAX_SLABS) {
+      selectedVariables = selectedVariables.slice(0, MAX_SLABS);
+      this.varTracker.selectedVariables = selectedVariables;
+    }
+
     // Create graphics method code
     let gmParam: string = selectedGM;
     if (!selectedGM) {
@@ -565,7 +575,7 @@ export class CodeInjector {
       throw Error("No notebook, code injection cancelled.");
     }
     try {
-      this.busy = true;
+      this._isBusy = true;
       const idx: number =
         index || this.notebookPanel.content.model.cells.length - 1;
       const [newIdx, result]: [
@@ -596,7 +606,7 @@ export class CodeInjector {
       NotebookUtilities.showMessage("Command Error", error.message);
       throw error;
     } finally {
-      this.busy = false;
+      this._isBusy = false;
     }
   }
 
