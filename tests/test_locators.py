@@ -1,19 +1,19 @@
 import unittest
 import os
 import sys
+import time
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
 from MainPageLocator import MainPageLocator
-from NoteBookPage import NoteBookPage
-from LocatorBaseTestCase import LocatorBaseTestCase
+from BaseTestCase import BaseTestCase
 
 # from selenium.webdriver.firefox.options import Options
 
 
-class TestLocators(LocatorBaseTestCase):
+class TestLocators(BaseTestCase):
 
     def test_jupyter_top_menu_locators(self):
         '''
@@ -40,7 +40,7 @@ class TestLocators(LocatorBaseTestCase):
         locator = self.main_page
 
         # Select each left sidebar tab
-        locator.select_file_tab()
+        locator.select_folder_tab()
         locator.select_running_tab()
         locator.select_command_palette_tab()
         locator.select_vcdat_icon()
@@ -61,12 +61,11 @@ class TestLocators(LocatorBaseTestCase):
         print("\n\n...test_open_widgets...")
         # locator = MainPageLocator(self.driver, self.server)
         locator = self.main_page
-
-        locator.click_on_jp_folder_icon()
-        locator.click_on_jp_direction_run_icon()
-        locator.click_on_jp_pallette_icon()
+        locator.click_on_folder_tab()
+        locator.click_on_running_tab()
+        locator.click_on_command_palette_tab()
         locator.click_on_vcdat_icon()
-        locator.click_on_jp_tab_icon()
+        locator.click_on_open_tabs_tab()
 
     def test_jp_tool_bar(self):
         '''
@@ -74,24 +73,37 @@ class TestLocators(LocatorBaseTestCase):
         '''
         locator = self.main_page
 
-        locator.select_jp_tool_bar_icon("New Launcher")
-        locator.select_jp_tool_bar_icon("New Folder")
-        locator.select_jp_tool_bar_icon("Upload Files")
-        locator.select_jp_tool_bar_icon("Refresh File List")
+        locator.select_new_launcher_icon()
+        locator.select_new_folder_icon()
+        locator.select_upload_files_icon()
+        locator.select_refresh_file_list_icon()
 
     def test_new_notebook(self):
-
         print("\n\n...{}...".format(self._testMethodName))
-        locator = self.main_page
-        locator.click_top_menu_item("File")
-        locator.click_on_submenu("New")
-        locator.click_on_submenu_with_data_command("notebook:create-new", "Notebook")
-        locator.click_on_select_kernel()
+        notebook_name = "{}.ipynb".format(self._testMethodName)
+        # notebook = NoteBookPage(self.driver, None)
+        notebook = self.new_notebook("Python [conda env:jupyter-vcdat] *", notebook_name)
+        time.sleep(5)
+        self.save_close_notebook(notebook)
+        self.main_page.shutdown_kernel()
+        os.remove(notebook_name)
 
-    def test_new_notebook_use_launcher(self):
-        print("\n\n...test_new_notebook...")
-        notebook = NoteBookPage(self.driver, None)
-        notebook.new_notebook("Python 3")
+    def test_vcdat_panel_locators(self):
+        print("\n\n...test_vcdat_panel_locators...")
+        main_page = self.main_page
+        vcdat_panel = main_page.click_on_vcdat_icon()
+        vcdat_panel.select_plot()
+        vcdat_panel.select_export_plot()
+        vcdat_panel.select_clear()
+        vcdat_panel.select_load_variables()
+        vcdat_panel.select_select_plot_type()
+        vcdat_panel.select_select_a_template()
+
+    def test_file_browser_locators(self):
+        print("\n\n...test_file_browser_locators...")
+        main_page = self.main_page
+        main_page.click_on_folder_tab()
+        main_page.click_on_home_icon()
 
     def test_all_locators(self):
         '''

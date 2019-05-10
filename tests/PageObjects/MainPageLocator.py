@@ -1,8 +1,11 @@
 from Actions import Actions
+from Actions import InvalidPageException
+from VcdatPanel import VcdatPanel
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 
 import time
+
 
 VCDAT_LEFT_SIDEBAR_ID = "left-side-bar-vcdat"
 VCDAT_ICON_CLASS = "jp-icon-vcdat"
@@ -33,7 +36,7 @@ class MainPageLocator(Actions):
             print("NoSuchElementException...not finding '{n}'".format(n=name))
             raise e
 
-    def click_top_menu_item(self, name):
+    def click_on_top_menu_item(self, name):
         '''
         click the tab element ('File', 'Edit', 'View', 'Run'...)
         '''
@@ -51,7 +54,6 @@ class MainPageLocator(Actions):
         '''
         try:
             submenu_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{}')]".format(submenu_name)
-            print("DEBUG....submenu_locator: {}".format(submenu_locator))
             submenu = self.find_element_by_xpath(submenu_locator,
                                                  "sub menu item name: {}".format(submenu_name))
             time.sleep(self._a_bit_delay * 2)
@@ -68,18 +70,16 @@ class MainPageLocator(Actions):
             data_command = "//li[@data-command='{dc}']".format(dc=submenu_data_command)
             text_label = "//div[@class='p-Menu-itemLabel'][contains(text(), '{name}')]".format(name=submenu_name)
             submenu_locator = "{dc}{text}".format(dc=data_command, text=text_label)
-            print("DEBUG....submenu_locator: {}".format(submenu_locator))
             submenu = self.find_element_by_xpath(submenu_locator,
-                                                 "sub menu item name: {}".format(submenu_locator))
+                                                 "sub menu item name: {}".format(submenu_name))
             time.sleep(self._a_bit_delay * 2)
             ActionChains(self.driver).move_to_element(submenu).click().perform()
-            print("DEBUG...after clicking")
-            time.sleep(10)
+            time.sleep(self._delay)
 
         except NoSuchElementException as e:
             raise e
 
-    def select_file_tab(self):
+    def select_folder_tab(self):
         return self.find_element_by_class("jp-FolderIcon", "Jupyter lab file tab")
 
     def select_running_tab(self):
@@ -89,11 +89,7 @@ class MainPageLocator(Actions):
         return self.find_element_by_class("jp-PaletteIcon", "Jupyter lab command palette tab")
 
     def select_vcdat_icon(self):
-        # return self.find_element_by_class(VCDAT_ICON_CLASS, "VCDAT icon")
-        # cl = "p-TabBar-tabIcon jp-SideBar-tabIcon jp-icon-vcdat"
-        # loc = "//div[@class='p-TabBar-tabIcon jp-SideBar-tabIcon jp-icon-vcdat']"
-        loc = "//li[@data-id='left-side-bar-vcdat']"
-        return self.find_element_by_xpath(loc, "VCDAT icon")
+        return self.find_element_by_class(VCDAT_ICON_CLASS, "VCDAT icon")
 
     def select_open_tabs_tab(self):
         return self.find_element_by_class("jp-SideBar-tabIcon", "Jupyter lab open tabs sidebar tab")
@@ -125,56 +121,61 @@ class MainPageLocator(Actions):
                 "NoSuchElementException...did not find specified launcher {}".format(title))
             raise e
 
+    def click_on_notebook_launcher(self, title):
+        print("DEBUG DEBUG...click_on_notebook_launcher")
+        element = self.select_notebook_launcher(title)
+        print("DEBUG DEBUG move_to_click...")
+        time.sleep(5)
+        self.move_to_click(element)
+
     #
     # click on icons on left side bar
     #
-    def click_on_left_side_tab(self, tab_name):
-        tab_mapping = {
-            "jp-folder": {'class': "jp-FolderIcon", 'descr': "Jupyter lab file tab"},
-            "jp-direction-run": {'class': "jp-DirectionsRunIcon", 'descr': "Running terminals and kernels tab"},
-            "jp-pallette": {'class': "jp-PaletteIcon", 'descr': "Jupyter lab command palette tab"},
-            "vcdat-icon": {'class': VCDAT_ICON_CLASS, 'descr': "VCDAT icon"},
-            "jp-tab-icon": {'class': "jp-SideBar-tabIcon", 'descr': "Jupyter lab open tabs sidebar tab"}
-            }
-        tab_class = tab_mapping[tab_name]["class"]
-        tab_descr = tab_mapping[tab_name]["descr"]
-        element = self.find_element_by_class(tab_class, tab_descr)
-        # time.sleep(self._a_bit_delay)
-        ActionChains(self.driver).move_to_element(element).click().perform()
-        time.sleep(self._delay)
+    def click_on_folder_tab(self):
+        element = self.select_folder_tab()
+        # check that there is a 'New Launcher' icon
+        new_launcher_element = self.select_new_launcher_icon()
+        if not new_launcher_element.is_displayed() or not new_launcher_element.is_enabled():
+            element = self.select_folder_tab()
+        self.move_to_click(element)
 
-    def click_on_jp_folder_icon(self):
-        '''
-        click on jp folder icon on left side
-        '''
-        self.click_on_left_side_tab('jp-folder')
-        # validate that there is a 'New Launcher' icon (+)
+    def click_on_running_tab(self):
+        element = self.select_running_tab()
+        self.move_to_click(element)
 
-    def click_on_jp_direction_run_icon(self):
-        self.click_on_left_side_tab('jp-direction-run')
-
-    def click_on_jp_pallette_icon(self):
-        self.click_on_left_side_tab('jp-pallette')
+    def click_on_command_palette_tab(self):
+        element = self.select_command_palette_tab()
+        self.move_to_click(element)
 
     def click_on_vcdat_icon(self):
-        self.click_on_left_side_tab('vcdat-icon')
+        element = self.select_vcdat_icon()
+        self.move_to_click(element)
+        print("xxx after move_to_click xxx")
+        time.sleep(3)
+        try:
+            vcdat_panel = VcdatPanel(self.driver, None)
+            return vcdat_panel
+        except InvalidPageException:
+            print("DEBUG...getting InvalidPageException")
+            element = self.select_vcdat_icon()
+            self.move_to_click(element)
 
-    def click_on_jp_tab_icon(self):
-        self.click_on_left_side_tab('jp-tab-icon')
+    def click_on_open_tabs_tab(self):
+        element = self.select_open_tabs_tab()
+        self.move_to_click(element)
+
+    def select_home_icon(self):
+        return self.find_element_by_class("jp-HomeIcon",
+                                          "Jupyter file browser home icon")
+
+    def click_on_home_icon(self):
+        element = self.select_home_icon()
+        self.move_to_click(element)
 
     #
     # select jp tool bar icon
     #
     def select_jp_tool_bar_icon(self, icon_title):
-        '''
-        clicks on the specified icon on the jp tool bar.
-        icon_title: title/name of icon, can be one of these:
-            "New Launcher"
-            "New Folder"
-            "Upload Files"
-            "Refresh File List"
-        '''
-        # all jp tool bar buttons are of class 'jp-ToolbarButtonComponent'
         loc = "//button[@class='jp-ToolbarButtonComponent' and @title='{}']".format(icon_title)
         try:
             element = self.find_element_by_xpath(loc, icon_title)
@@ -183,21 +184,37 @@ class MainPageLocator(Actions):
             raise e
         return element
 
+    def select_new_launcher_icon(self):
+        return self.select_jp_tool_bar_icon("New Launcher")
+
+    def select_new_folder_icon(self):
+        return self.select_jp_tool_bar_icon("New Folder")
+
+    def select_upload_files_icon(self):
+        return self.select_jp_tool_bar_icon("Upload Files")
+
+    def select_refresh_file_list_icon(self):
+        return self.select_jp_tool_bar_icon("Refresh File List")
+
     def click_on_jp_tool_bar_icon(self, icon_title):
         element = self.select_jp_tool_bar_icon(icon_title)
         self.move_to_click(element)
 
     def click_on_new_launcher_icon(self):
-        self.click_on_jp_tool_bar_icon("New Launcher")
+        element = self.select_new_launcher_icon()
+        self.move_to_click(element)
 
     def click_on_new_folder_icon(self):
-        self.click_on_jp_tool_bar_icon("New Folder")
+        element = self.select_new_folder_icon()
+        self.move_to_click(element)
 
     def click_on_upload_files_icon(self):
-        self.click_on_jp_tool_bar_icon("Upload Files")
+        element = self.select_upload_files_icon()
+        self.move_to_click(element)
 
     def click_on_refresh_file_list_icon(self):
-        self.click_on_jp_tool_bar_icon("Refresh File List")
+        element = self.select_refresh_file_list_icon()
+        self.move_to_click(element)
 
     #
     #
@@ -223,13 +240,10 @@ class MainPageLocator(Actions):
 
     def shutdown_kernel(self):
         print("...shutdown kernel if need to...")
-        self.find_tab_and_click('Kernel')
-        try:
-            shutdown_kernel_locator = "kernelmenu:shutdown"
-            self.find_menu_item_with_command_from_tab_drop_down_and_click(
-                shutdown_kernel_locator)
-        except NoSuchElementException:
-            print("No need to shutdown kernel")
+        self.click_on_top_menu_item('Kernel')
+        data_command = "kernelmenu:shutdown"
+        self.click_on_submenu_with_data_command(data_command,
+                                                'Shutdown Kernel')
 
     """
     def find_tab(self, tab_name):

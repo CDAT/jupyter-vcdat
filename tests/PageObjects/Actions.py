@@ -5,6 +5,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 
 """ All page objects inherit from this """
 
@@ -100,6 +101,13 @@ class Actions(object):
         time.sleep(self._a_bit_delay)
         ActionChains(self.driver).move_to_element(element).click().perform()
 
+    def move_to_double_click(self, element):
+        time.sleep(self._a_bit_delay)
+        ac = ActionChains(self.driver)
+        ac.move_to_element(element)
+        ac.double_click(element)
+        ac.perform()
+
     def scroll_click(self, element):
         try:
             self.driver.execute_script(
@@ -120,6 +128,12 @@ class Actions(object):
         except NoSuchElementException as e:
             print("...error clicking item...")
             raise e
+
+    def enter_text(self, input_area, text):
+        input_area.clear()
+        ac = ActionChains(self.driver)
+        ac.click(input_area).send_keys(text).key_down(Keys.ENTER).perform()
+        time.sleep(self._delay)
 
     def open_file_browser(self):
         try:
