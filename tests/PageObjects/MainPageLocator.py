@@ -58,7 +58,7 @@ class MainPageLocator(Actions):
                                                  "sub menu item name: {}".format(submenu_name))
             time.sleep(self._a_bit_delay * 2)
             ActionChains(self.driver).move_to_element(submenu).click().perform()
-            time.sleep(5)
+            # time.sleep(5)
         except NoSuchElementException as e:
             raise e
 
@@ -124,7 +124,6 @@ class MainPageLocator(Actions):
 
     def click_on_notebook_launcher(self, title):
         element = self.select_notebook_launcher(title)
-        time.sleep(5)
         self.move_to_click(element)
 
     #

@@ -1,5 +1,3 @@
-import time
-
 from Actions import Actions
 from selenium.common.exceptions import NoSuchElementException
 
@@ -34,7 +32,7 @@ class LoadVariablesPopUp(Actions):
         try:
             element = self.find_element_by_xpath(locator, "'{}' button".format(var))
             self.move_to_click(element)
-            time.sleep(5)
+            # time.sleep(5)
         except NoSuchElementException as e:
             print("FAIL...click_on_var, var: {}".format(var))
             raise e
