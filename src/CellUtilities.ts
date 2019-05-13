@@ -16,7 +16,7 @@ export class CellUtilities {
    * @throws An error message if there are issues in getting the output
    */
   public static readOutput(notebook: Notebook, index: number): any {
-    if (notebook === null) {
+    if (!notebook) {
       throw new Error("Notebook was null!");
     }
     if (index < 0 || index >= notebook.model.cells.length) {
@@ -60,7 +60,7 @@ export class CellUtilities {
     index: number,
     key: string
   ): any {
-    if (notebook === null) {
+    if (!notebook) {
       throw new Error("Notebook was null!");
     }
     if (index < 0 || index >= notebook.model.cells.length) {
@@ -90,7 +90,7 @@ export class CellUtilities {
     value: any,
     save: boolean = false
   ): any {
-    if (notebookPanel === null) {
+    if (!notebookPanel) {
       throw new Error("Notebook was null!");
     }
     if (index < 0 || index >= notebookPanel.model.cells.length) {
@@ -119,6 +119,9 @@ export class CellUtilities {
     notebookPanel: NotebookPanel,
     key: string
   ): [number, ICellModel] {
+    if(!notebookPanel){
+      throw new Error("Notebook was null!");
+    }
     const cells = notebookPanel.model.cells;
     let cell: ICellModel;
     for (let idx = 0; idx < cells.length; idx += 1) {

@@ -133,8 +133,18 @@ export class VariableTracker {
     this._variableSourcesChanged.emit(newSources);
   }
 
+  public resetVarTracker() {
+    console.log("VarTracker reset");
+    this.currentFile = "";
+    this.variables = Array<Variable>();
+    this.selectedVariables = Array<string>();
+    this.variableSources = {};
+    this._dataReaderList = {};
+    this._notebookPanel = null;
+  }
+
   public async setNotebook(notebookPanel: NotebookPanel) {
-    if (this.notebookPanel) {
+    if (this._notebookPanel) {
       // Save meta data in current notebook before switching
       await this.saveMetaData();
     }
@@ -143,9 +153,9 @@ export class VariableTracker {
     if (notebookPanel) {
       this._notebookPanel = notebookPanel;
       // Load any relevant meta data from new notebook
-      this.loadMetaData();
+      await this.loadMetaData();
     } else {
-      this._notebookPanel = null;
+      this.resetVarTracker();
     }
   }
 
@@ -202,7 +212,7 @@ export class VariableTracker {
     }
 
     // Save name of last file viewed in the notebook
-    NotebookUtilities.setMetaData(
+    await NotebookUtilities.setMetaData(
       this.notebookPanel,
       FILE_PATH_KEY,
       this.currentFile
@@ -230,7 +240,7 @@ export class VariableTracker {
     );
 
     // Save the variable file sources
-    NotebookUtilities.setMetaData(
+    NotebookUtilities.setMetaDataNow(
       this.notebookPanel,
       VARIABLE_SOURCES_KEY,
       this._variableSources,
@@ -248,7 +258,7 @@ export class VariableTracker {
     }
 
     // Update last file opened
-    const lastSource: string | null = await NotebookUtilities.getMetaDataNow(
+    const lastSource: string | null = await NotebookUtilities.getMetaData(
       this.notebookPanel,
       FILE_PATH_KEY
     );
@@ -259,7 +269,7 @@ export class VariableTracker {
     }
 
     // Update the loaded variables data from meta data
-    let result: any = NotebookUtilities.getMetaDataNow(
+    let result: any = await NotebookUtilities.getMetaData(
       this.notebookPanel,
       VARIABLES_LOADED_KEY
     );
@@ -271,7 +281,7 @@ export class VariableTracker {
     }
 
     // Update the variable sources from meta data
-    result = NotebookUtilities.getMetaDataNow(
+    result = await NotebookUtilities.getMetaData(
       this.notebookPanel,
       VARIABLE_SOURCES_KEY
     );
@@ -282,7 +292,7 @@ export class VariableTracker {
     }
 
     // Load the selected variables from meta data (if exists)
-    const selection: string[] = NotebookUtilities.getMetaDataNow(
+    const selection: string[] = await NotebookUtilities.getMetaData(
       this.notebookPanel,
       SELECTED_VARIABLES_KEY
     );
@@ -296,7 +306,7 @@ export class VariableTracker {
     // Update the list of data variables and associated filepath
     const readers: {
       [dataName: string]: string;
-    } = NotebookUtilities.getMetaDataNow(this.notebookPanel, DATA_LIST_KEY);
+    } = await NotebookUtilities.getMetaData(this.notebookPanel, DATA_LIST_KEY);
     this._dataReaderList = readers ? readers : {};
     this._dataReaderListChanged.emit(this._dataReaderList);
   }

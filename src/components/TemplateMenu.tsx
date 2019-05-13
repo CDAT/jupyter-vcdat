@@ -53,10 +53,6 @@ export default class TemplateMenu extends React.Component<
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
   }
 
-  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
-    this.setState({ plotReady: value });
-  }
-
   // Resets the graphics menu to initial, (for when a new notebook is selected)
   public resetTemplateMenuState(): void {
     this.setState({
@@ -121,5 +117,9 @@ export default class TemplateMenu extends React.Component<
         </Card>
       </div>
     );
+  }
+
+  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
+    this.setState({ plotReady: value });
   }
 }

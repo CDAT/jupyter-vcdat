@@ -83,11 +83,12 @@ export default class GraphicsMenu extends React.Component<
     this.handleEnterClick = this.handleEnterClick.bind(this);
     this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
 
-    this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.graphicsOptions = this.graphicsOptions.bind(this);
     this.resetGraphicsState = this.resetGraphicsState.bind(this);
     this.selectItem = this.selectItem.bind(this);
+
+    this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
   }
 
   public toggleDropdown(): void {

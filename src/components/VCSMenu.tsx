@@ -22,7 +22,8 @@ import {
   SELECTED_VARIABLES_KEY,
   TEMPLATE_KEY,
   VARIABLE_SOURCES_KEY,
-  VARIABLES_LOADED_KEY
+  VARIABLES_LOADED_KEY,
+  NOTEBOOK_STATE
 } from "../constants";
 import { NotebookUtilities } from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
@@ -144,14 +145,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
   }
 
-  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
-    this.setState({ plotReady: value });
-  }
-
-  private handlePlotExistsChanged(sidebar: LeftSideBarWidget, value: boolean) {
-    this.setState({ plotExists: value });
-  }
-
   public setPlotInfo(plotName: string, plotFormat: string) {
     this.setState({ plotName, plotFormat });
   }
@@ -196,7 +189,8 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.setState({
       selectedGM: "",
       selectedGMgroup: "",
-      selectedTemplate: ""
+      selectedTemplate: "",
+      overlayMode: false
       // selectedVariables: Array<string>(),
       // variables: Array<Variable>()
     });
@@ -326,7 +320,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     await this.props.refreshGraphicsList();
 
     // Save selected graphics method to meta data
-    NotebookUtilities.setMetaData(
+    await NotebookUtilities.setMetaData(
       this.state.notebookPanel,
       GRAPHICS_METHOD_KEY,
       [this.state.selectedGMgroup, this.state.selectedGM]
@@ -351,7 +345,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       selectedGMgroup: group
     });
     // Save selected graphics method to meta data
-    NotebookUtilities.setMetaData(
+    await NotebookUtilities.setMetaData(
       this.state.notebookPanel,
       GRAPHICS_METHOD_KEY,
       [this.state.selectedGMgroup, this.state.selectedGM]
@@ -601,6 +595,14 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
         </div>
       </div>
     );
+  }
+
+  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
+    this.setState({ plotReady: value });
+  }
+
+  private handlePlotExistsChanged(sidebar: LeftSideBarWidget, value: boolean) {
+    this.setState({ plotExists: value });
   }
 
   private handleVariablesChanged(
