@@ -9,7 +9,7 @@ from VcdatPanel import VcdatPanel
 from BaseTestCaseWithNoteBook import BaseTestCaseWithNoteBook
 
 
-class TestLoadVariablesPopUpLocators(BaseTestCaseWithNoteBook):
+class TestLoadVariable(BaseTestCaseWithNoteBook):
 
     def test_load_a_variable(self):
         test_file = "clt.nc"
@@ -22,4 +22,4 @@ class TestLoadVariablesPopUpLocators(BaseTestCaseWithNoteBook):
         load_variable_popup.click_on_load()
         vcdat_panel.click_on_plot()
 
-# nosetests -s tests/test_load_variables.py:TestLoadVariablesPopUpLocators.test_load_a_variable
+# nosetests -s tests/test_load_a_variable.py:TestLoadVariable.test_load_a_variable
