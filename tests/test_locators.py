@@ -19,7 +19,6 @@ class TestLocators(BaseTestCase):
         '''
             Obtaining all top menu jupyter locators
         '''
-        print("\n\n...test_jupyter_top_menu_locators...")
         locator = self.main_page
 
         # Select each element in the top left menu bar
@@ -36,7 +35,6 @@ class TestLocators(BaseTestCase):
         '''
             Obtaining all left tab jupyter locators
         '''
-        print("\n\n...test_jupyter_left_tab_locators...")
         locator = self.main_page
 
         # Select each left sidebar tab
@@ -50,7 +48,6 @@ class TestLocators(BaseTestCase):
         '''
             Obtaining jupyter launcher locators.
         '''
-        print("\n\n...test_launcher_locators...")
         locator = MainPageLocator(self.driver, self.server)
 
         # Select each notebook launcher
@@ -58,7 +55,6 @@ class TestLocators(BaseTestCase):
         locator.select_notebook_launcher("Python [conda env:jupyter-vcdat] *")
 
     def test_open_widgets(self):
-        print("\n\n...test_open_widgets...")
         # locator = MainPageLocator(self.driver, self.server)
         locator = self.main_page
         locator.click_on_folder_tab()
@@ -105,7 +101,7 @@ class TestLocators(BaseTestCase):
         main_page.click_on_folder_tab()
         main_page.click_on_home_icon()
 
-    def test_all_locators(self):
+    def ABCtest_all_locators(self):
         '''
         Run test to check all locators are available.
         '''

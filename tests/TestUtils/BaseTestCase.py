@@ -32,6 +32,7 @@ class BaseTestCase(unittest.TestCase):
     _wait_timeout = 10
 
     def setUp(self):
+        print("\n\n...{}...".format(self._testMethodName))
         self._download_dir = tempfile.mkdtemp()
         browser = os.getenv("BROWSER_TYPE", 'chrome')
         mode = os.getenv("BROWSER_MODE", '--headless')
@@ -57,7 +58,7 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self):
         print("...BaseTestCase.tearDown()...")
-        self.main_page.shutdown_kernel()
+        # self.main_page.shutdown_kernel()
         self.driver.quit()
 
     def setup_for_chrome(self, mode):
