@@ -73,3 +73,6 @@ class LoadVariablesPopUp(Actions):
         except NoSuchElementException as e:
             print("Cannot find 'Load' button in the 'Load Variables' pop up")
             raise e
+
+    def adjust_var_axes_slider(self, var, axis, min_offset_percent, max_offset_percent):
+        print("...adjust_var_axes_slider...")

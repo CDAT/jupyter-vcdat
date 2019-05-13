@@ -12,6 +12,9 @@ from BaseTestCaseWithNoteBook import BaseTestCaseWithNoteBook
 class TestLoadVariable(BaseTestCaseWithNoteBook):
 
     def test_load_a_variable(self):
+        '''
+        load 'clt.nc' file, and load 'v' variable, and plot
+        '''
         test_file = "clt.nc"
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
