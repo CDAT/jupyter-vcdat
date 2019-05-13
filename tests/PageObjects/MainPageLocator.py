@@ -67,7 +67,8 @@ class MainPageLocator(Actions):
         click on submenu item that has 'data-command' attribute
         '''
         try:
-            data_command = "//li[@data-command='{dc}']".format(dc=submenu_data_command)
+            # data_command = "//li[@data-command='{dc}']".format(dc=submenu_data_command)
+            data_command = "//li[contains(@data-command, '{dc}')]".format(dc=submenu_data_command)
             text_label = "//div[@class='p-Menu-itemLabel'][contains(text(), '{name}')]".format(name=submenu_name)
             submenu_locator = "{dc}{text}".format(dc=data_command, text=text_label)
             submenu = self.find_element_by_xpath(submenu_locator,
@@ -122,9 +123,7 @@ class MainPageLocator(Actions):
             raise e
 
     def click_on_notebook_launcher(self, title):
-        print("DEBUG DEBUG...click_on_notebook_launcher")
         element = self.select_notebook_launcher(title)
-        print("DEBUG DEBUG move_to_click...")
         time.sleep(5)
         self.move_to_click(element)
 
@@ -150,13 +149,10 @@ class MainPageLocator(Actions):
     def click_on_vcdat_icon(self):
         element = self.select_vcdat_icon()
         self.move_to_click(element)
-        print("xxx after move_to_click xxx")
-        time.sleep(3)
         try:
             vcdat_panel = VcdatPanel(self.driver, None)
             return vcdat_panel
         except InvalidPageException:
-            print("DEBUG...getting InvalidPageException")
             element = self.select_vcdat_icon()
             self.move_to_click(element)
 
@@ -231,9 +227,9 @@ class MainPageLocator(Actions):
         try:
             self.find_element_by_xpath(select_kernel_popup_locator, "Select Kernel popup")
             el = self.find_element_by_xpath(kernel_select_button_locator, "Kernel Select button")
-            time.sleep(self._a_bit_delay)
+            # time.sleep(self._a_bit_delay)
             self.move_to_click(el)
-            time.sleep(self._delay)
+            # time.sleep(self._delay)
         except NoSuchElementException as e:
             print("did not find 'Select Kernel' pop up")
             raise e
@@ -244,6 +240,21 @@ class MainPageLocator(Actions):
         data_command = "kernelmenu:shutdown"
         self.click_on_submenu_with_data_command(data_command,
                                                 'Shutdown Kernel')
+
+    def shutdown_all_kernels(self):
+        print("...shutdown all kernels...")
+        self.click_on_top_menu_item('Kernel')
+        data_command = "kernelmenu:shutdownAll"
+        self.click_on_submenu_with_data_command(data_command,
+                                                'Shutdown All Kernels')
+        shutdown_locator = "//button[contains(@class, 'jp-Dialog-button')]//div[contains(text(), 'SHUTDOWN')]"
+        try:
+            shutdown = self.find_element_by_xpath(shutdown_locator,
+                                                  "'SHUTDOWN' button")
+            self.move_to_click(shutdown)
+        except NoSuchElementException as e:
+            print("Did not find 'SHUTDOWN' button in the 'Shutdown All?' popup")
+            raise e
 
     """
     def find_tab(self, tab_name):

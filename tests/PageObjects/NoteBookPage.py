@@ -15,6 +15,10 @@ class NoteBookPage(MainPageLocator):
         self.click_on_folder_tab()
         self.click_on_notebook_launcher(launcher_title)
         self.rename_notebook(notebook_name)
+        self.notebook_name = notebook_name
+
+    def get_notebook_name(self):
+        return(self.notebook_name)
 
     def rename_notebook(self, new_name):
         self.click_on_top_menu_item("File")
