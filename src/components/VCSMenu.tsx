@@ -152,7 +152,11 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
   }
 
   public showExportSuccessAlert(): void {
-    this.setState({ exportSuccessAlert: true });
+    this.setState({ exportSuccessAlert: true }, () => {
+      window.setTimeout(() => {
+        this.setState({ exportSuccessAlert: false });
+      }, 5000);
+    });
   }
 
   public exportPlotAlerts(): void {
