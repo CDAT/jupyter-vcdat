@@ -27,7 +27,6 @@
     "build": "tsc",
     "clean": "rimraf lib",
     "watch": "tsc -w",
-    "update-tags": "python update_tags.py -so src/*.tsx src/components/*.tsx -s ",
     "link": "jupyter labextension link . --nobuild",
     "prepare": "npm run clean && npm run build",
     "scss-watch": "node-sass --watch style/scss -o style/css",
@@ -36,9 +35,9 @@
     "lint": "npx tslint 'src/**/*.{ts,tsx}'",
     "lint-file": "npx tslint ",
     "lint-fix-file": "npx tslint --fix ",
+    "prettier-all": "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
     "format": "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
-    "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py",
-    "test-quick": "nosetests -s tests/test_variable.py:TestLoadVariable.test_plot_variable_1"
+    "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
