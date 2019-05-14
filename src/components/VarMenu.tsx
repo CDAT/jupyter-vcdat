@@ -32,7 +32,6 @@ interface IVarMenuProps {
   loadVariable: (variable: Variable) => Promise<any>; // a method to call when loading the variable
   varTracker: VariableTracker;
   commands?: any; // the command executer
-  saveNotebook: () => void; // function that saves the current notebook
   updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
   syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
 }
@@ -158,7 +157,7 @@ export default class VarMenu extends React.Component<
 
   public async reloadVariable(variable: Variable): Promise<void> {
     await this.props.loadVariable(variable);
-    await this.props.saveNotebook();
+    await this.props.varTracker.saveMetaData();
   }
 
   public getOrder(varName: string): number {
@@ -248,7 +247,7 @@ export default class VarMenu extends React.Component<
           updateSelectedVariables={this.updateSelectedVariables}
           loadFileVariable={this.loadFileVariable}
           variables={this.state.variables}
-          saveNotebook={this.props.saveNotebook}
+          saveMetaData={this.props.varTracker.saveMetaData}
           ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />
       </div>

@@ -416,7 +416,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     const varMenuProps = {
       commands: this.props.commands,
       loadVariable: this.loadVariable,
-      saveNotebook: this.saveNotebook,
       syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel,
       varTracker: this.props.varTracker

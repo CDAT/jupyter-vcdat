@@ -19,7 +19,7 @@ interface IVarLoaderProps {
   variables: Variable[]; // list of all currently available variables
   loadFileVariable: (variable: Variable) => Promise<void>; // function to call when user hits load
   updateSelectedVariables: (selection: string[]) => void; // update the list of selected variables
-  saveNotebook: () => void; // function that saves the current notebook
+  saveMetaData: () => void; // function that saves the current notebook's meta data
 }
 interface IVarLoaderState {
   show: boolean; // should the modal be shown
@@ -74,13 +74,16 @@ export class VarLoader extends React.Component<
       return;
     }
     // Once the load button is clicked, load only the variables that were selected
-    this.state.fileVariables.forEach(async (variable: Variable) => {
+    const loaders = Array<Promise<void>>();
+
+    this.state.fileVariables.forEach((variable: Variable) => {
       const idx = this.state.selectedVariables.indexOf(variable.name);
       if (idx >= 0) {
         // Add the variable
-        this.props.loadFileVariable(variable);
+        loaders.push(this.props.loadFileVariable(variable));
       }
     });
+    await Promise.all(loaders);
 
     // Update the main widget's current selected variables
     this.props.updateSelectedVariables(this.state.selectedVariables);
@@ -94,7 +97,7 @@ export class VarLoader extends React.Component<
     });
 
     // Save the notebook after variables have been added
-    await this.props.saveNotebook();
+    await this.props.saveMetaData();
   }
 
   /**

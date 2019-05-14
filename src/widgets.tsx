@@ -83,8 +83,9 @@ export class LeftSideBarWidget extends Widget {
     this.handleNotebookStateChanged = this.handleNotebookStateChanged.bind(
       this
     );
-    this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
     this.handleNotebookChanged = this.handleNotebookChanged.bind(this);
+    this.handleNotebookDisposed = this.handleNotebookDisposed.bind(this);
+    this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
     this.checkVCS = this.checkVCS.bind(this);
     this.checkPlotExists = this.checkPlotExists.bind(this);
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
@@ -205,6 +206,7 @@ export class LeftSideBarWidget extends Widget {
         this._notebookPanel.content.stateChanged.disconnect(
           this.handleNotebookStateChanged
         );
+        this._notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
       }
 
       // Update current notebook
@@ -254,8 +256,10 @@ export class LeftSideBarWidget extends Widget {
 
         // Set up notebook's handlers to keep track of notebook status
         this.notebookPanel.content.stateChanged.connect(
-          this.handleNotebookStateChanged
+          this.handleNotebookStateChanged,
+          this
         );
+        this.notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
       } else {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
         await this.varTracker.refreshVariables();
@@ -292,7 +296,10 @@ export class LeftSideBarWidget extends Widget {
     }
 
     // Notebook tracker will signal when a notebook is changed
-    this.notebookTracker.currentChanged.connect(this.handleNotebookChanged);
+    this.notebookTracker.currentChanged.connect(
+      this.handleNotebookChanged,
+      this
+    );
   }
 
   /**
@@ -364,8 +371,10 @@ export class LeftSideBarWidget extends Widget {
 
       // Connect the handler specific to current notebook
       this._notebookPanel.content.stateChanged.connect(
-        this.handleNotebookStateChanged
+        this.handleNotebookStateChanged,
+        this
       );
+      this._notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
 
       this.state = NOTEBOOK_STATE.VCS_Ready;
 
@@ -589,8 +598,10 @@ export class LeftSideBarWidget extends Widget {
 
       // Connect the handler specific to current notebook
       this._notebookPanel.content.stateChanged.connect(
-        this.handleNotebookStateChanged
+        this.handleNotebookStateChanged,
+        this
       );
+      this._notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
     } catch (error) {
       throw error;
     } finally {
@@ -620,6 +631,13 @@ export class LeftSideBarWidget extends Widget {
   ): Promise<void> {
     // Set the current notebook and wait for the session to be ready
     await this.setNotebookPanel(notebookPanel);
+  }
+
+  private async handleNotebookDisposed(notebookPanel: NotebookPanel) {
+    notebookPanel.content.stateChanged.disconnect(
+      this.handleNotebookStateChanged
+    );
+    notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
   }
 
   /**

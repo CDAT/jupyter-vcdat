@@ -61,6 +61,7 @@ export class VariableTracker {
     this.tryFilePath = this.tryFilePath.bind(this);
     this.updateAxesInfo = this.updateAxesInfo.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
+    this.saveMetaData = this.saveMetaData.bind(this);
   }
 
   get isBusy(): boolean {
@@ -240,8 +241,7 @@ export class VariableTracker {
     NotebookUtilities.setMetaDataNow(
       this.notebookPanel,
       VARIABLE_SOURCES_KEY,
-      this._variableSources,
-      true
+      this.variableSources
     );
 
     await NotebookUtilities.saveNotebook(this.notebookPanel);
