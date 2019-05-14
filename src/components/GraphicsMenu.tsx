@@ -69,12 +69,12 @@ export default class GraphicsMenu extends React.Component<
       enterName: false,
       invalidName: false,
       nameValue: "",
+      plotReady: this.props.plotReady,
       selectedGroup: "",
       selectedMethod: "",
       showDropdown: false,
       showMenu: false,
-      tempGroup: "",
-      plotReady: this.props.plotReady
+      tempGroup: ""
     };
     this.handleNameInput = this.handleNameInput.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);

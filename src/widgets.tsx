@@ -22,7 +22,7 @@ import {
   NOTEBOOK_STATE,
   OUTPUT_RESULT_NAME,
   REFRESH_GRAPHICS_CMD,
-  REFRESH_TEMPLATES_CMD,
+  REFRESH_TEMPLATES_CMD
 } from "./constants";
 import { NotebookUtilities } from "./NotebookUtilities";
 import { Utilities } from "./Utilities";
@@ -122,50 +122,6 @@ export class LeftSideBarWidget extends Widget {
         this.commands.execute("filebrowser:activate");
       }
     });
-  }
-
-  // =======WIDGET SIGNAL HANDLERS=======
-
-  /**
-   * This handles when a notebook is switched to another notebook.
-   * The parameters are automatically passed from the signal when a switch occurs.
-   */
-  private async handleNotebookChanged(
-    tracker: NotebookTracker,
-    notebookPanel: NotebookPanel
-  ): Promise<void> {
-    // Set the current notebook and wait for the session to be ready
-    await this.setNotebookPanel(notebookPanel);
-  }
-
-  /**
-   * This handles when the state of the notebook changes, like when a cell is modified, or run etc.
-   * Using this handler, the variable list is refreshed whenever a cell's code is run in a vcs ready
-   * notebook.
-   */
-  private async handleNotebookStateChanged(
-    notebook: Notebook,
-    stateChange: IChangedArgs<any>
-  ): Promise<void> {
-    // Perform actions when the notebook state has a command run and the notebook is vcs ready
-    if (
-      !this.isBusy &&
-      !this.codeInjector.isBusy &&
-      !this.varTracker.isBusy &&
-      this.state === NOTEBOOK_STATE.VCS_Ready &&
-      stateChange.newValue !== "edit"
-    ) {
-      try {
-        this.varTracker.refreshVariables();
-        // this.varTracker.refreshVariables();
-        this.refreshGraphicsList();
-        await this.refreshTemplatesList();
-        const plotExists = await this.checkPlotExists();
-        this.setPlotExists(plotExists);
-      } catch (error) {
-        console.error(error);
-      }
-    }
   }
 
   // =======GETTERS AND SETTERS=======
@@ -288,7 +244,7 @@ export class LeftSideBarWidget extends Widget {
         await this.refreshGraphicsList();
         await this.refreshTemplatesList();
         await this.varTracker.refreshVariables();
-        
+
         this.vcsMenuRef.getGraphicsSelections();
         this.vcsMenuRef.getTemplateSelection();
 
@@ -303,7 +259,7 @@ export class LeftSideBarWidget extends Widget {
       } else {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
         await this.varTracker.refreshVariables();
-        
+
         this.varTracker.currentFile = "";
         this.setPlotExists(false);
       }
@@ -484,12 +440,10 @@ export class LeftSideBarWidget extends Widget {
       );
       this.usingKernel = false;
 
-      if (output) {
-        // Update the list of latest variables and data
-        this.graphicsMethods = JSON.parse(output.slice(1, output.length - 1));
-      } else {
-        this.graphicsMethods = BASE_GRAPHICS;
-      }
+      // Update the list of latest variables and data
+      this.graphicsMethods = output
+        ? JSON.parse(output.slice(1, output.length - 1))
+        : BASE_GRAPHICS;
     } else {
       this.graphicsMethods = BASE_GRAPHICS;
     }
@@ -651,6 +605,50 @@ export class LeftSideBarWidget extends Widget {
     if (this.notebookPanel) {
       return this.notebookPanel;
     }
-    return await NotebookUtilities.createNewNotebook(this.commands);
+    return NotebookUtilities.createNewNotebook(this.commands);
+  }
+
+  // =======WIDGET SIGNAL HANDLERS=======
+
+  /**
+   * This handles when a notebook is switched to another notebook.
+   * The parameters are automatically passed from the signal when a switch occurs.
+   */
+  private async handleNotebookChanged(
+    tracker: NotebookTracker,
+    notebookPanel: NotebookPanel
+  ): Promise<void> {
+    // Set the current notebook and wait for the session to be ready
+    await this.setNotebookPanel(notebookPanel);
+  }
+
+  /**
+   * This handles when the state of the notebook changes, like when a cell is modified, or run etc.
+   * Using this handler, the variable list is refreshed whenever a cell's code is run in a vcs ready
+   * notebook.
+   */
+  private async handleNotebookStateChanged(
+    notebook: Notebook,
+    stateChange: IChangedArgs<any>
+  ): Promise<void> {
+    // Perform actions when the notebook state has a command run and the notebook is vcs ready
+    if (
+      !this.isBusy &&
+      !this.codeInjector.isBusy &&
+      !this.varTracker.isBusy &&
+      this.state === NOTEBOOK_STATE.VCS_Ready &&
+      stateChange.newValue !== "edit"
+    ) {
+      try {
+        this.varTracker.refreshVariables();
+        // this.varTracker.refreshVariables();
+        this.refreshGraphicsList();
+        await this.refreshTemplatesList();
+        const plotExists = await this.checkPlotExists();
+        this.setPlotExists(plotExists);
+      } catch (error) {
+        console.error(error);
+      }
+    }
   }
 }

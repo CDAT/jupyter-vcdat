@@ -40,10 +40,10 @@ export default class TemplateMenu extends React.Component<
     super(props);
     this.state = {
       optionsChanged: false,
+      plotReady: this.props.plotReady,
       selectedTemplate: "",
       showDropdown: false,
-      showMenu: false,
-      plotReady: this.props.plotReady
+      showMenu: false
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);

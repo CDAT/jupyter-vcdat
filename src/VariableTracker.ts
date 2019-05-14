@@ -75,26 +75,26 @@ export class VariableTracker {
     return this._variables;
   }
 
-  get variablesChanged(): ISignal<this, Variable[]> {
-    return this._variablesChanged;
-  }
-
   set variables(newVariables: Variable[]) {
     this._variables = newVariables;
     this._variablesChanged.emit(newVariables);
+  }
+
+  get variablesChanged(): ISignal<this, Variable[]> {
+    return this._variablesChanged;
   }
 
   get currentFile(): string {
     return this._currentFile;
   }
 
-  get currentFileChanged(): ISignal<this, string> {
-    return this._currentFileChanged;
-  }
-
   set currentFile(filePath: string) {
     this._currentFile = filePath;
     this._currentFileChanged.emit(filePath);
+  }
+
+  get currentFileChanged(): ISignal<this, string> {
+    return this._currentFileChanged;
   }
 
   get dataReaderList(): { [dataName: string]: string } {
@@ -109,21 +109,17 @@ export class VariableTracker {
     return this._selectedVariables;
   }
 
-  get selectedVariablesChanged(): ISignal<this, string[]> {
-    return this._selectedVariablesChanged;
-  }
-
   set selectedVariables(selection: string[]) {
     this._selectedVariables = selection;
     this._selectedVariablesChanged.emit(selection); // Publish that selected variables changed
   }
 
-  get variableSources(): { [varName: string]: string } {
-    return this._variableSources;
+  get selectedVariablesChanged(): ISignal<this, string[]> {
+    return this._selectedVariablesChanged;
   }
 
-  get variableSourcesChanged(): ISignal<this, { [varName: string]: string }> {
-    return this._variableSourcesChanged;
+  get variableSources(): { [varName: string]: string } {
+    return this._variableSources;
   }
 
   set variableSources(newSources: { [varName: string]: string }) {
@@ -131,8 +127,11 @@ export class VariableTracker {
     this._variableSourcesChanged.emit(newSources);
   }
 
+  get variableSourcesChanged(): ISignal<this, { [varName: string]: string }> {
+    return this._variableSourcesChanged;
+  }
+
   public resetVarTracker() {
-    console.log("VarTracker reset");
     this.currentFile = "";
     this.variables = Array<Variable>();
     this.selectedVariables = Array<string>();
@@ -260,34 +259,21 @@ export class VariableTracker {
       this.notebookPanel,
       FILE_PATH_KEY
     );
-    if (lastSource) {
-      this.currentFile = lastSource;
-    } else {
-      this.currentFile = "";
-    }
+    this.currentFile = lastSource ? lastSource : "";
 
     // Update the loaded variables data from meta data
     let result: any = await NotebookUtilities.getMetaData(
       this.notebookPanel,
       VARIABLES_LOADED_KEY
     );
-    if (result) {
-      // Update the variables list
-      this.variables = result;
-    } else {
-      this.variables = Array<Variable>();
-    }
+    this.variables = result ? result : Array<Variable>();
 
     // Update the variable sources from meta data
     result = await NotebookUtilities.getMetaData(
       this.notebookPanel,
       VARIABLE_SOURCES_KEY
     );
-    if (result) {
-      this.variableSources = result;
-    } else {
-      this.variableSources = {};
-    }
+    this.variableSources = result ? result : {};
 
     // Load the selected variables from meta data (if exists)
     const selection: string[] = await NotebookUtilities.getMetaData(
@@ -295,11 +281,7 @@ export class VariableTracker {
       SELECTED_VARIABLES_KEY
     );
     // No meta data means fresh notebook with no selections
-    if (selection) {
-      this.selectedVariables = selection;
-    } else {
-      this.selectedVariables = Array<string>();
-    }
+    this.selectedVariables = selection ? selection : Array<string>();
 
     // Update the list of data variables and associated filepath
     const readers: {

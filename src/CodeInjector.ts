@@ -353,7 +353,7 @@ export class CodeInjector {
 
     // Export of png plot can include provenance
     if (format === "png" && provenance !== undefined) {
-      cmd += provenance ? `, provenance=True` : `, provenance=False`;
+      cmd += provenance ? `, provenance=True` : ``;
     }
 
     // Close command

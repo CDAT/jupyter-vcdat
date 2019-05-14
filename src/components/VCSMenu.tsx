@@ -18,7 +18,7 @@ import { CodeInjector } from "../CodeInjector";
 import {
   CANVAS_DIMENSIONS_CMD,
   GRAPHICS_METHOD_KEY,
-  TEMPLATE_KEY,
+  TEMPLATE_KEY
 } from "../constants";
 import { NotebookUtilities } from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
@@ -91,10 +91,10 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       isModalOpen: false,
       notebookPanel: this.props.notebookPanel,
       overlayMode: false,
+      plotExists: this.props.plotExists,
       plotFormat: "",
       plotName: "",
       plotReady: this.props.plotReady,
-      plotExists: this.props.plotExists,
       savePlotAlert: false,
       selectedGM: "",
       selectedGMgroup: "",
@@ -173,10 +173,10 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
     this.setState({
+      overlayMode: false,
       selectedGM: "",
       selectedGMgroup: "",
-      selectedTemplate: "",
-      overlayMode: false
+      selectedTemplate: ""
     });
   }
 
@@ -414,12 +414,12 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       varInfo: new Variable()
     };
     const varMenuProps = {
-      varTracker: this.props.varTracker,
       commands: this.props.commands,
       loadVariable: this.loadVariable,
       saveNotebook: this.saveNotebook,
       syncNotebook: this.props.syncNotebook,
-      updateNotebook: this.props.updateNotebookPanel
+      updateNotebook: this.props.updateNotebookPanel,
+      varTracker: this.props.varTracker
     };
     const templateMenuProps = {
       getTemplatesList: this.props.getTemplatesList,

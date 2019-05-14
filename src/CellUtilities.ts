@@ -119,7 +119,7 @@ export class CellUtilities {
     notebookPanel: NotebookPanel,
     key: string
   ): [number, ICellModel] {
-    if(!notebookPanel){
+    if (!notebookPanel) {
       throw new Error("Notebook was null!");
     }
     const cells = notebookPanel.model.cells;
