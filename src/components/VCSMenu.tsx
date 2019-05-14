@@ -160,7 +160,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
   }
 
   public exportPlotAlerts(): void {
-    this.setState({ savePlotAlert: false });
+    this.setState({ savePlotAlert: true });
   }
 
   public toggleModal(): void {
