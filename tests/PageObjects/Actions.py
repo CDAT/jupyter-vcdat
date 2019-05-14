@@ -137,8 +137,8 @@ class Actions(object):
 
     def open_file_browser(self):
         try:
-            self.dropdown_click(self.select_running_tab())
-            self.dropdown_click(self.select_file_tab())
+            self.dropdown_click(self.locate_running_tab())
+            self.dropdown_click(self.locate_file_tab())
         except NoSuchElementException as e:
             print(
                 "NoSuchElementException...could not open filebrowser")
@@ -146,8 +146,8 @@ class Actions(object):
 
     def open_vcdat_widget(self):
         try:
-            self.dropdown_click(self.select_running_tab())
-            self.dropdown_click(self.select_vcdat_icon())
+            self.dropdown_click(self.locate_running_tab())
+            self.dropdown_click(self.locate_vcdat_icon())
         except NoSuchElementException as e:
             print(
                 "NoSuchElementException...could not open vcdat widget")

@@ -22,14 +22,14 @@ class TestLocators(BaseTestCase):
         locator = self.main_page
 
         # Select each element in the top left menu bar
-        locator.select_top_menu_item("File")
-        locator.select_top_menu_item("Edit")
-        locator.select_top_menu_item("View")
-        locator.select_top_menu_item("Run")
-        locator.select_top_menu_item("Kernel")
-        locator.select_top_menu_item("Tabs")
-        locator.select_top_menu_item("Settings")
-        locator.select_top_menu_item("Help")
+        locator.locate_top_menu_item("File")
+        locator.locate_top_menu_item("Edit")
+        locator.locate_top_menu_item("View")
+        locator.locate_top_menu_item("Run")
+        locator.locate_top_menu_item("Kernel")
+        locator.locate_top_menu_item("Tabs")
+        locator.locate_top_menu_item("Settings")
+        locator.locate_top_menu_item("Help")
 
     def test_jupyter_left_tab_locators(self):
         '''
@@ -38,11 +38,11 @@ class TestLocators(BaseTestCase):
         locator = self.main_page
 
         # Select each left sidebar tab
-        locator.select_folder_tab()
-        locator.select_running_tab()
-        locator.select_command_palette_tab()
-        locator.select_vcdat_icon()
-        locator.select_open_tabs_tab()
+        locator.locate_folder_tab()
+        locator.locate_running_tab()
+        locator.locate_command_palette_tab()
+        locator.locate_vcdat_icon()
+        locator.locate_open_tabs_tab()
 
     def test_launcher_locators(self):
         '''
@@ -51,8 +51,8 @@ class TestLocators(BaseTestCase):
         locator = MainPageLocator(self.driver, self.server)
 
         # Select each notebook launcher
-        locator.select_notebook_launcher("Python 3")
-        locator.select_notebook_launcher("Python [conda env:jupyter-vcdat] *")
+        locator.locate_notebook_launcher("Python 3")
+        locator.locate_notebook_launcher("Python [conda env:jupyter-vcdat] *")
 
     def test_open_widgets(self):
         # locator = MainPageLocator(self.driver, self.server)
@@ -69,10 +69,10 @@ class TestLocators(BaseTestCase):
         '''
         locator = self.main_page
 
-        locator.select_new_launcher_icon()
-        locator.select_new_folder_icon()
-        locator.select_upload_files_icon()
-        locator.select_refresh_file_list_icon()
+        locator.locate_new_launcher_icon()
+        locator.locate_new_folder_icon()
+        locator.locate_upload_files_icon()
+        locator.locate_refresh_file_list_icon()
 
     def test_new_notebook(self):
         print("\n\n...{}...".format(self._testMethodName))
@@ -88,12 +88,12 @@ class TestLocators(BaseTestCase):
         print("\n\n...test_vcdat_panel_locators...")
         main_page = self.main_page
         vcdat_panel = main_page.click_on_vcdat_icon()
-        vcdat_panel.select_plot()
-        vcdat_panel.select_export_plot()
-        vcdat_panel.select_clear()
-        vcdat_panel.select_load_variables()
-        vcdat_panel.select_select_plot_type()
-        vcdat_panel.select_select_a_template()
+        vcdat_panel.locate_plot()
+        vcdat_panel.locate_export_plot()
+        vcdat_panel.locate_clear()
+        vcdat_panel.locate_load_variables()
+        vcdat_panel.locate_select_plot_type()
+        vcdat_panel.locate_select_a_template()
 
     def test_file_browser_locators(self):
         print("\n\n...test_file_browser_locators...")

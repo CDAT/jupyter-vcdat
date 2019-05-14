@@ -21,7 +21,7 @@ class MainPageLocator(Actions):
         logo_locator = 'jp-MainLogo'
         self.driver.find_element_by_id(logo_locator)
 
-    def select_top_menu_item(self, name):
+    def locate_top_menu_item(self, name):
         '''
         find the tab element ('File', 'Edit', 'View', 'Run'...) and
         return the element
@@ -41,7 +41,7 @@ class MainPageLocator(Actions):
         click the tab element ('File', 'Edit', 'View', 'Run'...)
         '''
         try:
-            element = self.select_top_menu_item(name)
+            element = self.locate_top_menu_item(name)
             time.sleep(self._a_bit_delay)
             ActionChains(self.driver).move_to_element(element).click().perform()
         except NoSuchElementException as e:
@@ -80,22 +80,22 @@ class MainPageLocator(Actions):
         except NoSuchElementException as e:
             raise e
 
-    def select_folder_tab(self):
+    def locate_folder_tab(self):
         return self.find_element_by_class("jp-FolderIcon", "Jupyter lab file tab")
 
-    def select_running_tab(self):
+    def locate_running_tab(self):
         return self.find_element_by_class("jp-DirectionsRunIcon", "Running terminals and kernels tab")
 
-    def select_command_palette_tab(self):
+    def locate_command_palette_tab(self):
         return self.find_element_by_class("jp-PaletteIcon", "Jupyter lab command palette tab")
 
-    def select_vcdat_icon(self):
+    def locate_vcdat_icon(self):
         return self.find_element_by_class(VCDAT_ICON_CLASS, "VCDAT icon")
 
-    def select_open_tabs_tab(self):
+    def locate_open_tabs_tab(self):
         return self.find_element_by_class("jp-SideBar-tabIcon", "Jupyter lab open tabs sidebar tab")
 
-    def select_notebook_launcher_cards(self):
+    def locate_notebook_launcher_cards(self):
         try:
             launchers = self.find_elements_by_class(
                 "jp-LauncherCard", "Jupyter lab launcher cards")
@@ -109,9 +109,9 @@ class MainPageLocator(Actions):
             print("NoSuchElementException... not notebook launchers found")
             raise e
 
-    def select_notebook_launcher(self, title):
+    def locate_notebook_launcher(self, title):
         try:
-            launchers = self.select_notebook_launcher_cards()
+            launchers = self.locate_notebook_launcher_cards()
             for launcher in launchers:
                 if launcher.get_attribute("title") == title:
                     print("FOUND launcher titled {}".format(title))
@@ -123,54 +123,54 @@ class MainPageLocator(Actions):
             raise e
 
     def click_on_notebook_launcher(self, title):
-        element = self.select_notebook_launcher(title)
+        element = self.locate_notebook_launcher(title)
         self.move_to_click(element)
 
     #
     # click on icons on left side bar
     #
     def click_on_folder_tab(self):
-        element = self.select_folder_tab()
+        element = self.locate_folder_tab()
         # check that there is a 'New Launcher' icon
-        new_launcher_element = self.select_new_launcher_icon()
+        new_launcher_element = self.locate_new_launcher_icon()
         if not new_launcher_element.is_displayed() or not new_launcher_element.is_enabled():
-            element = self.select_folder_tab()
+            element = self.locate_folder_tab()
         self.move_to_click(element)
 
     def click_on_running_tab(self):
-        element = self.select_running_tab()
+        element = self.locate_running_tab()
         self.move_to_click(element)
 
     def click_on_command_palette_tab(self):
-        element = self.select_command_palette_tab()
+        element = self.locate_command_palette_tab()
         self.move_to_click(element)
 
     def click_on_vcdat_icon(self):
-        element = self.select_vcdat_icon()
+        element = self.locate_vcdat_icon()
         self.move_to_click(element)
         try:
             vcdat_panel = VcdatPanel(self.driver, None)
             return vcdat_panel
         except InvalidPageException:
-            element = self.select_vcdat_icon()
+            element = self.locate_vcdat_icon()
             self.move_to_click(element)
 
     def click_on_open_tabs_tab(self):
-        element = self.select_open_tabs_tab()
+        element = self.locate_open_tabs_tab()
         self.move_to_click(element)
 
-    def select_home_icon(self):
+    def locate_home_icon(self):
         return self.find_element_by_class("jp-HomeIcon",
                                           "Jupyter file browser home icon")
 
     def click_on_home_icon(self):
-        element = self.select_home_icon()
+        element = self.locate_home_icon()
         self.move_to_click(element)
 
     #
     # select jp tool bar icon
     #
-    def select_jp_tool_bar_icon(self, icon_title):
+    def locate_jp_tool_bar_icon(self, icon_title):
         loc = "//button[@class='jp-ToolbarButtonComponent' and @title='{}']".format(icon_title)
         try:
             element = self.find_element_by_xpath(loc, icon_title)
@@ -179,36 +179,36 @@ class MainPageLocator(Actions):
             raise e
         return element
 
-    def select_new_launcher_icon(self):
-        return self.select_jp_tool_bar_icon("New Launcher")
+    def locate_new_launcher_icon(self):
+        return self.locate_jp_tool_bar_icon("New Launcher")
 
-    def select_new_folder_icon(self):
-        return self.select_jp_tool_bar_icon("New Folder")
+    def locate_new_folder_icon(self):
+        return self.locate_jp_tool_bar_icon("New Folder")
 
-    def select_upload_files_icon(self):
-        return self.select_jp_tool_bar_icon("Upload Files")
+    def locate_upload_files_icon(self):
+        return self.locate_jp_tool_bar_icon("Upload Files")
 
-    def select_refresh_file_list_icon(self):
-        return self.select_jp_tool_bar_icon("Refresh File List")
+    def locate_refresh_file_list_icon(self):
+        return self.locate_jp_tool_bar_icon("Refresh File List")
 
     def click_on_jp_tool_bar_icon(self, icon_title):
-        element = self.select_jp_tool_bar_icon(icon_title)
+        element = self.locate_jp_tool_bar_icon(icon_title)
         self.move_to_click(element)
 
     def click_on_new_launcher_icon(self):
-        element = self.select_new_launcher_icon()
+        element = self.locate_new_launcher_icon()
         self.move_to_click(element)
 
     def click_on_new_folder_icon(self):
-        element = self.select_new_folder_icon()
+        element = self.locate_new_folder_icon()
         self.move_to_click(element)
 
     def click_on_upload_files_icon(self):
-        element = self.select_upload_files_icon()
+        element = self.locate_upload_files_icon()
         self.move_to_click(element)
 
     def click_on_refresh_file_list_icon(self):
-        element = self.select_refresh_file_list_icon()
+        element = self.locate_refresh_file_list_icon()
         self.move_to_click(element)
 
     #

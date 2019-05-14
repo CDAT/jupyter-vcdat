@@ -53,7 +53,7 @@ class TestAdjustAxes(BaseTestCase):
         load_variable_pop_up.adjust_var_axes_slider('v', 'longitude2', 20, -20)
 
         load_variable_pop_up.load()
-        self.select_plot_type("streamline (default)")
+        self.locate_plot_type("streamline (default)")
 
         self.click_on_plot()
         canvas = Canvas(self.driver)
