@@ -38,10 +38,10 @@ jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 # Jupyterhub extension
 jupyter labextension install @jupyterlab/hub-extension
 
-if [[ ! -d "../jupyter-vcdat" ]]; then
-  git clone https://github.com/CDAT/jupyter-vcdat.git
-  cd jupyter-vcdat
-fi
+# if [[ ! -d "../jupyter-vcdat" ]]; then
+#   git clone https://github.com/CDAT/jupyter-vcdat.git
+#   cd jupyter-vcdat
+# fi
 
 npm install
 npm run build
