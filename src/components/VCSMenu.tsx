@@ -144,6 +144,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
 
   public dismissSavePlotSpinnerAlert(): void {
     this.setState({ savePlotAlert: false });
+    this.props.commands.execute("vcs:refresh-browser");
   }
 
   public dismissExportSuccessAlert(): void {

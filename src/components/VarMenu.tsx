@@ -18,6 +18,7 @@ import { AxisInfo } from "./AxisInfo";
 import { Variable } from "./Variable";
 import { VarLoader } from "./VarLoader";
 import { VarMini } from "./VarMini";
+import { CommandRegistry } from "@phosphor/commands";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -30,7 +31,7 @@ const formOverflow: React.CSSProperties = {
 
 interface IVarMenuProps {
   loadVariable: (variable: Variable) => Promise<any>; // a method to call when loading the variable
-  commands?: any; // the command executer
+  commands?: CommandRegistry; // the command executer
   variables: Variable[]; // an array of all current variables
   selectedVariables: string[]; // array of names for variables that have been selected
   updateSelectedVariables: (selection: string[]) => Promise<any>; // update the list of selected variables

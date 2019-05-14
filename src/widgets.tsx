@@ -125,6 +125,12 @@ export class LeftSideBarWidget extends Widget {
         this.commands.execute("filebrowser:activate");
       }
     });
+
+    this.commands.addCommand("vcs:refresh-browser", {
+      execute: args => {
+        this.commands.execute("filebrowser:navigate", { path: "." });
+      }
+    });
   }
 
   // =======PROPS FUNCTIONS=======
