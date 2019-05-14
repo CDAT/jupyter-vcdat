@@ -18,12 +18,7 @@ import { CodeInjector } from "../CodeInjector";
 import {
   CANVAS_DIMENSIONS_CMD,
   GRAPHICS_METHOD_KEY,
-  MAX_SLABS,
-  SELECTED_VARIABLES_KEY,
   TEMPLATE_KEY,
-  VARIABLE_SOURCES_KEY,
-  VARIABLES_LOADED_KEY,
-  NOTEBOOK_STATE
 } from "../constants";
 import { NotebookUtilities } from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
@@ -64,8 +59,6 @@ interface IVCSMenuProps {
   getGraphicsList: () => any; // function that reads the current graphics list
   refreshGraphicsList: () => Promise<void>; // function that refreshes the graphics method list
   getTemplatesList: () => string[]; // function that reads the widget's current template list
-  // getFileVariables: (filePath: string) => Promise<Variable[]>; // Function that reads the current notebook file and retrieves variable data
-  // updateVariables: (variables: Variable[]) => void; // function that updates the variables list in the main widget
   updateNotebookPanel: () => Promise<void>; // Function passed to the var menu
   syncNotebook: () => boolean; // Function passed to the var menu
   codeInjector: CodeInjector;
@@ -73,8 +66,6 @@ interface IVCSMenuProps {
 }
 interface IVCSMenuState {
   variables: Variable[]; // All the variables, loaded from files and derived by users
-  // variableSources: { [varName: string]: string }; // Tracks what data reader each variable came from
-  // selectedVariables: string[]; // Unique names of all the variables that are currently selected
   selectedGM: string;
   selectedGMgroup: string;
   selectedTemplate: string;
@@ -108,7 +99,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: "",
-      // variableSources: {},
       variables: this.props.varTracker.variables
     };
     this.varMenuRef = (React as any).createRef();
@@ -119,14 +109,11 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.getCanvasDimensions = this.getCanvasDimensions.bind(this);
     this.copyGraphicsMethod = this.copyGraphicsMethod.bind(this);
     this.getGraphicsSelections = this.getGraphicsSelections.bind(this);
-    // this.getVariableSelections = this.getVariableSelections.bind(this);
     this.getTemplateSelection = this.getTemplateSelection.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
     this.launchVarSelect = this.launchVarSelect.bind(this);
-    // this.updateVariables = this.updateVariables.bind(this);
-    // this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
     this.exportPlotAlerts = this.exportPlotAlerts.bind(this);
@@ -183,7 +170,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
   }
 
   public async resetState(): Promise<void> {
-    // this.varMenuRef.resetVarMenuState();
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
     this.setState({
@@ -191,8 +177,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       selectedGMgroup: "",
       selectedTemplate: "",
       overlayMode: false
-      // selectedVariables: Array<string>(),
-      // variables: Array<Variable>()
     });
   }
 
@@ -219,27 +203,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
     }
   }
-
-  /*public getVariableSelections(): void {
-    // Load the selected graphics method from meta data (if exists)
-    const selection: string[] = NotebookUtilities.getMetaDataNow(
-      this.state.notebookPanel,
-      SELECTED_VARIABLES_KEY
-    );
-
-    // No meta data means fresh notebook with no selections
-    if (!selection) {
-      this.varMenuRef.resetVarMenuState();
-      this.setState({
-        selectedVariables: Array<string>()
-      });
-      return;
-    }
-
-    // Set state based on meta data from notebook
-    this.setState({ selectedVariables: selection });
-    this.varMenuRef.setState({ selectedVariables: selection });
-  }*/
 
   public getGraphicsSelections(): void {
     // Load the selected graphics method from meta data (if exists)
@@ -401,15 +364,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       }
     }
 
-    // this.updateVariables(currentVars);
     this.props.varTracker.variables = currentVars;
-    // Update meta data
-    /*await NotebookUtilities.setMetaData(
-      this.state.notebookPanel,
-      VARIABLES_LOADED_KEY,
-      currentVars,
-      true
-    );*/
   }
 
   /**
@@ -449,32 +404,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     await this.varMenuRef.launchVarLoader(variables);
   }
 
-  /*public async updateVariables(variables: Variable[]): Promise<void> {
-    await this.setState({ variables });
-    await this.varMenuRef.setState({ variables });
-    await this.varMenuRef.varLoaderRef.setState({ variables });
-    this.props.updateVariables(variables);
-  }*
-
-  /**
-   * @description Adds a list of variables to the selectedVariables list after checking that they're not already there
-   * @param selection the list of variables to add to the selectedVariables list
-   */
-  /*
-  public async updateSelectedVariables(selection: string[]): Promise<any> {
-    await this.props.varTracker.updateSelectedVariables(selection, true);
-    // Update meta data
-    await NotebookUtilities.setMetaData(
-      this.state.notebookPanel,
-      VARIABLES_KEY,
-      selection
-    );
-    await Promise.all([
-      this.setState({ selectedVariables: selection }),
-      this.varMenuRef.setState({ selectedVariables: selection })
-    ]);
-  }*/
-
   public render(): JSX.Element {
     const graphicsMenuProps = {
       copyGraphicsMethod: this.copyGraphicsMethod,
@@ -489,12 +418,8 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       commands: this.props.commands,
       loadVariable: this.loadVariable,
       saveNotebook: this.saveNotebook,
-      // selectedVariables: this.state.selectedVariables,
       syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel
-      // updateSelectedVariables: this.updateSelectedVariables,
-      // updateVariables: this.updateVariables,
-      // variables: this.state.variables
     };
     const templateMenuProps = {
       getTemplatesList: this.props.getTemplatesList,

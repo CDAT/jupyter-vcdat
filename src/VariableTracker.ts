@@ -19,7 +19,6 @@ import { AxisInfo } from "./components/AxisInfo";
 export class VariableTracker {
   private _isBusy: boolean;
   private _notebookPanel: NotebookPanel;
-  private logErrorsToConsole: boolean; // Whether errors should log to console. Should be false during production.
 
   private _currentFile: string; // The last file source that was used
   private _currentFileChanged: Signal<this, string>;
@@ -35,7 +34,6 @@ export class VariableTracker {
   constructor() {
     this._notebookPanel = null;
     this._isBusy = false;
-    this.logErrorsToConsole = true;
 
     this._currentFile = "";
     this._currentFileChanged = new Signal<this, string>(this);

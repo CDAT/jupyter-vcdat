@@ -16,7 +16,6 @@ import { Utilities } from "../Utilities";
 import { AxisInfo } from "./AxisInfo";
 import { DimensionSlider } from "./DimensionSlider";
 import { Variable } from "./Variable";
-import { Handle } from "./Tracks";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"

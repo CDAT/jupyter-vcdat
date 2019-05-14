@@ -39,7 +39,6 @@ export class CodeInjector {
     this.cmdRegistry = commands;
     this.varTracker = variableTracker;
     this.logErrorsToConsole = true;
-    // this.dataReaders = {};
     this.inject = this.inject.bind(this);
     this.addFileCmd = this.addFileCmd.bind(this);
     this.buildImportCommand = this.buildImportCommand.bind(this);
@@ -53,8 +52,6 @@ export class CodeInjector {
     this.loadVariable = this.loadVariable.bind(this);
     this.plot = this.plot.bind(this);
     this.clearPlot = this.clearPlot.bind(this);
-    // this.tryFilePath = this.tryFilePath.bind(this);
-    // this.getDataReaderName = this.getDataReaderName.bind(this);
   }
 
   get isBusy(): boolean {
@@ -64,14 +61,6 @@ export class CodeInjector {
   get notebookPanel(): NotebookPanel {
     return this._notebookPanel;
   }
-
-  /*get dataReaderList(): { [dataName: string]: string } {
-    return this.dataReaders;
-  }
-
-  set dataReaderList(dataReaderList: { [dataName: string]: string }) {
-    this.dataReaders = dataReaderList;
-  }*/
 
   public async setNotebook(notebookPanel: NotebookPanel) {
     if (notebookPanel) {
@@ -506,55 +495,6 @@ export class CodeInjector {
       arguments
     );
   }
-
-  // Will try to open a file path in cdms2. Returns true if successful.
-  /*
-  public async tryFilePath(filePath: string) {
-    try {
-      await NotebookUtilities.sendSimpleKernelRequest(
-        this.notebookPanel,
-        `tryOpenFile = cdms2.open('${filePath}')\ntryOpenFile.close()`,
-        false
-      );
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }*/
-
-  /**
-   * Gets the name for a data reader object to read data from a file. Creates a new name if one doesn't exist.
-   * @param filePath The file path of the new file added
-   */
-  /*
-  public getDataReaderName(filePath: string): string {
-    // Check whether that file path is already open, return the data name if so
-    let dataName: string = "";
-    const found: boolean = Object.keys(this.dataReaderList).some(
-      (dataVar: string) => {
-        dataName = dataVar;
-        return this.dataReaderList[dataVar] === filePath;
-      }
-    );
-    if (found) {
-      return dataName;
-    }
-
-    // Filepath hasn't been added before, create the name for data variable based on file path
-    dataName = `${Utilities.createValidVarName(filePath)}_data`;
-
-    // If the reader name already exist but the path is different (like for two files with
-    // similar names but different paths) add a count to the end until it's unique
-    let count: number = 1;
-    let newName: string = dataName;
-
-    while (Object.keys(this.dataReaderList).indexOf(newName) >= 0) {
-      newName = `${dataName}${count}`;
-      count += 1;
-    }
-
-    return newName;
-  }*/
 
   /**
    * This is the injection method used by the other code injector functions for injecting code into the notebook
