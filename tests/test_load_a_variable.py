@@ -21,24 +21,8 @@ class TestLoadVariable(BaseTestCaseWithNoteBook):
         file_browser = vcdat_panel.click_on_load_variables()
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
-        load_variable_popup.click_on_var_axes('v')
-        load_variable_popup.click_on_load()
-        vcdat_panel.click_on_plot()
-
-    def ABCtest_load_a_variable_1(self):
-        '''
-        load 'clt.nc' file, and load 'v' variable, and plot
-        '''
-        test_file = "clt.nc"
-        self.main_page.click_on_vcdat_icon()
-        vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables()
-
-        load_variable_popup = file_browser.double_click_on_a_file(test_file)
-        load_variable_popup.click_on_var_axes('v')
-
-        load_variable_popup.adjust_var_axes_slider(self, 'v', 'latitude2', 10, -10)
-
+        load_variable_popup.click_on_variable('v')
+        load_variable_popup.click_on_variable_axes('v')
         load_variable_popup.click_on_load()
         vcdat_panel.click_on_plot()
 
