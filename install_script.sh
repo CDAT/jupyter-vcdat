@@ -44,5 +44,6 @@ if [[ ! -d "../jupyter-vcdat" ]]; then
 fi
 
 npm install
+npm run build
 jupyter lab build
 jupyter-labextension install .

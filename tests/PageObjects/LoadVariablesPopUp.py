@@ -57,7 +57,7 @@ class LoadVariablesPopUp(Actions):
             print("Did not find elements with {} locator".format(rows_locator))
             raise e
 
-    def locate_variable_axes(self, var):
+    def locate_variable_axis(self, var):
         '''
         this function should be called only when the variable is already selected.
         returns the row element and the axes button for the specified 'var'
@@ -91,7 +91,7 @@ class LoadVariablesPopUp(Actions):
 
     def click_on_variable_axes(self, var):
         try:
-            row_for_var, element = self.locate_variable_axes(var)
+            row_for_var, element = self.locate_variable_axis(var)
             time.sleep(self._delay)
             self.move_to_click(element)
         except NoSuchElementException as e:
@@ -108,9 +108,9 @@ class LoadVariablesPopUp(Actions):
             print("Cannot find 'Load' button in the 'Load Variables' pop up")
             raise e
 
-    def locate_all_axis_for_variable(self, var):
+    def locate_all_axes_for_variable(self, var):
 
-        row_for_var, axes_button = self.locate_variable_axes(var)
+        row_for_var, axes_button = self.locate_variable_axis(var)
 
         # axis_locator = ".//div[@class='collapse']/div[@style='margin-top']"
         axes_class = "dimension-slider-vcdat"
@@ -125,11 +125,76 @@ class LoadVariablesPopUp(Actions):
             print("Cannot find all axis for variable '{}'".format(var))
             raise e
 
-    def adjust_var_axes_slider(self, var, axis, min_offset_percent, max_offset_percent):
+    def locate_axis_with_title(self, var, axis_title):
+        axes_for_var = self.locate_all_axes_for_variable(var)
+        print("number of axes for variable '{v}': {n}".format(v=var,
+                                                              n=len(axes_for_var)))
+        i = 0
+        for axis in axes_for_var:
+            # check the axis title
+            axis_title_locator = ".//div[@class='col-auto']"
+            try:
+                axis_titles_for_var = axis.find_elements_by_xpath(axis_title_locator)
+                print("number of axis_titles_for_var: {}".format(len(axis_titles_for_var)))
+                print("DEBUG...axis_title: {t}".format(t=axis_titles_for_var[0].text))
+                if axis_titles_for_var[0].text == axis_title:
+                    print("FOUND '{a}' axis for variable '{v}'".format(a=axis_title,
+                                                                       v=var))
+                    break
+                else:
+                    i += 1
+            except NoSuchElementException as e:
+                print("Cannot find axis title for variable '{}'".format(var))
+                raise e
+        if i >= len(axes_for_var):
+            # REVISIT -- throw an exception
+            print("FAIL...we should not be here...")
+        else:
+            return axes_for_var[i]
+
+    def _get_slider_width_for_axis(self, axis_element):
+        slider_track_locator = ".//div[@class='slider-tracks-vcdat']/div"
+        try:
+            slider_track = axis_element.find_element_by_xpath(slider_track_locator)
+            slider_width = slider_track.size['width']
+            print("DEBUG DEBUG....slider_width: '{}'".format(slider_width))
+            return slider_width
+        except NoSuchElementException as e:
+            print("Cannot find slider track")
+            raise e
+
+    def _get_slider_controls(self, axis_element):
+        slider_controls_locator = ".//div[@class='slider-handles-vcdat']/div"
+        try:
+            slider_controls = axis_element.find_elements_by_xpath(slider_controls_locator)
+            print("DEBUG...num of slider_controls: {}".format(len(slider_controls)))
+            return slider_controls
+        except NoSuchElementException as e:
+            print("Cannot get slider controls")
+            raise e
+
+    def _adjust_slider_control(self, slider_control_element, slider_width, offset_percent):
+        print("DEBUG...slider_width: {w}, offset_percent: {op}".format(w=slider_width,
+                                                                       op=offset_percent))
+        offset = (offset_percent / 100) * slider_width
+        self.driver.execute_script("return arguments[0].scrollIntoView(true);", slider_control_element)
+        ac = ActionChains(self.driver)
+        ac.click_and_hold(slider_control_element).move_by_offset(offset, 0).release().perform()
+        time.sleep(self._delay)
+
+    def adjust_var_axes_slider(self, var, axis_title, min_offset_percent, max_offset_percent):
         print("...adjust_var_axes_slider...")
-        axis_for_var = self.locate_all_axis_for_variable(var)
-        print("number of axis for variable '{v}': {n}".format(v=var,
-                                                              n=len(axis_for_var)))
+        try:
+            axis_for_var = self.locate_axis_with_title(var, axis_title)
+            print("DEBUG...found axis_for_var")
+            slider_width = self._get_slider_width_for_axis(axis_for_var)
+
+            slider_controls = self._get_slider_controls(axis_for_var)
+            self._adjust_slider_control(slider_controls[0], slider_width, min_offset_percent)
+            self._adjust_slider_control(slider_controls[1], slider_width, max_offset_percent)
+        except NoSuchElementException as e:
+            print("FAIL...adjust_var_axes_slider")
+            raise e
 
     def adjust_var_axes_sliderPREV(self, var, axis, min_offset_percent, max_offset_percent):
         print("...adjust_var_axes_slider...")
