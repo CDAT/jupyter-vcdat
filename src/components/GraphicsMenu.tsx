@@ -184,7 +184,7 @@ export default class GraphicsMenu extends React.Component<
     }
     return (
       <div>
-        <Card>
+        <Card id="gm_card">
           <CardBody>
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle className="clearfix">

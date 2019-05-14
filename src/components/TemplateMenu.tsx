@@ -82,7 +82,7 @@ export default class TemplateMenu extends React.Component<
     }
     return (
       <div>
-        <Card>
+        <Card id="tm_card">
           <CardBody>
             <CardTitle>Layout Template</CardTitle>
             <CardSubtitle>
