@@ -170,10 +170,8 @@ def check_for_exported_file():\n\
 ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
       );
       if (result === "True") {
-        window.setTimeout(() => {
-          this.props.dismissSavePlotSpinnerAlert();
-          this.props.showExportSuccessAlert();
-        }, 3000);
+        this.props.dismissSavePlotSpinnerAlert();
+        this.props.showExportSuccessAlert();
       }
     } catch (error) {
       console.log("error with checking file:", error);
