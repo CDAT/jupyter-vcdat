@@ -4,6 +4,53 @@
 # http://kvz.io/blog/2013/11/21/bash-best-practices/
 # http://jvns.ca/blog/2017/03/26/bash-quirks/
 
+# default logfile name
+filename="jupyter-vcdat_logfile.txt"
+# NOT verbose by default
+verbose=0
+
+# Figure out command line arguments: http://linuxcommand.org/lc3_wss0120.php
+while [ "$1" != "" ]; do
+    case $1 in
+        -f | --file )           shift
+                                filename=$1
+                                ;;
+        -v | --verbose )        verbose=1
+                                ;;
+        * )                     usage
+                                exit 1
+    esac
+    shift
+done
+
+echo "Installing jupyter-vcdat extension"
+echo "Output will be redirected to $filename"
+# Redirect to logfile and possibly screen if verbose
+if [ $verbose == 1 ]; then
+  # Redirect stdout ( > ) into a named pipe ( >() ) running "tee"
+  exec > >(tee -i $filename)
+
+else
+  echo "Going into quiet mode, suppressing output"
+  # https://stackoverflow.com/questions/637827/redirect-stderr-and-stdout-in-bash
+  # Close STDOUT file descriptor
+  exec 1<&-
+  # Close STDERR FD
+  exec 2<&-
+
+  # Open STDOUT as $LOG_FILE file for read and write.
+  exec 1<>$filename
+fi
+# Without this, only stdout would be captured - i.e. your
+# log file would not contain any error messages.
+# SEE (and upvote) the answer by Adam Spiers, which keeps STDERR
+# as a separate stream - I did not want to steal from him by simply
+# adding his answer to mine.
+exec 2>&1
+
+  
+
+
 # exit when a command fails
 set -o errexit
 
