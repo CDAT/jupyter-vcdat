@@ -137,6 +137,8 @@ jobs:
       - run: *run_jupyter_vcdat
       - run: *run_tests_with_chrome
       - store_artifacts:
+          path: jupyter-vcdat_logfile.txt
+      - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
       - run: *run_tests_with_firefox
