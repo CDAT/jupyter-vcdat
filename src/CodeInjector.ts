@@ -27,6 +27,7 @@ import { Utilities } from "./Utilities";
  */
 export class CodeInjector {
   private _isBusy: boolean;
+  private canvasReady: boolean; // Whether the canvas is ready/has been already run
   private _notebookPanel: NotebookPanel;
   private cmdRegistry: CommandRegistry;
   private varTracker: VariableTracker;
@@ -36,6 +37,7 @@ export class CodeInjector {
   constructor(commands: CommandRegistry, variableTracker: VariableTracker) {
     this._notebookPanel = null;
     this._isBusy = false;
+    this.canvasReady = false;
     this.cmdRegistry = commands;
     this.varTracker = variableTracker;
     this.logErrorsToConsole = true;
@@ -276,6 +278,10 @@ export class CodeInjector {
 
       cellIdx = newIdx;
     } else {
+      if (this.canvasReady) {
+        // Exit early if the canvas cell has already been run
+        return cellIdx;
+      }
       // Replace code in canvas cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
@@ -294,6 +300,7 @@ export class CodeInjector {
       true
     );
 
+    this.canvasReady = true;
     return cellIdx;
   }
 
