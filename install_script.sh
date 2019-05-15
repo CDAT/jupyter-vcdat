@@ -46,7 +46,7 @@ REPO=$(git config --get remote.origin.url | cut -d '/' -f 2) || REPO="NO"
 set -o pipefail
 
 echo "REPO:$REPO"
-if [[ $REPO != "jupyter-vcdat" ]]; then
+if [[ $REPO != "jupyter-vcdat" && $REPO != "jupyter-vcdat.git" ]]; then
   git clone git://github.com/CDAT/jupyter-vcdat.git
   cd jupyter-vcdat
 fi
