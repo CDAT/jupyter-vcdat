@@ -23,23 +23,31 @@ function handle_error {
 trap 'handle_error $LINENO ${BASH_LINENO[@]}' ERR
 
 CONDA_EXE="$(which conda)"
-$CONDA_EXE update --all -y -n base
-$CONDA_EXE create -y -n jupyter-vcdat -c cdat/label/v81 -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum jupyterhub
-CONDA_BASE=$(conda info --base)
-source $CONDA_BASE/etc/profile.d/conda.sh
-conda activate jupyter-vcdat
+if [ ${CONDA_DEFAULT_ENV:-"NA"} != "jupyter-vcdat" ]; then
+  $CONDA_EXE update --all -y -n base
+  $CONDA_EXE create -y -n jupyter-vcdat -c cdat/label/v81 -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum jupyterhub
+  CONDA_BASE=$(conda info --base)
+  source $CONDA_BASE/etc/profile.d/conda.sh
+  conda activate jupyter-vcdat
 
-# Install sidecar
-python -m pip install sidecar || pip install sidecar
+  # Install sidecar
+  python -m pip install sidecar || pip install sidecar
 
-jupyter labextension install @jupyter-widgets/jupyterlab-manager
-jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
+  jupyter labextension install @jupyter-widgets/jupyterlab-manager
+  jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
-# Jupyterhub extension
-jupyter labextension install @jupyterlab/hub-extension
+  # Jupyterhub extension
+  jupyter labextension install @jupyterlab/hub-extension
+fi
 
-if [[ ! -d "../jupyter-vcdat" ]]; then
-  git clone https://github.com/CDAT/jupyter-vcdat.git
+# We need to allow pipe to break in case we are not in a git repo directory
+set +o pipefail
+REPO=$(git config --get remote.origin.url | cut -d '/' -f 2) || REPO="NO"
+set -o pipefail
+
+echo "REPO:$REPO"
+if [[ $REPO != "jupyter-vcdat" ]]; then
+  git clone git://github.com/CDAT/jupyter-vcdat.git
   cd jupyter-vcdat
 fi
 
