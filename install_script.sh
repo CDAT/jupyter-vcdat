@@ -9,6 +9,19 @@ filename="jupyter-vcdat_logfile.txt"
 # NOT verbose by default
 verbose=0
 
+function usage() {
+  cat << EOF
+usage: Install vcdat jupyter-lab extension
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILENAME, --filename FILENAME
+                        name of file where to log output
+  -v VERBOSE
+                        Also prints output to screen
+EOF
+exit 0
+}
 # Figure out command line arguments: http://linuxcommand.org/lc3_wss0120.php
 while [ "$1" != "" ]; do
     case $1 in
@@ -17,6 +30,8 @@ while [ "$1" != "" ]; do
                                 ;;
         -v | --verbose )        verbose=1
                                 ;;
+        -h | --help )           usage
+                                ;;
         * )                     usage
                                 exit 1
     esac
@@ -24,7 +39,7 @@ while [ "$1" != "" ]; do
 done
 
 echo "Installing jupyter-vcdat extension"
-echo "Output will be redirected to $filename"
+echo "Output will be redirected to $filename (you can control the filename with -f option)"
 # Redirect to logfile and possibly screen if verbose
 if [ $verbose == 1 ]; then
   # Redirect stdout ( > ) into a named pipe ( >() ) running "tee"
@@ -32,6 +47,7 @@ if [ $verbose == 1 ]; then
 
 else
   echo "Going into quiet mode, suppressing output"
+  echo "For verbose mode run with -v option"
   # https://stackoverflow.com/questions/637827/redirect-stderr-and-stdout-in-bash
   # Close STDOUT file descriptor
   exec 1<&-
