@@ -31,6 +31,7 @@ aliases:
        git pull origin ${CIRCLE_BRANCH}
        ./install_script.sh
        conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner cdat_info
+       git status
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
