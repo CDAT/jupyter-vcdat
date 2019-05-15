@@ -42,6 +42,24 @@ class Actions(object):
             assert(False), "page not found or timeout  for {0}".format(url)
         time.sleep(self._delay)
 
+    def find_element_by_id(self, id, descr):
+        try:
+            element = self.driver.find_element_by_id(id)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding '{}'".format(descr))
+            raise e
+        return element
+
+    def find_elements_by_id(self, id, descr):
+        try:
+            elements = self.driver.find_elements_by_id(id)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding '{}'".format(descr))
+            raise e
+        return elements
+
     def find_element_by_class(self, class_name, descr):
         try:
             element = self.driver.find_element_by_class_name(class_name)

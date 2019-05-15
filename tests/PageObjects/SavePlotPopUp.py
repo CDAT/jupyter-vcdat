@@ -37,8 +37,9 @@ class SavePlotPopUp(Actions):
                 if f.text == export_format:
                     self.move_to_click(f)
                     self.exported_format = export_format.lower()
+                    break
                 else:
-                    i += 0
+                    i += 1
             if i >= len(export_formats):
                 print("Error: invalid export format '{}'".format(export_format))
                 # REVISIT - raise an exception
@@ -51,7 +52,6 @@ class SavePlotPopUp(Actions):
         try:
             export_button = self.find_element_by_class(export_button_class,
                                                        "'Export' button")
-            print("FOUND 'Export' button")
             self.move_to_click(export_button)
         except NoSuchElementException as e:
             print("Could not find 'Export' button")
@@ -61,23 +61,23 @@ class SavePlotPopUp(Actions):
                                          suffix=self.exported_format)
         counter = 0
         file_exists = False
-        while file_exists is False and counter <= 10:
+        while file_exists is False and counter <= 5:
             file_exists = os.path.isfile(filename)
             if file_exists is False:
                 time.sleep(0.5)
-            else:
                 counter += 1
 
         assert file_exists
         print("Plot is exported to: {}".format(filename))
 
     def _click_on_custom_dimensions(self):
-        custom_dimensions_class = "custom-control-label"
+        custom_dimensions_id = "export-dimension-switch-vcdat"
         try:
-            custom_dimension = self.find_element_by_class(custom_dimensions_class,
-                                                          "Custom dimensions")
+            custom_dimension = self.find_element_by_id(custom_dimensions_id,
+                                                       "Custom dimensions")
             print("FOUND 'Custom dimensions' selector")
             self.move_to_click(custom_dimension)
+            time.sleep(5)
         except NoSuchElementException as e:
             print("Could not find 'Custom dimensions' selector")
             raise e
@@ -85,6 +85,7 @@ class SavePlotPopUp(Actions):
     def select_custom_dimensions(self):
         try:
             self._click_on_custom_dimensions()
+            time.sleep(1)
         except NoSuchElementException as e:
             print("Could not select 'Custom dimensions'")
             raise e
@@ -99,17 +100,16 @@ class SavePlotPopUp(Actions):
     def click_on_custom_dimensions_unit(self, unit):
         unit_class = "export-unit-btn-vcdat"
         try:
-            units = self.find_elements_by_class(unit_class,
-                                                "export units")
+            dimension_units = self.find_elements_by_class(unit_class,
+                                                          "export units")
             i = 0
-            for u in units:
-                print("DEBUG DEBUG unit: '{}'".format(u.text))
+            for u in dimension_units:
                 if u.text == unit:
-                    print("DEBUG DEBUG...going to click on export unit")
                     self.move_to_click(u)
+                    break
                 else:
-                    i += 0
-            if i >= len(units):
+                    i += 1
+            if i >= len(dimension_units):
                 print("Error: invalid unit '{}'".format(unit))
                 # REVISIT  - raise an exception
         except NoSuchElementException as e:

@@ -87,7 +87,6 @@ class TestPlot(BaseTestCaseWithNoteBook):
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
         load_variable_popup.click_on_load()
-        vcdat_panel.select_a_template("default")
 
         # export to a unique filename for this testcase
         filename = "{t}_{f}".format(t=self._testMethodName,
@@ -101,11 +100,11 @@ class TestPlot(BaseTestCaseWithNoteBook):
         save_plot_popup.select_export_format(export_format)
         save_plot_popup.select_custom_dimensions()
         save_plot_popup.click_on_custom_dimensions_unit("px")
-        time.sleep(3)
-        # save_plot_popup.enter_unit_width(700)
-        # save_plot_popup.enter_unit_height(500)
+        save_plot_popup.enter_unit_width(700)
+        save_plot_popup.enter_unit_height(500)
+        time.sleep(2)
         save_plot_popup.click_on_export()
-
+        time.sleep(10)
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_plot
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_select_plot_type
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_select_a_template
