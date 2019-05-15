@@ -57,10 +57,11 @@ export class LeftSideBarWidget extends Widget {
 
   constructor(app: JupyterLab, tracker: NotebookTracker) {
     super();
+    this.application = app;
+    this.notebookTracker = tracker;
     this.div = document.createElement("div");
     this.div.id = "left-sidebar";
     this.node.appendChild(this.div);
-    this.application = app;
     this.commands = app.commands;
     this._state = NOTEBOOK_STATE.Unknown;
     this._plotReadyChanged = new Signal<this, boolean>(this);
@@ -68,7 +69,6 @@ export class LeftSideBarWidget extends Widget {
 
     this.varTracker = new VariableTracker();
     this.codeInjector = new CodeInjector(app.commands, this.varTracker);
-    this.notebookTracker = tracker;
     this.usingKernel = false;
     this.refreshExt = true;
     this.canvasCount = 0;
@@ -287,19 +287,18 @@ export class LeftSideBarWidget extends Widget {
    * The status of the notebook is set and the notebook switching handler is connected.
    */
   public async initialize(): Promise<void> {
-    // Check the active widget is a notebook panel
-    if (this.application.shell.currentWidget instanceof NotebookPanel) {
-      await this.setNotebookPanel(this.application.shell.currentWidget);
-    } else {
-      // There is no active notebook widget
-      await this.setNotebookPanel(null);
-    }
-
     // Notebook tracker will signal when a notebook is changed
     this.notebookTracker.currentChanged.connect(
       this.handleNotebookChanged,
       this
     );
+
+    // Set notebook widget if one is open
+    if (this.notebookTracker.currentWidget) {
+      await this.setNotebookPanel(this.notebookTracker.currentWidget);
+    } else {
+      await this.setNotebookPanel(null);
+    }
   }
 
   /**
