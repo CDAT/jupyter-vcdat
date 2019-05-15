@@ -2,6 +2,7 @@ import { AxisInfo } from "./AxisInfo";
 
 export class Variable {
   public name: string; // the name of the variable
+  public alias: string; // the display name of the variable
   public longName: string; // the long name of the variable
   public axisList: string[]; // list of the axis names
   public axisInfo: AxisInfo[]; // an object with maps from axis names, to axis info

@@ -24,6 +24,8 @@ export class VariableTracker {
   private _currentFileChanged: Signal<this, string>;
   private _variableSources: { [varName: string]: string }; // Tracks what data reader each variable came from
   private _variableSourcesChanged: Signal<this, { [varName: string]: string }>;
+  private _variableAliases: { [alias: string]: string };
+  private _variableAliasesChanged: Signal<this, { [alias: string]: string }>;
   private _dataReaderList: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
   private _dataReaderListChanged: Signal<this, { [dataName: string]: string }>;
   private _variables: Variable[];
@@ -41,6 +43,11 @@ export class VariableTracker {
     this._variableSourcesChanged = new Signal<
       this,
       { [varName: string]: string }
+    >(this);
+    this._variableAliases = {};
+    this._variableAliasesChanged = new Signal<
+      this,
+      { [alias: string]: string }
     >(this);
     this._dataReaderList = {};
     this._dataReaderListChanged = new Signal<
@@ -132,6 +139,19 @@ export class VariableTracker {
     return this._variableSourcesChanged;
   }
 
+  get variableAliases(): { [alias: string]: string } {
+    return this._variableAliases;
+  }
+
+  set variableAliases(newAliases: { [alias: string]: string }) {
+    this._variableAliases = newAliases;
+    this._variableAliasesChanged.emit(newAliases);
+  }
+
+  get variableAliasesChanged(): ISignal<this, { [alias: string]: string }> {
+    return this._variableAliasesChanged;
+  }
+
   public resetVarTracker() {
     this.currentFile = "";
     this.variables = Array<Variable>();
@@ -167,6 +187,11 @@ export class VariableTracker {
   ): Promise<void> {
     this._dataReaderList[readerName] = filePath;
     this._dataReaderListChanged.emit(this._dataReaderList);
+  }
+
+  public async addAlias(alias: string, varName: string): Promise<void> {
+    this._variableAliases[alias] = varName;
+    this._variableAliasesChanged.emit(this._variableAliases);
   }
 
   /**
