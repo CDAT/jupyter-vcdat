@@ -126,7 +126,9 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
     this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
     this.handlePlotExistsChanged = this.handlePlotExistsChanged.bind(this);
+  }
 
+  public componentDidMount(): void {
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
     this.props.plotExistsChanged.connect(this.handlePlotExistsChanged);
     this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
@@ -338,33 +340,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     // inject the code to load the variable into the notebook
     await this.props.codeInjector.loadVariable(variable);
 
-    // Save the source of the variable
-    const newSource: { [varName: string]: string } = this.props.varTracker
-      .variableSources;
-    newSource[variable.name] = variable.sourceName;
-    this.props.varTracker.variableSources = newSource;
-
-    let currentVars: Variable[] = this.state.variables;
-
-    // If no variables are in the list, update meta data and variables list
-    if (!currentVars || currentVars.length < 1) {
-      currentVars = Array<Variable>();
-      currentVars.push(variable);
-    } else {
-      // If there are already variables stored check if variable exists and replace if so
-      let found: boolean = false;
-      currentVars.forEach((storedVar: Variable, varIndex: number) => {
-        if (storedVar.name === variable.name) {
-          currentVars[varIndex] = variable;
-          found = true;
-        }
-      });
-      if (!found) {
-        currentVars.push(variable);
-      }
-    }
-
-    this.props.varTracker.variables = currentVars;
+    this.props.varTracker.addVariable(variable);
   }
 
   /**

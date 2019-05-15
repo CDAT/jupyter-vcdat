@@ -63,7 +63,9 @@ export default class VarMenu extends React.Component<
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
+  }
 
+  public componentDidMount(): void {
     this.props.varTracker.selectedVariablesChanged.connect(
       this.handleSelectionChanged
     );
