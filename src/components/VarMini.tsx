@@ -16,6 +16,7 @@ import {
 } from "reactstrap";
 
 // Project Components
+import { CodeInjector } from "../CodeInjector";
 import { Utilities } from "../Utilities";
 import { AxisInfo } from "./AxisInfo";
 import { DimensionSlider } from "./DimensionSlider";
@@ -31,6 +32,7 @@ const badgeStyle: React.CSSProperties = {
 
 interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
+  codeInjector: CodeInjector;
   variable: Variable; // the variable this component will show
   updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
   isSelected: (variable: Variable) => boolean; // method to check if this variable is selected in parent
@@ -45,6 +47,9 @@ interface IVarMiniState {
   activateAppend: boolean;
   activateShuffle: boolean;
   activateDeflate: boolean;
+  deflateValue: string;
+  filename: string;
+  newVariableName: string;
   showAxis: boolean; // should the edit axis modal be shown
   showSaveModal: boolean;
 }
@@ -56,6 +61,9 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       activateAppend: false,
       activateDeflate: false,
       activateShuffle: false,
+      deflateValue: null,
+      filename: "",
+      newVariableName: "",
       showAxis: false,
       showSaveModal: false
     };
@@ -70,6 +78,10 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.toggleShuffle = this.toggleShuffle.bind(this);
     this.toggleDeflate = this.toggleDeflate.bind(this);
     this.toggleAppend = this.toggleAppend.bind(this);
+    this.onFilenameChange = this.onFilenameChange.bind(this);
+    this.updateDeflateValue = this.updateDeflateValue.bind(this);
+    this.updateNewVariableName = this.updateNewVariableName.bind(this);
+    this.save = this.save.bind(this);
   }
 
   /**
@@ -118,6 +130,9 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.setState({
       activateDeflate: !this.state.activateDeflate
     });
+    this.setState({
+      deflateValue: null
+    });
   }
 
   /**
@@ -127,6 +142,32 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.setState({
       activateAppend: !this.state.activateAppend
     });
+  }
+
+  public onFilenameChange(event: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({ filename: event.target.value });
+  }
+
+  public updateDeflateValue(event: React.ChangeEvent<HTMLInputElement>) {
+    console.log("updating deflateValue");
+    this.setState({ deflateValue: event.target.value }, () => {
+      console.log("this.state.deflateValue:", this.state.deflateValue);
+    });
+  }
+
+  public updateNewVariableName(event: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({ newVariableName: event.target.value }, () => {
+      console.log("newVariableName: ", this.state.newVariableName);
+    });
+  }
+
+  public async save() {
+    console.log("in save method.");
+    await this.props.codeInjector.saveNetCDFFile(
+      this.state.filename,
+      this.varName,
+      this.state.newVariableName
+    );
   }
 
   public render(): JSX.Element {
@@ -193,7 +234,6 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             {this.state.showAxis &&
               this.props.variable.axisInfo.length > 0 &&
               this.props.variable.axisInfo.map((item: AxisInfo) => {
-                console.log("item:", item);
                 if (!item.data || item.data.length <= 1) {
                   return;
                 }
@@ -233,7 +273,13 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           <ModalHeader toggle={this.toggleSaveModal}>Save Variable</ModalHeader>
           <ModalBody style={modalOverflow}>
             <Label>Filename:</Label>
-            <Input type="text" name="text" placeholder="Name.nc" value="" />
+            <Input
+              type="text"
+              name="text"
+              placeholder="Name.nc"
+              value={this.state.filename}
+              onChange={this.onFilenameChange}
+            />
             <CustomInput
               type="switch"
               id="appendSwitch"
@@ -248,7 +294,8 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
               type="text"
               name="text"
               placeholder={this.varName}
-              value=""
+              value={this.state.newVariableName}
+              onChange={this.updateNewVariableName}
             />
             <br />
             <CustomInput
@@ -271,7 +318,12 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             <br />
             <Collapse isOpen={this.state.activateDeflate}>
               <Label>Deflate Level:</Label>
-              <Input type="select" name="select" id="exampleSelect">
+              <Input
+                type="select"
+                name="select"
+                id="deflateSelect"
+                onChange={this.updateDeflateValue}
+              >
                 <option>0</option>
                 <option>1</option>
                 <option>2</option>
@@ -285,6 +337,14 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
               </Input>
             </Collapse>
           </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.save}>
+              Export
+            </Button>{" "}
+            <Button color="secondary" onClick={this.toggleModal}>
+              Cancel
+            </Button>
+          </ModalFooter>
         </Modal>
       </div>
     );

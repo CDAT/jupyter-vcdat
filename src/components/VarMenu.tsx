@@ -13,6 +13,8 @@ import {
 } from "reactstrap";
 
 // Project Components
+import { CodeInjector } from "../CodeInjector";
+import { AxisInfo } from "./AxisInfo";
 import { ColorFunctions } from "../ColorFunctions";
 import { Variable } from "./Variable";
 import { VarLoader } from "./VarLoader";
@@ -32,6 +34,7 @@ const formOverflow: React.CSSProperties = {
 interface IVarMenuProps {
   codeInjector: CodeInjector;
   varTracker: VariableTracker;
+  codeInjector: CodeInjector;
   commands?: any; // the command executer
   updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
   syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
@@ -223,6 +226,7 @@ export default class VarMenu extends React.Component<
                         selectOrder={this.getOrder(item.varID)}
                         updateDimInfo={this.props.varTracker.updateDimInfo}
                         variable={item}
+                        codeInjector={this.props.codeInjector}
                       />
                     </ListGroupItem>
                   );

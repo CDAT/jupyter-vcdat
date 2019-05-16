@@ -305,6 +305,27 @@ export class CodeInjector {
     return cellIdx;
   }
 
+  public async saveNetCDFFile(
+    filename: string,
+    currentVariableName: string,
+    newVariableName: string
+  ): Promise<void> {
+    let cmd: string;
+    const variableNameInFile = newVariableName
+      ? newVariableName
+      : currentVariableName;
+    cmd = `with cdms2.open('${filename}', "w") as f:\n
+  f.write(${currentVariableName}, id='${variableNameInFile}') `;
+
+    await this.inject(
+      cmd,
+      undefined,
+      "Failed to save NetCDF file.",
+      "saveNetCDFFile",
+      arguments
+    );
+  }
+
   /**
    * Injects code into the bottom cell of the notebook, doesn't display results (output or error)
    * @param code A string that has the code to inject into the notebook cell.
