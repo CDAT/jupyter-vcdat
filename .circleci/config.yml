@@ -139,9 +139,9 @@ jobs:
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
-       - run: *run_tests_with_chrome
-       - store_artifacts:
-           path: tests_html
+      - run: *run_tests_with_chrome
+      - store_artifacts:
+          path: tests_html
           destination: tests_chrome_html
       - run: *run_tests_with_firefox
       #- run: *conda_upload
