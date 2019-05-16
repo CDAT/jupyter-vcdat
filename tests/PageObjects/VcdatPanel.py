@@ -1,3 +1,5 @@
+import time
+
 from selenium.common.exceptions import NoSuchElementException
 
 from Actions import Actions
@@ -94,9 +96,6 @@ class VcdatPanel(Actions):
             print("FAIL..._get_template_elements...")
             raise e
 
-    #
-    # Util functions
-    #
     def select_a_plot_type(self, plot_type):
         try:
             self.click_on_select_plot_type()
@@ -109,7 +108,7 @@ class VcdatPanel(Actions):
             for e in plot_type_elements:
                 if e.text == plot_type:
                     print("FOUND plot type '{}'".format(plot_type))
-                    self.move_to_click(e)
+                    self.scroll_click(e)
                     break
                 else:
                     i += 1
@@ -132,7 +131,7 @@ class VcdatPanel(Actions):
             for t in template_elements:
                 if t.text == template:
                     print("FOUND template '{}'".format(template))
-                    self.move_to_click(t)
+                    self.scroll_click(t)
                     break
                 else:
                     i += 1
@@ -141,4 +140,32 @@ class VcdatPanel(Actions):
                 # REVISIT raise an exception
         except NoSuchElementException as e:
             print("FAIL..._get_template_elements()")
+            raise e
+
+    # REVISIT -- need a way to check if the overlay mode is selected.
+    def _click_on_overlay_mode(self):
+        overlay_mode_id = "vcsmenu-overlay-mode-switch-vcdat"
+        try:
+            overlay_mode = self.find_element_by_id(overlay_mode_id,
+                                                   "Capture Provenance")
+            print("FOUND 'Capture Provenance' selector")
+            self.move_to_click(overlay_mode)
+            time.sleep(5)
+        except NoSuchElementException as e:
+            print("Could not find 'Capture Provenance' selector")
+            raise e
+
+    def select_overlay_mode(self):
+        try:
+            self._click_on_overlay_mode()
+            time.sleep(1)
+        except NoSuchElementException as e:
+            print("Could not select 'Capture Provenance'")
+            raise e
+
+    def deselect_overlay_mode(self):
+        try:
+            self._click_on_overlay_mode()
+        except NoSuchElementException as e:
+            print("Could not deselect 'Capture Provenance'")
             raise e

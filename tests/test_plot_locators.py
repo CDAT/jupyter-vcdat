@@ -105,9 +105,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         save_plot_popup.click_on_custom_dimensions_unit("px")
         save_plot_popup.enter_unit_width(700)
         save_plot_popup.enter_unit_height(500)
-        time.sleep(2)
         save_plot_popup.click_on_export()
-        time.sleep(10)
 
     def test_capture_provenance(self):
         test_file = "clt.nc"

@@ -140,6 +140,9 @@ class SavePlotPopUp(Actions):
     def enter_unit_height(self, the_dimension):
         self._enter_unit_dimension('height', the_dimension)
 
+    #
+    # REVISIT - how do I check if capture provenance is selected
+    #
     def _click_on_capture_provenance(self):
         capture_provenance_id = "export-capture-provenance-switch-vcdat"
         try:
