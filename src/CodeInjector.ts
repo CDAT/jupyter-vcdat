@@ -10,7 +10,6 @@ import { VariableTracker } from "./VariableTracker";
 import {
   CANVAS_CELL_KEY,
   CHECK_MODULES_CMD,
-  DATA_LIST_KEY,
   EXPORT_FORMATS,
   EXTENSIONS_REGEX,
   IMAGE_UNITS,
@@ -32,7 +31,6 @@ export class CodeInjector {
   private cmdRegistry: CommandRegistry;
   private varTracker: VariableTracker;
   private logErrorsToConsole: boolean; // Whether errors should log to console. Should be false during production.
-  // private dataReaders: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
 
   constructor(commands: CommandRegistry, variableTracker: VariableTracker) {
     this._notebookPanel = null;
@@ -52,8 +50,11 @@ export class CodeInjector {
     this.getGraphicMethod = this.getGraphicMethod.bind(this);
     this.getTemplate = this.getTemplate.bind(this);
     this.loadVariable = this.loadVariable.bind(this);
+    this.loadMultipleVariables = this.loadMultipleVariables.bind(this);
     this.plot = this.plot.bind(this);
+    this.setNotebook = this.setNotebook.bind(this);
     this.clearPlot = this.clearPlot.bind(this);
+    this.deleteVariable = this.deleteVariable.bind(this);
   }
 
   get isBusy(): boolean {
@@ -428,9 +429,26 @@ export class CodeInjector {
     );
   }
 
+  public async deleteVariable(variable: Variable) {
+    // inject the code to delete variable from notebook
+    const cmd = `del ${variable.alias}`;
+
+    // Inject the code into the notebook cell
+    await this.inject(
+      cmd,
+      undefined,
+      "Failed to load variable.",
+      "loadVariable",
+      arguments
+    );
+
+    // Refresh variable list
+    this.varTracker.refreshVariables();
+  }
+
   public async loadVariable(variable: Variable) {
     // inject the code to load the variable into the notebook
-    let cmd = `${variable.name} = ${variable.sourceName}("${variable.name}"`;
+    let cmd = `${variable.alias} = ${variable.sourceName}("${variable.name}"`;
     variable.axisInfo.forEach((axis: AxisInfo) => {
       cmd +=
         axis.min === axis.max
@@ -445,6 +463,39 @@ export class CodeInjector {
       undefined,
       "Failed to load variable.",
       "loadVariable",
+      arguments
+    );
+
+    // Add variable to varTracker
+    this.varTracker.addVariable(variable);
+  }
+
+  public async loadMultipleVariables(variables: Variable[]): Promise<void> {
+    if (!variables) {
+      return;
+    }
+
+    let cmd: string = ``;
+    variables.forEach((variable: Variable) => {
+      // Create code to load the variable into the notebook
+      cmd += `${variable.alias} = ${variable.sourceName}("${variable.name}"`;
+      variable.axisInfo.forEach((axis: AxisInfo) => {
+        cmd +=
+          axis.min === axis.max
+            ? `, ${axis.name}=(${axis.min})`
+            : `, ${axis.name}=(${axis.min}, ${axis.max})`;
+      });
+      cmd += ")\n";
+      this.varTracker.addVariable(variable);
+    });
+    cmd = cmd.slice(0, cmd.length - 1);
+
+    // Inject the code into the notebook cell
+    await this.inject(
+      cmd,
+      undefined,
+      "Failed to load variable.",
+      "loadMultipleVariables",
       arguments
     );
   }

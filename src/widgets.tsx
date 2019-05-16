@@ -565,7 +565,7 @@ export class LeftSideBarWidget extends Widget {
       );
 
       if (fileVars.length > 0) {
-        await this.vcsMenuRef.launchVarSelect(fileVars);
+        await this.vcsMenuRef.varMenuRef.launchVarLoader(fileVars);
       } else {
         this.varTracker.currentFile = "";
       }
@@ -658,7 +658,6 @@ export class LeftSideBarWidget extends Widget {
     ) {
       try {
         this.varTracker.refreshVariables();
-        // this.varTracker.refreshVariables();
         this.refreshGraphicsList();
         await this.refreshTemplatesList();
         const plotExists = await this.checkPlotExists();

@@ -18,6 +18,7 @@ import { Variable } from "./Variable";
 import { VarLoader } from "./VarLoader";
 import { VarMini } from "./VarMini";
 import { VariableTracker } from "../VariableTracker";
+import { CodeInjector } from "../CodeInjector";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -29,7 +30,7 @@ const formOverflow: React.CSSProperties = {
 };
 
 interface IVarMenuProps {
-  loadVariable: (variable: Variable) => Promise<any>; // a method to call when loading the variable
+  codeInjector: CodeInjector;
   varTracker: VariableTracker;
   commands?: any; // the command executer
   updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
@@ -55,11 +56,13 @@ export default class VarMenu extends React.Component<
     this.varLoaderRef = (React as any).createRef();
     this.launchFilebrowser = this.launchFilebrowser.bind(this);
     this.launchVarLoader = this.launchVarLoader.bind(this);
-    this.loadFileVariable = this.loadFileVariable.bind(this);
     this.isSelected = this.isSelected.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
     this.reloadVariable = this.reloadVariable.bind(this);
+    this.copyVariable = this.copyVariable.bind(this);
+    this.getOrder = this.getOrder.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
     this.updateSelectedVariables = this.updateSelectedVariables.bind(this);
     this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
@@ -91,12 +94,12 @@ export default class VarMenu extends React.Component<
     const unloaded: string[] = Array<string>();
     const loadedVars: string[] = this.state.variables.map(
       (variable: Variable) => {
-        return variable.name;
+        return variable.alias;
       }
     );
     fileVariables.forEach((fileVar: Variable) => {
-      if (loadedVars.indexOf(fileVar.name) < 0) {
-        unloaded.push(fileVar.name);
+      if (loadedVars.indexOf(fileVar.alias) < 0) {
+        unloaded.push(fileVar.alias);
       }
     });
     // Update state to show launcher with variables
@@ -107,28 +110,14 @@ export default class VarMenu extends React.Component<
     });
   }
 
-  /**
-   *
-   * @param variable the variable to load
-   */
-  public async loadFileVariable(variable: Variable): Promise<void> {
-    // if the variable ISNT already loaded, add it to the loaded list
-    const newVariables: Variable[] = this.state.variables;
-    let replaced: boolean = false;
-    await this.state.variables.forEach(
-      async (loadedVar: Variable, idx: number) => {
-        if (variable.name === loadedVar.name) {
-          newVariables[idx] = variable;
-          replaced = true;
-          return;
-        }
-      }
+  public async copyVariable(variable: Variable, newName: string) {
+    const copy: Variable = this.props.varTracker.copyVariable(
+      variable,
+      newName
     );
-    if (!replaced) {
-      newVariables.push(variable);
+    if (copy) {
+      await this.props.codeInjector.loadVariable(copy);
     }
-
-    await this.props.loadVariable(variable);
   }
 
   public async selectVariable(variableName: string): Promise<void> {
@@ -158,7 +147,7 @@ export default class VarMenu extends React.Component<
   }
 
   public async reloadVariable(variable: Variable): Promise<void> {
-    await this.props.loadVariable(variable);
+    await this.props.codeInjector.loadVariable(variable);
     await this.props.varTracker.saveMetaData();
   }
 
@@ -218,23 +207,25 @@ export default class VarMenu extends React.Component<
                     this.reloadVariable(item);
                   };
                   const toggleSelection = () => {
-                    if (this.isSelected(item.name)) {
-                      this.deselectVariable(item.name);
+                    if (this.isSelected(item.alias)) {
+                      this.deselectVariable(item.alias);
                     } else {
-                      this.selectVariable(item.name);
+                      this.selectVariable(item.alias);
                     }
                   };
                   return (
                     <ListGroupItem
-                      key={`${item.name}${idx}`}
+                      key={`${item.alias}${idx}`}
                       onClick={toggleSelection}
                     >
                       <VarMini
                         reload={reloadItem}
-                        buttonColor={colors[this.getOrder(item.name) - 1]}
+                        copyVariable={this.copyVariable}
+                        deleteVariable={this.props.codeInjector.deleteVariable}
+                        buttonColor={colors[this.getOrder(item.alias) - 1]}
                         allowReload={true}
                         isSelected={this.isSelected}
-                        selectOrder={this.getOrder(item.name)}
+                        selectOrder={this.getOrder(item.alias)}
                         updateDimInfo={this.props.varTracker.updateDimInfo}
                         variable={item}
                       />
@@ -246,10 +237,9 @@ export default class VarMenu extends React.Component<
           </CardBody>
         </Card>
         <VarLoader
+          varTracker={this.props.varTracker}
           updateSelectedVariables={this.updateSelectedVariables}
-          loadFileVariable={this.loadFileVariable}
-          variables={this.state.variables}
-          saveMetaData={this.props.varTracker.saveMetaData}
+          loadSelectedVariables={this.props.codeInjector.loadMultipleVariables}
           ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />
       </div>

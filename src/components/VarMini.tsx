@@ -33,8 +33,10 @@ const modalOverflow: React.CSSProperties = {
 interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
-  updateDimInfo: (newInfo: any, varName: string) => Promise<void>; // method passed by the parent to update their copy of the variables dimension info
+  updateDimInfo: (newInfo: any, varName: string) => void; // method passed by the parent to update their copy of the variables dimension info
   isSelected: (varName: string) => boolean; // method to check if this variable is selected in parent
+  copyVariable: (variable: Variable, newName: string) => Promise<void>;
+  deleteVariable: (variable: Variable) => Promise<void>;
   selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: () => void; // a function to reload the variable
@@ -44,18 +46,17 @@ interface IVarMiniState {
 }
 
 export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
-  public varName: string;
   constructor(props: IVarMiniProps) {
     super(props);
     this.state = {
       showAxis: false
     };
-    this.varName = this.props.variable.name;
     this.openMenu = this.openMenu.bind(this);
-    this.updateDimInfo = this.updateDimInfo.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleUpdateClick = this.handleUpdateClick.bind(this);
+    this.handleCopyClick = this.handleCopyClick.bind(this);
   }
 
   /**
@@ -67,10 +68,6 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
         showAxis: true
       });
     }
-  }
-
-  public updateDimInfo(newInfo: any, varName: string): void {
-    this.props.updateDimInfo(newInfo, varName);
   }
 
   /**
@@ -90,9 +87,9 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             outline={true}
             color={"success"}
             style={{ backgroundColor: this.props.buttonColor }}
-            active={this.props.isSelected(this.varName)}
+            active={this.props.isSelected(this.props.variable.alias)}
           >
-            {this.props.variable.name}
+            {this.props.variable.alias}
           </Button>
           <Button
             outline={true}
@@ -105,10 +102,12 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             disabled={this.props.variable.sourceName === ""}
             color={this.props.variable.sourceName === "" ? "dark" : "danger"}
             onClick={this.handleEditClick}
+            // onClick={this.handleCopyClick} To copy variable, currently names the copy 'Test'
+            // onClick={this.handleDeleteClick} To delete variable
           >
             edit
           </Button>
-          {this.props.isSelected(this.varName) && (
+          {this.props.isSelected(this.props.variable.alias) && (
             <Badge
               className="float-right"
               style={{
@@ -134,12 +133,15 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
                 if (!item.data || item.data.length <= 1) {
                   return;
                 }
-                item.updateDimInfo = this.updateDimInfo;
+                item.updateDimInfo = this.props.updateDimInfo;
                 return (
                   <div key={item.name} style={axisStyle}>
                     <Card>
                       <CardBody>
-                        <DimensionSlider {...item} varName={this.varName} />
+                        <DimensionSlider
+                          {...item}
+                          varName={this.props.variable.alias}
+                        />
                       </CardBody>
                     </Card>
                   </div>
@@ -156,13 +158,27 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     );
   }
 
+  private async handleCopyClick(
+    clickEvent: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> {
+    clickEvent.stopPropagation();
+    await this.props.copyVariable(this.props.variable, "Test");
+  }
+
+  private async handleDeleteClick(
+    clickEvent: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> {
+    clickEvent.stopPropagation();
+    await this.props.deleteVariable(this.props.variable);
+  }
+
   private handleEditClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): void {
+    clickEvent.stopPropagation();
     this.setState({
       showAxis: !this.state.showAxis
     });
-    clickEvent.stopPropagation();
   }
 
   private handleUpdateClick(): void {

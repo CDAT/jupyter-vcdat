@@ -9,6 +9,7 @@ import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import { AxisInfo } from "./AxisInfo";
 import { VarCard } from "./VarCard";
 import { Variable } from "./Variable";
+import { VariableTracker } from "../VariableTracker";
 
 const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
@@ -16,10 +17,9 @@ const modalOverflow: React.CSSProperties = {
 };
 
 interface IVarLoaderProps {
-  variables: Variable[]; // list of all currently available variables
-  loadFileVariable: (variable: Variable) => Promise<void>; // function to call when user hits load
+  loadSelectedVariables: (variables: Variable[]) => Promise<void>; // function to call when user hits load
   updateSelectedVariables: (selection: string[]) => void; // update the list of selected variables
-  saveMetaData: () => void; // function that saves the current notebook's meta data
+  varTracker: VariableTracker;
 }
 interface IVarLoaderState {
   show: boolean; // should the modal be shown
@@ -40,7 +40,7 @@ export class VarLoader extends React.Component<
       selectedVariables: Array<string>(),
       show: false,
       unloadedVariables: Array<string>(),
-      variables: this.props.variables
+      variables: this.props.varTracker.variables
     };
 
     this.toggle = this.toggle.bind(this);
@@ -73,17 +73,13 @@ export class VarLoader extends React.Component<
       this.setState({ selectedVariables: Array<string>() });
       return;
     }
-    // Once the load button is clicked, load only the variables that were selected
-    const loaders = Array<Promise<void>>();
 
-    this.state.fileVariables.forEach((variable: Variable) => {
-      const idx = this.state.selectedVariables.indexOf(variable.name);
-      if (idx >= 0) {
-        // Add the variable
-        loaders.push(this.props.loadFileVariable(variable));
-      }
-    });
-    await Promise.all(loaders);
+    // Get variables from the file
+    const varsToLoad: Variable[] = this.props.varTracker.getSelectVariables(
+      this.state.fileVariables,
+      this.state.selectedVariables
+    );
+    await this.props.loadSelectedVariables(varsToLoad);
 
     // Update the main widget's current selected variables
     this.props.updateSelectedVariables(this.state.selectedVariables);
@@ -97,7 +93,7 @@ export class VarLoader extends React.Component<
     });
 
     // Save the notebook after variables have been added
-    await this.props.saveMetaData();
+    await this.props.varTracker.saveMetaData();
   }
 
   /**

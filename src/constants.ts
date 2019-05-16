@@ -20,6 +20,7 @@ export const CANVAS_CELL_KEY: string = "vcdat_canvases";
 export const READER_CELL_KEY: string = "vcdat_readers";
 export const SELECTED_VARIABLES_KEY: string = "selected_variables";
 export const DATA_LIST_KEY: string = "data_variable_file_paths";
+export const VARIABLE_ALIASES_KEY: string = "variable_aliases";
 export const VARIABLE_SOURCES_KEY: string = "variable_source_names";
 export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
 export const TEMPLATE_KEY: string = "template_selected";
