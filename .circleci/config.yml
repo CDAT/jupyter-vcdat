@@ -23,7 +23,7 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        git status
-       ./install_script.sh
+       ./install_script.sh -v
        conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner cdat_info
        git status
 
