@@ -139,3 +139,30 @@ class SavePlotPopUp(Actions):
 
     def enter_unit_height(self, the_dimension):
         self._enter_unit_dimension('height', the_dimension)
+
+    def _click_on_capture_provenance(self):
+        capture_provenance_id = "export-capture-provenance-switch-vcdat"
+        try:
+            capture_provenance = self.find_element_by_id(capture_provenance_id,
+                                                         "Capture Provenance")
+            print("FOUND 'Capture Provenance' selector")
+            self.move_to_click(capture_provenance)
+            time.sleep(5)
+        except NoSuchElementException as e:
+            print("Could not find 'Capture Provenance' selector")
+            raise e
+
+    def select_capture_provenance(self):
+        try:
+            self._click_on_capture_provenance()
+            time.sleep(1)
+        except NoSuchElementException as e:
+            print("Could not select 'Capture Provenance'")
+            raise e
+
+    def deselect_capture_provenance(self):
+        try:
+            self._click_on_capture_provenance()
+        except NoSuchElementException as e:
+            print("Could not deselect 'Capture Provenance'")
+            raise e
