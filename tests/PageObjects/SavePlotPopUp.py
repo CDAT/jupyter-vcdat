@@ -68,6 +68,7 @@ class SavePlotPopUp(Actions):
                 counter += 1
 
         assert file_exists
+        time.sleep(2)
         print("Plot is exported to: {}".format(filename))
 
     def _click_on_custom_dimensions(self):

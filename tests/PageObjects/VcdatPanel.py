@@ -142,6 +142,9 @@ class VcdatPanel(Actions):
             print("FAIL..._get_template_elements()")
             raise e
 
+    #
+    # Overlay Mode
+    #
     # REVISIT -- need a way to check if the overlay mode is selected.
     def _click_on_overlay_mode(self):
         overlay_mode_id = "vcsmenu-overlay-mode-switch-vcdat"
@@ -168,4 +171,74 @@ class VcdatPanel(Actions):
             self._click_on_overlay_mode()
         except NoSuchElementException as e:
             print("Could not deselect 'Capture Provenance'")
+            raise e
+
+    #
+    # variable related methods
+    #
+    def _click_on_variable(self, var):
+        var_class = "varmini-name-btn-vcdat"
+        try:
+            var_element = self.find_element_by_class(var_class,
+                                                     "variable element")
+            print("FOUND 'Capture Provenance' selector")
+            state = var_element.get_attribute('class')
+            print("xxx xxx xxx xxx DEBUG...state: '{}'".format(state))
+            self.move_to_click(var_element)
+            time.sleep(5)
+        except NoSuchElementException as e:
+            print("Could not find variable '{}'".format(var))
+            raise e
+
+    def select_variable(self, var):
+        try:
+            self._click_on_variable(var)
+            time.sleep(1)
+        except NoSuchElementException as e:
+            print("Could not select 'Capture Provenance'")
+            raise e
+
+    def deselect_variable(self, var):
+        try:
+            self._click_on_variable(var)
+        except NoSuchElementException as e:
+            print("Could not deselect 'Capture Provenance'")
+            raise e
+
+    def _locate_edit_button_for_variable(self, var):
+        var_menu_class = "varmenu-varlist-vcdat"
+        var_row_locator = ".//div[contains(@class, 'varmini-main-vcdat')]"
+        var_button_locator = ".//button[contains(@class, 'varmini-name-btn-vcdat')]"
+        edit_button_locator = ".//button[contains(@class, 'varmini-edit-btn-vcdat')]"
+        try:
+            var_menu = self.find_element_by_class(var_menu_class,
+                                                  "variable menu")
+            var_rows = var_menu.find_elements_by_xpath(var_row_locator)
+            i = 0
+            for var_row in var_rows:
+                var_button = var_row.find_element_by_xpath(var_button_locator)
+                print("DEBUG...var_button.text: '{}'".format(var_button.text))
+                if var_button.text == var:
+                    print("FOUND the row for variable '{}'".format(var))
+                    break
+                else:
+                    i += 0
+            if i < len(var_rows):
+                edit_button = var_rows[i].find_element_by_xpath(edit_button_locator)
+                print("FOUND edit button for variable '{}'".format(var))
+                return edit_button
+            else:
+                print("Error...invalid variable '{}'".format(var))
+                # REVISIT -- raise an exception -- test error
+        except NoSuchElementException as e:
+            print("FAIL..._locate_row_for_variable, var: '{}'".format(var))
+            raise e
+
+    def click_on_edit_button_for_variable(self, var):
+        try:
+            button = self._locate_edit_button_for_variable(var)
+            time.sleep(3)
+            self.move_to_click(button)
+        except NoSuchElementException as e:
+            print("Could not find 'edit' button for variable '{}'".format(var))
             raise e

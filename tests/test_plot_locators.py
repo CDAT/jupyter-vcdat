@@ -59,6 +59,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         save_plot_popup.input_plot_file_name(export_filename)
         save_plot_popup.select_export_format(export_format)
         save_plot_popup.click_on_export()
+        time.sleep(2)
 
     def test_export_plot(self):
         test_file = "clt.nc"
@@ -129,7 +130,39 @@ class TestPlot(BaseTestCaseWithNoteBook):
         save_plot_popup.select_export_format(export_format)
         save_plot_popup.select_capture_provenance()
         save_plot_popup.click_on_export()
-        time.sleep(10)
+
+    def test_select_deselect_variable(self):
+        test_file = "clt.nc"
+        self.main_page.click_on_vcdat_icon()
+        vcdat_panel = VcdatPanel(self.driver, None)
+        file_browser = vcdat_panel.click_on_load_variables()
+
+        load_variable_popup = file_browser.double_click_on_a_file(test_file)
+        load_variable_popup.click_on_variable('u')
+        load_variable_popup.click_on_variable('v')
+        load_variable_popup.click_on_load()
+
+        vcdat_panel.deselect_variable('v')
+        vcdat_panel.deselect_variable('u')
+        vcdat_panel.select_variable('u')
+        vcdat_panel.click_on_plot()
+
+    def test_edit_variable(self):
+        test_file = "clt.nc"
+        self.main_page.click_on_vcdat_icon()
+        vcdat_panel = VcdatPanel(self.driver, None)
+        file_browser = vcdat_panel.click_on_load_variables()
+
+        load_variable_popup = file_browser.double_click_on_a_file(test_file)
+        load_variable_popup.click_on_variable('clt')
+        load_variable_popup.click_on_variable('u')
+        load_variable_popup.click_on_variable('v')
+        load_variable_popup.click_on_load()
+
+        vcdat_panel.click_on_edit_button_for_variable('u')
+        # HERE HERE continue
+        time.sleep(4)
+
 
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_plot
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_select_plot_type
@@ -137,3 +170,5 @@ class TestPlot(BaseTestCaseWithNoteBook):
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_export_plot
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_export_plot_adjust_unit
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_capture_provenance
+# nosetests -s tests/test_plot_locators.py:TestPlot.test_select_deselect_variable
+# nosetests -s tests/test_plot_locators.py:TestPlot.test_edit_variable
