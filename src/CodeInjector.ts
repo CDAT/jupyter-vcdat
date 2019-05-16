@@ -6,6 +6,7 @@ import { CommandRegistry } from "@phosphor/commands";
 import { CellUtilities } from "./CellUtilities";
 import { AxisInfo } from "./components/AxisInfo";
 import { Variable } from "./components/Variable";
+import { VariableTracker } from "./VariableTracker";
 import {
   CANVAS_CELL_KEY,
   CHECK_MODULES_CMD,
@@ -14,6 +15,7 @@ import {
   EXTENSIONS_REGEX,
   IMAGE_UNITS,
   IMPORT_CELL_KEY,
+  MAX_SLABS,
   READER_CELL_KEY,
   REQUIRED_MODULES
 } from "./constants";
@@ -24,18 +26,21 @@ import { Utilities } from "./Utilities";
  * A class that manages the code injection of vCDAT commands
  */
 export class CodeInjector {
-  private busy: boolean;
-  private nbPanel: NotebookPanel;
+  private _isBusy: boolean;
+  private canvasReady: boolean; // Whether the canvas is ready/has been already run
+  private _notebookPanel: NotebookPanel;
   private cmdRegistry: CommandRegistry;
+  private varTracker: VariableTracker;
   private logErrorsToConsole: boolean; // Whether errors should log to console. Should be false during production.
-  private dataReaders: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
+  // private dataReaders: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
 
-  constructor(commands: CommandRegistry) {
-    this.nbPanel = null;
-    this.busy = false;
+  constructor(commands: CommandRegistry, variableTracker: VariableTracker) {
+    this._notebookPanel = null;
+    this._isBusy = false;
+    this.canvasReady = false;
     this.cmdRegistry = commands;
+    this.varTracker = variableTracker;
     this.logErrorsToConsole = true;
-    this.dataReaders = {};
     this.inject = this.inject.bind(this);
     this.addFileCmd = this.addFileCmd.bind(this);
     this.buildImportCommand = this.buildImportCommand.bind(this);
@@ -49,28 +54,24 @@ export class CodeInjector {
     this.loadVariable = this.loadVariable.bind(this);
     this.plot = this.plot.bind(this);
     this.clearPlot = this.clearPlot.bind(this);
-    this.tryFilePath = this.tryFilePath.bind(this);
-    this.getDataReaderName = this.getDataReaderName.bind(this);
   }
 
   get isBusy(): boolean {
-    return this.busy;
+    return this._isBusy;
   }
 
   get notebookPanel(): NotebookPanel {
-    return this.nbPanel;
+    return this._notebookPanel;
   }
 
-  set notebookPanel(notebookPanel: NotebookPanel) {
-    this.nbPanel = notebookPanel;
-  }
-
-  get dataReaderList(): { [dataName: string]: string } {
-    return this.dataReaders;
-  }
-
-  set dataReaderList(dataReaderList: { [dataName: string]: string }) {
-    this.dataReaders = dataReaderList;
+  public async setNotebook(notebookPanel: NotebookPanel) {
+    if (notebookPanel) {
+      await notebookPanel.activated;
+      await notebookPanel.session.ready;
+      this._notebookPanel = notebookPanel;
+    } else {
+      this._notebookPanel = null;
+    }
   }
 
   /**
@@ -125,7 +126,7 @@ export class CodeInjector {
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
         this.cmdRegistry,
-        this.nbPanel,
+        this._notebookPanel,
         cellIdx
       );
     }
@@ -166,7 +167,7 @@ export class CodeInjector {
     const newFilePath: string = Utilities.getRelativePath(nbPath, filePath);
 
     // Try opening the file first, before injecting into code, exit if failed
-    const isValidPath: boolean = await this.tryFilePath(newFilePath);
+    const isValidPath: boolean = await this.varTracker.tryFilePath(newFilePath);
     if (!isValidPath) {
       throw new Error(`The file failed to open. Path: ${newFilePath}`);
     }
@@ -178,7 +179,7 @@ export class CodeInjector {
     )[0];
 
     // Get list of data files to open
-    const dataVarNames: string[] = Object.keys(this.dataReaderList);
+    const dataVarNames: string[] = Object.keys(this.varTracker.dataReaderList);
 
     // Build command that opens any existing data file(s)
     let cmd: string;
@@ -188,7 +189,7 @@ export class CodeInjector {
     if (dataVarNames.length > 0) {
       cmd = "#Open the files for reading";
       dataVarNames.forEach((existingDataName: string, idx: number) => {
-        tmpFilePath = this.dataReaderList[existingDataName];
+        tmpFilePath = this.varTracker.dataReaderList[existingDataName];
 
         // Exit early if the filepath has already been opened
         if (tmpFilePath === filePath) {
@@ -208,7 +209,7 @@ export class CodeInjector {
       cmd = `#Open the file for reading`;
     }
 
-    const newName: string = this.getDataReaderName(filePath);
+    const newName: string = this.varTracker.getDataReaderName(filePath);
     const addCmd: string = `\n${newName} = cdms2.open('${newFilePath}')`;
 
     cmd += addCmd;
@@ -235,7 +236,7 @@ export class CodeInjector {
     }
 
     // Update or add the file path to the data readers list
-    this.dataReaderList[newName] = filePath;
+    await this.varTracker.addDataSource(newName, filePath);
 
     // Set cell meta data to identify it as containing data variables
     await CellUtilities.setCellMetaData(
@@ -244,13 +245,6 @@ export class CodeInjector {
       READER_CELL_KEY,
       "saved",
       true
-    );
-
-    // Update the metadata
-    await NotebookUtilities.setMetaData(
-      this.notebookPanel,
-      DATA_LIST_KEY,
-      this.dataReaderList
     );
 
     return cellIdx;
@@ -284,6 +278,10 @@ export class CodeInjector {
 
       cellIdx = newIdx;
     } else {
+      if (this.canvasReady) {
+        // Exit early if the canvas cell has already been run
+        return cellIdx;
+      }
       // Replace code in canvas cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
       await CellUtilities.runCellAtIndex(
@@ -302,6 +300,7 @@ export class CodeInjector {
       true
     );
 
+    this.canvasReady = true;
     return cellIdx;
   }
 
@@ -352,15 +351,18 @@ export class CodeInjector {
         w = Number.parseFloat(width);
         h = Number.parseFloat(height);
       }
+
       if (units === "px") {
         unit = "pixels";
       }
       cmd += `, width=${w}, height=${h}, units='${unit}'`;
-      // Export of png plot can include provenance
-      if (format === "png" && provenance !== undefined) {
-        cmd += provenance ? `, provenance=True` : `, provenance=False`;
-      }
     }
+
+    // Export of png plot can include provenance
+    if (format === "png" && provenance !== undefined) {
+      cmd += provenance ? `, provenance=True` : ``;
+    }
+
     // Close command
     cmd += `)`;
 
@@ -457,12 +459,18 @@ export class CodeInjector {
   }
 
   public async plot(
-    selectedVariables: string[],
     selectedGM: string,
     selectedGMGroup: string,
     selectedTemplate: string,
     overlayMode: boolean
   ) {
+    // Limit selection to MAX_SLABS
+    let selectedVariables: string[] = this.varTracker.selectedVariables;
+    if (selectedVariables.length > MAX_SLABS) {
+      selectedVariables = selectedVariables.slice(0, MAX_SLABS);
+      this.varTracker.selectedVariables = selectedVariables;
+    }
+
     // Create graphics method code
     let gmParam: string = selectedGM;
     if (!selectedGM) {
@@ -495,53 +503,6 @@ export class CodeInjector {
     );
   }
 
-  // Will try to open a file path in cdms2. Returns true if successful.
-  public async tryFilePath(filePath: string) {
-    try {
-      await NotebookUtilities.sendSimpleKernelRequest(
-        this.notebookPanel,
-        `tryOpenFile = cdms2.open('${filePath}')\ntryOpenFile.close()`,
-        false
-      );
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
-   * Gets the name for a data reader object to read data from a file. Creates a new name if one doesn't exist.
-   * @param filePath The file path of the new file added
-   */
-  public getDataReaderName(filePath: string): string {
-    // Check whether that file path is already open, return the data name if so
-    let dataName: string = "";
-    const found: boolean = Object.keys(this.dataReaderList).some(
-      (dataVar: string) => {
-        dataName = dataVar;
-        return this.dataReaderList[dataVar] === filePath;
-      }
-    );
-    if (found) {
-      return dataName;
-    }
-
-    // Filepath hasn't been added before, create the name for data variable based on file path
-    dataName = `${Utilities.createValidVarName(filePath)}_data`;
-
-    // If the reader name already exist but the path is different (like for two files with
-    // similar names but different paths) add a count to the end until it's unique
-    let count: number = 1;
-    let newName: string = dataName;
-
-    while (Object.keys(this.dataReaderList).indexOf(newName) >= 0) {
-      newName = `${dataName}${count}`;
-      count += 1;
-    }
-
-    return newName;
-  }
-
   /**
    * This is the injection method used by the other code injector functions for injecting code into the notebook
    * @param code The code that will be injected
@@ -561,7 +522,7 @@ export class CodeInjector {
       throw Error("No notebook, code injection cancelled.");
     }
     try {
-      this.busy = true;
+      this._isBusy = true;
       const idx: number =
         index || this.notebookPanel.content.model.cells.length - 1;
       const [newIdx, result]: [
@@ -592,7 +553,7 @@ export class CodeInjector {
       NotebookUtilities.showMessage("Command Error", error.message);
       throw error;
     } finally {
-      this.busy = false;
+      this._isBusy = false;
     }
   }
 
@@ -620,9 +581,9 @@ export class CodeInjector {
       filePath
     );
     // Check that file can open before adding it as code
-    const valid: boolean = await this.tryFilePath(relativePath);
+    const valid: boolean = await this.varTracker.tryFilePath(relativePath);
     if (valid) {
-      const addCode: string = `\n${this.getDataReaderName(
+      const addCode: string = `\n${this.varTracker.getDataReaderName(
         filePath
       )} = cdms2.open('${relativePath}')`;
       return addCode;

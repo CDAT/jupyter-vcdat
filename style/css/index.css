@@ -1,13 +1,48 @@
-
 .jp-vcsWidget-form {
-    padding-top: 1em;
-    padding-bottom: 1em;
+  padding-top: 1em;
+  padding-bottom: 1em;
 }
 
 .jp-vcsWidget-apply-buttons {
-    padding-top: 1em;
+  padding-top: 1em;
 }
 
 .jp-vcdat-icon {
-    background-image: url('../icons/cdat_icon_colored.png');
+  background-image: url("../icons/cdat_icon_colored.png");
+}
+
+#gm_card .dropdown-menu::-webkit-scrollbar {
+  -webkit-appearance: none;
+}
+
+#gm_card .dropdown-menu::-webkit-scrollbar:vertical {
+  width: 11px;
+}
+
+#gm_card .dropdown-menu::-webkit-scrollbar:horizontal {
+  height: 11px;
+}
+
+#gm_card .dropdown-menu::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 2px solid white; /* should match background, can't be transparent */
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#tm_card .dropdown-menu::-webkit-scrollbar {
+  -webkit-appearance: none;
+}
+
+#tm_card .dropdown-menu::-webkit-scrollbar:vertical {
+  width: 11px;
+}
+
+#tm_card .dropdown-menu::-webkit-scrollbar:horizontal {
+  height: 11px;
+}
+
+#tm_card .dropdown-menu::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 2px solid white; /* should match background, can't be transparent */
+  background-color: rgba(0, 0, 0, 0.5);
 }

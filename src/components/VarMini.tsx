@@ -16,7 +16,6 @@ import { Utilities } from "../Utilities";
 import { AxisInfo } from "./AxisInfo";
 import { DimensionSlider } from "./DimensionSlider";
 import { Variable } from "./Variable";
-import { Handle } from "./Tracks";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
@@ -89,12 +88,8 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
         <div className="clearfix">
           <Button
             outline={true}
-            color={this.props.isSelected ? "success" : "secondary"}
-            style={
-              this.props.isSelected && {
-                backgroundColor: this.props.buttonColor
-              }
-            }
+            color={"success"}
+            style={{ backgroundColor: this.props.buttonColor }}
             active={this.props.isSelected(this.varName)}
           >
             {this.props.variable.name}
