@@ -68,8 +68,6 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       pip install selenium
-       pip install pyvirtualdisplay
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
        python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
@@ -141,12 +139,12 @@ jobs:
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
-      # - run: *run_tests_with_chrome
-      # - store_artifacts:
-      #     path: tests_html
-      #    destination: tests_chrome_html
+       - run: *run_tests_with_chrome
+       - store_artifacts:
+           path: tests_html
+          destination: tests_chrome_html
       - run: *run_tests_with_firefox
-      # - run: *conda_upload
+      #- run: *conda_upload
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html

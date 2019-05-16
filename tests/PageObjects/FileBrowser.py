@@ -1,10 +1,10 @@
 import time
 from selenium.webdriver.common.by import By
-from Actions import Actions
+from ActionsPage import ActionsPage
 from LoadVariablesPopUp import LoadVariablesPopUp
 
 
-class FileBrowser(Actions):
+class FileBrowser(ActionsPage):
 
     def __init__(self, driver, server=None):
         super(FileBrowser, self).__init__(driver, server)

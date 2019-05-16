@@ -1,17 +1,12 @@
 import time
-from Actions import Actions
+from ActionsPage import ActionsPage
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 
 
-class LoadVariablesPopUp(Actions):
-
-    _slider_class = "slider-handles-vcdat"
-    _slider_track_class = "slider-tracks-vcdat"
-    _slider_handle_class = "slider-handles-vcdat"
+class LoadVariablesPopUp(ActionsPage):
 
     _var_loader_main_class = "varloader-main-vcdat"
-    _var_row_class = "varcard-main-vcdat"
     _var_button_class = "varcard-name-btn-vcdat"
     _var_axes_class = "varcard-axes-btn-vcdat"
 
@@ -118,7 +113,7 @@ class LoadVariablesPopUp(Actions):
             print("Cannot find 'Load' button in the 'Load Variables' pop up")
             raise e
 
-    def locate_all_axes_for_variable(self, var):
+    def locate_all_axes_for_variableOBSOLETE(self, var):
         """
         locate all axes for the specified variable, and return all elements.
         """
@@ -137,7 +132,7 @@ class LoadVariablesPopUp(Actions):
             print("Cannot find all axes for variable '{}'".format(var))
             raise e
 
-    def locate_axis_with_title(self, var, axis_title):
+    def locate_axis_with_titleOBSOLETE(self, var, axis_title):
         axes_for_var = self.locate_all_axes_for_variable(var)
         print("number of axes for variable '{v}': {n}".format(v=var,
                                                               n=len(axes_for_var)))
@@ -164,7 +159,7 @@ class LoadVariablesPopUp(Actions):
         else:
             return axes_for_var[i]
 
-    def _get_slider_width_for_axis(self, axis_element):
+    def _get_slider_width_for_axisOBSOLETE(self, axis_element):
         slider_track_locator = ".//div[@class='slider-tracks-vcdat']/div"
         try:
             slider_track = axis_element.find_element_by_xpath(slider_track_locator)
@@ -175,7 +170,7 @@ class LoadVariablesPopUp(Actions):
             print("Cannot find slider track")
             raise e
 
-    def _get_slider_controls(self, axis_element):
+    def _get_slider_controlsOBSOLETE(self, axis_element):
         slider_controls_locator = ".//div[@class='slider-handles-vcdat']/div"
         try:
             slider_controls = axis_element.find_elements_by_xpath(slider_controls_locator)
@@ -185,7 +180,7 @@ class LoadVariablesPopUp(Actions):
             print("Cannot get slider controls")
             raise e
 
-    def _adjust_slider_control(self, slider_control_element, slider_width, offset_percent):
+    def _adjust_slider_controlOBSOLETE(self, slider_control_element, slider_width, offset_percent):
         print("DEBUG...slider_width: {w}, offset_percent: {op}".format(w=slider_width,
                                                                        op=offset_percent))
         offset = (offset_percent / 100) * slider_width
@@ -194,7 +189,7 @@ class LoadVariablesPopUp(Actions):
         ac.click_and_hold(slider_control_element).move_by_offset(offset, 0).release().perform()
         time.sleep(self._delay)
 
-    def adjust_var_axes_slider(self, var, axis_title, min_offset_percent, max_offset_percent):
+    def adjust_var_axes_sliderOBSOLETE(self, var, axis_title, min_offset_percent, max_offset_percent):
         print("...adjust_var_axes_slider...")
         try:
             axis_for_var = self.locate_axis_with_title(var, axis_title)

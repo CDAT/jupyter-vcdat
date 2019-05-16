@@ -2,13 +2,13 @@ import time
 
 from selenium.common.exceptions import NoSuchElementException
 
-from Actions import Actions
-from Actions import InvalidPageException
+from ActionsPage import ActionsPage
+from ActionsPage import InvalidPageException
 from FileBrowser import FileBrowser
 from SavePlotPopUp import SavePlotPopUp
 
 
-class VcdatPanel(Actions):
+class VcdatPanel(ActionsPage):
 
     def __init__(self, driver, server=None):
         super(VcdatPanel, self).__init__(driver, server)

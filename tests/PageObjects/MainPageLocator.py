@@ -1,5 +1,5 @@
-from Actions import Actions
-from Actions import InvalidPageException
+from ActionsPage import ActionsPage
+from ActionsPage import InvalidPageException
 from VcdatPanel import VcdatPanel
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
@@ -11,7 +11,7 @@ VCDAT_LEFT_SIDEBAR_ID = "left-side-bar-vcdat"
 VCDAT_ICON_CLASS = "jp-icon-vcdat"
 
 
-class MainPageLocator(Actions):
+class MainPageLocator(ActionsPage):
 
     def __init__(self, driver, server):
         super(MainPageLocator, self).__init__(driver, server)

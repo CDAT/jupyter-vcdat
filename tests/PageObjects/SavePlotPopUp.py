@@ -1,10 +1,10 @@
 import os
 import time
-from Actions import Actions
+from ActionsPage import ActionsPage
 from selenium.common.exceptions import NoSuchElementException
 
 
-class SavePlotPopUp(Actions):
+class SavePlotPopUp(ActionsPage):
 
     def __init__(self, driver, server):
         super(SavePlotPopUp, self).__init__(driver, server)
