@@ -112,6 +112,8 @@ class LoadVariablesPopUp(Actions):
         try:
             load_button = self.find_element_by_xpath(locator, "'Load' button")
             self.move_to_click(load_button)
+            # REVISIT -- add checking instead of sleep
+            time.sleep(1)
         except NoSuchElementException as e:
             print("Cannot find 'Load' button in the 'Load Variables' pop up")
             raise e
