@@ -5,6 +5,10 @@ import {
   Button,
   Card,
   CardBody,
+  Collapse,
+  CustomInput,
+  Input,
+  Label,
   Modal,
   ModalBody,
   ModalFooter,
@@ -38,14 +42,22 @@ interface IVarMiniProps {
   reload: () => void; // a function to reload the variable
 }
 interface IVarMiniState {
+  activateAppend: boolean;
+  activateShuffle: boolean;
+  activateDeflate: boolean;
   showAxis: boolean; // should the edit axis modal be shown
+  showSaveModal: boolean;
 }
 
 export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   constructor(props: IVarMiniProps) {
     super(props);
     this.state = {
-      showAxis: false
+      activateAppend: false,
+      activateDeflate: false,
+      activateShuffle: false,
+      showAxis: false,
+      showSaveModal: false
     };
     this.openMenu = this.openMenu.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
@@ -53,6 +65,11 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleUpdateClick = this.handleUpdateClick.bind(this);
     this.handleCopyClick = this.handleCopyClick.bind(this);
+    this.handleSaveClick = this.handleSaveClick.bind(this);
+    this.toggleSaveModal = this.toggleSaveModal.bind(this);
+    this.toggleShuffle = this.toggleShuffle.bind(this);
+    this.toggleDeflate = this.toggleDeflate.bind(this);
+    this.toggleAppend = this.toggleAppend.bind(this);
   }
 
   /**
@@ -73,6 +90,42 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.props.modalOpen(!this.state.showAxis);
     this.setState({
       showAxis: !this.state.showAxis
+    });
+  }
+
+  /**
+   * @description Toggles the save variable modal
+   */
+  public toggleSaveModal(): void {
+    this.setState({
+      showSaveModal: !this.state.showSaveModal
+    });
+  }
+
+  /**
+   * @description Toggles the shuffle switch
+   */
+  public toggleShuffle(): void {
+    this.setState({
+      activateShuffle: !this.state.activateShuffle
+    });
+  }
+
+  /**
+   * @description Toggles the deflate switch
+   */
+  public toggleDeflate(): void {
+    this.setState({
+      activateDeflate: !this.state.activateDeflate
+    });
+  }
+
+  /**
+   * @description Toggles the deflate switch
+   */
+  public toggleAppend(): void {
+    this.setState({
+      activateAppend: !this.state.activateAppend
     });
   }
 
@@ -108,7 +161,14 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           >
             edit
           </Button>
-          {this.props.isSelected(this.props.variable) && (
+          <Button
+            outline={true}
+            style={axisStyle}
+            onClick={this.handleSaveClick}
+          >
+            save variable
+          </Button>
+          {this.props.isSelected(this.varName) && (
             <Badge
               className={"float-right"}
               style={{
@@ -133,6 +193,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             {this.state.showAxis &&
               this.props.variable.axisInfo.length > 0 &&
               this.props.variable.axisInfo.map((item: AxisInfo) => {
+                console.log("item:", item);
                 if (!item.data || item.data.length <= 1) {
                   return;
                 }
@@ -162,6 +223,68 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
               Update
             </Button>
           </ModalFooter>
+        </Modal>
+        <Modal
+          id="var-save-modal"
+          isOpen={this.state.showSaveModal}
+          toggle={this.toggleSaveModal}
+          size="lg"
+        >
+          <ModalHeader toggle={this.toggleSaveModal}>Save Variable</ModalHeader>
+          <ModalBody style={modalOverflow}>
+            <Label>Filename:</Label>
+            <Input type="text" name="text" placeholder="Name.nc" value="" />
+            <CustomInput
+              type="switch"
+              id="appendSwitch"
+              name="appendSwitch"
+              label="Append to existing file"
+              checked={this.state.activateAppend}
+              onChange={this.toggleAppend}
+            />
+            <br />
+            <Label>Variable Name in File:</Label>
+            <Input
+              type="text"
+              name="text"
+              placeholder={this.varName}
+              value=""
+            />
+            <br />
+            <CustomInput
+              type="switch"
+              id="shuffleSwitch"
+              name="shuffleSwitch"
+              label="Shuffle"
+              checked={this.state.activateShuffle}
+              onChange={this.toggleShuffle}
+            />
+            <br />
+            <CustomInput
+              type="switch"
+              id="deflateSwitch"
+              name="deflateSwitch"
+              label="Deflate"
+              checked={this.state.activateDeflate}
+              onChange={this.toggleDeflate}
+            />
+            <br />
+            <Collapse isOpen={this.state.activateDeflate}>
+              <Label>Deflate Level:</Label>
+              <Input type="select" name="select" id="exampleSelect">
+                <option>0</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+              </Input>
+            </Collapse>
+          </ModalBody>
         </Modal>
       </div>
     );
@@ -194,5 +317,13 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   private handleUpdateClick(): void {
     this.toggleModal();
     this.props.reload();
+  }
+
+  private handleSaveClick(
+    clickEvent: React.MouseEvent<HTMLButtonElement>
+  ): void {
+    console.log("clicked save button");
+    this.toggleSaveModal();
+    clickEvent.stopPropagation();
   }
 }
