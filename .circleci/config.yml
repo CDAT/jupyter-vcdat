@@ -47,8 +47,6 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       pip install selenium
-       pip install pyvirtualdisplay
        #python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
        #python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
@@ -68,6 +66,8 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
+       pip install selenium
+       pip install pyvirtualdisplay
        #python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
        #python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
