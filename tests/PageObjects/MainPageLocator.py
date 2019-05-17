@@ -75,7 +75,7 @@ class MainPageLocator(ActionsPage):
             submenu_locator = "{dc}{text}".format(dc=data_command, text=text_label)
             submenu = self.find_element_by_xpath(submenu_locator,
                                                  "sub menu item name: {}".format(submenu_name))
-            time.sleep(self._a_bit_delay * 2)
+            time.sleep(1)
             ActionChains(self.driver).move_to_element(submenu).click().perform()
             time.sleep(self._delay)
 
