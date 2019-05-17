@@ -121,6 +121,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       this
     );
     this.dismissExportSuccessAlert = this.dismissExportSuccessAlert.bind(this);
+    this.showExportSuccessAlert = this.showExportSuccessAlert.bind(this);
     this.setPlotInfo = this.setPlotInfo.bind(this);
     this.saveNotebook = this.saveNotebook.bind(this);
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
@@ -140,23 +141,23 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
 
   public dismissSavePlotSpinnerAlert(): void {
     this.setState({ savePlotAlert: false });
+    this.props.commands.execute("vcs:refresh-browser");
   }
 
   public dismissExportSuccessAlert(): void {
     this.setState({ exportSuccessAlert: false });
   }
 
-  public exportPlotAlerts(): void {
-    this.setState({ savePlotAlert: true }, () => {
+  public showExportSuccessAlert(): void {
+    this.setState({ exportSuccessAlert: true }, () => {
       window.setTimeout(() => {
-        this.setState({ savePlotAlert: false });
-        this.setState({ exportSuccessAlert: true }, () => {
-          window.setTimeout(() => {
-            this.setState({ exportSuccessAlert: false });
-          }, 5000);
-        });
+        this.setState({ exportSuccessAlert: false });
       }, 5000);
     });
+  }
+
+  public exportPlotAlerts(): void {
+    this.setState({ savePlotAlert: true });
   }
 
   public toggleModal(): void {
@@ -404,13 +405,15 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     };
     const exportPlotModalProps = {
       codeInjector: this.props.codeInjector,
+      dismissSavePlotSpinnerAlert: this.dismissSavePlotSpinnerAlert,
       exportAlerts: this.exportPlotAlerts,
       getCanvasDimensions: this.getCanvasDimensions,
       isOpen: this.state.isModalOpen,
+      notebookPanel: this.state.notebookPanel,
       setPlotInfo: this.setPlotInfo,
+      showExportSuccessAlert: this.showExportSuccessAlert,
       toggle: this.toggleModal
     };
-
     return (
       <div style={{ ...centered, ...sidebarOverflow }}>
         <Card>
