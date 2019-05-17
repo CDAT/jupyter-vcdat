@@ -3,7 +3,7 @@ from ActionsPage import InvalidPageException
 from VcdatPanel import VcdatPanel
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
+# from selenium.webdriver.common.by import By
 
 import time
 
@@ -56,14 +56,17 @@ class MainPageLocator(ActionsPage):
         '''
         try:
             submenu_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{}')]".format(submenu_name)
-            submenu = self.wait_till_element_is_visible(By.XPATH, submenu_locator,
-                                                        "submenu '{}'".format(submenu_name))
+            # submenu = self.wait_till_element_is_visible(By.XPATH, submenu_locator,
+            #                                             "submenu '{}'".format(submenu_name))
+            submenu = self.find_element_by_xpath(submenu_locator,
+                                                 "submenu '{}'".format(submenu_name))
+            time.sleep(self._delay)
             ActionChains(self.driver).move_to_element(submenu).click().perform()
             time.sleep(self._delay)
         except NoSuchElementException as e:
             raise e
 
-    def click_on_submenu_with_data_command(self, submenu_data_command, submenu_name):
+    def click_on_submenu_with_data_commandMOD(self, submenu_data_command, submenu_name):
         '''
         click on submenu item that has 'data-command' attribute
         '''
@@ -83,7 +86,7 @@ class MainPageLocator(ActionsPage):
         except NoSuchElementException as e:
             raise e
 
-    def click_on_submenu_with_data_commandWORK(self, submenu_data_command, submenu_name):
+    def click_on_submenu_with_data_command(self, submenu_data_command, submenu_name):
         '''
         click on submenu item that has 'data-command' attribute
         '''
