@@ -59,6 +59,7 @@ class MainPageLocator(ActionsPage):
             submenu = self.wait_till_element_is_visible(By.XPATH, submenu_locator,
                                                         "submenu '{}'".format(submenu_name))
             ActionChains(self.driver).move_to_element(submenu).click().perform()
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             raise e
 
