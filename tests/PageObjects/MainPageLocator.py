@@ -56,8 +56,8 @@ class MainPageLocator(ActionsPage):
         '''
         try:
             submenu_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{}')]".format(submenu_name)
-            submenu = self.wait_till_element_is_visible(By.XPATH,
-                                                        submenu_locator)
+            submenu = self.wait_till_element_is_visible(By.XPATH, submenu_locator,
+                                                        "submenu '{}'".format(submenu_name))
             ActionChains(self.driver).move_to_element(submenu).click().perform()
         except NoSuchElementException as e:
             raise e
