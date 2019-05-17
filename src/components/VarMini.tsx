@@ -112,6 +112,9 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.setState({
       showSaveModal: !this.state.showSaveModal
     });
+    this.setState({
+      filename: ""
+    });
   }
 
   /**
@@ -163,11 +166,14 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
 
   public async save() {
     console.log("in save method.");
+    console.log("activateShuffle:", this.state.activateShuffle);
+    console.log("activateDeflate:", this.state.activateDeflate);
     await this.props.codeInjector.saveNetCDFFile(
       this.state.filename,
       this.varName,
       this.state.newVariableName
     );
+    this.toggleSaveModal();
   }
 
   public render(): JSX.Element {
@@ -339,9 +345,9 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={this.save}>
-              Export
+              Save
             </Button>{" "}
-            <Button color="secondary" onClick={this.toggleModal}>
+            <Button color="secondary" onClick={this.toggleSaveModal}>
               Cancel
             </Button>
           </ModalFooter>
