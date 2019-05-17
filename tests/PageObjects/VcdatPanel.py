@@ -47,6 +47,7 @@ class VcdatPanel(ActionsPage):
     def click_on_plot(self):
         element = self.locate_plot()
         self.move_to_click(element)
+        time.sleep(2)
 
     def click_on_export_plot(self):
         element = self.locate_export_plot()
