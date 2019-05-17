@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 // Dependencies
 import * as React from "react";
-import * as _ from 'lodash';
+import * as _ from "lodash";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 // Project Components
@@ -31,7 +31,7 @@ interface IVarLoaderState {
   fileVariables: Variable[]; // the list of variables from within the file
   unloadedVariables: string[]; // the list of variables that haven't been loaded from the file
   selectedVariables: string[]; // the variables the user has selected to be loaded
-  variablesToShow: Variable[]
+  variablesToShow: Variable[];
 }
 
 export class VarLoader extends React.Component<
@@ -49,8 +49,6 @@ export class VarLoader extends React.Component<
       variables: this.props.variables,
       variablesToShow: Array<Variable>()
     };
-
-    
 
     this.toggle = this.toggle.bind(this);
     this.isLoaded = this.isLoaded.bind(this);
@@ -169,31 +167,23 @@ export class VarLoader extends React.Component<
     );
   }
 
-  public handlerResultSelect(e: any, result: any){
-    // this.setState({
-    //   searchResults: result.name
-    // });
-  }
-
-  public updateFileVars(vars: Array<Variable>){
-    debugger;
+  public updateFileVars(vars: Array<Variable>) {
     this.setState({
       fileVariables: vars,
       variablesToShow: vars
     });
   }
 
-  public resetSearch(){
+  public resetSearch() {
     this.setState({
       variablesToShow: this.state.fileVariables
     });
   }
 
-  public handleSearchChange(e: any){
-    debugger;
+  public handleSearchChange(e: any) {
     let value = e.target.value;
 
-    if(value.length < 1){
+    if (value.length < 1) {
       this.setState({
         variablesToShow: this.state.fileVariables
       });
@@ -204,22 +194,22 @@ export class VarLoader extends React.Component<
       targets.push(variable.name);
     });
 
-    const re = new RegExp(value, 'i');
+    const re = new RegExp(value, "i");
     const isMatch = (result: string) => re.test(result);
 
     let searchResults = _.filter(targets, isMatch);
     let newVarsToShow = Array<Variable>();
     searchResults.forEach((searchName: string) => {
       this.state.fileVariables.forEach((v: Variable) => {
-        if(v.name == searchName){
+        if (v.name == searchName) {
           newVarsToShow.push(v);
         }
       });
     });
     this.setState({
       variablesToShow: newVarsToShow
-    })
-  } 
+    });
+  }
 
   public render(): JSX.Element {
     return (
@@ -230,24 +220,23 @@ export class VarLoader extends React.Component<
           toggle={this.toggle}
           size="lg"
         >
-          <ModalHeader toggle={this.toggle}>
-            Load Variable
-          </ModalHeader>
+          <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
           <ModalBody>
-          <div style={noScroll} className="var-loader-search">
+            <div style={noScroll} className="var-loader-search">
               <form>
                 <label>
                   Search:
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="name"
                     className="var-loader-search-input"
-                    onChange={this.handleSearchChange} 
-                    onKeyDown={(e) => {
-                      if(e.keyCode == 13){
-                        e.preventDefault() 
-                      }}}>
-                  </input>
+                    onChange={this.handleSearchChange}
+                    onKeyDown={e => {
+                      if (e.keyCode == 13) {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
                 </label>
               </form>
             </div>
