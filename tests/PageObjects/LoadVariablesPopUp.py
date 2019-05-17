@@ -1,6 +1,8 @@
 import time
 from ActionsPage import ActionsPage
 from EditAxis import EditAxis
+
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -20,7 +22,9 @@ class LoadVariablesPopUp(ActionsPage):
     def _validate_page(self):
         load_variables_locator = "//div[@class='modal-header']//h5[contains(text(), 'Load Variable')]"
         print("...LoadVariablePopUp.validate_page()...")
-        self.find_element_by_xpath(load_variables_locator, "'Load Variable(s)' header")
+        # self.find_element_by_xpath(load_variables_locator, "'Load Variable(s)' header")
+        self.wait_till_element_is_visible(By.XPATH, load_variables_locator,
+                                          "Load Variable(s) pop up")
 
     def locate_variable(self, var):
         locator = "//button[contains(@class, '{cl}') and contains(text(), '{var}')]".format(cl=self._var_button_class,
@@ -39,6 +43,10 @@ class LoadVariablesPopUp(ActionsPage):
         except NoSuchElementException as e:
             print("Could not click on var: {}".format(var))
             raise e
+
+        # wait till the 'axes' button is visible
+        self.wait_till_element_is_visible(By.CLASS_NAME, self._var_axes_class,
+                                          "'axes' button for var '{}'".format(var))
 
     def _locate_all_variable_row_elements(self):
         '''
@@ -61,7 +69,7 @@ class LoadVariablesPopUp(ActionsPage):
         The row element returned can then be used in the caller to find other
         elements related to this var.
         '''
-        time.sleep(2)
+        # time.sleep(2)
         rows = self._locate_all_variable_row_elements()
         print("XXX DEBUG...num of rows: {}".format(len(rows)))
 
@@ -96,9 +104,14 @@ class LoadVariablesPopUp(ActionsPage):
             row_for_var, element = self.locate_variable_axis(var)
             time.sleep(self._delay)
             self.move_to_click(element)
+            # time.sleep(self._delay * 2)
         except NoSuchElementException as e:
             print("Could not click on axes for var: {}".format(var))
             raise e
+
+        axes_class = "dimension-slider-vcdat"
+        self.wait_till_element_is_visible(By.CLASS_NAME, axes_class,
+                                          "dimension slider")
 
     def click_on_load(self):
         """

@@ -88,6 +88,7 @@ class EditAxis(Actions):
             slider_controls = self._get_slider_controls(axis_for_var)
             self._adjust_slider_control(slider_controls[0], slider_width, min_offset_percent)
             self._adjust_slider_control(slider_controls[1], slider_width, max_offset_percent)
+            time.sleep(self._delay * 2)
         except NoSuchElementException as e:
             print("FAIL...adjust_var_axes_slider")
             raise e

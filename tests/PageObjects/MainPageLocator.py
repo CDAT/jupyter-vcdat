@@ -3,6 +3,7 @@ from ActionsPage import InvalidPageException
 from VcdatPanel import VcdatPanel
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 
 import time
 
@@ -29,8 +30,8 @@ class MainPageLocator(ActionsPage):
         item_locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), '{n}')]".format(
             n=name)
         try:
-            item_element = self.find_element_by_xpath(
-                item_locator, " top menu item {n}".format(n=name))
+            item_element = self.find_element_by_xpath(item_locator,
+                                                      "top menu item {n}".format(n=name))
             return item_element
         except NoSuchElementException as e:
             print("NoSuchElementException...not finding '{n}'".format(n=name))
@@ -43,7 +44,8 @@ class MainPageLocator(ActionsPage):
         try:
             element = self.locate_top_menu_item(name)
             time.sleep(self._a_bit_delay)
-            ActionChains(self.driver).move_to_element(element).click().perform()
+            # ActionChains(self.driver).move_to_element(element).click().perform()
+            self.move_to_click(element)
         except NoSuchElementException as e:
             print("...did not find tab for '{}'".format(name))
             raise e
@@ -54,15 +56,33 @@ class MainPageLocator(ActionsPage):
         '''
         try:
             submenu_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{}')]".format(submenu_name)
-            submenu = self.find_element_by_xpath(submenu_locator,
-                                                 "sub menu item name: {}".format(submenu_name))
-            time.sleep(self._a_bit_delay * 2)
+            submenu = self.wait_till_element_is_visible(By.XPATH,
+                                                        submenu_locator)
             ActionChains(self.driver).move_to_element(submenu).click().perform()
-            # time.sleep(5)
         except NoSuchElementException as e:
             raise e
 
     def click_on_submenu_with_data_command(self, submenu_data_command, submenu_name):
+        '''
+        click on submenu item that has 'data-command' attribute
+        '''
+        try:
+            # the time delay below is needed.
+            # for some reasons, self.wait_till_element_is_clickable
+            # does not work
+            data_command = "//li[contains(@data-command, '{dc}')]".format(dc=submenu_data_command)
+            text_label = "//div[@class='p-Menu-itemLabel'][contains(text(), '{name}')]".format(name=submenu_name)
+            submenu_locator = "{dc}{text}".format(dc=data_command, text=text_label)
+            submenu = self.find_element_by_xpath(submenu_locator,
+                                                 "sub menu item name: {}".format(submenu_name))
+            time.sleep(self._a_bit_delay * 2)
+            ActionChains(self.driver).move_to_element(submenu).click().perform()
+            time.sleep(self._delay)
+
+        except NoSuchElementException as e:
+            raise e
+
+    def click_on_submenu_with_data_commandWORK(self, submenu_data_command, submenu_name):
         '''
         click on submenu item that has 'data-command' attribute
         '''

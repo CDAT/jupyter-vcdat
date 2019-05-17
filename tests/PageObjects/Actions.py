@@ -1,6 +1,7 @@
 import time
 
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
@@ -144,4 +145,26 @@ class Actions(object):
         except NoSuchElementException as e:
             print(
                 "NoSuchElementException...could not open vcdat widget")
+            raise e
+
+    def wait_till_element_is_visible(self, method, locator, descr):
+        try:
+            wait = WebDriverWait(self.driver, 20)
+            element = wait.until(EC.visibility_of_element_located((method,
+                                                                   locator)))
+            print("'{}' is now visible".format(descr))
+            return element
+        except TimeoutException as e:
+            print("Timeout in waiting for element to be visible '{}'...".format(descr))
+            raise e
+
+    def wait_till_element_is_clickable(self, method, locator, descr):
+        try:
+            wait = WebDriverWait(self.driver, 20)
+            element = wait.until(EC.element_to_be_clickable((method,
+                                                             locator)))
+            print("'{}' is now clickable".format(descr))
+            return element
+        except TimeoutException as e:
+            print("Timeout in waiting for element to be clickable '{}'...".format(descr))
             raise e

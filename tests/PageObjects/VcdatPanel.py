@@ -153,7 +153,7 @@ class VcdatPanel(ActionsPage):
                                                    "Capture Provenance")
             print("FOUND 'Capture Provenance' selector")
             self.move_to_click(overlay_mode)
-            time.sleep(5)
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             print("Could not find 'Capture Provenance' selector")
             raise e
@@ -161,7 +161,7 @@ class VcdatPanel(ActionsPage):
     def select_overlay_mode(self):
         try:
             self._click_on_overlay_mode()
-            time.sleep(1)
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             print("Could not select 'Capture Provenance'")
             raise e
@@ -185,7 +185,7 @@ class VcdatPanel(ActionsPage):
             state = var_element.get_attribute('class')
             print("xxx xxx xxx xxx DEBUG...state: '{}'".format(state))
             self.move_to_click(var_element)
-            time.sleep(5)
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             print("Could not find variable '{}'".format(var))
             raise e
@@ -193,7 +193,7 @@ class VcdatPanel(ActionsPage):
     def select_variable(self, var):
         try:
             self._click_on_variable(var)
-            time.sleep(1)
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             print("Could not select 'Capture Provenance'")
             raise e
@@ -237,7 +237,7 @@ class VcdatPanel(ActionsPage):
     def click_on_edit_button_for_variable(self, var):
         try:
             button = self._locate_edit_button_for_variable(var)
-            time.sleep(3)
+            time.sleep(self._delay)
             self.move_to_click(button)
         except NoSuchElementException as e:
             print("Could not find 'edit' button for variable '{}'".format(var))
