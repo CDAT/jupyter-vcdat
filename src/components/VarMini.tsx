@@ -61,7 +61,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       activateAppend: false,
       activateDeflate: false,
       activateShuffle: false,
-      deflateValue: null,
+      deflateValue: 0,
       filename: "",
       newVariableName: "",
       showAxis: false,
@@ -110,10 +110,11 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
    */
   public toggleSaveModal(): void {
     this.setState({
+      activateDeflate: false,
+      activateShuffle: false,
+      deflateValue: 0,
+      filename: "",
       showSaveModal: !this.state.showSaveModal
-    });
-    this.setState({
-      filename: ""
     });
   }
 
@@ -130,12 +131,18 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
    * @description Toggles the deflate switch
    */
   public toggleDeflate(): void {
-    this.setState({
-      activateDeflate: !this.state.activateDeflate
-    });
-    this.setState({
-      deflateValue: null
-    });
+    this.setState(
+      {
+        activateDeflate: !this.state.activateDeflate
+      },
+      () => {
+        if (!this.state.activateDeflate) {
+          this.setState({
+            deflateValue: 0
+          });
+        }
+      }
+    );
   }
 
   /**
@@ -171,7 +178,11 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     await this.props.codeInjector.saveNetCDFFile(
       this.state.filename,
       this.varName,
-      this.state.newVariableName
+      this.state.newVariableName,
+      this.state.activateAppend,
+      this.state.activateShuffle,
+      this.state.activateDeflate,
+      this.state.deflateValue
     );
     this.toggleSaveModal();
   }
@@ -328,6 +339,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
                 type="select"
                 name="select"
                 id="deflateSelect"
+                value={this.state.DeflateValue}
                 onChange={this.updateDeflateValue}
               >
                 <option>0</option>

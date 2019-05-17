@@ -308,13 +308,27 @@ export class CodeInjector {
   public async saveNetCDFFile(
     filename: string,
     currentVariableName: string,
-    newVariableName: string
+    newVariableName: string,
+    appendToExistingFile: boolean,
+    shuffle: boolean,
+    deflate: boolean,
+    deflateValue: string
   ): Promise<void> {
-    let cmd: string;
+    let cmd: string = ``;
+    if (shuffle) {
+      cmd += `cdms2.setNetcdfShuffleFlag(1)\n`;
+    }
+    if (deflate) {
+      cmd += `cdms2.setNetcdfDeflateFlag(1)\n`;
+      cmd += `cdms2.setNetcdfDeflateLevelFlag(int(${deflateValue}))\n`;
+      console.log("deflateValue:", deflateValue);
+      console.log("deflateValue type:", typeof deflateValue);
+    }
+    const writeMode = appendToExistingFile ? "r+" : "w";
     const variableNameInFile = newVariableName
       ? newVariableName
       : currentVariableName;
-    cmd = `with cdms2.open('${filename}', "w") as f:\n
+    cmd += `with cdms2.open('${filename}', "${writeMode}") as f:\n
   f.write(${currentVariableName}, id='${variableNameInFile}') `;
 
     await this.inject(
