@@ -28,7 +28,7 @@ class FileBrowser(ActionsPage):
             print("...doing WebDriverWait...till the element is clickable")
             file_load_error_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
             self.wait_click(By.XPATH, file_load_error_ok_locator)
-            time.sleep(3)
+            time.sleep(5)
 
         load_variables_pop_up = LoadVariablesPopUp(self.driver, None)
         return load_variables_pop_up

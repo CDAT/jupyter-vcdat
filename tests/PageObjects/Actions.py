@@ -119,6 +119,7 @@ class Actions(object):
             m = wait.until(EC.element_to_be_clickable((method,
                                                        locator)))
             m.click()
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             print("...error clicking item...")
             raise e
