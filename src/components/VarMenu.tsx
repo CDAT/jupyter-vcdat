@@ -101,10 +101,11 @@ export default class VarMenu extends React.Component<
     });
     // Update state to show launcher with variables
     this.varLoaderRef.setState({
-      fileVariables,
       show: true,
       unloadedVariables: unloaded
     });
+    debugger;
+    this.varLoaderRef.updateFileVars(fileVariables);
   }
 
   /**

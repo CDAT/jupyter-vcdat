@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 // Dependencies
 import * as React from "react";
+import * as _ from 'lodash';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 // Project Components
@@ -13,6 +14,9 @@ import { Variable } from "./Variable";
 const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
   overflow: "auto"
+};
+const noScroll: React.CSSProperties = {
+  overflow: "hidden"
 };
 
 interface IVarLoaderProps {
@@ -27,6 +31,7 @@ interface IVarLoaderState {
   fileVariables: Variable[]; // the list of variables from within the file
   unloadedVariables: string[]; // the list of variables that haven't been loaded from the file
   selectedVariables: string[]; // the variables the user has selected to be loaded
+  variablesToShow: Variable[]
 }
 
 export class VarLoader extends React.Component<
@@ -35,13 +40,17 @@ export class VarLoader extends React.Component<
 > {
   constructor(props: IVarLoaderProps) {
     super(props);
+
     this.state = {
       fileVariables: Array<Variable>(),
       selectedVariables: Array<string>(),
       show: false,
       unloadedVariables: Array<string>(),
-      variables: this.props.variables
+      variables: this.props.variables,
+      variablesToShow: Array<Variable>()
     };
+
+    
 
     this.toggle = this.toggle.bind(this);
     this.isLoaded = this.isLoaded.bind(this);
@@ -51,6 +60,9 @@ export class VarLoader extends React.Component<
     this.deselectVariableForLoad = this.deselectVariableForLoad.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.handleLoadClick = this.handleLoadClick.bind(this);
+    this.handlerResultSelect = this.handlerResultSelect.bind(this);
+    this.handleSearchChange = this.handleSearchChange.bind(this);
+    this.updateFileVars = this.updateFileVars.bind(this);
   }
 
   /**
@@ -157,6 +169,58 @@ export class VarLoader extends React.Component<
     );
   }
 
+  public handlerResultSelect(e: any, result: any){
+    // this.setState({
+    //   searchResults: result.name
+    // });
+  }
+
+  public updateFileVars(vars: Array<Variable>){
+    debugger;
+    this.setState({
+      fileVariables: vars,
+      variablesToShow: vars
+    });
+  }
+
+  public resetSearch(){
+    this.setState({
+      variablesToShow: this.state.fileVariables
+    });
+  }
+
+  public handleSearchChange(e: any){
+    debugger;
+    let value = e.target.value;
+
+    if(value.length < 1){
+      this.setState({
+        variablesToShow: this.state.fileVariables
+      });
+    }
+
+    let targets = Array<string>();
+    this.state.fileVariables.forEach((variable: Variable) => {
+      targets.push(variable.name);
+    });
+
+    const re = new RegExp(value, 'i');
+    const isMatch = (result: string) => re.test(result);
+
+    let searchResults = _.filter(targets, isMatch);
+    let newVarsToShow = Array<Variable>();
+    searchResults.forEach((searchName: string) => {
+      this.state.fileVariables.forEach((v: Variable) => {
+        if(v.name == searchName){
+          newVarsToShow.push(v);
+        }
+      });
+    });
+    this.setState({
+      variablesToShow: newVarsToShow
+    })
+  } 
+
   public render(): JSX.Element {
     return (
       <div>
@@ -166,24 +230,45 @@ export class VarLoader extends React.Component<
           toggle={this.toggle}
           size="lg"
         >
-          <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
-          <ModalBody style={modalOverflow}>
-            {this.state.fileVariables.length !== 0 &&
-              this.state.fileVariables.map((item: Variable) => {
-                return (
-                  <VarCard
-                    allowReload={false}
-                    updateDimInfo={this.updateDimInfo}
-                    isSelected={this.isSelected}
-                    hidden={true}
-                    key={item.name}
-                    variable={item}
-                    isLoaded={this.isLoaded(item.name)}
-                    selectVariable={this.selectVariableForLoad}
-                    deselectVariable={this.deselectVariableForLoad}
-                  />
-                );
-              })}
+          <ModalHeader toggle={this.toggle}>
+            Load Variable
+          </ModalHeader>
+          <ModalBody>
+          <div style={noScroll} className="var-loader-search">
+              <form>
+                <label>
+                  Search:
+                  <input 
+                    type="text" 
+                    name="name"
+                    className="var-loader-search-input"
+                    onChange={this.handleSearchChange} 
+                    onKeyDown={(e) => {
+                      if(e.keyCode == 13){
+                        e.preventDefault() 
+                      }}}>
+                  </input>
+                </label>
+              </form>
+            </div>
+            <div style={modalOverflow} className="var-loader-items">
+              {this.state.variablesToShow.length !== 0 &&
+                this.state.variablesToShow.map((item: Variable) => {
+                  return (
+                    <VarCard
+                      allowReload={false}
+                      updateDimInfo={this.updateDimInfo}
+                      isSelected={this.isSelected}
+                      hidden={true}
+                      key={item.name}
+                      variable={item}
+                      isLoaded={this.isLoaded(item.name)}
+                      selectVariable={this.selectVariableForLoad}
+                      deselectVariable={this.deselectVariableForLoad}
+                    />
+                  );
+                })}
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button
