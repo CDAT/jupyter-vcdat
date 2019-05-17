@@ -58,7 +58,6 @@ export class VarLoader extends React.Component<
     this.deselectVariableForLoad = this.deselectVariableForLoad.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.handleLoadClick = this.handleLoadClick.bind(this);
-    this.handlerResultSelect = this.handlerResultSelect.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.updateFileVars = this.updateFileVars.bind(this);
   }
@@ -167,10 +166,22 @@ export class VarLoader extends React.Component<
     );
   }
 
+  public variableSort(a: Variable, b: Variable){
+    let comp = 0;
+    let aName = a.name.toLocaleLowerCase();
+    let bName = b.name.toLocaleLowerCase();
+    if(aName > bName){
+      comp = 1;
+    } else if(aName < bName){
+      comp = -1;
+    }
+    return comp;
+  }
+
   public updateFileVars(vars: Array<Variable>) {
     this.setState({
       fileVariables: vars,
-      variablesToShow: vars
+      variablesToShow: vars.sort(this.variableSort)
     });
   }
 
@@ -207,7 +218,7 @@ export class VarLoader extends React.Component<
       });
     });
     this.setState({
-      variablesToShow: newVarsToShow
+      variablesToShow: newVarsToShow.sort(this.variableSort)
     });
   }
 
