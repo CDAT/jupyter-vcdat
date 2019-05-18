@@ -38,6 +38,8 @@ interface IVarMenuProps {
   commands?: any; // the command executer
   updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
   syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
+  setPlotInfo: (plotName: string, plotFormat: string) => void;
+  exportAlerts: () => void;
 }
 
 interface IVarMenuState {
@@ -227,6 +229,8 @@ export default class VarMenu extends React.Component<
                         updateDimInfo={this.props.varTracker.updateDimInfo}
                         variable={item}
                         codeInjector={this.props.codeInjector}
+                        setPlotInfo={this.props.setPlotInfo}
+                        exportAlerts={this.props.exportAlerts}
                       />
                     </ListGroupItem>
                   );

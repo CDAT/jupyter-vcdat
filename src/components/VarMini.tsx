@@ -1,6 +1,7 @@
 // Dependencies
 import * as React from "react";
 import {
+  Alert,
   Badge,
   Button,
   Card,
@@ -42,16 +43,19 @@ interface IVarMiniProps {
   selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: () => void; // a function to reload the variable
+  setPlotInfo: (plotName: string, plotFormat: string) => void;
+  exportAlerts: () => void;
 }
 interface IVarMiniState {
   activateAppend: boolean;
   activateShuffle: boolean;
   activateDeflate: boolean;
-  deflateValue: string;
+  deflateValue: number;
   filename: string;
   newVariableName: string;
   showAxis: boolean; // should the edit axis modal be shown
   showSaveModal: boolean;
+  validateFileName: boolean;
 }
 
 export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
@@ -65,7 +69,8 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       filename: "",
       newVariableName: "",
       showAxis: false,
-      showSaveModal: false
+      showSaveModal: false,
+      validateFileName: false
     };
     this.openMenu = this.openMenu.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
@@ -82,6 +87,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.updateDeflateValue = this.updateDeflateValue.bind(this);
     this.updateNewVariableName = this.updateNewVariableName.bind(this);
     this.save = this.save.bind(this);
+    this.dismissFilenameValidation = this.dismissFilenameValidation.bind(this);
   }
 
   /**
@@ -160,7 +166,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
 
   public updateDeflateValue(event: React.ChangeEvent<HTMLInputElement>) {
     console.log("updating deflateValue");
-    this.setState({ deflateValue: event.target.value }, () => {
+    this.setState({ deflateValue: parseInt(event.target.value, 10) }, () => {
       console.log("this.state.deflateValue:", this.state.deflateValue);
     });
   }
@@ -171,10 +177,23 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     });
   }
 
+  public dismissFilenameValidation() {
+    this.setState({ validateFileName: false });
+  }
+
   public async save() {
     console.log("in save method.");
     console.log("activateShuffle:", this.state.activateShuffle);
     console.log("activateDeflate:", this.state.activateDeflate);
+    console.log("this.state.filename:", this.state.filename);
+    const splitFileName = this.state.filename.split(".");
+    console.log("splitFileName:", splitFileName);
+
+    if (!this.state.filename) {
+      this.setState({ validateFileName: true });
+      return;
+    }
+    this.setState({ validateFileName: false });
     await this.props.codeInjector.saveNetCDFFile(
       this.state.filename,
       this.varName,
@@ -185,6 +204,8 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       this.state.deflateValue
     );
     this.toggleSaveModal();
+    this.props.setPlotInfo(splitFileName[0], splitFileName[1]);
+    this.props.exportAlerts();
   }
 
   public render(): JSX.Element {
@@ -297,6 +318,13 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
               value={this.state.filename}
               onChange={this.onFilenameChange}
             />
+            <Alert
+              color="danger"
+              isOpen={this.state.validateFileName}
+              toggle={this.dismissFilenameValidation}
+            >
+              The file name can not be blank
+            </Alert>
             <CustomInput
               type="switch"
               id="appendSwitch"
@@ -339,7 +367,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
                 type="select"
                 name="select"
                 id="deflateSelect"
-                value={this.state.DeflateValue}
+                value={this.state.deflateValue}
                 onChange={this.updateDeflateValue}
               >
                 <option>0</option>
