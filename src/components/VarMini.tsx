@@ -165,16 +165,11 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   }
 
   public updateDeflateValue(event: React.ChangeEvent<HTMLInputElement>) {
-    console.log("updating deflateValue");
-    this.setState({ deflateValue: parseInt(event.target.value, 10) }, () => {
-      console.log("this.state.deflateValue:", this.state.deflateValue);
-    });
+    this.setState({ deflateValue: parseInt(event.target.value, 10) });
   }
 
   public updateNewVariableName(event: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ newVariableName: event.target.value }, () => {
-      console.log("newVariableName: ", this.state.newVariableName);
-    });
+    this.setState({ newVariableName: event.target.value });
   }
 
   public dismissFilenameValidation() {
@@ -182,12 +177,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   }
 
   public async save() {
-    console.log("in save method.");
-    console.log("activateShuffle:", this.state.activateShuffle);
-    console.log("activateDeflate:", this.state.activateDeflate);
-    console.log("this.state.filename:", this.state.filename);
     const splitFileName = this.state.filename.split(".");
-    console.log("splitFileName:", splitFileName);
 
     if (!this.state.filename) {
       this.setState({ validateFileName: true });
@@ -428,7 +418,6 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   private handleSaveClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): void {
-    console.log("clicked save button");
     this.toggleSaveModal();
     clickEvent.stopPropagation();
   }
