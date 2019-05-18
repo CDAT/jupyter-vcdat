@@ -312,7 +312,7 @@ export class CodeInjector {
     appendToExistingFile: boolean,
     shuffle: boolean,
     deflate: boolean,
-    deflateValue: string
+    deflateValue: number
   ): Promise<void> {
     let cmd: string = ``;
     if (shuffle) {
