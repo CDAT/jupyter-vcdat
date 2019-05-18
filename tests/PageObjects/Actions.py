@@ -96,6 +96,7 @@ class Actions(object):
         ActionChains(self.driver).move_to_element(element).click().perform()
 
     def move_to_double_click(self, element):
+        print("...move_to_double_click...")
         time.sleep(self._a_bit_delay)
         ac = ActionChains(self.driver)
         ac.move_to_element(element)
@@ -115,6 +116,7 @@ class Actions(object):
 
     def wait_click(self, method, locator):
         try:
+            print("...wait_click...")
             wait = WebDriverWait(self.driver, 10)
             m = wait.until(EC.element_to_be_clickable((method,
                                                        locator)))
