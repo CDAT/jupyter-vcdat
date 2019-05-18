@@ -20,11 +20,14 @@ class LoadVariablesPopUp(ActionsPage):
         self.edit_axis = EditAxis(driver, server)
 
     def _validate_page(self):
-        load_variables_locator = "//div[@class='modal-header']//h5[contains(text(), 'Load Variable')]"
+        # load_variables_locator = "//div[@class='modal-header']//h5[contains(text(), 'Load Variable')]"
+        load_variables_locator = "//h5[contains(text(), 'Load Variable')]"
         print("...LoadVariablePopUp.validate_page()...")
-        self.find_element_by_xpath(load_variables_locator, "'Load Variable(s)' header")
-        # self.wait_till_element_is_visible(By.XPATH, load_variables_locator,
-        #                                  "Load Variable(s) pop up")
+        try:
+            self.find_element_by_xpath(load_variables_locator, "'Load Variable' header")
+        except NoSuchElementException as e:
+            print("Not finding 'Load Variable' pop up")
+            raise e
 
     def locate_variable(self, var):
         locator = "//button[contains(@class, '{cl}') and contains(text(), '{var}')]".format(cl=self._var_button_class,
@@ -104,7 +107,7 @@ class LoadVariablesPopUp(ActionsPage):
             row_for_var, element = self.locate_variable_axis(var)
             time.sleep(self._delay)
             self.move_to_click(element)
-            # time.sleep(self._delay * 2)
+            time.sleep(self._delay * 2)
         except NoSuchElementException as e:
             print("Could not click on axes for var: {}".format(var))
             raise e
