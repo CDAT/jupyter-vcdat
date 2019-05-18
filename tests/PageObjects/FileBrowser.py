@@ -29,7 +29,6 @@ class FileBrowser(ActionsPage):
             file_load_error_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
             self.wait_click(By.XPATH, file_load_error_ok_locator)
 
-        time.sleep(5)
-
+        time.sleep(1)
         load_variables_pop_up = LoadVariablesPopUp(self.driver, None)
         return load_variables_pop_up
