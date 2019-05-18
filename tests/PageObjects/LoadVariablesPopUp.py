@@ -17,18 +17,17 @@ class LoadVariablesPopUp(ActionsPage):
 
     def __init__(self, driver, server):
         super(LoadVariablesPopUp, self).__init__(driver, server)
-        self.edit_axis = EditAxis(driver, server)
+        self.edit_axis = EditAxis(driver, None)
 
     def _validate_page(self):
-        # load_variables_locator = "//div[@class='modal-header']//h5[contains(text(), 'Load Variable')]"
+        load_variables_locator = "//div[@class='modal-header']//h5[contains(text(), 'Load Variable')]"
         # load_variables_locator = "//h5[contains(text(), 'Load Variable')]"
         print("...LoadVariablePopUp.validate_page()...")
-        time.sleep(1)
-        # try:
-        #    self.find_element_by_xpath(load_variables_locator, "'Load Variable' header")
-        # except NoSuchElementException as e:
-        #    print("Not finding 'Load Variable' pop up")
-        #    raise e
+        try:
+            self.find_element_by_xpath(load_variables_locator, "'Load Variable' header")
+        except NoSuchElementException as e:
+            print("Not finding 'Load Variable' pop up")
+            raise e
 
     def locate_variable(self, var):
         locator = "//button[contains(@class, '{cl}') and contains(text(), '{var}')]".format(cl=self._var_button_class,

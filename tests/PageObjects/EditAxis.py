@@ -7,6 +7,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 class EditAxis(Actions):
 
     def __init__(self, driver, server):
+        print("DEBUG...EditAxis.__init__()...")
         super(EditAxis, self).__init__(driver, server)
 
     def locate_all_axes_for_variable(self, var):
