@@ -14,6 +14,7 @@ class ActionsPage(Actions):
     _wait_timeout = 10
 
     def __init__(self, driver, server):
+        super(ActionsPage, self).__init__(driver, server)
         self.driver = driver
         if server:
             self.load_page(server)
