@@ -44,8 +44,8 @@ class MainPageLocator(ActionsPage):
         try:
             element = self.locate_top_menu_item(name)
             time.sleep(self._a_bit_delay)
-            # ActionChains(self.driver).move_to_element(element).click().perform()
-            self.move_to_click(element)
+            ActionChains(self.driver).move_to_element(element).click().perform()
+            # self.move_to_click(element)
         except NoSuchElementException as e:
             print("...did not find tab for '{}'".format(name))
             raise e
@@ -97,7 +97,7 @@ class MainPageLocator(ActionsPage):
             submenu_locator = "{dc}{text}".format(dc=data_command, text=text_label)
             submenu = self.find_element_by_xpath(submenu_locator,
                                                  "sub menu item name: {}".format(submenu_name))
-            time.sleep(self._a_bit_delay * 2)
+            time.sleep(5)
             ActionChains(self.driver).move_to_element(submenu).click().perform()
             time.sleep(self._delay)
 

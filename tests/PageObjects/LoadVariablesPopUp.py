@@ -20,8 +20,7 @@ class LoadVariablesPopUp(ActionsPage):
         self.edit_axis = EditAxis(driver, server)
 
     def _validate_page(self):
-        # load_variables_locator = "//div[@class='modal-header']//h5[contains(text(), 'Load Variable')]"
-        load_variables_locator = "//h5[contains(text(), 'Load Variable')]"
+        load_variables_locator = "//div[@class='modal-header']//h5[contains(text(), 'Load Variable')]"
         print("...LoadVariablePopUp.validate_page()...")
         self.find_element_by_xpath(load_variables_locator, "'Load Variable(s)' header")
         # self.wait_till_element_is_visible(By.XPATH, load_variables_locator,
@@ -70,7 +69,7 @@ class LoadVariablesPopUp(ActionsPage):
         The row element returned can then be used in the caller to find other
         elements related to this var.
         '''
-        # time.sleep(2)
+        time.sleep(2)
         rows = self._locate_all_variable_row_elements()
         print("XXX DEBUG...num of rows: {}".format(len(rows)))
 

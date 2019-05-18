@@ -21,7 +21,7 @@ class FileBrowser(ActionsPage):
 
         time.sleep(self._delay)
         self.move_to_double_click(file_element)
-        time.sleep(3)
+        time.sleep(self._delay)
 
         if expect_file_load_error:
             print("...click on the File Load Error OK button")
