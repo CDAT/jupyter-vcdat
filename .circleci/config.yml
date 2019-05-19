@@ -127,7 +127,7 @@ aliases:
 jobs:
   linux_jupyter_vcdat_py3:
     docker:
-      - image: circleci/node:4.8.2
+      #- image: circleci/node:4.8.2-browsers
       - image: circleci/node:jessie-browsers
       - image: circleci/python:3-stretch-node-browsers
       - image: selenium/standalone-firefox:latest
