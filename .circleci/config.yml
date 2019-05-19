@@ -128,7 +128,7 @@ jobs:
   linux_jupyter_vcdat_py3:
     docker:
       - image: circleci/node:jessie-browsers
-      - image: circleci/python:3-stretch-node-browsers
+      # - image: circleci/python:3-stretch-node-browsers
       - image: selenium/standalone-firefox:latest
     environment:
       WORKDIR: "workspace/test_firefox"

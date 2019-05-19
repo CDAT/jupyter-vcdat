@@ -60,7 +60,7 @@ class MainPageLocator(ActionsPage):
             #                                             "submenu '{}'".format(submenu_name))
             submenu = self.find_element_by_xpath(submenu_locator,
                                                  "submenu '{}'".format(submenu_name))
-            time.sleep(self._delay)
+            time.sleep(self._delay * 2)
             ActionChains(self.driver).move_to_element(submenu).click().perform()
             time.sleep(self._delay)
         except NoSuchElementException as e:
@@ -97,7 +97,7 @@ class MainPageLocator(ActionsPage):
             submenu_locator = "{dc}{text}".format(dc=data_command, text=text_label)
             submenu = self.find_element_by_xpath(submenu_locator,
                                                  "sub menu item name: {}".format(submenu_name))
-            time.sleep(5)
+            time.sleep(self._a_bit_delay * 2)
             ActionChains(self.driver).move_to_element(submenu).click().perform()
             time.sleep(self._delay)
 
