@@ -124,13 +124,20 @@ aliases:
        conda update -y -q conda
        conda config --set anaconda_upload no
 
+  - &install_and_start_vncserver
+    name: install_and_start_vncserver
+    command: |
+        sudo apt-get install -y x11vnc
+        x11vnc -forever -nopw -create
+    background: true
+
 jobs:
   linux_jupyter_vcdat_py3:
     docker:
       #- image: circleci/node:12.2.0-stretch
       #- image: circleci/node:jessie-browsers
-      - image: circleci/python:3-stretch-node-browsers
       - image: circleci/node:12.2.0-stretch
+      - image: circleci/python:3-stretch-node-browsers
       - image: selenium/standalone-firefox:latest
     environment:
       WORKDIR: "workspace/test_firefox"
@@ -139,6 +146,7 @@ jobs:
       - checkout
       - run: which firefox
       - run: which geckodriver
+      - run: install_and_start_vncserver
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
