@@ -22,8 +22,6 @@ class LoadVariablesPopUp(ActionsPage):
     def _validate_page(self):
         load_variables_locator = "//div[@class='modal-header']/h5[contains(text(), 'Load Variable')]"
         # load_variables_locator = "//h5[contains(text(), 'Load Variable')]"
-        print("xxx time.sleep(5) xxx")
-        time.sleep(5)
         print("...LoadVariablePopUp.validate_page()...")
         try:
             self.find_element_by_xpath(load_variables_locator, "'Load Variable' header")
