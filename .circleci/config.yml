@@ -146,7 +146,7 @@ jobs:
       - checkout
       - run: which firefox
       - run: which geckodriver
-      - run: install_and_start_vncserver
+      - run: *install_and_start_vncserver
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
