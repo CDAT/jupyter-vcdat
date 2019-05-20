@@ -149,6 +149,7 @@ jobs:
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
+      - run: pwd
       - run: *run_tests_with_firefox
       - store_artifacts:
           path: tests_html
