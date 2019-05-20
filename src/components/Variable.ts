@@ -9,4 +9,7 @@ export class Variable {
   public units: string; // the units this data is measured in
   public pythonID: number; // the id of the variable from the file
   public sourceName: string; // the name of the data variable that holds this variables' data
+  get varID(): string {
+    return `${this.name}${this.alias}`
+  }
 }

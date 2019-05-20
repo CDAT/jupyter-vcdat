@@ -33,8 +33,8 @@ const modalOverflow: React.CSSProperties = {
 interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
-  updateDimInfo: (newInfo: any, varName: string) => void; // method passed by the parent to update their copy of the variables dimension info
-  isSelected: (varName: string) => boolean; // method to check if this variable is selected in parent
+  updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
+  isSelected: (variable: Variable) => boolean; // method to check if this variable is selected in parent
   copyVariable: (variable: Variable, newName: string) => Promise<void>;
   deleteVariable: (variable: Variable) => Promise<void>;
   selectOrder: number;
@@ -87,7 +87,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             outline={true}
             color={"success"}
             style={{ backgroundColor: this.props.buttonColor }}
-            active={this.props.isSelected(this.props.variable.alias)}
+            active={this.props.isSelected(this.props.variable)}
           >
             {this.props.variable.alias}
           </Button>
@@ -107,7 +107,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           >
             edit
           </Button>
-          {this.props.isSelected(this.props.variable.alias) && (
+          {this.props.isSelected(this.props.variable) && (
             <Badge
               className="float-right"
               style={{
@@ -140,7 +140,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
                       <CardBody>
                         <DimensionSlider
                           {...item}
-                          varName={this.props.variable.alias}
+                          varID={this.props.variable.varID}
                         />
                       </CardBody>
                     </Card>

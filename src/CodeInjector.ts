@@ -466,7 +466,7 @@ export class CodeInjector {
       arguments
     );
 
-    // Add variable to varTracker
+    // new variable to var tracker
     this.varTracker.addVariable(variable);
   }
 
@@ -476,6 +476,7 @@ export class CodeInjector {
     }
 
     let cmd: string = ``;
+    let newSelection: Variable[] = Array<Variable>();
     variables.forEach((variable: Variable) => {
       // Create code to load the variable into the notebook
       cmd += `${variable.alias} = ${variable.sourceName}("${variable.name}"`;
@@ -486,6 +487,11 @@ export class CodeInjector {
             : `, ${axis.name}=(${axis.min}, ${axis.max})`;
       });
       cmd += ")\n";
+
+      // Select variable
+      newSelection.push(variable);
+
+      // new variable to var tracker
       this.varTracker.addVariable(variable);
     });
     cmd = cmd.slice(0, cmd.length - 1);
@@ -498,6 +504,12 @@ export class CodeInjector {
       "loadMultipleVariables",
       arguments
     );
+
+    // Update selected variables
+    this.varTracker.selectedVariables = newSelection;
+
+    // Refresh the list
+    await this.varTracker.refreshVariables();
   }
 
   public async clearPlot() {
@@ -516,7 +528,7 @@ export class CodeInjector {
     overlayMode: boolean
   ) {
     // Limit selection to MAX_SLABS
-    let selectedVariables: string[] = this.varTracker.selectedVariables;
+    let selectedVariables: Variable[] = this.varTracker.selectedVariables;
     if (selectedVariables.length > MAX_SLABS) {
       selectedVariables = selectedVariables.slice(0, MAX_SLABS);
       this.varTracker.selectedVariables = selectedVariables;
@@ -540,8 +552,8 @@ export class CodeInjector {
     let cmd: string = overlayMode
       ? "canvas.plot("
       : "canvas.clear()\ncanvas.plot(";
-    for (const varName of selectedVariables) {
-      cmd += `${varName}, `;
+    for (let variable of selectedVariables) {
+      cmd += `${variable.alias}, `;
     }
     cmd += `${templateParam}, ${gmParam})`;
 
