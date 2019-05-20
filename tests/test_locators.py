@@ -114,4 +114,4 @@ class TestLocators(BaseTestCase):
 if __name__ == '__main__':
     unittest.main(verbosity=2)
 
-# nosetests -s tests/test_locators.py:TestLocators.test_all_locators
+# nosetests -s tests/test_locators.py:TestLocators.test_new_notebook

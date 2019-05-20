@@ -34,9 +34,6 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       echo "XXX XXX XXX"
-       pwd
-       ls
        jupyter lab --ip='127.0.0.1'
     background: true
 
@@ -152,7 +149,7 @@ jobs:
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
-      - run: sleep 5
+      - run: sleep 10
       - run: *run_tests_with_firefox
       - store_artifacts:
           path: tests_html
