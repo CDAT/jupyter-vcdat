@@ -124,6 +124,13 @@ aliases:
        conda update -y -q conda
        conda config --set anaconda_upload no
 
+  - &download_and_start_x
+    name: Download and start X
+    command: |
+       sudo apt-get install -y x11vnc
+       x11vnc -forever -nopw
+    background: true
+
 jobs:
   linux_jupyter_vcdat_py3:
     docker:
@@ -142,6 +149,7 @@ jobs:
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
+      - run: *download_and_start_x
       - run: *run_tests_with_firefox
       - store_artifacts:
           path: tests_html
