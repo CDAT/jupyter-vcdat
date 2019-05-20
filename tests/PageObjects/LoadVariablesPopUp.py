@@ -20,7 +20,7 @@ class LoadVariablesPopUp(ActionsPage):
         self.edit_axis = EditAxis(driver, None)
 
     def _validate_page(self):
-        load_variables_locator = "//div[@class='modal-header']//h5[contains(text(), 'Load Variable')]"
+        load_variables_locator = "//div[@class='modal-header']/h5[contains(text(), 'Load Variable')]"
         # load_variables_locator = "//h5[contains(text(), 'Load Variable')]"
         print("xxx time.sleep(5) xxx")
         time.sleep(5)
