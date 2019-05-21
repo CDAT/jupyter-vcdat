@@ -225,16 +225,8 @@ export class VariableTracker {
    * @param varID The variable's ID
    * @param varArray If set, function will search within the specified group of variables (instead of all variables)
    */
-  public findVarByID(
-    varID: string,
-    varArray?: Array<Variable>
-  ): [number, Variable] {
-    let variables: Variable[];
-    if (varArray) {
-      variables = varArray;
-    } else {
-      variables = this.variables;
-    }
+  public findVarByID(varID: string, varArray?: Variable[]): [number, Variable] {
+    const variables: Variable[] = varArray ? varArray : this.variables;
 
     for (let idx: number = 0; idx < variables.length; idx += 1) {
       if (variables[idx].varID === varID) {
@@ -252,14 +244,9 @@ export class VariableTracker {
    */
   public findVarByAlias(
     alias: string,
-    varArray?: Array<Variable>
+    varArray?: Variable[]
   ): [number, Variable] {
-    let variables: Variable[];
-    if (varArray) {
-      variables = varArray;
-    } else {
-      variables = this.variables;
-    }
+    const variables: Variable[] = varArray ? varArray : this.variables;
 
     for (let idx: number = 0; idx < variables.length; idx += 1) {
       if (variables[idx].alias === alias) {
@@ -292,7 +279,7 @@ export class VariableTracker {
       currentVars.push(variable);
     } else {
       // If there are already variables stored, check if variable exists and replace if so
-      let idx: number = this.findVarByID(variable.varID)[0];
+      const idx: number = this.findVarByID(variable.varID)[0];
       if (idx >= 0) {
         currentVars[idx] = variable;
       } else {
@@ -309,10 +296,10 @@ export class VariableTracker {
    */
   public deleteVariable(variable: Variable): void {
     // Update variable selections
-    let selections: Variable[] = this.selectedVariables;
-    const idx: number = this.findVarByID(variable.varID, selections)[0];
-    if (idx >= 0) {
-      selections.splice(idx, 1);
+    const selections: Variable[] = this.selectedVariables;
+    const selectIdx: number = this.findVarByID(variable.varID, selections)[0];
+    if (selectIdx >= 0) {
+      selections.splice(selectIdx, 1);
     }
     this.selectedVariables = selections;
 
@@ -326,13 +313,13 @@ export class VariableTracker {
     delete newAliases[variable.alias];
     this.variableAliases = newAliases;
 
-    let currentVars: Variable[] = this.variables;
+    const currentVars: Variable[] = this.variables;
 
     // If variables are in the list, delete variable from variables list
     if (currentVars.length >= 1) {
-      const idx: number = this.findVarByID(variable.varID)[0];
-      if (idx >= 0) {
-        currentVars.splice(idx, 1);
+      const currentIdx: number = this.findVarByID(variable.varID)[0];
+      if (currentIdx >= 0) {
+        currentVars.splice(currentIdx, 1);
       }
     }
 
@@ -344,9 +331,12 @@ export class VariableTracker {
    * @description adds a variable to the selectedVariables list
    * @param variable the variable to add to the selected list
    */
-  public async selectVariable(variable: Variable, array?: Array<Variable>): Promise<void> {
+  public async selectVariable(
+    variable: Variable,
+    array?: Variable[]
+  ): Promise<void> {
     if (variable) {
-      let newSelection = this.selectedVariables;
+      const newSelection = this.selectedVariables;
       newSelection.push(variable);
       this.selectedVariables = newSelection;
     }
@@ -356,13 +346,16 @@ export class VariableTracker {
    * @description removes a variable from the selectedVariables list
    * @param variable the variable to remove from the selected list
    */
-  public async deselectVariable(variable: Variable, array?: Array<Variable>): Promise<void> {
+  public async deselectVariable(
+    variable: Variable,
+    array?: Variable[]
+  ): Promise<void> {
     const idx: number = this.findVarByID(
       variable.varID,
       this.selectedVariables
     )[0];
     if (idx >= 0) {
-      let newSelection = this.selectedVariables;
+      const newSelection = this.selectedVariables;
       newSelection.splice(idx, 1);
       this.selectedVariables = newSelection;
     }

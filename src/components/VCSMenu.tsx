@@ -132,6 +132,14 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
   }
 
+  public componentWillUnmount(): void {
+    this.props.plotReadyChanged.disconnect(this.handlePlotReadyChanged);
+    this.props.plotExistsChanged.disconnect(this.handlePlotExistsChanged);
+    this.props.varTracker.variablesChanged.disconnect(
+      this.handleVariablesChanged
+    );
+  }
+
   public setPlotInfo(plotName: string, plotFormat: string) {
     this.setState({ plotName, plotFormat });
   }

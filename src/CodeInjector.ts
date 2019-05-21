@@ -476,7 +476,7 @@ export class CodeInjector {
     }
 
     let cmd: string = ``;
-    let newSelection: Variable[] = Array<Variable>();
+    const newSelection: Variable[] = Array<Variable>();
     variables.forEach((variable: Variable) => {
       // Create code to load the variable into the notebook
       cmd += `${variable.alias} = ${variable.sourceName}("${variable.name}"`;
@@ -552,7 +552,7 @@ export class CodeInjector {
     let cmd: string = overlayMode
       ? "canvas.plot("
       : "canvas.clear()\ncanvas.plot(";
-    for (let variable of selectedVariables) {
+    for (const variable of selectedVariables) {
       cmd += `${variable.alias}, `;
     }
     cmd += `${templateParam}, ${gmParam})`;

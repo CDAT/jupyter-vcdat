@@ -28,7 +28,6 @@ import { NotebookUtilities } from "./NotebookUtilities";
 import { Utilities } from "./Utilities";
 import { VariableTracker } from "./VariableTracker";
 import { ISignal, Signal } from "@phosphor/signaling";
-import { ICellModel } from "@jupyterlab/cells";
 
 /**
  * This is the main component for the vcdat extension.
@@ -235,7 +234,7 @@ export class LeftSideBarWidget extends Widget {
         // Run cells to make notebook vcs ready
         if (this.state === NOTEBOOK_STATE.InitialCellsReady) {
           // Run the imports cell
-          const [idx, ICellModel] = CellUtilities.findCellWithMetaKey(
+          const [idx, cell] = CellUtilities.findCellWithMetaKey(
             this._notebookPanel,
             IMPORT_CELL_KEY
           );

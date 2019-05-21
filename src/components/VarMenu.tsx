@@ -72,6 +72,15 @@ export default class VarMenu extends React.Component<
     this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
   }
 
+  public componentWillUnmount(): void {
+    this.props.varTracker.selectedVariablesChanged.disconnect(
+      this.handleSelectionChanged
+    );
+    this.props.varTracker.variablesChanged.disconnect(
+      this.handleVariablesChanged
+    );
+  }
+
   public isSelected(variable: Variable): boolean {
     return (
       this.props.varTracker.findVarByID(
@@ -92,19 +101,10 @@ export default class VarMenu extends React.Component<
    * @description toggles the varLoaders menu
    */
   public async launchVarLoader(fileVariables: Variable[]): Promise<void> {
-    // Look through current loaded variable names to see if any haven't been loaded
-    /*const unloaded: string[] = Array<string>();
-
-    fileVariables.forEach((fileVar: Variable) => {
-      if(this.props.varTracker.getIndexByID(fileVar.varID)<0){
-        unloaded.push(fileVar.varID)
-      }
-    });*/
     // Update state to show launcher with variables
     this.varLoaderRef.setState({
       fileVariables,
       show: true
-      //unloadedVariables: unloaded
     });
   }
 
@@ -136,10 +136,6 @@ export default class VarMenu extends React.Component<
       )[0] + 1
     );
   }
-
-  /*public updateSelectedVariables = (newSelection: string[]) => {
-    this.props.varTracker.selectedVariables = newSelection;
-  };*/
 
   public render(): JSX.Element {
     const colors: string[] = ColorFunctions.createGradient(
@@ -217,7 +213,6 @@ export default class VarMenu extends React.Component<
         </Card>
         <VarLoader
           varTracker={this.props.varTracker}
-          //updateSelectedVariables={this.updateSelectedVariables}
           loadSelectedVariables={this.props.codeInjector.loadMultipleVariables}
           ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />

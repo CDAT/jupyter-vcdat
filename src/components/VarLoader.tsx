@@ -11,7 +11,7 @@ import { VarCard } from "./VarCard";
 import { Variable } from "./Variable";
 import { VariableTracker } from "../VariableTracker";
 import { NotebookUtilities } from "../NotebookUtilities";
-import { Signal, ISignal } from "@phosphor/signaling";
+import { ISignal, Signal } from "@phosphor/signaling";
 
 const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
@@ -20,14 +20,11 @@ const modalOverflow: React.CSSProperties = {
 
 interface IVarLoaderProps {
   loadSelectedVariables: (variables: Variable[]) => Promise<void>; // function to call when user hits load
-  //updateSelectedVariables: (selection: string[]) => void; // update the list of selected variables
   varTracker: VariableTracker;
 }
 interface IVarLoaderState {
   show: boolean; // should the modal be shown
-  variables: Variable[]; // list of already loaded variables
   fileVariables: Variable[]; // the list of variables from within the file
-  //unloadedVariables: string[]; // the list of variables that haven't been loaded from the file
   selectedVariables: Variable[]; // the variables the user has selected to be loaded
 }
 
@@ -42,14 +39,12 @@ export class VarLoader extends React.Component<
     this.state = {
       fileVariables: Array<Variable>(),
       selectedVariables: Array<Variable>(),
-      show: false,
-      //unloadedVariables: Array<string>(),
-      variables: this.props.varTracker.variables
+      show: false
     };
     this._selectionChanged = new Signal<this, Variable[]>(this);
 
     this.toggle = this.toggle.bind(this);
-    //this.isLoaded = this.isLoaded.bind(this);
+    this.reset = this.reset.bind(this);
     this.isSelected = this.isSelected.bind(this);
     this.loadSelectedVariables = this.loadSelectedVariables.bind(this);
     this.selectVariableForLoad = this.selectVariableForLoad.bind(this);
@@ -71,6 +66,13 @@ export class VarLoader extends React.Component<
 
   get selectionChanged(): ISignal<this, Variable[]> {
     return this._selectionChanged;
+  }
+
+  public reset(): void {
+    this.selections = Array<Variable>();
+    this.setState({
+      fileVariables: Array<Variable>()
+    });
   }
 
   /**
@@ -95,21 +97,36 @@ export class VarLoader extends React.Component<
     }
 
     // Exit early if duplicate variable names found
-    
+    const varCount: { [varID: string]: Variable } = {};
+    const duplicates: Variable[] = Array<Variable>();
+    varsToLoad.forEach((variable: Variable) => {
+      if (!varCount[variable.alias]) {
+        varCount[variable.alias] = variable;
+      } else {
+        duplicates.push(variable);
+      }
+    });
+
+    if (duplicates.length > 0) {
+      await NotebookUtilities.showMessage(
+        "Notice",
+        `You cannot load multiple variables of the same name. \
+        Rename each variable to a unique name before loading.`,
+        "Dismiss"
+      );
+      // Deselect all variables with same name
+      duplicates.forEach((variable: Variable) => {
+        this.deselectVariableForLoad(variable);
+      });
+      return;
+    }
+
+    // Reset the state of the var loader when done
+    await this.reset();
 
     await this.props.loadSelectedVariables(varsToLoad);
 
-    // Update the main widget's current selected variables
-    //this.props.updateSelectedVariables(this.state.selectedVariables);
-
-    // Reset the state of the var loader when done
-    this.selections = Array<Variable>();
-    this.setState({
-      fileVariables: Array<Variable>(),
-      //selectedVariables: Array<string>(),
-      //unloadedVariables: Array<string>(),
-      variables: Array<Variable>()
-    });
+    this.setState({ show: false });
 
     // Save the notebook after variables have been added
     await this.props.varTracker.saveMetaData();
@@ -120,19 +137,12 @@ export class VarLoader extends React.Component<
    * @param variable The Variable the user has selected to get loaded
    */
   public selectVariableForLoad(variable: Variable): void {
-    //this.props.varTracker.selectVariable(variable, this.selections);
-    let newSelection: Array<Variable>;
-    if (this.selections) {
-      newSelection = this.selections;
-    } else {
-      newSelection = Array<Variable>();
-    }
+    const newSelection: Variable[] = this.selections
+      ? this.selections
+      : Array<Variable>();
+
     newSelection.push(variable);
     this.selections = newSelection;
-    // Update the state
-    //this.setState({
-    //  selectedVariables: this.state.selectedVariables.concat([varAlias])
-    //});
   }
 
   /**
@@ -140,22 +150,16 @@ export class VarLoader extends React.Component<
    * @param variable Remove a variable from the list to be loaded
    */
   public deselectVariableForLoad(variable: Variable): void {
-    //this.props.varTracker.deselectVariable(variable, this.selections);
-    const idx: number = this.props.varTracker.findVarByID(
-      variable.varID,
+    const idx: number = this.props.varTracker.findVarByAlias(
+      variable.alias,
       this.selections
     )[0];
-    let selectedVars: Variable[] = this.selections;
+    const selectedVars: Variable[] = this.selections;
     if (idx >= 0) {
       selectedVars.splice(idx, 1);
     }
     this.selections = selectedVars;
   }
-
-  // Returns true if the variable name has already been loaded into vcdat
-  /*public isLoaded(varID: string): boolean {
-    return this.state.unloadedVariables.indexOf(varID) < 0;
-  }*/
 
   /**
    * @description this is just a placeholder for now
@@ -189,9 +193,9 @@ export class VarLoader extends React.Component<
         if (fileVariable.varID !== varID) {
           return;
         }
-        let newVariables = this.state.fileVariables;
+        const newVariables = this.state.fileVariables;
         newVariables[varIndex].alias = newName;
-        let newSelection = this.selections;
+        const newSelection = this.selections;
         const idx: number = this.props.varTracker.findVarByID(
           varID,
           this.selections
@@ -202,7 +206,6 @@ export class VarLoader extends React.Component<
         this.selections = newSelection;
         this.setState({
           fileVariables: newVariables
-          //selectedVariables: newSelection
         });
       }
     );
@@ -213,14 +216,11 @@ export class VarLoader extends React.Component<
   };
 
   public varAliasExists(alias: string, varLoaderSelection: boolean) {
-    let array: Array<Variable> = this.props.varTracker.selectedVariables;
+    let array: Variable[] = this.props.varTracker.variables;
     if (varLoaderSelection) {
       array = this.selections;
     }
-    if (this.props.varTracker.findVarByAlias(alias, array)[1]) {
-      return true;
-    }
-    return false;
+    return this.props.varTracker.findVarByAlias(alias, array)[0] >= 0;
   }
 
   public render(): JSX.Element {
@@ -245,7 +245,7 @@ export class VarLoader extends React.Component<
                     varSelectionChanged={this.selectionChanged}
                     updateDimInfo={this.updateDimInfo}
                     isSelected={this.isSelected}
-                    hidden={true}
+                    selected={this.isSelected(item.varID)}
                     key={item.name}
                     variable={item}
                     selectVariable={this.selectVariableForLoad}
@@ -270,24 +270,6 @@ export class VarLoader extends React.Component<
   }
 
   private handleLoadClick(): void {
-    // Get variables from the file
-    const varsToLoad: Variable[] = this.selections;
-
-    const hasDuplicate: boolean = varsToLoad.some(
-      (variable: Variable, idx: number) => {
-        return varsToLoad.indexOf(variable) !== idx;
-      }
-    );
-    if (hasDuplicate) {
-      NotebookUtilities.showMessage(
-        "Notice",
-        `
-        You cannot load multiple variables of the same name.`,
-        "OK"
-      );
-    }
-
-    this.setState({ show: false });
-    this.loadSelectedVariables(varsToLoad);
+    this.loadSelectedVariables(this.selections);
   }
 }

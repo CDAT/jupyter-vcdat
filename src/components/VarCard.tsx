@@ -8,10 +8,10 @@ import {
   CardTitle,
   Col,
   Collapse,
-  Row,
-  InputGroup,
   Input,
-  InputGroupAddon
+  InputGroup,
+  InputGroupAddon,
+  Row
 } from "reactstrap";
 
 // Project Components
@@ -34,6 +34,8 @@ const axisStyle: React.CSSProperties = {
 const buttonsStyle: React.CSSProperties = {
   width: "inherit"
 };
+// Regex filter for unallowed variable names
+const forbidden: RegExp = /^[^a-z_]|[^a-z0-9_]+/i;
 
 interface IVarCardProps {
   variable: Variable;
@@ -44,19 +46,17 @@ interface IVarCardProps {
   deselectVariable: (variable: Variable) => void; // method to call to remove a variable from the list
   updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
   renameVariable: (newName: string, varID: string) => void; // Method that updates a variable's name before it's loaded
-  isSelected: (varName: string) => boolean; // method to check if this variable is selected in parent
+  isSelected: (varAlias: string) => boolean; // method to check if this variable is selected in parent
   allowReload: boolean;
-  hidden: boolean; // should the axis be hidden by default
-  //isLoaded: boolean; // Whether a variable already exists/was loaded
+  selected: boolean; // should the axis be hidden by default
 }
 interface IVarCardState {
   variable: Variable;
-  //varSelections: Variable[];
   nameValue: string;
   showAxis: boolean;
   loadOrder: number;
   axisState: any;
-  hidden: boolean;
+  selected: boolean;
   isChanged: boolean;
   nameState: NAME_STATUS;
 }
@@ -71,15 +71,14 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
   constructor(props: IVarCardProps) {
     super(props);
     this.state = {
-      variable: this.props.variable,
-      //varSelections: this.props.varSelections(),
       axisState: [],
-      hidden: props.hidden,
       isChanged: false,
       loadOrder: -1,
-      showAxis: false,
+      nameState: "Rename",
       nameValue: "",
-      nameState: "Rename"
+      selected: props.selected,
+      showAxis: false,
+      variable: this.props.variable
     };
     this.openMenu = this.openMenu.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
@@ -96,25 +95,34 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
     this.props.varSelectionChanged.connect(this.updateSelections);
   }
 
+  public componentWillUnmount(): void {
+    this.props.varSelectionChanged.disconnect(this.updateSelections);
+  }
+
   public updateSelections() {
-    this.validateNameInput(this.state.nameValue);
-    //this.setState({ varSelections: this.props.varSelections() });
+    this.setState({
+      selected: this.props.isSelected(this.state.variable.varID)
+    });
   }
 
   /**
    * @description sets the isSelected attribute, and propagates up the selection action to the parent
    */
-  public async selectVariable(): Promise<void> {
+  public selectVariable(): void {
     if (this.props.isSelected(this.state.variable.varID)) {
       this.setState({
-        hidden: false
+        nameState: "Rename",
+        nameValue: "",
+        selected: false
       });
-      await this.props.deselectVariable(this.state.variable);
+      this.props.deselectVariable(this.state.variable);
     } else {
       this.setState({
-        hidden: true
+        nameState: "Rename",
+        nameValue: "",
+        selected: true
       });
-      await this.props.selectVariable(this.state.variable);
+      this.props.selectVariable(this.state.variable);
     }
   }
 
@@ -122,7 +130,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
    * @description open the menu if its closed
    */
   public openMenu(): void {
-    if (!this.state.showAxis && !this.state.hidden) {
+    if (!this.state.showAxis && this.state.selected) {
       this.setState({
         showAxis: true
       });
@@ -141,12 +149,12 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
   public render(): JSX.Element {
     // Set the input color
     let nameStateColor = "success";
-    if (this.state.nameState === "Invalid!") {
-      nameStateColor = "danger";
-    } else if (
-      this.state.nameState === "Name already loaded!" ||
+    if (
+      this.state.nameState === "Invalid!" ||
       this.state.nameState === "Name already selected!"
     ) {
+      nameStateColor = "danger";
+    } else if (this.state.nameState === "Name already loaded!") {
       nameStateColor = "warning";
     }
 
@@ -162,15 +170,14 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                       outline={true}
                       color={"success"}
                       onClick={this.selectVariable}
-                      active={this.props.isSelected(this.state.variable.varID)}
+                      active={this.state.selected}
                       style={buttonsStyle}
                     >
                       {this.state.variable.alias}
                     </Button>
                   </Col>
                   <Col xs="sm-4">
-                    {(this.state.showAxis ||
-                      this.props.isSelected(this.state.variable.varID)) && (
+                    {this.state.selected && (
                       <Button
                         outline={true}
                         color={"danger"}
@@ -182,11 +189,12 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                       </Button>
                     )}
                   </Col>
-                  {this.props.varAliasExists(
-                    this.state.variable.alias,
-                    false
-                  ) &&
-                    this.props.isSelected(this.state.variable.varID) && (
+                  {// Check variable is selected before checking if alias exists for better performance
+                  this.state.selected &&
+                    this.props.varAliasExists(
+                      this.state.variable.alias,
+                      false
+                    ) && (
                       <Col xs="sm-3">
                         <Button
                           color={"warning"}
@@ -199,32 +207,37 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                 </Row>
               </div>
             </CardTitle>
-            <Collapse isOpen={this.state.showAxis} onClick={this.openMenu}>
-              <Card>
-                <CardBody>
-                  <InputGroup style={{ marginTop: "5px" }}>
-                    <InputGroupAddon addonType="prepend">
-                      Rename Variable:
-                    </InputGroupAddon>
-                    <Input
-                      onChange={this.handleNameInput}
-                      className="float-left"
-                      value={this.state.nameValue}
-                      placeholder="Enter new name here."
-                    />
-                    <InputGroupAddon addonType="append">
-                      <Button
-                        className="float-right"
-                        onClick={this.handleEnterClick}
-                        color={nameStateColor}
-                        disabled={this.state.nameState === "Invalid!"}
-                      >
-                        {this.state.nameState}
-                      </Button>
-                    </InputGroupAddon>
-                  </InputGroup>
-                </CardBody>
-              </Card>
+            <Collapse
+              isOpen={this.state.selected && this.state.showAxis}
+              onClick={this.openMenu}
+            >
+              {this.state.selected && (
+                <Card>
+                  <CardBody>
+                    <InputGroup style={{ marginTop: "5px" }}>
+                      <InputGroupAddon addonType="prepend">
+                        Rename Variable:
+                      </InputGroupAddon>
+                      <Input
+                        onChange={this.handleNameInput}
+                        className="float-left"
+                        value={this.state.nameValue}
+                        placeholder="Enter new name here."
+                      />
+                      <InputGroupAddon addonType="append">
+                        <Button
+                          className="float-right"
+                          onClick={this.handleEnterClick}
+                          color={nameStateColor}
+                          disabled={this.state.nameState === "Invalid!"}
+                        >
+                          {this.state.nameState}
+                        </Button>
+                      </InputGroupAddon>
+                    </InputGroup>
+                  </CardBody>
+                </Card>
+              )}
               {this.state.showAxis &&
                 this.props.variable.axisInfo.map((item: AxisInfo) => {
                   if (!item.data || item.data.length <= 1) {
@@ -253,19 +266,19 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
   }
 
   private validateNameInput(nameEntry: string): void {
-    // Regex filter for unallowed name characters
-    const forbidden: RegExp = /^[^a-z_]|[^a-z0-9]+/i;
-    let invalid: boolean = forbidden.test(nameEntry);
+    if (nameEntry === this.state.variable.alias) {
+      this.setState({ nameState: "Rename" });
+      return;
+    }
+
+    const invalid: boolean = forbidden.test(nameEntry);
     let state: NAME_STATUS = "Rename";
     if (nameEntry === "" || invalid) {
       state = "Invalid!";
-    } else if (nameEntry === this.state.variable.alias) {
-      this.setState({ nameState: state });
-      return;
-    } else if (this.props.varAliasExists(nameEntry, false)) {
-      state = "Name already loaded!";
     } else if (this.props.varAliasExists(nameEntry, true)) {
       state = "Name already selected!";
+    } else if (this.props.varAliasExists(nameEntry, false)) {
+      state = "Name already loaded!";
     }
     this.setState({ nameState: state });
   }
@@ -284,11 +297,6 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
       this.setState({ nameValue: "", nameState: "Rename" });
       return;
     }
-
-    // Check if one two or more variables selected for loading have matching names
-    /*if (this.props.varAliasExists(this.state.nameValue, true)) {
-      await this.setState({ nameState: "Name already selected!" });
-    }*/
     if (state === "") {
       await NotebookUtilities.showMessage(
         "Notice",
@@ -310,7 +318,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
       await NotebookUtilities.showMessage(
         "Notice",
         `The name you entered is already selected in this form. \
-        You cannot load two variables of the same name.`,
+        You cannot load multiple variables of the same name.`,
         "Dismiss"
       );
       return;
@@ -326,20 +334,17 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
 
     // All checks and warnings done, rename variable;
     this.props.renameVariable(state, this.state.variable.varID);
-    let variable: Variable = this.state.variable;
-    variable.alias = this.state.nameValue;
+    const updatedVariable: Variable = this.state.variable;
+    updatedVariable.alias = this.state.nameValue;
     this.setState({
-      variable: variable,
+      nameState: "Rename",
       nameValue: "",
-      nameState: "Rename"
+      variable: updatedVariable
     });
   }
 
   private handleAxesClick(): void {
-    this.setState({
-      hidden: !this.state.hidden,
-      showAxis: !this.state.showAxis
-    });
+    this.setState({ showAxis: !this.state.showAxis });
   }
 
   private handleWarningsClick(): void {

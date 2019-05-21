@@ -102,8 +102,6 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             disabled={this.props.variable.sourceName === ""}
             color={this.props.variable.sourceName === "" ? "dark" : "danger"}
             onClick={this.handleEditClick}
-            // onClick={this.handleCopyClick} To copy variable, currently names the copy 'Test'
-            // onClick={this.handleDeleteClick} To delete variable
           >
             edit
           </Button>
