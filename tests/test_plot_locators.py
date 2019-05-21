@@ -70,17 +70,25 @@ class TestPlot(BaseTestCaseWithNoteBook):
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
         load_variable_popup.click_on_load()
-        vcdat_panel.select_a_template("default")
+        # vcdat_panel.select_a_template("default")
 
         # export to a unique filename for this testcase
         filename = "{t}_{f}".format(t=self._testMethodName,
                                     f="default_clt")
         export_file = os.path.join(self.workdir, filename)
+        export_format = "PDF"
 
-        self.export_plot_helper(vcdat_panel, export_file, "PNG")
-        self.export_plot_helper(vcdat_panel, export_file, "PDF")
-        self.export_plot_helper(vcdat_panel, export_file, "SVG")
-        self.export_plot_helper(vcdat_panel, export_file, "PS")
+        vcdat_panel.click_on_plot()
+        save_plot_popup = vcdat_panel.click_on_export_plot()
+        save_plot_popup.input_plot_file_name(export_file)
+        save_plot_popup.select_export_format(export_format)
+        save_plot_popup.click_on_export()
+        time.sleep(2)
+
+        # self.export_plot_helper(vcdat_panel, export_file, "PNG")
+        # self.export_plot_helper(vcdat_panel, export_file, "PDF")
+        # self.export_plot_helper(vcdat_panel, export_file, "SVG")
+        # self.export_plot_helper(vcdat_panel, export_file, "PS")
 
     def test_export_plot_adjust_unit(self):
         test_file = "clt.nc"
