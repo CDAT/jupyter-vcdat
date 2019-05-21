@@ -3,7 +3,7 @@ from ActionsPage import InvalidPageException
 from VcdatPanel import VcdatPanel
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-# from selenium.webdriver.common.by import By
+from selenium.webdriver.common.by import By
 
 import time
 
@@ -194,9 +194,13 @@ class MainPageLocator(ActionsPage):
                                              "JP home icon")
         return element
 
-    def click_on_home_icon(self):
+    def click_on_home_iconORIG(self):
         element = self.locate_home_icon()
         self.move_to_click(element)
+
+    def click_on_home_icon(self):
+        home_class = "jp-HomeIcon"
+        self.wait_click(By.CLASS_NAME, home_class)
 
     #
     # select jp tool bar icon
