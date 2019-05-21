@@ -7,7 +7,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 import time
 
-
 VCDAT_LEFT_SIDEBAR_ID = "left-side-bar-vcdat"
 VCDAT_ICON_CLASS = "jp-icon-vcdat"
 
@@ -160,6 +159,7 @@ class MainPageLocator(ActionsPage):
         if not new_launcher_element.is_displayed() or not new_launcher_element.is_enabled():
             element = self.locate_folder_tab()
         self.move_to_click(element)
+        time.sleep(self._delay)
 
     def click_on_running_tab(self):
         element = self.locate_running_tab()
