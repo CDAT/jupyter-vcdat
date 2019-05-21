@@ -1,8 +1,8 @@
-from MainPageLocator import MainPageLocator
+from MainPage import MainPage
 from selenium.common.exceptions import NoSuchElementException
 
 
-class NoteBookPage(MainPageLocator):
+class NoteBookPage(MainPage):
     def __init__(self, driver, server=None):
         super(NoteBookPage, self).__init__(driver, server)
 

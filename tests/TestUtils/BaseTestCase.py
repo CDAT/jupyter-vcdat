@@ -5,7 +5,7 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, '..', 'PageObjects'))
 
 from JupyterUtils import JupyterUtils
-from MainPageLocator import MainPageLocator
+from MainPage import MainPage
 from NoteBookPage import NoteBookPage
 
 import time
@@ -54,7 +54,7 @@ class BaseTestCase(unittest.TestCase):
 
         utils = JupyterUtils()
         self.server = utils.get_server()
-        self.main_page = MainPageLocator(self.driver, self.server)
+        self.main_page = MainPage(self.driver, self.server)
 
     def tearDown(self):
         print("...BaseTestCase.tearDown()...")

@@ -11,10 +11,10 @@ VCDAT_LEFT_SIDEBAR_ID = "left-side-bar-vcdat"
 VCDAT_ICON_CLASS = "jp-icon-vcdat"
 
 
-class MainPageLocator(ActionsPage):
+class MainPage(ActionsPage):
 
     def __init__(self, driver, server):
-        super(MainPageLocator, self).__init__(driver, server)
+        super(MainPage, self).__init__(driver, server)
 
     def _validate_page(self):
         # validate Main page is displaying a 'Home' tab
@@ -62,26 +62,6 @@ class MainPageLocator(ActionsPage):
             time.sleep(self._delay * 2)
             ActionChains(self.driver).move_to_element(submenu).click().perform()
             time.sleep(self._delay)
-        except NoSuchElementException as e:
-            raise e
-
-    def click_on_submenu_with_data_commandMOD(self, submenu_data_command, submenu_name):
-        '''
-        click on submenu item that has 'data-command' attribute
-        '''
-        try:
-            # the time delay below is needed.
-            # for some reasons, self.wait_till_element_is_clickable
-            # does not work
-            data_command = "//li[contains(@data-command, '{dc}')]".format(dc=submenu_data_command)
-            text_label = "//div[@class='p-Menu-itemLabel'][contains(text(), '{name}')]".format(name=submenu_name)
-            submenu_locator = "{dc}{text}".format(dc=data_command, text=text_label)
-            submenu = self.find_element_by_xpath(submenu_locator,
-                                                 "sub menu item name: {}".format(submenu_name))
-            time.sleep(1)
-            ActionChains(self.driver).move_to_element(submenu).click().perform()
-            time.sleep(self._delay)
-
         except NoSuchElementException as e:
             raise e
 
@@ -166,16 +146,6 @@ class MainPageLocator(ActionsPage):
                 print("New Launcher element is displayed and enabled")
         time.sleep(self._delay)
 
-    def click_on_folder_tabORIG(self):
-        element = self.locate_folder_tab()
-        # check that there is a 'New Launcher' icon
-        new_launcher_element = self.locate_new_launcher_icon()
-        if not new_launcher_element.is_displayed() or not new_launcher_element.is_enabled():
-            print("New Launcher element is not displayed nor enabled")
-            element = self.locate_folder_tab()
-        self.move_to_click(element)
-        time.sleep(self._delay)
-
     def click_on_running_tab(self):
         element = self.locate_running_tab()
         self.move_to_click(element)
@@ -202,13 +172,6 @@ class MainPageLocator(ActionsPage):
     def locate_home_icon(self):
         return self.find_element_by_class("jp-HomeIcon",
                                           "Jupyter file browser home icon")
-        # home_icon_locator = "//span[contains(@class, 'jp-HomeIcon')]"
-        # element = self.find_element_by_xpath(home_icon_locator,
-        #                                   "JP home icon")
-        # home_icon_locator = "//div[contains(@class, 'jp-FileBrowser-crumbs')]/span[@title='Home']"
-        # element = self.find_element_by_xpath(home_icon_locator,
-        #                                     "JP home icon")
-        # return element
 
     def click_on_home_icon(self):
         element = self.locate_home_icon()
@@ -301,119 +264,3 @@ class MainPageLocator(ActionsPage):
         except NoSuchElementException as e:
             print("Did not find 'SHUTDOWN' button in the 'Shutdown All?' popup")
             raise e
-
-    """
-    def find_tab(self, tab_name):
-        '''
-        find the tab element ('File', 'Edit', 'View', 'Run'...) and
-        return the element
-        '''
-        print("...find tab for '{t}'".format(t=tab_name))
-        tab_locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), '{n}')]".format(
-            n=tab_name)
-        try:
-            tab_label_element = self.driver.find_element_by_xpath(tab_locator)
-            return tab_label_element
-        except NoSuchElementException as e:
-            print("...did not find tab for '{t}'".format(t=tab_name))
-            raise e
-
-    def find_tab_and_click(self, tab_name):
-        '''
-        find the tab element ('File', 'Edit', 'View', 'Run'...) and
-        return the element
-        '''
-        print("...finding tab for '{t}'".format(t=tab_name))
-        tab_locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), '{n}')]".format(
-            n=tab_name)
-        try:
-            tab_label_element = self.driver.find_element_by_xpath(tab_locator)
-            tab_label_element.click()
-            wait = WebDriverWait(self.driver, 10)
-            m = wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                       tab_locator)))
-            m.click()
-        except NoSuchElementException as e:
-            print("...did not find tab for '{t}'".format(t=tab_name))
-            raise e
-
-    def find_menu_item_from_tab_drop_down_and_click(self, menu_item_name):
-        '''
-        find the specified menu item from the tab drop down, and
-        click on it.
-        '''
-        print("...look for '{m}' from drop down menu".format(m=menu_item_name))
-        locator = "//div[@class='p-Menu-itemLabel' and contains(text(), '{n}')]".format(
-            n=menu_item_name)
-        try:
-            wait = WebDriverWait(self.driver, 10)
-            m = wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                       locator)))
-            print("...clicking on {i}".format(i=menu_item_name))
-            m.click()
-            time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print("Did not find '{m}' from the drop down menu".format(
-                m=menu_item_name))
-            raise e
-
-    def find_menu_item_from_tab_drop_down_find_submenu_with_command(self, menu_item_name,
-                                                                    submenu_data_command):
-        '''
-        find the specified menu item from the tab drop down, and find the
-        specified submenu item and click on the submenu item.
-
-        '''
-        print("...look for '{m}' from drop down menu".format(m=menu_item_name))
-        menu_with_submenu_loc = "//li[@class='p-Menu-item' and @data-type='submenu']"
-        item_label_locator = ".//div[@class='p-Menu-itemLabel']"
-        submenu_item_locator = "//ul[@class='p-Menu-content']//li[@data-command='{c}']".format(
-            c=submenu_data_command)
-        items_with_submenu = self.driver.find_elements_by_xpath(
-            menu_with_submenu_loc)
-        n = 0
-        for i in items_with_submenu:
-            item_label = i.find_element_by_xpath(item_label_locator).text
-            if item_label == menu_item_name:
-                print("FOUND...{m}, n = {n}".format(m=menu_item_name, n=n))
-                submenu_divs = i.find_elements_by_xpath("./div")
-                # print("DEBUG DEBUG...# of submenu_divs: {n}".format(n=len(submenu_divs)))
-                ActionChains(self.driver).move_to_element(
-                    submenu_divs[0]).perform()
-                time.sleep(self._delay)
-                try:
-                    submenu_element = self.driver.find_element_by_xpath(
-                        submenu_item_locator)
-                    ActionChains(self.driver).move_to_element(
-                        submenu_element).click().perform()
-                    time.sleep(self._delay)
-                except NoSuchElementException as e:
-                    print("Cannot find element...")
-                    raise e
-                break
-            else:
-                n += 1
-
-    def find_menu_item_with_command_from_tab_drop_down_and_click(self, data_command):
-        '''
-        find the specified menu item from the tab drop down, and
-        click on it.
-        '''
-        loc = "//li[@class='p-Menu-item' and @data-command='{dc}']".format(
-            dc=data_command)
-        print("...locating {loc}".format(loc=loc))
-
-        try:
-            menu_item = self.driver.find_element_by_xpath(loc)
-            ActionChains(self.driver).move_to_element(
-                menu_item).click().perform()
-        except NoSuchElementException as e:
-            print("Cannot find element with : {loc}".format(loc=loc))
-            raise e
-
-    def click_on_tab(self, tab):
-        print("...going to click on '{t}' tab...".format(t=tab))
-        self.find_tab_and_click(tab)
-        time.sleep(self._delay)
-
-    """

@@ -6,6 +6,7 @@ from ActionsPage import ActionsPage
 from ActionsPage import InvalidPageException
 from FileBrowser import FileBrowser
 from SavePlotPopUp import SavePlotPopUp
+from EditAxisPopUp import EditAxisPopUp
 
 
 class VcdatPanel(ActionsPage):
@@ -243,8 +244,11 @@ class VcdatPanel(ActionsPage):
     def click_on_edit_button_for_variable(self, var):
         try:
             button = self._locate_edit_button_for_variable(var)
-            time.sleep(3)
             self.move_to_click(button)
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             print("Could not find 'edit' button for variable '{}'".format(var))
             raise e
+
+        edit_axis_popup = EditAxisPopUp(self.driver, None)
+        return edit_axis_popup

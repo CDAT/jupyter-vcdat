@@ -7,7 +7,6 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
-from MainPageLocator import MainPageLocator
 from BaseTestCase import BaseTestCase
 
 # from selenium.webdriver.firefox.options import Options
@@ -48,14 +47,13 @@ class TestLocators(BaseTestCase):
         '''
             Obtaining jupyter launcher locators.
         '''
-        locator = MainPageLocator(self.driver, self.server)
+        locator = self.main_page
 
         # Select each notebook launcher
         locator.locate_notebook_launcher("Python 3")
         locator.locate_notebook_launcher("Python [conda env:jupyter-vcdat] *")
 
     def test_open_widgets(self):
-        # locator = MainPageLocator(self.driver, self.server)
         locator = self.main_page
         locator.click_on_folder_tab()
         locator.click_on_running_tab()
