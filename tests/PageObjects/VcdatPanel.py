@@ -52,7 +52,7 @@ class VcdatPanel(ActionsPage):
     def click_on_export_plot(self):
         element = self.locate_export_plot()
         self.move_to_click(element)
-        time.sleep(2)
+        time.sleep(3)
         save_plot_popup = SavePlotPopUp(self.driver, None)
         return save_plot_popup
 
