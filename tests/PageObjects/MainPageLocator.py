@@ -159,6 +159,8 @@ class MainPageLocator(ActionsPage):
         new_launcher_element = self.locate_new_launcher_icon()
         if not new_launcher_element.is_displayed() or not new_launcher_element.is_enabled():
             print("New Launcher element is not displayed nor enabled")
+            time.sleep(5)
+            print("clicking on the folder tab again")
             self.move_to_click(element)
         time.sleep(self._delay)
 
