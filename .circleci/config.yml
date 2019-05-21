@@ -125,13 +125,6 @@ aliases:
        conda update -y -q conda
        conda config --set anaconda_upload no
 
-  - &install_and_start_vncserver
-    name: install_and_start_vncserver
-    command: |
-        sudo apt-get install -y x11vnc
-        x11vnc -forever -nopw -create
-    background: true
-
 jobs:
   linux_jupyter_vcdat_py3:
     docker:
