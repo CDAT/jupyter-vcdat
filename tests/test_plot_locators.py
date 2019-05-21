@@ -112,8 +112,8 @@ class TestPlot(BaseTestCaseWithNoteBook):
         save_plot_popup.select_export_format(export_format)
         save_plot_popup.select_custom_dimensions()
         save_plot_popup.click_on_custom_dimensions_unit("px")
-        save_plot_popup.enter_unit_width(700)
-        save_plot_popup.enter_unit_height(500)
+        # save_plot_popup.enter_unit_width(700)
+        # save_plot_popup.enter_unit_height(500)
         save_plot_popup.click_on_export()
 
     def test_capture_provenance(self):
