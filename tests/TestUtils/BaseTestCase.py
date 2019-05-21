@@ -32,7 +32,7 @@ class BaseTestCase(unittest.TestCase):
     _wait_timeout = 10
 
     def setUp(self):
-        print("\n\n...{}...".format(self._testMethodName))
+        print("\n\n#########...{}...".format(self._testMethodName))
         self._download_dir = tempfile.mkdtemp()
         browser = os.getenv("BROWSER_TYPE", 'chrome')
         mode = os.getenv("BROWSER_MODE", '--headless')

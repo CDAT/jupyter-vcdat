@@ -162,6 +162,8 @@ class MainPageLocator(ActionsPage):
             time.sleep(5)
             print("clicking on the folder tab again")
             self.move_to_click(element)
+            if new_launcher_element.is_displayed() and new_launcher_element.is_enabled():
+                print("New Launcher element is displayed and enabled")
         time.sleep(self._delay)
 
     def click_on_folder_tabORIG(self):
