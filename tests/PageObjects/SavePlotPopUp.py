@@ -50,6 +50,8 @@ class SavePlotPopUp(ActionsPage):
             raise e
 
     def click_on_export(self):
+        self.driver.execute_script("return document.body.scrollHeight")
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         export_button_class = "export-button-vcdat"
         try:
             export_button = self.find_element_by_class(export_button_class,
