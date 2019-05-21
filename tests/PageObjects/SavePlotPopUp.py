@@ -133,6 +133,7 @@ class SavePlotPopUp(ActionsPage):
             input_area = self.find_element_by_class(mapping[dimension],
                                                     "'{}' unit dimension input area".format(dimension))
             print("FOUND input area for '{}' dimension".format(dimension))
+            print("...entering '{}' into the input area...".format(the_dimension))
             self.enter_text(input_area, the_dimension)
 
         except NoSuchElementException as e:
