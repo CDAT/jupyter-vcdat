@@ -3,7 +3,7 @@ from ActionsPage import InvalidPageException
 from VcdatPanel import VcdatPanel
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
+# from selenium.webdriver.common.by import By
 
 import time
 
@@ -181,26 +181,23 @@ class MainPageLocator(ActionsPage):
 
     def click_on_open_tabs_tab(self):
         element = self.locate_open_tabs_tab()
+        time.sleep(self._delay)
         self.move_to_click(element)
 
     def locate_home_icon(self):
-        # return self.find_element_by_class("jp-HomeIcon",
-        #                                   "Jupyter file browser home icon")
+        return self.find_element_by_class("jp-HomeIcon",
+                                          "Jupyter file browser home icon")
         # home_icon_locator = "//span[contains(@class, 'jp-HomeIcon')]"
         # element = self.find_element_by_xpath(home_icon_locator,
         #                                   "JP home icon")
-        home_icon_locator = "//div[contains(@class, 'jp-FileBrowser-crumbs')]/span[@title='Home']"
-        element = self.find_element_by_xpath(home_icon_locator,
-                                             "JP home icon")
-        return element
-
-    def click_on_home_iconORIG(self):
-        element = self.locate_home_icon()
-        self.move_to_click(element)
+        # home_icon_locator = "//div[contains(@class, 'jp-FileBrowser-crumbs')]/span[@title='Home']"
+        # element = self.find_element_by_xpath(home_icon_locator,
+        #                                     "JP home icon")
+        # return element
 
     def click_on_home_icon(self):
-        home_class = "jp-HomeIcon"
-        self.wait_click(By.CLASS_NAME, home_class)
+        element = self.locate_home_icon()
+        self.move_to_click(element)
 
     #
     # select jp tool bar icon

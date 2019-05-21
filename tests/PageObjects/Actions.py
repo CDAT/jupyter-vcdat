@@ -116,7 +116,7 @@ class Actions(object):
 
     def wait_click(self, method, locator):
         try:
-            print("...wait_click...")
+            print("...wait_click..., locator: {}".format(locator))
             wait = WebDriverWait(self.driver, 10)
             m = wait.until(EC.element_to_be_clickable((method,
                                                        locator)))
