@@ -186,7 +186,10 @@ class MainPageLocator(ActionsPage):
     def locate_home_icon(self):
         # return self.find_element_by_class("jp-HomeIcon",
         #                                   "Jupyter file browser home icon")
-        home_icon_locator = "//span[contains(@class, 'jp-HomeIcon')]"
+        # home_icon_locator = "//span[contains(@class, 'jp-HomeIcon')]"
+        # element = self.find_element_by_xpath(home_icon_locator,
+        #                                   "JP home icon")
+        home_icon_locator = "//span[@title='Home']"
         element = self.find_element_by_xpath(home_icon_locator,
                                              "JP home icon")
         return element
