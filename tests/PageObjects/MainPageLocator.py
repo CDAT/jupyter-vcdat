@@ -189,7 +189,7 @@ class MainPageLocator(ActionsPage):
         # home_icon_locator = "//span[contains(@class, 'jp-HomeIcon')]"
         # element = self.find_element_by_xpath(home_icon_locator,
         #                                   "JP home icon")
-        home_icon_locator = "//span[@title='Home']"
+        home_icon_locator = "//div[contains(@class, 'jp-FileBrowser-crumbs')]/span[@title='Home']"
         element = self.find_element_by_xpath(home_icon_locator,
                                              "JP home icon")
         return element
