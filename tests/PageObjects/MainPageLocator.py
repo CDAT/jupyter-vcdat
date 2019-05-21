@@ -154,9 +154,20 @@ class MainPageLocator(ActionsPage):
     #
     def click_on_folder_tab(self):
         element = self.locate_folder_tab()
+        self.move_to_click(element)
         # check that there is a 'New Launcher' icon
         new_launcher_element = self.locate_new_launcher_icon()
         if not new_launcher_element.is_displayed() or not new_launcher_element.is_enabled():
+            print("New Launcher element is not displayed nor enabled")
+            self.move_to_click(element)
+        time.sleep(self._delay)
+
+    def click_on_folder_tabORIG(self):
+        element = self.locate_folder_tab()
+        # check that there is a 'New Launcher' icon
+        new_launcher_element = self.locate_new_launcher_icon()
+        if not new_launcher_element.is_displayed() or not new_launcher_element.is_enabled():
+            print("New Launcher element is not displayed nor enabled")
             element = self.locate_folder_tab()
         self.move_to_click(element)
         time.sleep(self._delay)
