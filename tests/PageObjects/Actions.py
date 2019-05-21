@@ -103,6 +103,10 @@ class Actions(object):
         ac.double_click(element)
         ac.perform()
 
+    def scroll_into_view(self, element):
+        self.driver.execute_script(
+            "return arguments[0].scrollIntoView(true);", element)
+
     def scroll_click(self, element):
         print("...scroll_click...")
         try:
