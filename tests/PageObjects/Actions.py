@@ -104,6 +104,12 @@ class Actions(object):
         ac.perform()
 
     def scroll_into_view(self, element):
+        """
+        when a page/area gets expanded and elements got shifted down,
+        we may need to call this method to scroll the page so that the
+        element is within the viewing window before clicking on the
+        element.
+        """
         self.driver.execute_script(
             "return arguments[0].scrollIntoView(true);", element)
 

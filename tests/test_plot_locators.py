@@ -170,9 +170,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         load_variable_popup.click_on_load()
 
         vcdat_panel.click_on_edit_button_for_variable('u')
-        # HERE HERE continue
-        time.sleep(4)
-
+        time.sleep(self._delay)
 
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_plot
 # nosetests -s tests/test_plot_locators.py:TestPlot.test_select_plot_type
