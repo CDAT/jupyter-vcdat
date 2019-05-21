@@ -67,11 +67,13 @@ class VcdatPanel(ActionsPage):
 
     def click_on_select_plot_type(self):
         element = self.locate_select_plot_type()
-        self.move_to_click(element)
+        # self.move_to_click(element)
+        self.scroll_click(element)
 
     def click_on_select_a_template(self):
         element = self.locate_select_a_template()
-        self.move_to_click(element)
+        # self.move_to_click(element)
+        self.scroll_click(element)
 
     def _get_plot_type_elements(self):
         plot_type_elements_class = "graphics-dropdown-item-vcdat"
