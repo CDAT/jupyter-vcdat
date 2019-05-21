@@ -10,6 +10,6 @@ export class Variable {
   public pythonID: number; // the id of the variable from the file
   public sourceName: string; // the name of the data variable that holds this variables' data
   get varID(): string {
-    return `${this.name}${this.alias}`
+    return `${this.name}${this.alias}`;
   }
 }
