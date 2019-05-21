@@ -47,11 +47,12 @@ aliases:
        export CDAT_ANONYMOUS_LOG=False
        export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       nosetests -s tests/test_load_a_variable.py
-       python run_tests.py -H -v 2 tests/test_locators.py
-       python run_tests.py -H -v 2 tests/test_load_a_variable.py
-       python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-       python run_tests.py -H -v 2 tests/test_plot_locators.py
+       nosetests -s tests/test_locators.py:TestLocators.test_file_browser_locators  
+       #nosetests -s tests/test_load_a_variable.py
+       #python run_tests.py -H -v 2 tests/test_locators.py
+       #python run_tests.py -H -v 2 tests/test_load_a_variable.py
+       #python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
+       #python run_tests.py -H -v 2 tests/test_plot_locators.py
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
@@ -69,11 +70,12 @@ aliases:
        source activate jupyter-vcdat
        pip install selenium
        pip install pyvirtualdisplay
+       nosetests -s tests/test_locators.py:TestLocators.test_file_browser_locators  
        # nosetests -s tests/test_load_a_variable.py
-       python run_tests.py -H -v 2 tests/test_locators.py
-       python run_tests.py -H -v 2 tests/test_load_a_variable.py
-       python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-       python run_tests.py -H -v 2 tests/test_plot_locators.py
+       #python run_tests.py -H -v 2 tests/test_locators.py
+       #python run_tests.py -H -v 2 tests/test_load_a_variable.py
+       #python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
+       #python run_tests.py -H -v 2 tests/test_plot_locators.py
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT

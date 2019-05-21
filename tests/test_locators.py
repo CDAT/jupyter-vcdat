@@ -115,3 +115,4 @@ if __name__ == '__main__':
     unittest.main(verbosity=2)
 
 # nosetests -s tests/test_locators.py:TestLocators.test_new_notebook
+# nosetests -s tests/test_locators.py:TestLocators.test_file_browser_locators
