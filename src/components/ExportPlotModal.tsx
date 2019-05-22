@@ -174,7 +174,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
         this.props.showExportSuccessAlert();
       }
     } catch (error) {
-      console.log("error with checking file:", error);
+      console.error("error with checking file:", error);
     }
     this.clearExportInfo();
   }
