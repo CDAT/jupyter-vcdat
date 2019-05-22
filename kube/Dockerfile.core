@@ -1,8 +1,6 @@
-FROM jupyter/minimal-notebook:83ed2c63671f
+FROM jasonb87/nimbus-basic:latest
 # Get the latest image tag at:
-# https://hub.docker.com/r/jupyter/minimal-notebook/tags/
-# Inspect the Dockerfile at:
-# https://github.com/jupyter/docker-stacks/tree/master/minimal-notebook/Dockerfile
+# https://hub.docker.com/r/jasonb87/nimbus-basic
 
-RUN conda install -y -c cdat/label/nightly -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels mesalib "openssl<1.1.1a" && conda clean -y --all && pip install sidecar &&  jupyter labextension install @jupyter-widgets/jupyterlab-manager && jupyter labextension install @jupyter-widgets/jupyterlab-sidecar && jupyter labextension install @jupyterlab/github && pip install jupyterlab_github && jupyter serverextension enable --sys-prefix jupyterlab_github
+RUN conda config --set remote_read_timeout_secs 120 && conda install -y -c cdat/label/v81 -c conda-forge -c pcmdi/label/nightly nodejs "python=3.7" vcs vcsaddons thermo wk eofs windspharm autopep8 scipy scikit-learn pip nb_conda nb_conda_kernels plumbum mesalib jupyterhub cmor && conda clean -y --all && pip install lazy_import && pip install sidecar && rm -rf ~/.cache/pip
 

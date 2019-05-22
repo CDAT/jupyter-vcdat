@@ -93,12 +93,8 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           <Button
             className={/*@tag<varmini-name-btn>*/ "varmini-name-btn-vcdat"}
             outline={true}
-            color={this.props.isSelected ? "success" : "secondary"}
-            style={
-              this.props.isSelected && {
-                backgroundColor: this.props.buttonColor
-              }
-            }
+            color={"success"}
+            style={{ backgroundColor: this.props.buttonColor }}
             active={this.props.isSelected(this.varName)}
           >
             {this.props.variable.name}

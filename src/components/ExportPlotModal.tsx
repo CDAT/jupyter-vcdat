@@ -1,5 +1,6 @@
 // Dependencies
 import * as React from "react";
+import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Alert,
   Button,
@@ -16,13 +17,17 @@ import {
 
 // Project Components
 import { CodeInjector } from "../CodeInjector";
-import { EXPORT_FORMATS, IMAGE_UNITS } from "../constants";
+import { NotebookUtilities } from "../NotebookUtilities";
+import { EXPORT_FORMATS, IMAGE_UNITS, OUTPUT_RESULT_NAME } from "../constants";
 
 export interface IExportPlotModalProps {
   isOpen: boolean;
   toggle: () => void;
   exportAlerts: () => void;
+  dismissSavePlotSpinnerAlert: () => void;
+  notebookPanel: NotebookPanel;
   setPlotInfo: (plotName: string, plotFormat: string) => void;
+  showExportSuccessAlert: () => void;
   codeInjector: CodeInjector;
   // a method that gets the current plot dimensions
   getCanvasDimensions: () => Promise<{ width: string; height: string }>;
@@ -37,6 +42,7 @@ interface IExportPlotModalState {
   displayDimensions: boolean;
   disableProvenance: boolean;
   captureProvenance: boolean;
+  notebookPanel: NotebookPanel;
   width: string;
   height: string;
   plotUnits: IMAGE_UNITS;
@@ -54,6 +60,7 @@ export class ExportPlotModal extends React.Component<
       displayDimensions: false,
       height: "",
       modal: false,
+      notebookPanel: this.props.notebookPanel,
       plotFileFormat: "",
       plotName: "",
       plotUnits: "px",
@@ -74,6 +81,7 @@ export class ExportPlotModal extends React.Component<
     this.onInputChange = this.onInputChange.bind(this);
     this.onHeightChange = this.onHeightChange.bind(this);
     this.onWidthChange = this.onWidthChange.bind(this);
+    this.clearExportInfo = this.clearExportInfo.bind(this);
   }
 
   public async toggleDimensionsDisplay() {
@@ -100,6 +108,15 @@ export class ExportPlotModal extends React.Component<
     this.setState({ validateExportName: false });
   }
 
+  public clearExportInfo() {
+    this.setState({
+      captureProvenance: false,
+      displayDimensions: false,
+      plotName: "",
+      validateExportName: false,
+      validateFileFormat: false
+    });
+  }
   public toggleModal() {
     this.setState({
       plotName: "",
@@ -124,6 +141,9 @@ export class ExportPlotModal extends React.Component<
     }
     this.setState({ validateFileFormat: false });
 
+    this.props.toggle();
+    this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
+    this.props.exportAlerts();
     await this.props.codeInjector.exportPlot(
       fileFormat,
       plotName,
@@ -132,10 +152,31 @@ export class ExportPlotModal extends React.Component<
       this.state.plotUnits,
       this.state.captureProvenance
     );
-    this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
-    this.props.exportAlerts();
-    this.toggleModal();
-    this.setState({ displayDimensions: false });
+    const plotFileName = `${plotName}.${fileFormat}`;
+    try {
+      const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+        this.props.notebookPanel,
+        `import os\n\
+import time\n\
+def check_for_exported_file():\n\
+  exported_file_path = os.path.join(os.getcwd(), '${plotFileName}')\n\
+  counter = 0\n\
+  while not os.path.exists(exported_file_path):\n\
+    time.sleep(1)\n\
+    counter +=1\n\
+    if counter == 15:\n\
+      raise Exception("Exporting plot timed out.")\n\
+  return True\n\
+${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
+      );
+      if (result === "True") {
+        this.props.dismissSavePlotSpinnerAlert();
+        this.props.showExportSuccessAlert();
+      }
+    } catch (error) {
+      console.log("error with checking file:", error);
+    }
+    this.clearExportInfo();
   }
 
   // ======= REACT COMPONENT FUNCTIONS =======

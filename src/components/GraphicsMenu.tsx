@@ -20,6 +20,8 @@ import {
 
 // Project Components
 import { NotebookUtilities } from "../NotebookUtilities";
+import { LeftSideBarWidget } from "../widgets";
+import { ISignal } from "@phosphor/signaling";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
@@ -34,6 +36,7 @@ const listItemStyle: React.CSSProperties = {
 
 interface IGraphicsMenuProps {
   plotReady: boolean;
+  plotReadyChanged: ISignal<LeftSideBarWidget, boolean>;
   getGraphicsList: () => any; // a method that gets the current list of graphics methods
   // a method to call when the user has selected their desired graphics method
   updateGraphicsOptions: (group: string, name: string) => Promise<void>;
@@ -76,20 +79,16 @@ export default class GraphicsMenu extends React.Component<
     this.handleNameInput = this.handleNameInput.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);
     this.handleCopyClick = this.handleCopyClick.bind(this);
-    this.handleCloseClick = this.handleCloseClick.bind(this);
     this.handleCancelClick = this.handleCancelClick.bind(this);
     this.handleEnterClick = this.handleEnterClick.bind(this);
+    this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
+
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.graphicsOptions = this.graphicsOptions.bind(this);
     this.resetGraphicsState = this.resetGraphicsState.bind(this);
     this.selectItem = this.selectItem.bind(this);
-  }
 
-  public handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
-    // Regex filter for unallowed name characters
-    const forbidden: RegExp = /^[^a-z]|[^a-z0-9_]+/i;
-    const invalid: boolean = forbidden.test(event.target.value);
-    this.setState({ nameValue: event.target.value, invalidName: invalid });
+    this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
   }
 
   public toggleDropdown(): void {
@@ -339,6 +338,17 @@ export default class GraphicsMenu extends React.Component<
   }
 
   // ======= REACT COMPONENT HANDLERS =======
+  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
+    this.setState({ plotReady: value });
+  }
+
+  private handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
+    // Regex filter for unallowed name characters
+    const forbidden: RegExp = /^[^a-z_]|[^a-z0-9]+/i;
+    const invalid: boolean = forbidden.test(event.target.value);
+    this.setState({ nameValue: event.target.value, invalidName: invalid });
+  }
+
   private handleCloseClick(): void {
     this.setState({
       showDropdown: false,
