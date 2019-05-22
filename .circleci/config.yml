@@ -148,7 +148,7 @@ jobs:
       - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
-      #- run: *conda_upload
+      - run: *conda_upload
 
 workflows:
   version: 2
