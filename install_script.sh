@@ -88,7 +88,7 @@ trap 'handle_error $LINENO ${BASH_LINENO[@]}' ERR
 CONDA_EXE="$(which conda)"
 if [ ${CONDA_DEFAULT_ENV:-"NA"} != "jupyter-vcdat" ]; then
   $CONDA_EXE update --all -y -n base
-  $CONDA_EXE create -y -n jupyter-vcdat -c cdat/label/v81 -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum jupyterhub
+  $CONDA_EXE create -y -n jupyter-vcdat -c cdat/label/v81 -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum jupyterhub libnetcdf=4.6.2
   CONDA_BASE=$(conda info --base)
   source $CONDA_BASE/etc/profile.d/conda.sh
   conda activate jupyter-vcdat
@@ -105,10 +105,20 @@ fi
 
 # We need to allow pipe to break in case we are not in a git repo directory
 set +o pipefail
-REPO=$(git config --get remote.origin.url | cut -d '/' -f 2) || REPO="NO"
+REMOTE=$(git config --get remote.origin.url)
+echo "REMOTE: $REMOTE"
+PROTOCOL_SEP=${REMOTE:3:1}
+echo "PROTOCOL SEPARATOR: $PROTOCOL_SEP"
+if [[ $PROTOCOL_SEP == "@" ]]; then
+    NDELIM=2
+else
+    NDELIM=5
+fi
+echo "NDELIM: $NDELIM"
+REPO=$(echo $REMOTE | cut -d '/' -f $NDELIM) || REPO="NO"
+echo "REPO:$REPO"
 set -o pipefail
 
-echo "REPO:$REPO"
 if [[ $REPO != "jupyter-vcdat" && $REPO != "jupyter-vcdat.git" ]]; then
   git clone git://github.com/CDAT/jupyter-vcdat.git
   cd jupyter-vcdat
