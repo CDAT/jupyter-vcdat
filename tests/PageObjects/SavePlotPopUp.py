@@ -64,9 +64,10 @@ class SavePlotPopUp(ActionsPage):
         # verify that the exported file exists
         filename = "{f}.{suffix}".format(f=self.exported_filename,
                                          suffix=self.exported_format)
+        print("Filename: {}".format(filename))
         counter = 0
         file_exists = False
-        while file_exists is False and counter <= 5:
+        while file_exists is False and counter <= 30:
             file_exists = os.path.isfile(filename)
             if file_exists is False:
                 time.sleep(0.5)
