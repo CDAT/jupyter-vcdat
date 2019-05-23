@@ -404,11 +404,14 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     return (
       <div style={{ ...centered, ...sidebarOverflow }}>
         <Card>
-          <CardBody>
+          <CardBody className={/*@tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
             <div style={centered}>
               <Row>
                 <Col sm={3}>
                   <Button
+                    className={
+                      /*@tag<vcsmenu-plot-btn>*/ "vcsmenu-plot-btn-vcdat"
+                    }
                     type="button"
                     color="primary"
                     style={btnStyle}
@@ -421,6 +424,9 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
                 </Col>
                 <Col sm={5} style={{ padding: "0 5px" }}>
                   <Button
+                    className={
+                      /*@tag<vcsmenu-export-btn>*/ "vcsmenu-export-btn-vcdat"
+                    }
                     type="button"
                     color="primary"
                     style={btnStyle}
@@ -433,6 +439,9 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
                 </Col>
                 <Col sm={4}>
                   <Button
+                    className={
+                      /*@tag<vcsmenu-clear-btn>*/ "vcsmenu-clear-btn-vcdat"
+                    }
                     type="button"
                     color="primary"
                     style={btnStyle}
@@ -446,7 +455,9 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
               </Row>
               <CustomInput
                 type="switch"
-                id="overlayModeSwitch"
+                id={
+                  /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
+                }
                 name="overlayModeSwitch"
                 label="Overlay Mode"
                 disabled={!this.state.plotReady}

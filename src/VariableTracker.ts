@@ -5,7 +5,6 @@ import { ISignal, Signal } from "@phosphor/signaling";
 import { NotebookUtilities } from "./NotebookUtilities";
 import {
   FILE_PATH_KEY,
-  GET_AXIS_INFO_VAR_CMD,
   getAxisInfoFromVariableCommand,
   getFileVarsCommand,
   REFRESH_VAR_CMD,
@@ -727,7 +726,7 @@ export class VariableTracker {
     // Get the variables info
     const result: string = await NotebookUtilities.sendSimpleKernelRequest(
       this.notebookPanel,
-      GET_AXIS_INFO_VAR_CMD(variable.alias)
+      getAxisInfoFromVariableCommand(variable.alias)
     );
     this._isBusy = false;
 

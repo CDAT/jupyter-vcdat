@@ -15,5 +15,5 @@ class Canvas(BasePage):
 
         print("...check_plot...")
         a_plot_locator = "//img[starts-with(@src, 'data:image')]"
-        self.find_element(a_plot_locator, "the plot")
+        self.find_element_xpath(a_plot_locator, "the plot")
         time.sleep(self._delay)

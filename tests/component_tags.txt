@@ -1,0 +1,64 @@
+No tags found in: src/NCViewerWidget.tsx
+Tag in: src/index.tsx
+    Line 78, Col 20: "left-side-bar" --> "left-side-bar-vcdat"
+    Line 79, Col 33: "jp-SideBar-tabIcon jp-icon" --> "jp-SideBar-tabIcon jp-icon-vcdat"
+No tags found in: src/widgets.tsx
+Tag in: src/components/DimensionSlider.tsx
+    Line 181, Col 23: "dimension-slider" --> "dimension-slider-vcdat"
+    Line 207, Col 32: "slider-handles" --> "slider-handles-vcdat"
+    Line 223, Col 32: "slider-tracks" --> "slider-tracks-vcdat"
+    Line 238, Col 35: "slider-ticks" --> "slider-ticks-vcdat"
+No tags found in: src/components/ErrorBoundary.tsx
+Tag in: src/components/ExportPlotModal.tsx
+    Line 171, Col 31: "export-modal" --> "export-modal-vcdat"
+    Line 174, Col 24: "export-name-input" --> "export-name-input-vcdat"
+    Line 202, Col 17: "export-dimension-switch" --> "export-dimension-switch-vcdat"
+    Line 217, Col 21: "export-width-input" --> "export-width-input-vcdat"
+    Line 228, Col 21: "export-height-input" --> "export-height-input-vcdat"
+    Line 242, Col 15: "export-capture-provenance-switch" --> "export-capture-provenance-switch-vcdat"
+    Line 254, Col 24: "export-button" --> "export-button-vcdat"
+    Line 262, Col 15: "export-cancel-button" --> "export-cancel-button-vcdat"
+    Line 285, Col 26: "export-format-btn" --> "export-format-btn-vcdat"
+    Line 311, Col 26: "export-unit-btn" --> "export-unit-btn-vcdat"
+Tag in: src/components/GraphicsMenu.tsx
+    Line 189, Col 32: "graphics-menu" --> "graphics-menu-vcdat"
+    Line 200, Col 21: "graphics-dropdown" --> "graphics-dropdown-vcdat"
+    Line 229, Col 29: "graphics-dropdown-item" --> "graphics-dropdown-item-vcdat"
+    Line 241, Col 27: "graphics-dropdown-item" --> "graphics-dropdown-item-vcdat"
+    Line 254, Col 19: "float-left graphics-close-btn" --> "float-left graphics-close-btn-vcdat"
+    Line 265, Col 19: "float-right graphics-copy-btn" --> "float-right graphics-copy-btn-vcdat"
+    Line 281, Col 19: "float-right graphics-cancel-btn" --> "float-right graphics-cancel-btn-vcdat"
+    Line 296, Col 19: "float-left graphics-name-input" --> "float-left graphics-name-input-vcdat"
+    Line 305, Col 21: "float-right graphics-enter-btn" --> "float-right graphics-enter-btn-vcdat"
+No tags found in: src/components/PlotMenu.tsx
+Tag in: src/components/TemplateMenu.tsx
+    Line 80, Col 32: "template-main" --> "template-main-vcdat"
+    Line 89, Col 21: "template-dropdown" --> "template-dropdown-vcdat"
+    Line 110, Col 27: "template-item" --> "template-item-vcdat"
+No tags found in: src/components/Tracks.tsx
+Tag in: src/components/VCSMenu.tsx
+    Line 520, Col 32: "vcsmenu-main" --> "vcsmenu-main-vcdat"
+    Line 526, Col 23: "vcsmenu-plot-btn" --> "vcsmenu-plot-btn-vcdat"
+    Line 541, Col 23: "vcsmenu-export-btn" --> "vcsmenu-export-btn-vcdat"
+    Line 556, Col 23: "vcsmenu-clear-btn" --> "vcsmenu-clear-btn-vcdat"
+    Line 572, Col 19: "vcsmenu-overlay-mode-switch" --> "vcsmenu-overlay-mode-switch-vcdat"
+Tag in: src/components/VarCard.tsx
+    Line 115, Col 32: "varcard-main" --> "varcard-main-vcdat"
+    Line 122, Col 25: "varcard-name-btn" --> "varcard-name-btn-vcdat"
+    Line 138, Col 27: "varcard-axes-btn" --> "varcard-axes-btn-vcdat"
+    Line 154, Col 27: "varcard-warning-btn" --> "varcard-warning-btn-vcdat"
+    Line 178, Col 29: "varcard-dimension" --> "varcard-dimension-vcdat"
+Tag in: src/components/VarLoader.tsx
+    Line 168, Col 24: "varloader-main" --> "varloader-main-vcdat"
+    Line 191, Col 17: "varloader-load-btn" --> "varloader-load-btn-vcdat"
+Tag in: src/components/VarMenu.tsx
+    Line 215, Col 32: "varmenu-main" --> "varmenu-main-vcdat"
+    Line 222, Col 23: "varmenu-load-variables-btn" --> "varmenu-load-variables-btn-vcdat"
+    Line 236, Col 25: "varmenu-sync-btn" --> "varmenu-sync-btn-vcdat"
+    Line 251, Col 28: "varmenu-varlist" --> "varmenu-varlist-vcdat"
+Tag in: src/components/VarMini.tsx
+    Line 90, Col 13: "clearfix varmini-main" --> "clearfix varmini-main-vcdat"
+    Line 94, Col 24: "varmini-name-btn" --> "varmini-name-btn-vcdat"
+    Line 107, Col 24: "varmini-edit-btn" --> "varmini-edit-btn-vcdat"
+    Line 141, Col 24: "varmini-edit-modal" --> "varmini-edit-modal-vcdat"
+    Line 165, Col 17: "varmini-update-btn" --> "varmini-update-btn-vcdat"
