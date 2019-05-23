@@ -210,7 +210,7 @@ ${OUTPUT_RESULT_NAME} = json.dumps({\n\
 ${safe("var")} = None`;
 }
 
-export function getAxisInfoFromVariableCommand(relativePath: string): string {
+export function getAxisInfoFromFileCommand(relativePath: string): string {
   return `import json\n\
 import cdms2\n\
 ${safe("reader")} = cdms2.open('${relativePath}')\n\
@@ -222,7 +222,7 @@ ${safe("reader")}.close()\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})`;
 }
 
-export function getAxisInfoFromFileCommand(varName: string): string {
+export function getAxisInfoFromVariableCommand(varName: string): string {
   return `import json\n\
 import cdms2\n\
 ${safe("outAxes")} = {}\n\

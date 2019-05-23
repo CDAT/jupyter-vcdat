@@ -12,11 +12,9 @@ import {
   CANVAS_CELL_KEY,
   CHECK_MODULES_CMD,
   EXPORT_FORMATS,
-  EXTENSIONS_REGEX,
   IMAGE_UNITS,
   IMPORT_CELL_KEY,
   MAX_SLABS,
-  READER_CELL_KEY,
   REQUIRED_MODULES
 } from "./constants";
 import { NotebookUtilities } from "./NotebookUtilities";
@@ -44,7 +42,6 @@ export class CodeInjector {
     this.openCloseFileCmd = this.openCloseFileCmd.bind(this);
     this.buildImportCommand = this.buildImportCommand.bind(this);
     this.injectImportsCode = this.injectImportsCode.bind(this);
-    // this.injectDataReaders = this.injectDataReaders.bind(this);
     this.injectCanvasCode = this.injectCanvasCode.bind(this);
     this.exportPlot = this.exportPlot.bind(this);
     this.createCopyOfGM = this.createCopyOfGM.bind(this);
@@ -144,113 +141,6 @@ export class CodeInjector {
 
     return cellIdx;
   }
-
-  /**
-   * This will load data from a file so it can be used by vcdat
-   * @param index The index to use for the cell containing the data variables
-   * @param filePath The filepath of the new file to open
-   */
-  /*public async injectDataReaders(
-    index: number,
-    filePath: string
-  ): Promise<number> {
-    // If the data file doesn't have correct extension, exit
-    if (filePath === "") {
-      throw new Error("The file path was empty.");
-    }
-
-    // If the data file doesn't have correct extension, exit
-    if (!EXTENSIONS_REGEX.test(filePath)) {
-      throw new Error("The file has the wrong extension type.");
-    }
-
-    // Get the relative path of the file for the injection command
-    const nbPath: string = `${this.notebookPanel.session.path}`;
-    const newFilePath: string = Utilities.getRelativePath(nbPath, filePath);
-
-    // Try opening the file first, before injecting into code, exit if failed
-    const isValidPath: boolean = await this.varTracker.tryFilePath(newFilePath);
-    if (!isValidPath) {
-      throw new Error(`The file failed to open. Path: ${newFilePath}`);
-    }
-
-    // If file opened fine, find the index where the file data code is injected
-    let cellIdx: number = CellUtilities.findCellWithMetaKey(
-      this.notebookPanel,
-      READER_CELL_KEY
-    )[0];
-
-    // Get list of data files to open
-    const dataVarNames: string[] = Object.keys(this.varTracker.dataReaderList);
-
-    // Build command that opens any existing data file(s)
-    let cmd: string;
-    let tmpFilePath: string;
-    const addCmds = Array<Promise<string>>();
-
-    if (dataVarNames.length > 0) {
-      cmd = "#Open the files for reading";
-      dataVarNames.forEach((existingDataName: string, idx: number) => {
-        tmpFilePath = this.varTracker.dataReaderList[existingDataName];
-
-        // Exit early if the filepath has already been opened
-        if (tmpFilePath === filePath) {
-          if (idx < 0) {
-            return index;
-          }
-          return idx;
-        }
-
-        // Add file open command to the list
-        addCmds.push(this.addFileCmd(tmpFilePath));
-      });
-
-      const allFiles: string[] = await Promise.all(addCmds);
-      cmd += allFiles.join("");
-    } else {
-      cmd = `#Open the file for reading`;
-    }
-
-    const newName: string = this.varTracker.getDataReaderName(filePath);
-    const addCmd: string = `\n${newName} = cdms2.open('${newFilePath}')`;
-
-    cmd += addCmd;
-
-    if (cellIdx < 0) {
-      // Insert a new cell with given command and run
-      const [newIdx]: [number, string] = await this.inject(
-        cmd,
-        index,
-        "Error occured when opening data readers.",
-        "injectDataReaders",
-        arguments
-      );
-
-      cellIdx = newIdx;
-    } else {
-      // Inject code into existing data variables cell and run
-      CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
-      await CellUtilities.runCellAtIndex(
-        this.cmdRegistry,
-        this.notebookPanel,
-        index
-      );
-    }
-
-    // Update or add the file path to the data readers list
-    await this.varTracker.addDataSource(newName, filePath);
-
-    // Set cell meta data to identify it as containing data variables
-    await CellUtilities.setCellMetaData(
-      this.notebookPanel,
-      cellIdx,
-      READER_CELL_KEY,
-      "saved",
-      true
-    );
-
-    return cellIdx;
-  }*/
 
   /**
    * Looks for a cell containing the canvas declarations and updates its code
@@ -477,14 +367,6 @@ export class CodeInjector {
       }
     }
     cmd += ")";
-
-    /*variable.axisInfo.forEach((axis: AxisInfo) => {
-      cmd +=
-        axis.min === axis.max
-          ? `, ${axis.name}=(${axis.min})`
-          : `, ${axis.name}=(${axis.min}, ${axis.max})`;
-    });
-    cmd += ")";*/
 
     if (!isDerived) {
       cmd = await this.openCloseFileCmd(variable.sourceName, cmd);

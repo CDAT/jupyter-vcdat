@@ -594,12 +594,6 @@ export class LeftSideBarWidget extends Widget {
         this.varTracker.currentFile = "";
       }
 
-      // Inject the data file(s)
-      /*currentIdx = await this.codeInjector.injectDataReaders(
-        currentIdx + 1,
-        currentFile
-      );*/
-
       // Inject canvas(es)
       currentIdx = await this.codeInjector.injectCanvasCode(currentIdx + 1);
 
