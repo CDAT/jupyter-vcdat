@@ -164,9 +164,12 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
           <CardBody>
             <CardTitle>
               <div style={centered}>
-                <Row>
+                <Row className={/*@tag<varcard-main>*/ "varcard-main-vcdat"}>
                   <Col xs="sm-5">
                     <Button
+                      className={
+                        /*@tag<varcard-name-btn>*/ "varcard-name-btn-vcdat"
+                      }
                       outline={true}
                       color={"success"}
                       onClick={this.selectVariable}
@@ -179,6 +182,9 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                   <Col xs="sm-4">
                     {this.state.selected && (
                       <Button
+                        className={
+                          /*@tag<varcard-axes-btn>*/ "varcard-axes-btn-vcdat"
+                        }
                         outline={true}
                         color={"danger"}
                         active={this.state.showAxis}
@@ -197,6 +203,9 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                     ) && (
                       <Col xs="sm-3">
                         <Button
+                          className={
+                            /*@tag<varcard-warning-btn>*/ "varcard-warning-btn-vcdat"
+                          }
                           color={"warning"}
                           onClick={this.handleWarningsClick}
                         >
@@ -247,7 +256,11 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                   return (
                     <div key={item.name} style={axisStyle}>
                       <Card>
-                        <CardBody>
+                        <CardBody
+                          className={
+                            /*@tag<varcard-dimension>*/ "varcard-dimension-vcdat"
+                          }
+                        >
                           <DimensionSlider
                             {...item}
                             varID={this.state.variable.varID}

@@ -227,13 +227,16 @@ export class VarLoader extends React.Component<
     return (
       <div>
         <Modal
-          id="var-loader-modal"
+          className={"var-loader-modal"}
           isOpen={this.state.show}
           toggle={this.toggle}
           size="lg"
         >
           <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
-          <ModalBody style={modalOverflow}>
+          <ModalBody
+            className={/*@tag<varloader-main>*/ "varloader-main-vcdat"}
+            style={modalOverflow}
+          >
             {this.state.fileVariables.length !== 0 &&
               this.state.fileVariables.map((item: Variable) => {
                 return (
@@ -256,6 +259,9 @@ export class VarLoader extends React.Component<
           </ModalBody>
           <ModalFooter>
             <Button
+              className={
+                /*@tag<varloader-load-btn>*/ "varloader-load-btn-vcdat"
+              }
               outline={true}
               active={this.selections.length > 0}
               color="primary"
