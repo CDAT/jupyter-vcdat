@@ -8,6 +8,7 @@ import { AxisInfo } from "./components/AxisInfo";
 import { Variable } from "./components/Variable";
 import { VariableTracker } from "./VariableTracker";
 import {
+  BASE_DATA_READER_NAME,
   CANVAS_CELL_KEY,
   CHECK_MODULES_CMD,
   EXPORT_FORMATS,
@@ -40,10 +41,10 @@ export class CodeInjector {
     this.varTracker = variableTracker;
     this.logErrorsToConsole = true;
     this.inject = this.inject.bind(this);
-    this.addFileCmd = this.addFileCmd.bind(this);
+    this.openCloseFileCmd = this.openCloseFileCmd.bind(this);
     this.buildImportCommand = this.buildImportCommand.bind(this);
     this.injectImportsCode = this.injectImportsCode.bind(this);
-    this.injectDataReaders = this.injectDataReaders.bind(this);
+    // this.injectDataReaders = this.injectDataReaders.bind(this);
     this.injectCanvasCode = this.injectCanvasCode.bind(this);
     this.exportPlot = this.exportPlot.bind(this);
     this.createCopyOfGM = this.createCopyOfGM.bind(this);
@@ -149,7 +150,7 @@ export class CodeInjector {
    * @param index The index to use for the cell containing the data variables
    * @param filePath The filepath of the new file to open
    */
-  public async injectDataReaders(
+  /*public async injectDataReaders(
     index: number,
     filePath: string
   ): Promise<number> {
@@ -249,7 +250,7 @@ export class CodeInjector {
     );
 
     return cellIdx;
-  }
+  }*/
 
   /**
    * Looks for a cell containing the canvas declarations and updates its code
@@ -447,15 +448,47 @@ export class CodeInjector {
   }
 
   public async loadVariable(variable: Variable) {
+    // If the variable doesn't have a source listed, load as a derived variable
+    let isDerived: boolean = false;
+    if (!variable.sourceName) {
+      isDerived = true;
+    }
+
     // inject the code to load the variable into the notebook
-    let cmd = `${variable.alias} = ${variable.sourceName}("${variable.name}"`;
-    variable.axisInfo.forEach((axis: AxisInfo) => {
+    let cmd: string = isDerived
+      ? `${variable.alias} = ${variable.alias}(`
+      : `${variable.alias} = ${BASE_DATA_READER_NAME}("${variable.name}"`;
+
+    // update axis info
+    const axesCount: number = variable.axisInfo.length;
+    if (axesCount > 0) {
+      let axis: AxisInfo = variable.axisInfo[0];
+      const axisCmd: string =
+        axis.min === axis.max
+          ? `${axis.name}=(${axis.min})`
+          : `${axis.name}=(${axis.min}, ${axis.max})`;
+      cmd += isDerived ? axisCmd : `, ${axisCmd}`;
+      for (let idx: number = 1; idx < axesCount; idx += 1) {
+        axis = variable.axisInfo[idx];
+        cmd +=
+          axis.min === axis.max
+            ? `, ${axis.name}=(${axis.min})`
+            : `, ${axis.name}=(${axis.min}, ${axis.max})`;
+      }
+    }
+    cmd += ")";
+
+    /*variable.axisInfo.forEach((axis: AxisInfo) => {
       cmd +=
         axis.min === axis.max
           ? `, ${axis.name}=(${axis.min})`
           : `, ${axis.name}=(${axis.min}, ${axis.max})`;
     });
-    cmd += ")";
+    cmd += ")";*/
+
+    if (!isDerived) {
+      cmd = await this.openCloseFileCmd(variable.sourceName, cmd);
+    }
 
     // Inject the code into the notebook cell
     await this.inject(
@@ -475,11 +508,16 @@ export class CodeInjector {
       return;
     }
 
+    if (!variables[0].sourceName) {
+      throw Error("Could not determine what file the variables are from.");
+    }
+
     let cmd: string = ``;
+    const fileName: string = variables[0].sourceName;
     const newSelection: Variable[] = Array<Variable>();
     variables.forEach((variable: Variable) => {
       // Create code to load the variable into the notebook
-      cmd += `${variable.alias} = ${variable.sourceName}("${variable.name}"`;
+      cmd += `${variable.alias} = ${BASE_DATA_READER_NAME}("${variable.name}"`;
       variable.axisInfo.forEach((axis: AxisInfo) => {
         cmd +=
           axis.min === axis.max
@@ -495,6 +533,8 @@ export class CodeInjector {
       this.varTracker.addVariable(variable);
     });
     cmd = cmd.slice(0, cmd.length - 1);
+
+    cmd = await this.openCloseFileCmd(fileName, cmd);
 
     // Inject the code into the notebook cell
     await this.inject(
@@ -635,21 +675,32 @@ export class CodeInjector {
     return cmd;
   }
 
-  // Add returns a line of code for adding the specified file to the notebook
-  // If the file couldn't be opened, returns empty string
-  private async addFileCmd(filePath: string): Promise<string> {
+  /**
+   * Will surround specified code with a file open and close command, returns new command as string.
+   * If the file couldn't be opened, returns empty string
+   * @param filePath The path of the file to open
+   * @param code The code that needs the open file
+   */
+  private async openCloseFileCmd(
+    filePath: string,
+    code: string
+  ): Promise<string> {
+    if (!filePath || !code) {
+      throw new Error("Filepath and code must be defined.");
+    }
+
     // Get the relative filepath to open the file
     const relativePath = Utilities.getRelativePath(
       this.notebookPanel.session.path,
       filePath
     );
+
     // Check that file can open before adding it as code
     const valid: boolean = await this.varTracker.tryFilePath(relativePath);
     if (valid) {
-      const addCode: string = `\n${this.varTracker.getDataReaderName(
-        filePath
-      )} = cdms2.open('${relativePath}')`;
-      return addCode;
+      let newCode: string = `${BASE_DATA_READER_NAME} = cdms2.open('${relativePath}')\n`;
+      newCode += `${code}\n${BASE_DATA_READER_NAME}.close()`;
+      return newCode;
     }
     return "";
   }

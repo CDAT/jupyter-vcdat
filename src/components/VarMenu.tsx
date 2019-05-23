@@ -100,10 +100,10 @@ export default class VarMenu extends React.Component<
   /**
    * @description toggles the varLoaders menu
    */
-  public async launchVarLoader(fileVariables: Variable[]): Promise<void> {
+  public async launchVarLoader(fileVars: Variable[]): Promise<void> {
     // Update state to show launcher with variables
     this.varLoaderRef.setState({
-      fileVariables,
+      fileVariables: fileVars,
       show: true
     });
   }

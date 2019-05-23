@@ -4,10 +4,10 @@ import { ISignal, Signal } from "@phosphor/signaling";
 
 import { NotebookUtilities } from "./NotebookUtilities";
 import {
-  DATA_LIST_KEY,
   FILE_PATH_KEY,
-  GET_AXIS_INFO_CMD,
-  GET_VARIABLES_CMD,
+  GET_AXIS_INFO_VAR_CMD,
+  getAxisInfoFromVariableCommand,
+  getFileVarsCommand,
   REFRESH_VAR_CMD,
   SELECTED_VARIABLES_KEY,
   VARIABLE_ALIASES_KEY,
@@ -23,12 +23,12 @@ export class VariableTracker {
 
   private _currentFile: string; // The last file source that was used
   private _currentFileChanged: Signal<this, string>;
-  private _variableSources: { [varID: string]: string }; // Tracks what data reader each variable came from
+  private _variableSources: { [varID: string]: string }; // Tracks what file each variable came from
   private _variableSourcesChanged: Signal<this, { [varID: string]: string }>;
   private _variableAliases: { [alias: string]: string };
   private _variableAliasesChanged: Signal<this, { [alias: string]: string }>;
-  private _dataReaderList: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
-  private _dataReaderListChanged: Signal<this, { [dataName: string]: string }>;
+  // private _dataReaderList: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
+  // private _dataReaderListChanged: Signal<this, { [dataName: string]: string }>;
   private _variables: Variable[];
   private _variablesChanged: Signal<this, Variable[]>;
   private _selectedVariables: Variable[];
@@ -50,11 +50,11 @@ export class VariableTracker {
       this,
       { [alias: string]: string }
     >(this);
-    this._dataReaderList = {};
+    /*this._dataReaderList = {};
     this._dataReaderListChanged = new Signal<
       this,
       { [dataName: string]: string }
-    >(this);
+    >(this);*/
     this._selectedVariables = Array<Variable>();
     this._selectedVariablesChanged = new Signal<this, Variable[]>(this);
     this._variables = Array<Variable>();
@@ -62,15 +62,15 @@ export class VariableTracker {
 
     this.addVariable = this.addVariable.bind(this);
     this.deleteVariable = this.deleteVariable.bind(this);
-    this.addDataSource = this.addDataSource.bind(this);
+    // this.addDataSource = this.addDataSource.bind(this);
 
-    this.getDataReaderName = this.getDataReaderName.bind(this);
+    // this.getDataReaderName = this.getDataReaderName.bind(this);
     this.getFileVariables = this.getFileVariables.bind(this);
     this.loadMetaData = this.loadMetaData.bind(this);
     this.refreshVariables = this.refreshVariables.bind(this);
     this.setNotebook = this.setNotebook.bind(this);
     this.tryFilePath = this.tryFilePath.bind(this);
-    this.updateAxesInfo = this.updateAxesInfo.bind(this);
+    this.updateAxesInfoGroup = this.updateAxesInfoGroup.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.saveMetaData = this.saveMetaData.bind(this);
     this.copyVariable = this.copyVariable.bind(this);
@@ -138,13 +138,13 @@ export class VariableTracker {
     return this._currentFileChanged;
   }
 
-  get dataReaderList(): { [dataName: string]: string } {
+  /*get dataReaderList(): { [dataName: string]: string } {
     return this._dataReaderList;
   }
 
   get dataReaderListChanged(): ISignal<this, { [dataName: string]: string }> {
     return this._dataReaderListChanged;
-  }
+  }*/
 
   get selectedVariables(): Variable[] {
     return this._selectedVariables;
@@ -190,7 +190,7 @@ export class VariableTracker {
     this.variables = Array<Variable>();
     this.selectedVariables = Array<Variable>();
     this.variableSources = {};
-    this._dataReaderList = {};
+    // this._dataReaderList = {};
     this._notebookPanel = null;
   }
 
@@ -214,10 +214,10 @@ export class VariableTracker {
    * @param readerName The name of the file reader to add
    * @param filePath The file path of the file to add to the reader
    */
-  public addDataSource(readerName: string, filePath: string): void {
+  /*public addDataSource(readerName: string, filePath: string): void {
     this._dataReaderList[readerName] = filePath;
     this._dataReaderListChanged.emit(this._dataReaderList);
-  }
+  }*/
 
   /**
    * Searches for a variable with the specified varID and returns the index and variable if found.
@@ -288,6 +288,47 @@ export class VariableTracker {
     }
 
     this.variables = currentVars;
+  }
+
+  /**
+   * Creates a copy of the variable, gives it a new name and adds it to varTracker
+   * @param variable - Variable: The original variable to copy
+   * @param newName - string: The new name for the variable
+   * @returns - Variable: The newly created variable
+   */
+  public copyVariable(variable: Variable, newName: string): Variable {
+    // Exit if variable is not defined, new name is same as current alias or blank
+    if (!variable || !newName || variable.alias === newName) {
+      return;
+    }
+
+    // Exit if name already exists
+    if (
+      this.variableAliases &&
+      Object.keys(this.variableAliases).indexOf(newName) >= 0
+    ) {
+      return;
+    }
+
+    // Create copy
+    const newCopy: Variable = new Variable();
+
+    newCopy.alias = newName;
+    newCopy.axisInfo = variable.axisInfo;
+    newCopy.axisList = variable.axisList;
+    newCopy.longName = variable.longName;
+    newCopy.name = variable.name;
+    newCopy.pythonID = variable.pythonID;
+    newCopy.sourceName = variable.sourceName;
+    newCopy.units = variable.units;
+
+    // Select copy
+    this.selectedVariables.push(newCopy);
+
+    // Add copy to current variables
+    this.addVariable(newCopy);
+
+    return newCopy;
   }
 
   /**
@@ -383,11 +424,11 @@ export class VariableTracker {
     );
 
     // Save data reader list to meta data
-    NotebookUtilities.setMetaDataNow(
+    /*NotebookUtilities.setMetaDataNow(
       this.notebookPanel,
       DATA_LIST_KEY,
       this.dataReaderList
-    );
+    );*/
 
     // Save the selected variables inbto  meta data
     NotebookUtilities.setMetaDataNow(
@@ -458,11 +499,11 @@ export class VariableTracker {
     this.selectedVariables = selection ? selection : Array<Variable>();
 
     // Update the list of data variables and associated filepath
-    const readers: {
+    /*const readers: {
       [dataName: string]: string;
     } = await NotebookUtilities.getMetaData(this.notebookPanel, DATA_LIST_KEY);
     this._dataReaderList = readers ? readers : {};
-    this._dataReaderListChanged.emit(this._dataReaderList);
+    this._dataReaderListChanged.emit(this._dataReaderList);*/
   }
 
   // Will try to open a file path in cdms2. Returns true if successful.
@@ -483,7 +524,7 @@ export class VariableTracker {
    * Gets the name for a data reader object to read data from a file. Creates a new name if one doesn't exist.
    * @param filePath The file path of the new file added
    */
-  public getDataReaderName(filePath: string): string {
+  /*public getDataReaderName(filePath: string): string {
     // Check whether that file path is already open, return the data name if so
     let dataName: string = "";
     const found: boolean = Object.keys(this.dataReaderList).some(
@@ -510,7 +551,7 @@ export class VariableTracker {
     }
 
     return newName;
-  }
+  }*/
 
   /**
    * Opens a '.nc' file to read in it's variables via a kernel request.
@@ -531,7 +572,7 @@ export class VariableTracker {
       this._isBusy = true;
       const result: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        `import json\nimport cdms2\nreader = cdms2.open('${relativePath}')\n${GET_VARIABLES_CMD}`
+        getFileVarsCommand(relativePath)
       );
       this._isBusy = false;
 
@@ -550,7 +591,8 @@ export class VariableTracker {
           v.axisInfo.push(fileVariables.axes[item]);
         });
         v.units = fileVariables.vars[varName].units;
-        v.sourceName = this.getDataReaderName(filePath);
+        // v.sourceName = this.getDataReaderName(filePath);
+        v.sourceName = filePath;
         newVars.push(v);
       });
       return newVars;
@@ -574,8 +616,10 @@ export class VariableTracker {
     );
     this._isBusy = false;
 
-    // A grouping object so that variables from each data source are updated
+    // A grouping object so that variables from each data source are updated together
     const varGroups: { [sourceName: string]: Variable[] } = {};
+    // A grouping object for variables that are derived/have no source listed
+    const derivedVars = Array<Variable>();
     // Parse the resulting output into a list of variables with basic data
     const notebookVariables: any = JSON.parse(
       result.slice(1, result.length - 1)
@@ -602,6 +646,7 @@ export class VariableTracker {
 
       // Update the data source
       srcName = this.variableSources[v.varID];
+      // v.sourceName = srcName ? srcName : "";
       if (srcName) {
         v.sourceName = srcName;
         if (varGroups[v.sourceName]) {
@@ -613,66 +658,31 @@ export class VariableTracker {
         }
       } else {
         v.sourceName = "";
+        derivedVars.push(v);
       }
 
       newVars.push(v);
     });
 
-    // Update axis info for each variable
+    // Update axis info for each group of file variables
     if (varGroups) {
       Object.keys(varGroups).forEach(async (sourceName: string) => {
-        await this.updateAxesInfo(varGroups[sourceName]);
+        await this.updateAxesInfoGroup(varGroups[sourceName]);
       });
     }
+    // Update axis info for each derived variable
+    derivedVars.forEach(async (variable: Variable) => {
+      await this.updateAxesInfoVariable(variable);
+    });
 
     this.variables = newVars;
   }
 
-  /**
-   * Creates a copy of the variable, gives it a new name and adds it to varTracker
-   * @param variable - Variable: The original variable to copy
-   * @param newName - string: The new name for the variable
-   * @returns - Variable: The newly created variable
-   */
-  public copyVariable(variable: Variable, newName: string): Variable {
-    // Exit if variable is not defined, new name is same as current alias or blank
-    if (!variable || !newName || variable.alias === newName) {
-      return;
-    }
-
-    // Exit if name already exists
-    if (
-      this.variableAliases &&
-      Object.keys(this.variableAliases).indexOf(newName) >= 0
-    ) {
-      return;
-    }
-
-    // Create copy
-    const newCopy: Variable = new Variable();
-
-    newCopy.alias = newName;
-    newCopy.axisInfo = variable.axisInfo;
-    newCopy.axisList = variable.axisList;
-    newCopy.longName = variable.longName;
-    newCopy.name = variable.name;
-    newCopy.pythonID = variable.pythonID;
-    newCopy.sourceName = variable.sourceName;
-    newCopy.units = variable.units;
-
-    // Select copy
-    this.selectedVariables.push(newCopy);
-
-    // Add copy to current variables
-    this.addVariable(newCopy);
-
-    return newCopy;
-  }
-
   // Updates the axes information for each variable based on what source it came from
-  public async updateAxesInfo(varGroup: Variable[]): Promise<void> {
+  public async updateAxesInfoGroup(varGroup: Variable[]): Promise<void> {
     // Get the filepath from the data readerlist
-    const sourceFile: string = this.dataReaderList[varGroup[0].sourceName];
+    // const sourceFile: string = this.dataReaderList[varGroup[0].sourceName];
+    const sourceFile: string = varGroup[0].sourceName;
 
     // Exit early if no source filepath exists
     if (!sourceFile) {
@@ -683,14 +693,11 @@ export class VariableTracker {
     const nbPath: string = `${this.notebookPanel.session.path}`;
     const relativePath: string = Utilities.getRelativePath(nbPath, sourceFile);
 
-    let cmd: string = `import cdms2\nimport json\nreader = cdms2.open('${relativePath}')`;
-    cmd += `\n${GET_AXIS_INFO_CMD}\nreader.close()\n`;
-
     this._isBusy = true;
     // Get the variables info
     const result: string = await NotebookUtilities.sendSimpleKernelRequest(
       this.notebookPanel,
-      cmd
+      getAxisInfoFromVariableCommand(relativePath)
     );
     this._isBusy = false;
 
@@ -707,6 +714,34 @@ export class VariableTracker {
           variable.axisInfo.push(axesInfo[item]);
         }
       });
+    });
+  }
+
+  // Add the axes information for each variable if it has no info
+  public async updateAxesInfoVariable(variable: Variable): Promise<void> {
+    // Exit early if axis info is present already
+    if (variable.axisInfo.length > 0) {
+      return;
+    }
+    this._isBusy = true;
+    // Get the variables info
+    const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+      this.notebookPanel,
+      GET_AXIS_INFO_VAR_CMD(variable.alias)
+    );
+    this._isBusy = false;
+
+    // Parse the resulting output as file specific axes
+    const axesInfo: any = JSON.parse(result.slice(1, result.length - 1));
+
+    // Update axes info for the variable
+    variable.axisList.map((item: any) => {
+      if (axesInfo[item].data) {
+        axesInfo[item].min = axesInfo[item].data[0];
+        axesInfo[item].max =
+          axesInfo[item].data[axesInfo[item].data.length - 1];
+        variable.axisInfo.push(axesInfo[item]);
+      }
     });
   }
 

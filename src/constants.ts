@@ -1,6 +1,8 @@
 import { Utilities } from "./Utilities";
 export const MAX_SLABS: number = 2;
+export const MAX_DIM_LENGTH: number = 1000;
 export const BASE_URL: string = "/vcs";
+export const BASE_DATA_READER_NAME: string = "fileData";
 export const READY_KEY: string = "vcdat_ready";
 export const EXTENSIONS: string[] = [
   ".nc",
@@ -29,32 +31,36 @@ export const REQUIRED_MODULES: string = '["cdms2","vcs","sidecar"]';
 
 export const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
 
+function safe(baseName: string) {
+  return `${baseName}_F9FY9AE028RRF982`;
+}
+
 export const CHECK_VCS_CMD: string = `import __main__\n\
 try:\n\
-  for nm, obj in __main__.__dict__.items():\n\
-    if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-      ${OUTPUT_RESULT_NAME}=True\n\
-      break\n\
+	for nm, obj in __main__.__dict__.items():\n\
+		if isinstance(obj, cdms2.MV2.TransientVariable):\n\
+			${OUTPUT_RESULT_NAME}=True\n\
+			break\n\
 except:\n\
-  ${OUTPUT_RESULT_NAME}=False\n`;
+	${OUTPUT_RESULT_NAME}=False\n`;
 
 export const REFRESH_NAMES_CMD = `import __main__\n\
 import json\n\
 def variables():\n\
-  out = []\n\
-  for nm, obj in __main__.__dict__.items():\n\
-    if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-      out+=[nm]\n\
-  return out\n\
+	out = []\n\
+	for nm, obj in __main__.__dict__.items():\n\
+		if isinstance(obj, cdms2.MV2.TransientVariable):\n\
+			out+=[nm]\n\
+	return out\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(variables())`;
 
 export const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
 import json\n\
 def graphic_methods():\n\
-  out = {}\n\
-  for type in vcs.graphicsmethodlist():\n\
-    out[type] = vcs.listelements(type)\n\
-  return out\n\
+	out = {}\n\
+	for type in vcs.graphicsmethodlist():\n\
+		out[type] = vcs.listelements(type)\n\
+	return out\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())`;
 
 export const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
@@ -63,217 +69,170 @@ ${OUTPUT_RESULT_NAME} = json.dumps(vcs.listelements('template'))`;
 
 export const CHECK_MODULES_CMD: string = `import types\n\
 import json\n\
-required = ${REQUIRED_MODULES}\n\
+${safe("required")} = ${REQUIRED_MODULES}\n\
 def imports():\n\
-  for name, val in globals().items():\n\
-    if isinstance(val, types.ModuleType):\n\
-      yield val.__name__\n\
-found = list(imports())\n\
-${OUTPUT_RESULT_NAME} = json.dumps(list(set(required)-set(found)))`;
+	for ${safe("name")}, val in globals().items():\n\
+		if isinstance(val, types.ModuleType):\n\
+			yield val.__name__\n\
+${safe("found")} = list(imports())\n\
+${OUTPUT_RESULT_NAME} = json.dumps(list(set(${safe("required")})-set(${safe(
+  "found"
+)})))`;
 
 export const LIST_CANVASES_CMD: string = `import __main__\n\
 import json\n\
 def canvases():\n\
-  out = []\n\
-  for nm, obj in __main__.__dict__.items():\n\
-    if isinstance(obj, vcs.Canvas.Canvas):\n\
-      out+=[nm]\n\
-  return out\n\
+	out = []\n\
+	for nm, obj in __main__.__dict__.items():\n\
+		if isinstance(obj, vcs.Canvas.Canvas):\n\
+			out+=[nm]\n\
+	return out\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(canvases())`;
+
+const AXIS_INFO_CODE: string = `
+	if len(${safe("axis")}) < ${MAX_DIM_LENGTH}:\n\
+		${safe("axis_data")} = ${safe("axis")}[:].tolist()\n\
+	else:\n\
+		${safe("axis_data")} = None\n\
+	# Get a displayable name for the variable\n\
+	if hasattr(${safe("axis")}, 'id'):\n\
+		${safe("name")} = ${safe("axis")}.id\n\
+	else:\n\
+		${safe("name")} = ${safe("aname")}\n\
+	if hasattr(${safe("axis")}, 'units'):\n\
+		${safe("units")} = ${safe("axis")}.units\n\
+	else:\n\
+		${safe("units")} = 'Unknown'\n\
+	${safe("outAxes")}[${safe("aname")}] = {\n\
+		'name': ${safe("name")},\n\
+		'shape': ${safe("axis")}.shape,\n\
+		'units': ${safe("units")},\n\
+		'modulo': ${safe("axis")}.getModulo(),\n\
+		'moduloCycle': ${safe("axis")}.getModuloCycle(),\n\
+		'data': ${safe("axis_data")},\n\
+		'min': float(${safe("axis")}[:].min()),\n\
+		'max': float(${safe("axis")}[:].max()),\n\
+		'isTime': ${safe("axis")}.isTime()\n\
+	}\n`;
+
+const VAR_INFO_CODE: string = `# Get a displayable name for the variable\n\
+	if hasattr(${safe("var")}, 'long_name'):\n\
+		${safe("name")} = ${safe("var")}.long_name\n\
+	elif hasattr(${safe("var")}, 'title'):\n\
+		${safe("name")} = ${safe("var")}.title\n\
+	elif hasattr(${safe("var")}, 'id'):\n\
+		${safe("name")} = ${safe("var")}.id\n\
+	else:\n\
+		${safe("name")} = ${safe("vname")}\n\
+	if hasattr(${safe("var")}, 'units'):\n\
+		${safe("units")} = ${safe("var")}.units\n\
+	else:\n\
+		${safe("units")} = 'Unknown'\n\
+	${safe("axisList")} = []\n\
+	for ${safe("axis")} in ${safe("var")}.getAxisList():\n\
+		${safe("axisList")}.append(${safe("axis")}.id)\n\
+	${safe("lonLat")} = None\n\
+	if ${safe("var")}.getLongitude() and ${safe("var")}.getLatitude() and \
+		not isinstance(${safe("var")}.getGrid(), cdms2.grid.AbstractRectGrid):\n\
+		# for curvilinear and generic grids\n\
+		# 1. getAxisList() returns the axes and\n\
+		# 2. getLongitude() and getLatitude() return the lon,lat variables\n\
+		lonName = ${safe("var")}.getLongitude().id\n\
+		latName = ${safe("var")}.getLatitude().id\n\
+		${safe("lonLat")} = [lonName, latName]\n\
+		# add min/max for longitude/latitude\n\
+		if (lonName not in ${safe("outVars")}):\n\
+			${safe("outVars")}[lonName] = {}\n\
+		lonData =${safe("var")}.getLongitude()[:]\n\
+		${safe("outVars")}[lonName]['bounds'] = \
+		[float(np.amin(lonData)), float(np.amax(lonData))]\n\
+		if (latName not in ${safe("outVars")}):\n\
+			${safe("outVars")}[latName] = {}\n\
+		latData =${safe("var")}.getLatitude()[:]\n\
+		${safe("outVars")}[latName]['bounds'] = \
+		[float(np.amin(latData)), float(np.amax(latData))]\n\
+	if (isinstance(${safe("var")}.getGrid(), cdms2.grid.AbstractRectGrid)):\n\
+		gridType = 'rectilinear'\n\
+	elif (isinstance(${safe("var")}.getGrid(), cdms2.hgrid.AbstractCurveGrid)):\n\
+		gridType = 'curvilinear'\n\
+	elif (isinstance(${safe(
+    "var"
+  )}.getGrid(), cdms2.gengrid.AbstractGenericGrid)):\n\
+		gridType = 'generic'\n\
+	else:\n\
+		gridType = None\n\
+	if (${safe("vname")} not in ${safe("outVars")}):\n\
+		${safe("outVars")}[${safe("vname")}] = {}\n\
+	${safe("outVars")}[${safe("vname")}]['name'] = ${safe("name")}\n\
+	${safe("outVars")}[${safe("vname")}]['pythonID'] = id(${safe("var")})\n\
+	${safe("outVars")}[${safe("vname")}]['shape'] =${safe("var")}.shape\n\
+	${safe("outVars")}[${safe("vname")}]['units'] = ${safe("units")}\n\
+	${safe("outVars")}[${safe("vname")}]['axisList'] = ${safe("axisList")}\n\
+	${safe("outVars")}[${safe("vname")}]['lonLat'] = ${safe("lonLat")}\n\
+	${safe("outVars")}[${safe("vname")}]['gridType'] = gridType\n\
+	if ('bounds' not in ${safe("outVars")}[${safe("vname")}]):\n\
+		${safe("outVars")}[${safe("vname")}]['bounds'] = None\n`;
 
 export const REFRESH_VAR_CMD: string = `import __main__\n\
 import json\n\
 import cdms2\n\
 def variables():\n\
-  out = []\n\
-  for nm, obj in __main__.__dict__.items():\n\
-    if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-      out+=[nm]\n\
-  return out\n\
-vars = variables()\n\
-outVars = {}\n\
-for vname in vars:\n\
-  var = __main__.__dict__[vname]\n\
-  # Get a displayable name for the variable\n\
-  if hasattr(var, 'long_name'):\n\
-    name = var.long_name\n\
-  elif hasattr(var, 'title'):\n\
-    name = var.title\n\
-  elif hasattr(var, 'id'):\n\
-    name = var.id\n\
-  else:\n\
-    name = vname\n\
-  if hasattr(var, 'units'):\n\
-    units = var.units\n\
-  else:\n\
-    units = 'Unknown'\n\
-  axisList = []\n\
-  for axis in var.getAxisList():\n\
-    axisList.append(axis.id)\n\
-  lonLat = None\n\
-  if var.getLongitude() and var.getLatitude() and \
-    not isinstance(var.getGrid(), cdms2.grid.AbstractRectGrid):\n\
-    # for curvilinear and generic grids\n\
-    # 1. getAxisList() returns the axes and\n\
-    # 2. getLongitude() and getLatitude() return the lon,lat variables\n\
-    lonName = var.getLongitude().id\n\
-    latName = var.getLatitude().id\n\
-    lonLat = [lonName, latName]\n\
-    # add min/max for longitude/latitude\n\
-    if (lonName not in outVars):\n\
-        outVars[lonName] = {}\n\
-    lonData = var.getLongitude()[:]\n\
-    outVars[lonName]['bounds'] = \
-    [float(np.amin(lonData)), float(np.amax(lonData))]\n\
-    if (latName not in outVars):\n\
-        outVars[latName] = {}\n\
-    latData = var.getLatitude()[:]\n\
-    outVars[latName]['bounds'] = \
-    [float(np.amin(latData)), float(np.amax(latData))]\n\
-  if (isinstance(var.getGrid(), cdms2.grid.AbstractRectGrid)):\n\
-    gridType = 'rectilinear'\n\
-  elif (isinstance(var.getGrid(), cdms2.hgrid.AbstractCurveGrid)):\n\
-    gridType = 'curvilinear'\n\
-  elif (isinstance(var.getGrid(), cdms2.gengrid.AbstractGenericGrid)):\n\
-    gridType = 'generic'\n\
-  else:\n\
-    gridType = None\n\
-  if (vname not in outVars):\n\
-    outVars[vname] = {}\n\
-  outVars[vname]['name'] = name\n\
-  outVars[vname]['pythonID'] = id(var)\n\
-  outVars[vname]['shape'] = var.shape\n\
-  outVars[vname]['units'] = units\n\
-  outVars[vname]['axisList'] = axisList\n\
-  outVars[vname]['lonLat'] = lonLat\n\
-  outVars[vname]['gridType'] = gridType\n\
-  if ('bounds' not in outVars[vname]):\n\
-    outVars[vname]['bounds'] = None\n\
-var = None\n\
-${OUTPUT_RESULT_NAME} = json.dumps(outVars)`;
+	out = []\n\
+	for nm, obj in __main__.__dict__.items():\n\
+		if isinstance(obj, cdms2.MV2.TransientVariable):\n\
+			out+=[nm]\n\
+	return out\n\
+${safe("vars")} = variables()\n\
+${safe("outVars")} = {}\n\
+for ${safe("vname")} in ${safe("vars")}:\n\
+	${safe("var")} = __main__.__dict__[${safe("vname")}]\n\
+	${VAR_INFO_CODE}\
+${OUTPUT_RESULT_NAME} = json.dumps(${safe("outVars")})\n\
+${safe("var")} = None`;
 
-export const GET_AXIS_INFO_CMD: string = `
-outAxes = {}\n\
-for aname in reader.axes:\n\
-  axis = reader.axes[aname]\n\
-  if len(axis) < 1000:\n\
-    axis_data = axis[:].tolist()\n\
-  else:\n\
-    axis_data = None\n\
-  # Get a displayable name for the variable\n\
-  if hasattr(axis, 'id'):\n\
-    name = axis.id\n\
-  else:\n\
-    name = aname\n\
-  if hasattr(axis, 'units'):\n\
-    units = axis.units\n\
-  else:\n\
-    units = 'Unknown'\n\
-  outAxes[aname] = {\n\
-    'name': name,\n\
-    'shape': axis.shape,\n\
-    'units': units,\n\
-    'modulo': axis.getModulo(),\n\
-    'moduloCycle': axis.getModuloCycle(),\n\
-    'data': axis_data,\n\
-    'min': float(axis[:].min()),\n\
-    'max': float(axis[:].max()),\n\
-    'isTime': axis.isTime()\n\
-  }\n\
-aname = None\n\
-${OUTPUT_RESULT_NAME} = json.dumps(outAxes)`;
-
-export const GET_VARIABLES_CMD: string = `outVars = {}\n\
-for vname in reader.variables:\n\
-  var = reader.variables[vname]\n\
-  # Get a displayable name for the variable\n\
-  if hasattr(var, 'long_name'):\n\
-    name = var.long_name\n\
-  elif hasattr(var, 'title'):\n\
-    name = var.title\n\
-  elif hasattr(var, 'id'):\n\
-    name = var.id\n\
-  else:\n\
-    name = vname\n\
-  if hasattr(var, 'units'):\n\
-    units = var.units\n\
-  else:\n\
-    units = 'Unknown'\n\
-  axisList = []\n\
-  for axis in var.getAxisList():\n\
-    axisList.append(axis.id)\n\
-  lonLat = None\n\
-  if var.getLongitude() and var.getLatitude() and \
-    not isinstance(var.getGrid(), cdms2.grid.AbstractRectGrid):\n\
-    # for curvilinear and generic grids\n\
-    # 1. getAxisList() returns the axes and\n\
-    # 2. getLongitude() and getLatitude() return the lon,lat variables\n\
-    lonName = var.getLongitude().id\n\
-    latName = var.getLatitude().id\n\
-    lonLat = [lonName, latName]\n\
-    # add min/max for longitude/latitude\n\
-    if (lonName not in outVars):\n\
-        outVars[lonName] = {}\n\
-    lonData = var.getLongitude()[:]\n\
-    outVars[lonName]['bounds'] = \
-    [float(np.amin(lonData)), float(np.amax(lonData))]\n\
-    if (latName not in outVars):\n\
-        outVars[latName] = {}\n\
-    latData = var.getLatitude()[:]\n\
-    outVars[latName]['bounds'] = \
-    [float(np.amin(latData)), float(np.amax(latData))]\n\
-  if (isinstance(var.getGrid(), cdms2.grid.AbstractRectGrid)):\n\
-    gridType = 'rectilinear'\n\
-  elif (isinstance(var.getGrid(), cdms2.hgrid.AbstractCurveGrid)):\n\
-    gridType = 'curvilinear'\n\
-  elif (isinstance(var.getGrid(), cdms2.gengrid.AbstractGenericGrid)):\n\
-    gridType = 'generic'\n\
-  else:\n\
-    gridType = None\n\
-  if (vname not in outVars):\n\
-    outVars[vname] = {}\n\
-  outVars[vname]['name'] = name\n\
-  outVars[vname]['pythonID'] = id(var)\n\
-  outVars[vname]['shape'] = var.shape\n\
-  outVars[vname]['units'] = units\n\
-  outVars[vname]['axisList'] = axisList\n\
-  outVars[vname]['lonLat'] = lonLat\n\
-  outVars[vname]['gridType'] = gridType\n\
-  if ('bounds' not in outVars[vname]):\n\
-    outVars[vname]['bounds'] = None\n\
-outAxes = {}\n\
-for aname in reader.axes:\n\
-  axis = reader.axes[aname]\n\
-  if len(axis) < 1000:\n\
-    axis_data = axis[:].tolist()\n\
-  else:\n\
-    axis_data = None\n\
-  # Get a displayable name for the variable\n\
-  if hasattr(axis, 'id'):\n\
-    name = axis.id\n\
-  else:\n\
-    name = aname\n\
-  if hasattr(axis, 'units'):\n\
-    units = axis.units\n\
-  else:\n\
-    units = 'Unknown'\n\
-  outAxes[aname] = {\n\
-    'name': name,\n\
-    'shape': axis.shape,\n\
-    'units': units,\n\
-    'modulo': axis.getModulo(),\n\
-    'moduloCycle': axis.getModuloCycle(),\n\
-    'data': axis_data,\n\
-    'min': float(axis[:].min()),\n\
-    'max': float(axis[:].max()),\n\
-    'isTime': axis.isTime()\n\
-  }\n\
-  var = None\n\
-reader.close()\n\
+export function getFileVarsCommand(relativePath: string): string {
+  return `import json\n\
+import cdms2\n\
+${safe("reader")} = cdms2.open('${relativePath}')\n\
+${safe("outVars")} = {}\n\
+for ${safe("vname")} in ${safe("reader")}.variables:\n\
+	${safe("var")} = ${safe("reader")}.variables[${safe("vname")}]\n\
+	${VAR_INFO_CODE}\
+${safe("outAxes")} = {}\n\
+for ${safe("aname")} in ${safe("reader")}.axes:\n\
+	${safe("axis")} = ${safe("reader")}.axes[${safe("aname")}]\n\
+	${AXIS_INFO_CODE}\
+${safe("reader")}.close()\n\
 ${OUTPUT_RESULT_NAME} = json.dumps({\n\
-  'vars': outVars,\n\
-  'axes': outAxes\n\
-  })`;
+	'vars': ${safe("outVars")},\n\
+	'axes': ${safe("outAxes")}\n\
+})\n\
+${safe("var")} = None`;
+}
+
+export function getAxisInfoFromVariableCommand(relativePath: string): string {
+  return `import json\n\
+import cdms2\n\
+${safe("reader")} = cdms2.open('${relativePath}')\n\
+${safe("outAxes")} = {}\n\
+for ${safe("aname")} in ${safe("reader")}.axes:\n\
+	${safe("axis")} = ${safe("reader")}.axes[${safe("aname")}]\n\
+	${AXIS_INFO_CODE}\
+${safe("reader")}.close()\n\
+${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})`;
+}
+
+export function getAxisInfoFromFileCommand(varName: string): string {
+  return `import json\n\
+import cdms2\n\
+${safe("outAxes")} = {}\n\
+${safe("names")} = ${varName}.getAxisIds()\n\
+for idx in ${varName}.getAxisListIndex():\n\
+	${safe("aname")} = ${safe("names")}[idx]\n\
+	${safe("axis")} = ${varName}.getAxis(idx)\n\
+	${AXIS_INFO_CODE}\
+${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})`;
+}
 
 export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
   "1d": [

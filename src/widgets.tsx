@@ -245,20 +245,24 @@ export class LeftSideBarWidget extends Widget {
             IMPORT_CELL_KEY
           );
           if (idx >= 0) {
-            CellUtilities.runCellAtIndex(
+            await CellUtilities.runCellAtIndex(
               this.commands,
               this._notebookPanel,
               idx
             );
+            // select next cell
             this.notebookPanel.content.activeCellIndex = idx + 1;
-          } else {
-            // Select the next cell
-            this.notebookPanel.content.activeCellIndex =
-              this.notebookPanel.content.model.cells.length - 1;
             // Update kernel list to identify this kernel is ready
             this.kernels.push(this.notebookPanel.session.kernel.id);
             // Update state
             this.state = NOTEBOOK_STATE.VCS_Ready;
+          } else {
+            this.state = NOTEBOOK_STATE.ActiveNotebook;
+            // Leave notebook alone if its not vcs ready, refresh var list for UI
+            await this.varTracker.refreshVariables();
+            this.varTracker.currentFile = "";
+            this.setPlotExists(false);
+            return;
           }
         }
 
@@ -591,10 +595,10 @@ export class LeftSideBarWidget extends Widget {
       }
 
       // Inject the data file(s)
-      currentIdx = await this.codeInjector.injectDataReaders(
+      /*currentIdx = await this.codeInjector.injectDataReaders(
         currentIdx + 1,
         currentFile
-      );
+      );*/
 
       // Inject canvas(es)
       currentIdx = await this.codeInjector.injectCanvasCode(currentIdx + 1);

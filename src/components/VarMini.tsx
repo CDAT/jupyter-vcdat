@@ -99,8 +99,8 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
                 ? "Editing of modified variables disabled for now."
                 : ""
             }
-            disabled={this.props.variable.sourceName === ""}
-            color={this.props.variable.sourceName === "" ? "dark" : "danger"}
+            // disabled={this.props.variable.sourceName === ""}
+            color={/*this.props.variable.sourceName === */ "danger"}
             onClick={this.handleEditClick}
           >
             edit
@@ -174,9 +174,11 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): void {
     clickEvent.stopPropagation();
-    this.setState({
-      showAxis: !this.state.showAxis
-    });
+    if (this.props.variable.axisInfo.length > 0) {
+      this.setState({ showAxis: true });
+    } else {
+      this.setState({ showAxis: false });
+    }
   }
 
   private handleUpdateClick(): void {
