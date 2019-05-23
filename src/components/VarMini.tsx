@@ -1,5 +1,6 @@
 // Dependencies
 import * as React from "react";
+import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Alert,
   Badge,
@@ -22,6 +23,8 @@ import { Utilities } from "../Utilities";
 import { AxisInfo } from "./AxisInfo";
 import { DimensionSlider } from "./DimensionSlider";
 import { Variable } from "./Variable";
+import { NotebookUtilities } from "../NotebookUtilities";
+import { OUTPUT_RESULT_NAME } from "../constants";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
@@ -45,6 +48,9 @@ interface IVarMiniProps {
   reload: () => void; // a function to reload the variable
   setPlotInfo: (plotName: string, plotFormat: string) => void;
   exportAlerts: () => void;
+  dismissSavePlotSpinnerAlert: () => void;
+  showExportSuccessAlert: () => void;
+  notebookPanel: NotebookPanel;
 }
 interface IVarMiniState {
   activateAppend: boolean;
@@ -196,6 +202,30 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.toggleSaveModal();
     this.props.setPlotInfo(splitFileName[0], splitFileName[1]);
     this.props.exportAlerts();
+
+    try {
+      const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+        this.props.notebookPanel,
+        `import os\n\
+import time\n\
+def check_for_exported_file():\n\
+  exported_file_path = os.path.join(os.getcwd(), '${this.state.filename}')\n\
+  counter = 0\n\
+  while not os.path.exists(exported_file_path):\n\
+    time.sleep(1)\n\
+    counter +=1\n\
+    if counter == 15:\n\
+      raise Exception("Exporting plot timed out.")\n\
+  return True\n\
+${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
+      );
+      if (result === "True") {
+        this.props.dismissSavePlotSpinnerAlert();
+        this.props.showExportSuccessAlert();
+      }
+    } catch (error) {
+      console.log("error with checking file:", error);
+    }
   }
 
   public render(): JSX.Element {

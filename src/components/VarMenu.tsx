@@ -1,5 +1,6 @@
 // Dependencies
 import * as React from "react";
+import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Button,
   Card,
@@ -40,6 +41,9 @@ interface IVarMenuProps {
   syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
   setPlotInfo: (plotName: string, plotFormat: string) => void;
   exportAlerts: () => void;
+  dismissSavePlotSpinnerAlert: () => void;
+  showExportSuccessAlert: () => void;
+  notebookPanel: NotebookPanel;
 }
 
 interface IVarMenuState {
@@ -231,6 +235,13 @@ export default class VarMenu extends React.Component<
                         codeInjector={this.props.codeInjector}
                         setPlotInfo={this.props.setPlotInfo}
                         exportAlerts={this.props.exportAlerts}
+                        dismissSavePlotSpinnerAlert={
+                          this.props.dismissSavePlotSpinnerAlert
+                        }
+                        showExportSuccessAlert={
+                          this.props.showExportSuccessAlert
+                        }
+                        notebookPanel={this.props.notebookPanel}
                       />
                     </ListGroupItem>
                   );

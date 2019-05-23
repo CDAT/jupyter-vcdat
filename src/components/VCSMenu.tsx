@@ -380,10 +380,13 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     const varMenuProps = {
       codeInjector: this.props.codeInjector,
       commands: this.props.commands,
+      dismissSavePlotSpinnerAlert: this.dismissSavePlotSpinnerAlert,
       exportAlerts: this.exportPlotAlerts,
       loadVariable: this.loadVariable,
+      notebookPanel: this.state.notebookPanel,
       saveNotebook: this.saveNotebook,
       setPlotInfo: this.setPlotInfo,
+      showExportSuccessAlert: this.showExportSuccessAlert,
       syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel,
       varTracker: this.props.varTracker
