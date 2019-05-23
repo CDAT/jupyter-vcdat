@@ -238,6 +238,11 @@ export class VariableTracker {
     // Save the original name of the variable
     this.variableAliases[variable.alias] = variable.name;
 
+    // Save the original name of the variable
+    const newAliases: { [varAlias: string]: string } = this.variableAliases;
+    newAliases[variable.alias] = variable.name;
+    this.variableAliases = newAliases;
+
     let currentVars: Variable[] = this.variables;
 
     // If no variables are in the list, update meta data and variables list

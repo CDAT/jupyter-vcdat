@@ -2,7 +2,7 @@ import { Utilities } from "./Utilities";
 export const MAX_SLABS: number = 2;
 export const MAX_DIM_LENGTH: number = 1000;
 export const BASE_URL: string = "/vcs";
-export const BASE_DATA_READER_NAME: string = "fileData";
+export const BASE_DATA_READER_NAME: string = "file_data";
 export const READY_KEY: string = "vcdat_ready";
 export const EXTENSIONS: string[] = [
   ".nc",
