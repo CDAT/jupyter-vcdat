@@ -239,13 +239,27 @@ export class LeftSideBarWidget extends Widget {
       ) {
         // Run cells to make notebook vcs ready
         if (this.state === NOTEBOOK_STATE.InitialCellsReady) {
-          // Select the last cell
-          this.notebookPanel.content.activeCellIndex =
-            this.notebookPanel.content.model.cells.length - 1;
-          // Update kernel list to identify this kernel is ready
-          this.kernels.push(this.notebookPanel.session.kernel.id);
-          // Update state
-          this.state = NOTEBOOK_STATE.VCS_Ready;
+          // Run the imports cell
+          const [idx, cell] = CellUtilities.findCellWithMetaKey(
+            this._notebookPanel,
+            IMPORT_CELL_KEY
+          );
+          if (idx >= 0) {
+            CellUtilities.runCellAtIndex(
+              this.commands,
+              this._notebookPanel,
+              idx
+            );
+            this.notebookPanel.content.activeCellIndex = idx + 1;
+          } else {
+            // Select the next cell
+            this.notebookPanel.content.activeCellIndex =
+              this.notebookPanel.content.model.cells.length - 1;
+            // Update kernel list to identify this kernel is ready
+            this.kernels.push(this.notebookPanel.session.kernel.id);
+            // Update state
+            this.state = NOTEBOOK_STATE.VCS_Ready;
+          }
         }
 
         // Update the selected graphics method, variable list, templates and loaded variables
@@ -571,7 +585,7 @@ export class LeftSideBarWidget extends Widget {
       );
 
       if (fileVars.length > 0) {
-        await this.vcsMenuRef.launchVarSelect(fileVars);
+        await this.vcsMenuRef.varMenuRef.launchVarLoader(fileVars);
       } else {
         this.varTracker.currentFile = "";
       }
@@ -664,7 +678,6 @@ export class LeftSideBarWidget extends Widget {
     ) {
       try {
         this.varTracker.refreshVariables();
-        // this.varTracker.refreshVariables();
         this.refreshGraphicsList();
         await this.refreshTemplatesList();
         const plotExists = await this.checkPlotExists();

@@ -10,6 +10,7 @@ import {
   GET_VARIABLES_CMD,
   REFRESH_VAR_CMD,
   SELECTED_VARIABLES_KEY,
+  VARIABLE_ALIASES_KEY,
   VARIABLE_SOURCES_KEY,
   VARIABLES_LOADED_KEY
 } from "./constants";
@@ -22,14 +23,16 @@ export class VariableTracker {
 
   private _currentFile: string; // The last file source that was used
   private _currentFileChanged: Signal<this, string>;
-  private _variableSources: { [varName: string]: string }; // Tracks what data reader each variable came from
-  private _variableSourcesChanged: Signal<this, { [varName: string]: string }>;
+  private _variableSources: { [varID: string]: string }; // Tracks what data reader each variable came from
+  private _variableSourcesChanged: Signal<this, { [varID: string]: string }>;
+  private _variableAliases: { [alias: string]: string };
+  private _variableAliasesChanged: Signal<this, { [alias: string]: string }>;
   private _dataReaderList: { [dataName: string]: string }; // A dictionary containing data variable names and associated file path
   private _dataReaderListChanged: Signal<this, { [dataName: string]: string }>;
   private _variables: Variable[];
   private _variablesChanged: Signal<this, Variable[]>;
-  private _selectedVariables: string[];
-  private _selectedVariablesChanged: Signal<this, string[]>;
+  private _selectedVariables: Variable[];
+  private _selectedVariablesChanged: Signal<this, Variable[]>;
 
   constructor() {
     this._notebookPanel = null;
@@ -40,19 +43,27 @@ export class VariableTracker {
     this._variableSources = {};
     this._variableSourcesChanged = new Signal<
       this,
-      { [varName: string]: string }
+      { [varID: string]: string }
+    >(this);
+    this._variableAliases = {};
+    this._variableAliasesChanged = new Signal<
+      this,
+      { [alias: string]: string }
     >(this);
     this._dataReaderList = {};
     this._dataReaderListChanged = new Signal<
       this,
       { [dataName: string]: string }
     >(this);
-    this._selectedVariables = Array<string>();
-    this._selectedVariablesChanged = new Signal<this, string[]>(this);
+    this._selectedVariables = Array<Variable>();
+    this._selectedVariablesChanged = new Signal<this, Variable[]>(this);
     this._variables = Array<Variable>();
     this._variablesChanged = new Signal<this, Variable[]>(this);
 
     this.addVariable = this.addVariable.bind(this);
+    this.deleteVariable = this.deleteVariable.bind(this);
+    this.addDataSource = this.addDataSource.bind(this);
+
     this.getDataReaderName = this.getDataReaderName.bind(this);
     this.getFileVariables = this.getFileVariables.bind(this);
     this.loadMetaData = this.loadMetaData.bind(this);
@@ -62,6 +73,12 @@ export class VariableTracker {
     this.updateAxesInfo = this.updateAxesInfo.bind(this);
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.saveMetaData = this.saveMetaData.bind(this);
+    this.copyVariable = this.copyVariable.bind(this);
+    this.findVarByID = this.findVarByID.bind(this);
+    this.findVarByAlias = this.findVarByAlias.bind(this);
+    this.resetVarTracker = this.resetVarTracker.bind(this);
+    this.selectVariable = this.selectVariable.bind(this);
+    this.deselectVariable = this.deselectVariable.bind(this);
   }
 
   get isBusy(): boolean {
@@ -77,6 +94,29 @@ export class VariableTracker {
   }
 
   set variables(newVariables: Variable[]) {
+    const newIDs: string[] = newVariables.map((variable: Variable) => {
+      return variable.varID;
+    });
+
+    // Clean-up any variables that are not in the new Variables set
+    const newSources: { [varID: string]: string } = this.variableSources;
+    const newAliases: { [varAlias: string]: string } = this.variableAliases;
+    const newSelections: Variable[] = this.selectedVariables;
+    this._variables.forEach((variable: Variable) => {
+      // If the old variable is not in the new list, remove it
+      if (newIDs.indexOf(variable.varID) === -1) {
+        delete newSources[variable.varID];
+        delete newAliases[variable.alias];
+        const idx: number = this.findVarByID(variable.varID)[0];
+        if (idx >= 0) {
+          newSelections.splice(idx, 1);
+        }
+      }
+    });
+
+    this.variableSources = newSources;
+    this.variableAliases = newAliases;
+    this.selectedVariables = newSelections;
     this._variables = newVariables;
     this._variablesChanged.emit(newVariables);
   }
@@ -106,36 +146,49 @@ export class VariableTracker {
     return this._dataReaderListChanged;
   }
 
-  get selectedVariables(): string[] {
+  get selectedVariables(): Variable[] {
     return this._selectedVariables;
   }
 
-  set selectedVariables(selection: string[]) {
+  set selectedVariables(selection: Variable[]) {
     this._selectedVariables = selection;
     this._selectedVariablesChanged.emit(selection); // Publish that selected variables changed
   }
 
-  get selectedVariablesChanged(): ISignal<this, string[]> {
+  get selectedVariablesChanged(): ISignal<this, Variable[]> {
     return this._selectedVariablesChanged;
   }
 
-  get variableSources(): { [varName: string]: string } {
+  get variableSources(): { [varID: string]: string } {
     return this._variableSources;
   }
 
-  set variableSources(newSources: { [varName: string]: string }) {
+  set variableSources(newSources: { [varID: string]: string }) {
     this._variableSources = newSources;
     this._variableSourcesChanged.emit(newSources);
   }
 
-  get variableSourcesChanged(): ISignal<this, { [varName: string]: string }> {
+  get variableSourcesChanged(): ISignal<this, { [varID: string]: string }> {
     return this._variableSourcesChanged;
+  }
+
+  get variableAliases(): { [alias: string]: string } {
+    return this._variableAliases;
+  }
+
+  set variableAliases(newAliases: { [alias: string]: string }) {
+    this._variableAliases = newAliases;
+    this._variableAliasesChanged.emit(newAliases);
+  }
+
+  get variableAliasesChanged(): ISignal<this, { [alias: string]: string }> {
+    return this._variableAliasesChanged;
   }
 
   public resetVarTracker() {
     this.currentFile = "";
     this.variables = Array<Variable>();
-    this.selectedVariables = Array<string>();
+    this.selectedVariables = Array<Variable>();
     this.variableSources = {};
     this._dataReaderList = {};
     this._notebookPanel = null;
@@ -161,23 +214,62 @@ export class VariableTracker {
    * @param readerName The name of the file reader to add
    * @param filePath The file path of the file to add to the reader
    */
-  public async addDataSource(
-    readerName: string,
-    filePath: string
-  ): Promise<void> {
+  public addDataSource(readerName: string, filePath: string): void {
     this._dataReaderList[readerName] = filePath;
     this._dataReaderListChanged.emit(this._dataReaderList);
   }
 
   /**
-   * @description take a variable and load it into the notebook
+   * Searches for a variable with the specified varID and returns the index and variable if found.
+   * By default the search will search within the varTracker variables (all loaded variables).
+   * @param varID The variable's ID
+   * @param varArray If set, function will search within the specified group of variables (instead of all variables)
+   */
+  public findVarByID(varID: string, varArray?: Variable[]): [number, Variable] {
+    const variables: Variable[] = varArray ? varArray : this.variables;
+
+    for (let idx: number = 0; idx < variables.length; idx += 1) {
+      if (variables[idx].varID === varID) {
+        return [idx, variables[idx]];
+      }
+    }
+    return [-1, null];
+  }
+
+  /**
+   * Searches for a variable with the specified alias and returns the index and variable if found.
+   * By default the search will search within the varTracker variables (all loaded variables).
+   * @param alias The variable's name/alias
+   * @param varArray If set, function will search within the specified group of variables (instead of all variables)
+   */
+  public findVarByAlias(
+    alias: string,
+    varArray?: Variable[]
+  ): [number, Variable] {
+    const variables: Variable[] = varArray ? varArray : this.variables;
+
+    for (let idx: number = 0; idx < variables.length; idx += 1) {
+      if (variables[idx].alias === alias) {
+        return [idx, variables[idx]];
+      }
+    }
+    return [-1, null];
+  }
+
+  /**
+   * Adds the variable to the varTracker, and replaces any existing variable
    * @param variable The variable to load into the notebook
    */
-  public async addVariable(variable: Variable): Promise<any> {
+  public addVariable(variable: Variable): void {
     // Save the source of the variable
-    const newSource: { [varName: string]: string } = this.variableSources;
-    newSource[variable.name] = variable.sourceName;
+    const newSource: { [varID: string]: string } = this.variableSources;
+    newSource[variable.varID] = variable.sourceName;
     this.variableSources = newSource;
+
+    // Save the original name of the variable
+    const newAliases: { [varAlias: string]: string } = this.variableAliases;
+    newAliases[variable.alias] = variable.name;
+    this.variableAliases = newAliases;
 
     let currentVars: Variable[] = this.variables;
 
@@ -187,19 +279,86 @@ export class VariableTracker {
       currentVars.push(variable);
     } else {
       // If there are already variables stored, check if variable exists and replace if so
-      let found: boolean = false;
-      currentVars.forEach((storedVar: Variable, varIndex: number) => {
-        if (storedVar.name === variable.name) {
-          currentVars[varIndex] = variable;
-          found = true;
-        }
-      });
-      if (!found) {
+      const idx: number = this.findVarByID(variable.varID)[0];
+      if (idx >= 0) {
+        currentVars[idx] = variable;
+      } else {
         currentVars.push(variable);
       }
     }
 
     this.variables = currentVars;
+  }
+
+  /**
+   *
+   * @param variable The variable to load into the notebook
+   */
+  public deleteVariable(variable: Variable): void {
+    // Update variable selections
+    const selections: Variable[] = this.selectedVariables;
+    const selectIdx: number = this.findVarByID(variable.varID, selections)[0];
+    if (selectIdx >= 0) {
+      selections.splice(selectIdx, 1);
+    }
+    this.selectedVariables = selections;
+
+    // Remove the source of the variable
+    const newSource: { [varID: string]: string } = this.variableSources;
+    delete newSource[variable.varID];
+    this.variableSources = newSource;
+
+    // Remove the original name of the variable
+    const newAliases: { [varAlias: string]: string } = this.variableAliases;
+    delete newAliases[variable.alias];
+    this.variableAliases = newAliases;
+
+    const currentVars: Variable[] = this.variables;
+
+    // If variables are in the list, delete variable from variables list
+    if (currentVars.length >= 1) {
+      const currentIdx: number = this.findVarByID(variable.varID)[0];
+      if (currentIdx >= 0) {
+        currentVars.splice(currentIdx, 1);
+      }
+    }
+
+    // Update variable list
+    this.variables = currentVars;
+  }
+
+  /**
+   * @description adds a variable to the selectedVariables list
+   * @param variable the variable to add to the selected list
+   */
+  public async selectVariable(
+    variable: Variable,
+    array?: Variable[]
+  ): Promise<void> {
+    if (variable) {
+      const newSelection = this.selectedVariables;
+      newSelection.push(variable);
+      this.selectedVariables = newSelection;
+    }
+  }
+
+  /**
+   * @description removes a variable from the selectedVariables list
+   * @param variable the variable to remove from the selected list
+   */
+  public async deselectVariable(
+    variable: Variable,
+    array?: Variable[]
+  ): Promise<void> {
+    const idx: number = this.findVarByID(
+      variable.varID,
+      this.selectedVariables
+    )[0];
+    if (idx >= 0) {
+      const newSelection = this.selectedVariables;
+      newSelection.splice(idx, 1);
+      this.selectedVariables = newSelection;
+    }
   }
 
   public async saveMetaData() {
@@ -214,6 +373,13 @@ export class VariableTracker {
       this.notebookPanel,
       FILE_PATH_KEY,
       this.currentFile
+    );
+
+    // Save the variable aliases
+    NotebookUtilities.setMetaDataNow(
+      this.notebookPanel,
+      VARIABLE_ALIASES_KEY,
+      this.variableAliases
     );
 
     // Save data reader list to meta data
@@ -275,13 +441,21 @@ export class VariableTracker {
     );
     this.variableSources = result ? result : {};
 
+    // Update the variable aliases
+    result = await NotebookUtilities.getMetaData(
+      this.notebookPanel,
+      VARIABLE_ALIASES_KEY
+    );
+    this.variableAliases = result ? result : {};
+
     // Load the selected variables from meta data (if exists)
-    const selection: string[] = await NotebookUtilities.getMetaData(
+    const selection: Variable[] = await NotebookUtilities.getMetaData(
       this.notebookPanel,
       SELECTED_VARIABLES_KEY
     );
+
     // No meta data means fresh notebook with no selections
-    this.selectedVariables = selection ? selection : Array<string>();
+    this.selectedVariables = selection ? selection : Array<Variable>();
 
     // Update the list of data variables and associated filepath
     const readers: {
@@ -362,19 +536,20 @@ export class VariableTracker {
       this._isBusy = false;
 
       // Parse the resulting output into an object
-      const variableAxes: any = JSON.parse(result.slice(1, result.length - 1));
+      const fileVariables: any = JSON.parse(result.slice(1, result.length - 1));
       const newVars = Array<Variable>();
-      Object.keys(variableAxes.vars).map((varName: string) => {
+      Object.keys(fileVariables.vars).map((varName: string) => {
         const v = new Variable();
         v.name = varName;
-        v.pythonID = variableAxes.vars[varName].pythonID;
-        v.longName = variableAxes.vars[varName].name;
-        v.axisList = variableAxes.vars[varName].axisList;
+        v.alias = varName;
+        v.pythonID = fileVariables.vars[varName].pythonID;
+        v.longName = fileVariables.vars[varName].name;
+        v.axisList = fileVariables.vars[varName].axisList;
         v.axisInfo = Array<AxisInfo>();
-        variableAxes.vars[varName].axisList.map((item: any) => {
-          v.axisInfo.push(variableAxes.axes[item]);
+        fileVariables.vars[varName].axisList.map((item: any) => {
+          v.axisInfo.push(fileVariables.axes[item]);
         });
-        v.units = variableAxes.vars[varName].units;
+        v.units = fileVariables.vars[varName].units;
         v.sourceName = this.getDataReaderName(filePath);
         newVars.push(v);
       });
@@ -402,27 +577,31 @@ export class VariableTracker {
     // A grouping object so that variables from each data source are updated
     const varGroups: { [sourceName: string]: Variable[] } = {};
     // Parse the resulting output into a list of variables with basic data
-    const variableInfo: any = JSON.parse(result.slice(1, result.length - 1));
+    const notebookVariables: any = JSON.parse(
+      result.slice(1, result.length - 1)
+    );
 
     // Exit early if no variables exist
-    if (Object.keys(variableInfo).length < 1) {
+    if (Object.keys(notebookVariables).length < 1) {
       this.variables = Array<Variable>();
       return;
     }
 
     const newVars = Array<Variable>();
     let srcName: string;
-    Object.keys(variableInfo).map(async (item: string) => {
+    Object.keys(notebookVariables).map(async (varAlias: string) => {
       const v: Variable = new Variable();
-      v.name = item;
-      v.pythonID = variableInfo[item].pythonID;
-      v.longName = variableInfo[item].name;
-      v.axisList = variableInfo[item].axisList;
+      const originalName: string = this.variableAliases[varAlias];
+      v.name = originalName ? originalName : varAlias;
+      v.alias = varAlias;
+      v.pythonID = notebookVariables[varAlias].pythonID;
+      v.longName = notebookVariables[varAlias].name;
+      v.axisList = notebookVariables[varAlias].axisList;
       v.axisInfo = Array<AxisInfo>();
-      v.units = variableInfo[item].units;
+      v.units = notebookVariables[varAlias].units;
 
-      // Update the parent data source
-      srcName = this.variableSources[v.name];
+      // Update the data source
+      srcName = this.variableSources[v.varID];
       if (srcName) {
         v.sourceName = srcName;
         if (varGroups[v.sourceName]) {
@@ -447,6 +626,47 @@ export class VariableTracker {
     }
 
     this.variables = newVars;
+  }
+
+  /**
+   * Creates a copy of the variable, gives it a new name and adds it to varTracker
+   * @param variable - Variable: The original variable to copy
+   * @param newName - string: The new name for the variable
+   * @returns - Variable: The newly created variable
+   */
+  public copyVariable(variable: Variable, newName: string): Variable {
+    // Exit if variable is not defined, new name is same as current alias or blank
+    if (!variable || !newName || variable.alias === newName) {
+      return;
+    }
+
+    // Exit if name already exists
+    if (
+      this.variableAliases &&
+      Object.keys(this.variableAliases).indexOf(newName) >= 0
+    ) {
+      return;
+    }
+
+    // Create copy
+    const newCopy: Variable = new Variable();
+
+    newCopy.alias = newName;
+    newCopy.axisInfo = variable.axisInfo;
+    newCopy.axisList = variable.axisList;
+    newCopy.longName = variable.longName;
+    newCopy.name = variable.name;
+    newCopy.pythonID = variable.pythonID;
+    newCopy.sourceName = variable.sourceName;
+    newCopy.units = variable.units;
+
+    // Select copy
+    this.selectedVariables.push(newCopy);
+
+    // Add copy to current variables
+    this.addVariable(newCopy);
+
+    return newCopy;
   }
 
   // Updates the axes information for each variable based on what source it came from
@@ -492,12 +712,12 @@ export class VariableTracker {
 
   /**
    * @param newInfo new dimension info for the variables axis
-   * @param varName the name of the variable to update
+   * @param varID the name of the variable to update
    */
-  public async updateDimInfo(newInfo: any, varName: string): Promise<void> {
+  public updateDimInfo(newInfo: any, varID: string): void {
     const newVariables: Variable[] = this._variables;
     newVariables.forEach((variable: Variable, varIndex: number) => {
-      if (variable.name !== varName) {
+      if (variable.varID !== varID) {
         return;
       }
       variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {

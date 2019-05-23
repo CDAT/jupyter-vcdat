@@ -39,7 +39,7 @@ const centered: React.CSSProperties = {
 };
 
 interface IDimensionSliderProps {
-  varName: string; // the name of the variable this axis belongs to
+  varID: string; // the name of the variable this axis belongs to
   min: number;
   max: number;
   data: number[]; // the raw axis data
@@ -50,7 +50,7 @@ interface IDimensionSliderProps {
   shape: number[]; // the shape of the axis
   units: string; // the units of the axis
   // method to be called updating the parent when the slider values change
-  updateDimInfo: (newInfo: any, varName: string) => Promise<void>;
+  updateDimInfo: (newInfo: any, varID: string) => Promise<void>;
 }
 
 interface IDimensionSliderState {
@@ -273,7 +273,7 @@ export class DimensionSlider extends React.Component<
         min: this.state.possibleValues[e[0]],
         name: this.props.name
       },
-      this.props.varName
+      this.props.varID
     );
   }
 }

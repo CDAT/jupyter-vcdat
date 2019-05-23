@@ -25,16 +25,14 @@ const badgeStyle: React.CSSProperties = {
   marginLeft: "0.5em"
 };
 
-const modalOverflow: React.CSSProperties = {
-  maxHeight: "70vh",
-  overflow: "auto"
-};
-
 interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
-  updateDimInfo: (newInfo: any, varName: string) => Promise<void>; // method passed by the parent to update their copy of the variables dimension info
-  isSelected: (varName: string) => boolean; // method to check if this variable is selected in parent
+  updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
+  isSelected: (variable: Variable) => boolean; // method to check if this variable is selected in parent
+  copyVariable: (variable: Variable, newName: string) => Promise<void>;
+  deleteVariable: (variable: Variable) => Promise<void>;
+  modalOpen: (isOpen: boolean) => void;
   selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: () => void; // a function to reload the variable
@@ -44,18 +42,17 @@ interface IVarMiniState {
 }
 
 export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
-  public varName: string;
   constructor(props: IVarMiniProps) {
     super(props);
     this.state = {
       showAxis: false
     };
-    this.varName = this.props.variable.name;
     this.openMenu = this.openMenu.bind(this);
-    this.updateDimInfo = this.updateDimInfo.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleUpdateClick = this.handleUpdateClick.bind(this);
+    this.handleCopyClick = this.handleCopyClick.bind(this);
   }
 
   /**
@@ -69,14 +66,11 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     }
   }
 
-  public updateDimInfo(newInfo: any, varName: string): void {
-    this.props.updateDimInfo(newInfo, varName);
-  }
-
   /**
    * @description Toggles the variable loader modal
    */
   public toggleModal(): void {
+    this.props.modalOpen(!this.state.showAxis);
     this.setState({
       showAxis: !this.state.showAxis
     });
@@ -95,9 +89,9 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             outline={true}
             color={"success"}
             style={{ backgroundColor: this.props.buttonColor }}
-            active={this.props.isSelected(this.varName)}
+            active={this.props.isSelected(this.props.variable)}
           >
-            {this.props.variable.name}
+            {this.props.variable.alias}
           </Button>
           <Button
             className={/*@tag<varmini-edit-btn>*/ "varmini-edit-btn-vcdat"}
@@ -114,7 +108,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           >
             edit
           </Button>
-          {this.props.isSelected(this.varName) && (
+          {this.props.isSelected(this.props.variable) && (
             <Badge
               className={"float-right"}
               style={{
@@ -135,7 +129,6 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           <ModalHeader toggle={this.toggleModal}>Edit Axis</ModalHeader>
           <ModalBody
             className={/*@tag<varmini-edit-modal>*/ "varmini-edit-modal-vcdat"}
-            style={modalOverflow}
           >
             {this.state.showAxis &&
               this.props.variable.axisInfo.length > 0 &&
@@ -143,12 +136,15 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
                 if (!item.data || item.data.length <= 1) {
                   return;
                 }
-                item.updateDimInfo = this.updateDimInfo;
+                item.updateDimInfo = this.props.updateDimInfo;
                 return (
                   <div key={item.name} style={axisStyle}>
                     <Card>
                       <CardBody>
-                        <DimensionSlider {...item} varName={this.varName} />
+                        <DimensionSlider
+                          {...item}
+                          varID={this.props.variable.varID}
+                        />
                       </CardBody>
                     </Card>
                   </div>
@@ -171,13 +167,28 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     );
   }
 
+  private async handleCopyClick(
+    clickEvent: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> {
+    clickEvent.stopPropagation();
+    await this.props.copyVariable(this.props.variable, "Test");
+  }
+
+  private async handleDeleteClick(
+    clickEvent: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> {
+    clickEvent.stopPropagation();
+    await this.props.deleteVariable(this.props.variable);
+  }
+
   private handleEditClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): void {
+    clickEvent.stopPropagation();
+    this.props.modalOpen(!this.state.showAxis);
     this.setState({
       showAxis: !this.state.showAxis
     });
-    clickEvent.stopPropagation();
   }
 
   private handleUpdateClick(): void {
