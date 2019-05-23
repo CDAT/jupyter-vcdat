@@ -85,8 +85,13 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   public render(): JSX.Element {
     return (
       <div>
-        <div className="clearfix">
+        <div
+          className={
+            /*@tag<clearfix varmini-main>*/ "clearfix varmini-main-vcdat"
+          }
+        >
           <Button
+            className={/*@tag<varmini-name-btn>*/ "varmini-name-btn-vcdat"}
             outline={true}
             color={"success"}
             style={{ backgroundColor: this.props.buttonColor }}
@@ -95,6 +100,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             {this.props.variable.name}
           </Button>
           <Button
+            className={/*@tag<varmini-edit-btn>*/ "varmini-edit-btn-vcdat"}
             outline={true}
             style={axisStyle}
             title={
@@ -110,7 +116,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           </Button>
           {this.props.isSelected(this.varName) && (
             <Badge
-              className="float-right"
+              className={"float-right"}
               style={{
                 ...badgeStyle,
                 ...{ backgroundColor: this.props.buttonColor }
@@ -121,13 +127,16 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           )}
         </div>
         <Modal
-          id="var-loader-modal"
+          className={"var-loader-modal"}
           isOpen={this.state.showAxis}
           toggle={this.toggleModal}
           size="lg"
         >
           <ModalHeader toggle={this.toggleModal}>Edit Axis</ModalHeader>
-          <ModalBody style={modalOverflow}>
+          <ModalBody
+            className={/*@tag<varmini-edit-modal>*/ "varmini-edit-modal-vcdat"}
+            style={modalOverflow}
+          >
             {this.state.showAxis &&
               this.props.variable.axisInfo.length > 0 &&
               this.props.variable.axisInfo.map((item: AxisInfo) => {
@@ -147,7 +156,13 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
               })}
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={this.handleUpdateClick}>
+            <Button
+              className={
+                /*@tag<varmini-update-btn>*/ "varmini-update-btn-vcdat"
+              }
+              color="primary"
+              onClick={this.handleUpdateClick}
+            >
               Update
             </Button>
           </ModalFooter>

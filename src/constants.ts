@@ -1,5 +1,6 @@
 import { Utilities } from "./Utilities";
 export const MAX_SLABS: number = 2;
+export const MAX_DIM_LENGTH: number = 1000;
 export const BASE_URL: string = "/vcs";
 export const READY_KEY: string = "vcdat_ready";
 export const EXTENSIONS: string[] = [
@@ -155,10 +156,11 @@ export const GET_AXIS_INFO_CMD: string = `
 outAxes = {}\n\
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
-  if len(axis) < 1000:\n\
+  if len(axis) < ${MAX_DIM_LENGTH}:\n\
     axis_data = axis[:].tolist()\n\
   else:\n\
-    axis_data = None\n\
+    min, max = vcs.minmax(axis[:])\n\
+    axis_data = vcs.mkscale(min, max, ${MAX_DIM_LENGTH})\n\
   # Get a displayable name for the variable\n\
   if hasattr(axis, 'id'):\n\
     name = axis.id\n\
@@ -243,10 +245,11 @@ for vname in reader.variables:\n\
 outAxes = {}\n\
 for aname in reader.axes:\n\
   axis = reader.axes[aname]\n\
-  if len(axis) < 1000:\n\
+  if len(axis) < ${MAX_DIM_LENGTH}:\n\
     axis_data = axis[:].tolist()\n\
   else:\n\
-    axis_data = None\n\
+    min, max = vcs.minmax(axis[:])\n\
+    axis_data = vcs.mkscale(min, max, ${MAX_DIM_LENGTH})\n\
   # Get a displayable name for the variable\n\
   if hasattr(axis, 'id'):\n\
     name = axis.id\n\
