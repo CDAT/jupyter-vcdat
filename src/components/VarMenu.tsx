@@ -26,7 +26,7 @@ const varButtonStyle: React.CSSProperties = {
 
 const formOverflow: React.CSSProperties = {
   maxHeight: "250px",
-  overflow: "auto"
+  overflowY: "auto"
 };
 
 interface IVarMenuProps {
@@ -38,6 +38,7 @@ interface IVarMenuProps {
 }
 
 interface IVarMenuState {
+  modalOpen: boolean; // Whether a modal is currently open
   variables: Variable[]; // all variables for list (derived and loaded)
   selectedVariables: Variable[]; // the names of the variables the user has selected
 }
@@ -50,6 +51,7 @@ export default class VarMenu extends React.Component<
   constructor(props: IVarMenuProps) {
     super(props);
     this.state = {
+      modalOpen: false,
       selectedVariables: this.props.varTracker.selectedVariables,
       variables: this.props.varTracker.variables
     };
@@ -60,6 +62,7 @@ export default class VarMenu extends React.Component<
     this.reloadVariable = this.reloadVariable.bind(this);
     this.copyVariable = this.copyVariable.bind(this);
     this.getOrder = this.getOrder.bind(this);
+    this.setModalState = this.setModalState.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
@@ -137,6 +140,10 @@ export default class VarMenu extends React.Component<
     );
   }
 
+  public setModalState(newState: boolean): void {
+    this.setState({ modalOpen: newState });
+  }
+
   public render(): JSX.Element {
     const colors: string[] = ColorFunctions.createGradient(
       this.state.selectedVariables.length,
@@ -191,6 +198,9 @@ export default class VarMenu extends React.Component<
                     this.reloadVariable(item);
                   };
                   const toggleSelection = () => {
+                    if (this.state.modalOpen) {
+                      return;
+                    }
                     if (this.isSelected(item)) {
                       this.props.varTracker.deselectVariable(item);
                     } else {
@@ -203,6 +213,7 @@ export default class VarMenu extends React.Component<
                       onClick={toggleSelection}
                     >
                       <VarMini
+                        modalOpen={this.setModalState}
                         reload={reloadItem}
                         copyVariable={this.copyVariable}
                         deleteVariable={this.props.codeInjector.deleteVariable}

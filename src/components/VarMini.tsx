@@ -25,11 +25,6 @@ const badgeStyle: React.CSSProperties = {
   marginLeft: "0.5em"
 };
 
-const modalOverflow: React.CSSProperties = {
-  maxHeight: "70vh",
-  overflow: "auto"
-};
-
 interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
@@ -37,6 +32,7 @@ interface IVarMiniProps {
   isSelected: (variable: Variable) => boolean; // method to check if this variable is selected in parent
   copyVariable: (variable: Variable, newName: string) => Promise<void>;
   deleteVariable: (variable: Variable) => Promise<void>;
+  modalOpen: (isOpen: boolean) => void;
   selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: () => void; // a function to reload the variable
@@ -74,6 +70,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
    * @description Toggles the variable loader modal
    */
   public toggleModal(): void {
+    this.props.modalOpen(!this.state.showAxis);
     this.setState({
       showAxis: !this.state.showAxis
     });
@@ -132,7 +129,6 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           <ModalHeader toggle={this.toggleModal}>Edit Axis</ModalHeader>
           <ModalBody
             className={/*@tag<varmini-edit-modal>*/ "varmini-edit-modal-vcdat"}
-            style={modalOverflow}
           >
             {this.state.showAxis &&
               this.props.variable.axisInfo.length > 0 &&
@@ -189,6 +185,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): void {
     clickEvent.stopPropagation();
+    this.props.modalOpen(!this.state.showAxis);
     this.setState({
       showAxis: !this.state.showAxis
     });
