@@ -382,7 +382,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       commands: this.props.commands,
       dismissSavePlotSpinnerAlert: this.dismissSavePlotSpinnerAlert,
       exportAlerts: this.exportPlotAlerts,
-      loadVariable: this.loadVariable,
       notebookPanel: this.state.notebookPanel,
       saveNotebook: this.saveNotebook,
       setPlotInfo: this.setPlotInfo,

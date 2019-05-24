@@ -34,6 +34,11 @@ const badgeStyle: React.CSSProperties = {
   marginLeft: "0.5em"
 };
 
+const modalOverflow: React.CSSProperties = {
+  maxHeight: "70vh",
+  overflow: "auto"
+};
+
 interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
   codeInjector: CodeInjector;
@@ -183,6 +188,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   }
 
   public async save() {
+    console.log("this.props.variable:", this.props.variable);
     const splitFileName = this.state.filename.split(".");
 
     if (!this.state.filename) {
@@ -192,7 +198,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.setState({ validateFileName: false });
     await this.props.codeInjector.saveNetCDFFile(
       this.state.filename,
-      this.varName,
+      this.props.variable.name,
       this.state.newVariableName,
       this.state.activateAppend,
       this.state.activateShuffle,
@@ -267,7 +273,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
           >
             save variable
           </Button>
-          {this.props.isSelected(this.varName) && (
+          {this.props.isSelected(this.props.variable) && (
             <Badge
               className={"float-right"}
               style={{
@@ -358,7 +364,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
             <Input
               type="text"
               name="text"
-              placeholder={this.varName}
+              placeholder={this.props.variable.name}
               value={this.state.newVariableName}
               onChange={this.updateNewVariableName}
             />

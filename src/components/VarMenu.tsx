@@ -21,7 +21,6 @@ import { Variable } from "./Variable";
 import { VarLoader } from "./VarLoader";
 import { VarMini } from "./VarMini";
 import { VariableTracker } from "../VariableTracker";
-import { CodeInjector } from "../CodeInjector";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -35,7 +34,6 @@ const formOverflow: React.CSSProperties = {
 interface IVarMenuProps {
   codeInjector: CodeInjector;
   varTracker: VariableTracker;
-  codeInjector: CodeInjector;
   commands?: any; // the command executer
   updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
   syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
