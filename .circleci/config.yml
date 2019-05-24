@@ -6,12 +6,9 @@ aliases:
     name: setup_jupyter_vcdat
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       export CDAT_ANONYMOUS_LOG=False
-       export CDAT_SETUP_PATH=${HOME}
-       git status
+       # export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
        ./install_script.sh -v
-       conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner cdat_info
        git status
 
   - &run_jupyter_vcdat
@@ -19,7 +16,7 @@ aliases:
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
-       export CDAT_SETUP_PATH=${HOME}
+       # export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
        jupyter lab --ip='127.0.0.1'
     background: true
@@ -31,8 +28,8 @@ aliases:
       BROWSER_DRIVER: "/usr/local/bin/chromedriver"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       export CDAT_ANONYMOUS_LOG=False
-       export CDAT_SETUP_PATH=${HOME}
+       # export CDAT_ANONYMOUS_LOG=False
+       # export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
@@ -51,11 +48,11 @@ aliases:
       BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       export CDAT_ANONYMOUS_LOG=False
-       export CDAT_SETUP_PATH=${HOME}
+       # export CDAT_ANONYMOUS_LOG=False
+       # export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       pip install selenium
-       pip install pyvirtualdisplay
+       # pip install selenium
+       # pip install pyvirtualdisplay
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
        python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
@@ -97,21 +94,6 @@ aliases:
        coveralls
        source deactivate
 
-  - &prep_conda_cache
-    name: prep_conda_cache
-    command: |
-       mv $WORKDIR/miniconda miniconda
-
-  - &get_conda_cache
-    name: get_conda_cache
-    command: |
-       mkdir -p $WORKDIR
-       mv miniconda $WORKDIR/
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       conda config --set always_yes yes --set changeps1 no
-       conda update -y -q conda
-       conda config --set anaconda_upload no
-
 jobs:
   linux_jupyter_vcdat_py3:
     docker:
@@ -123,6 +105,8 @@ jobs:
       PY_VER: "py3"
     steps:
       - checkout
+      - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
+      - run: which conda
       - run: which firefox
       - run: which geckodriver
       - run: pwd
