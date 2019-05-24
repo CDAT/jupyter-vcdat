@@ -42,7 +42,7 @@ class MainPage(ActionsPage):
         '''
         try:
             element = self.locate_top_menu_item(name)
-            time.sleep(self._a_bit_delay)
+            # time.sleep(self._a_bit_delay)
             ActionChains(self.driver).move_to_element(element).click().perform()
             # self.move_to_click(element)
         except NoSuchElementException as e:
@@ -139,7 +139,6 @@ class MainPage(ActionsPage):
         new_launcher_element = self.locate_new_launcher_icon()
         if not new_launcher_element.is_displayed() or not new_launcher_element.is_enabled():
             print("New Launcher element is not displayed nor enabled")
-            time.sleep(5)
             print("clicking on the folder tab again")
             self.move_to_click(element)
             if new_launcher_element.is_displayed() and new_launcher_element.is_enabled():
@@ -236,9 +235,7 @@ class MainPage(ActionsPage):
         try:
             self.find_element_by_xpath(select_kernel_popup_locator, "Select Kernel popup")
             el = self.find_element_by_xpath(kernel_select_button_locator, "Kernel Select button")
-            # time.sleep(self._a_bit_delay)
             self.move_to_click(el)
-            # time.sleep(self._delay)
         except NoSuchElementException as e:
             print("did not find 'Select Kernel' pop up")
             raise e

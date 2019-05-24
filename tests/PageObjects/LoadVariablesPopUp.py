@@ -70,9 +70,7 @@ class LoadVariablesPopUp(ActionsPage):
         The row element returned can then be used in the caller to find other
         elements related to this var.
         '''
-        time.sleep(2)
         rows = self._locate_all_variable_row_elements()
-        print("XXX DEBUG...num of rows: {}".format(len(rows)))
 
         i = 0
         var_locator = ".//button[contains(@class, '{}')]".format(self._var_button_class)
@@ -103,7 +101,6 @@ class LoadVariablesPopUp(ActionsPage):
         """
         try:
             row_for_var, element = self.locate_variable_axis(var)
-            time.sleep(self._delay)
             self.move_to_click(element)
             time.sleep(self._delay * 2)
         except NoSuchElementException as e:
@@ -155,7 +152,6 @@ class LoadVariablesPopUp(ActionsPage):
         # axis_locator = ".//div[@class='collapse']/div[@style='margin-top']"
         axes_class = "dimension-slider-vcdat"
         axes_locator = ".//div[contains(@class, '{}')]".format(axes_class)
-        print("DEBUG...axis_locator: {}".format(axes_locator))
         try:
             axes = row_for_var.find_elements_by_xpath(axes_locator)
             print("DEBUG xxx...number of axis for variable '{v}': {n}".format(v=var,
