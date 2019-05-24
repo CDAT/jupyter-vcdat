@@ -126,6 +126,8 @@ jobs:
       - run: which geckodriver
       - run: pwd
       - run: ls
+      - run: ls /tmp/jp-vcdat/miniconda/envs
+      - run: which conda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 8
