@@ -396,7 +396,7 @@ export class CodeInjector {
 
     let cmd: string = ``;
     const fileName: string = variables[0].sourceName;
-    const newSelection: Variable[] = Array<Variable>();
+    const newSelection = Array<string>();
     variables.forEach((variable: Variable) => {
       // Create code to load the variable into the notebook
       cmd += `${variable.alias} = ${BASE_DATA_READER_NAME}("${variable.name}"`;
@@ -409,7 +409,7 @@ export class CodeInjector {
       cmd += ")\n";
 
       // Select variable
-      newSelection.push(variable);
+      newSelection.push(variable.varID);
 
       // new variable to var tracker
       this.varTracker.addVariable(variable);
@@ -450,7 +450,7 @@ export class CodeInjector {
     overlayMode: boolean
   ) {
     // Limit selection to MAX_SLABS
-    let selectedVariables: Variable[] = this.varTracker.selectedVariables;
+    let selectedVariables: string[] = this.varTracker.selectedVariables;
     if (selectedVariables.length > MAX_SLABS) {
       selectedVariables = selectedVariables.slice(0, MAX_SLABS);
       this.varTracker.selectedVariables = selectedVariables;
@@ -474,8 +474,8 @@ export class CodeInjector {
     let cmd: string = overlayMode
       ? "canvas.plot("
       : "canvas.clear()\ncanvas.plot(";
-    for (const variable of selectedVariables) {
-      cmd += `${variable.alias}, `;
+    for (const varID of selectedVariables) {
+      cmd += `${this.varTracker.findVariableByID(varID)[1].alias}, `;
     }
     cmd += `${templateParam}, ${gmParam})`;
 

@@ -10,8 +10,7 @@ import {
   getFileVarsCommand,
   REFRESH_VAR_CMD,
   SELECTED_VARIABLES_KEY,
-  VARIABLE_ALIASES_KEY,
-  VARIABLE_SOURCES_KEY,
+  VARIABLE_INFO_KEY,
   VARIABLES_LOADED_KEY
 } from "./constants";
 import { Utilities } from "./Utilities";
@@ -22,14 +21,17 @@ export class VariableTracker {
   private _notebookPanel: NotebookPanel;
   private _currentFile: string; // The last file source that was used
   private _currentFileChanged: Signal<this, string>;
-  private _variableSources: { [varID: string]: string }; // Tracks what file each variable came from
-  private _variableSourcesChanged: Signal<this, { [varID: string]: string }>;
-  private _variableAliases: { [alias: string]: string };
-  private _variableAliasesChanged: Signal<this, { [alias: string]: string }>;
+  // Tracks information specific to each variable, such as its original name, source and alias
+  private _variableInfo: { [alias: string]: { name: string; source: string } };
+  // A signal for when variable information is added or removed
+  private _variableInfoChanged: Signal<
+    this,
+    { [alias: string]: { name: string; source: string } }
+  >;
   private _variables: Variable[];
   private _variablesChanged: Signal<this, Variable[]>;
-  private _selectedVariables: Variable[];
-  private _selectedVariablesChanged: Signal<this, Variable[]>;
+  private _selectedVariables: string[];
+  private _selectedVariablesChanged: Signal<this, string[]>;
 
   constructor() {
     this._notebookPanel = null;
@@ -37,18 +39,13 @@ export class VariableTracker {
 
     this._currentFile = "";
     this._currentFileChanged = new Signal<this, string>(this);
-    this._variableSources = {};
-    this._variableSourcesChanged = new Signal<
+    this._variableInfo = {};
+    this._variableInfoChanged = new Signal<
       this,
-      { [varID: string]: string }
+      { [alias: string]: { name: string; source: string } }
     >(this);
-    this._variableAliases = {};
-    this._variableAliasesChanged = new Signal<
-      this,
-      { [alias: string]: string }
-    >(this);
-    this._selectedVariables = Array<Variable>();
-    this._selectedVariablesChanged = new Signal<this, Variable[]>(this);
+    this._selectedVariables = Array<string>();
+    this._selectedVariablesChanged = new Signal<this, string[]>(this);
     this._variables = Array<Variable>();
     this._variablesChanged = new Signal<this, Variable[]>(this);
 
@@ -63,8 +60,8 @@ export class VariableTracker {
     this.updateDimInfo = this.updateDimInfo.bind(this);
     this.saveMetaData = this.saveMetaData.bind(this);
     this.copyVariable = this.copyVariable.bind(this);
-    this.findVarByID = this.findVarByID.bind(this);
-    this.findVarByAlias = this.findVarByAlias.bind(this);
+    this.findVariableByID = this.findVariableByID.bind(this);
+    this.findVariableByAlias = this.findVariableByAlias.bind(this);
     this.resetVarTracker = this.resetVarTracker.bind(this);
     this.selectVariable = this.selectVariable.bind(this);
     this.deselectVariable = this.deselectVariable.bind(this);
@@ -83,29 +80,6 @@ export class VariableTracker {
   }
 
   set variables(newVariables: Variable[]) {
-    const newIDs: string[] = newVariables.map((variable: Variable) => {
-      return variable.varID;
-    });
-
-    // Clean-up any variables that are not in the new Variables set
-    const newSources: { [varID: string]: string } = this.variableSources;
-    const newAliases: { [varAlias: string]: string } = this.variableAliases;
-    const newSelections: Variable[] = this.selectedVariables;
-    this._variables.forEach((variable: Variable) => {
-      // If the old variable is not in the new list, remove it
-      if (newIDs.indexOf(variable.varID) === -1) {
-        delete newSources[variable.varID];
-        delete newAliases[variable.alias];
-        const idx: number = this.findVarByID(variable.varID)[0];
-        if (idx < 0) {
-          newSelections.splice(idx, 1);
-        }
-      }
-    });
-
-    this.variableSources = newSources;
-    this.variableAliases = newAliases;
-    this.selectedVariables = newSelections;
     this._variables = newVariables;
     this._variablesChanged.emit(newVariables);
   }
@@ -127,50 +101,43 @@ export class VariableTracker {
     return this._currentFileChanged;
   }
 
-  get selectedVariables(): Variable[] {
+  get variableInfo(): {
+    [alias: string]: { name: string; source: string };
+  } {
+    return this._variableInfo;
+  }
+
+  set variableInfo(varInfo: {
+    [alias: string]: { name: string; source: string };
+  }) {
+    this._variableInfo = varInfo;
+    this._variableInfoChanged.emit(varInfo);
+  }
+
+  get variableInfoChanged(): ISignal<
+    this,
+    { [alias: string]: { name: string; source: string } }
+  > {
+    return this._variableInfoChanged;
+  }
+
+  get selectedVariables(): string[] {
     return this._selectedVariables;
   }
 
-  set selectedVariables(selection: Variable[]) {
+  set selectedVariables(selection: string[]) {
     this._selectedVariables = selection;
     this._selectedVariablesChanged.emit(selection); // Publish that selected variables changed
   }
 
-  get selectedVariablesChanged(): ISignal<this, Variable[]> {
+  get selectedVariablesChanged(): ISignal<this, string[]> {
     return this._selectedVariablesChanged;
-  }
-
-  get variableSources(): { [varID: string]: string } {
-    return this._variableSources;
-  }
-
-  set variableSources(newSources: { [varID: string]: string }) {
-    this._variableSources = newSources;
-    this._variableSourcesChanged.emit(newSources);
-  }
-
-  get variableSourcesChanged(): ISignal<this, { [varID: string]: string }> {
-    return this._variableSourcesChanged;
-  }
-
-  get variableAliases(): { [alias: string]: string } {
-    return this._variableAliases;
-  }
-
-  set variableAliases(newAliases: { [alias: string]: string }) {
-    this._variableAliases = newAliases;
-    this._variableAliasesChanged.emit(newAliases);
-  }
-
-  get variableAliasesChanged(): ISignal<this, { [alias: string]: string }> {
-    return this._variableAliasesChanged;
   }
 
   public resetVarTracker() {
     this.currentFile = "";
     this.variables = Array<Variable>();
-    this.selectedVariables = Array<Variable>();
-    this.variableSources = {};
+    this._variableInfo = {};
     this._notebookPanel = null;
   }
 
@@ -196,7 +163,10 @@ export class VariableTracker {
    * @param varID The variable's ID
    * @param varArray If set, function will search within the specified group of variables (instead of all variables)
    */
-  public findVarByID(varID: string, varArray?: Variable[]): [number, Variable] {
+  public findVariableByID(
+    varID: string,
+    varArray?: Variable[]
+  ): [number, Variable] {
     const variables: Variable[] = varArray ? varArray : this.variables;
 
     for (let idx: number = 0; idx < variables.length; idx += 1) {
@@ -213,7 +183,7 @@ export class VariableTracker {
    * @param alias The variable's name/alias
    * @param varArray If set, function will search within the specified group of variables (instead of all variables)
    */
-  public findVarByAlias(
+  public findVariableByAlias(
     alias: string,
     varArray?: Variable[]
   ): [number, Variable] {
@@ -232,16 +202,11 @@ export class VariableTracker {
    * @param variable The variable to load into the notebook
    */
   public addVariable(variable: Variable): void {
-    // Save the source of the variable
-    this.variableSources[variable.varID] = variable.sourceName;
-
-    // Save the original name of the variable
-    this.variableAliases[variable.alias] = variable.name;
-
-    // Save the original name of the variable
-    const newAliases: { [varAlias: string]: string } = this.variableAliases;
-    newAliases[variable.alias] = variable.name;
-    this.variableAliases = newAliases;
+    // Save the variable information
+    this.variableInfo[variable.alias] = {
+      name: variable.name,
+      source: variable.sourceName
+    };
 
     let currentVars: Variable[] = this.variables;
 
@@ -251,7 +216,7 @@ export class VariableTracker {
       currentVars.push(variable);
     } else {
       // If there are already variables stored, check if variable exists and replace if so
-      const idx: number = this.findVarByID(variable.varID)[0];
+      const idx: number = this.findVariableByID(variable.varID)[0];
       if (idx >= 0) {
         currentVars[idx] = variable;
       } else {
@@ -276,8 +241,8 @@ export class VariableTracker {
 
     // Exit if name already exists
     if (
-      this.variableAliases &&
-      Object.keys(this.variableAliases).indexOf(newName) >= 0
+      this.variableInfo &&
+      Object.keys(this.variableInfo).indexOf(newName) >= 0
     ) {
       return;
     }
@@ -295,7 +260,7 @@ export class VariableTracker {
     newCopy.units = variable.units;
 
     // Select copy
-    this.selectedVariables.push(newCopy);
+    this.selectedVariables.push(newCopy.varID);
 
     // Add copy to current variables
     this.addVariable(newCopy);
@@ -308,29 +273,21 @@ export class VariableTracker {
    * @param variable The variable to load into the notebook
    */
   public deleteVariable(variable: Variable): void {
-    // Update variable selections
-    const selections: Variable[] = this.selectedVariables;
-    const selectIdx: number = this.findVarByID(variable.varID, selections)[0];
-    if (selectIdx >= 0) {
-      selections.splice(selectIdx, 1);
-    }
-    this.selectedVariables = selections;
+    // Deselect variable
+    this.deselectVariable(variable.varID);
 
-    // Remove the source of the variable
-    const newSource: { [varID: string]: string } = this.variableSources;
-    delete newSource[variable.varID];
-    this.variableSources = newSource;
-
-    // Remove the original name of the variable
-    const newAliases: { [varAlias: string]: string } = this.variableAliases;
-    delete newAliases[variable.alias];
-    this.variableAliases = newAliases;
+    // Remove the variable's information
+    const newVarInfo: {
+      [alias: string]: { name: string; source: string };
+    } = this.variableInfo;
+    delete newVarInfo[variable.alias];
+    this.variableInfo = newVarInfo;
 
     const currentVars: Variable[] = this.variables;
 
     // If variables are in the list, delete variable from variables list
     if (currentVars.length >= 1) {
-      const currentIdx: number = this.findVarByID(variable.varID)[0];
+      const currentIdx: number = this.findVariableByID(variable.varID)[0];
       if (currentIdx >= 0) {
         currentVars.splice(currentIdx, 1);
       }
@@ -345,13 +302,16 @@ export class VariableTracker {
    * @param variable the variable to add to the selected list
    */
   public async selectVariable(
-    variable: Variable,
+    varID: string,
     array?: Variable[]
   ): Promise<void> {
-    if (variable) {
-      const newSelection = this.selectedVariables;
-      newSelection.push(variable);
-      this.selectedVariables = newSelection;
+    if (varID) {
+      // Make sure variable isn't already selected
+      if (this.selectedVariables.indexOf(varID) < 0) {
+        const newSelection = this.selectedVariables;
+        newSelection.push(varID);
+        this.selectedVariables = newSelection;
+      }
     }
   }
 
@@ -360,13 +320,10 @@ export class VariableTracker {
    * @param variable the variable to remove from the selected list
    */
   public async deselectVariable(
-    variable: Variable,
+    varID: string,
     array?: Variable[]
   ): Promise<void> {
-    const idx: number = this.findVarByID(
-      variable.varID,
-      this.selectedVariables
-    )[0];
+    const idx: number = this.selectedVariables.indexOf(varID);
     if (idx >= 0) {
       const newSelection = this.selectedVariables;
       newSelection.splice(idx, 1);
@@ -391,8 +348,8 @@ export class VariableTracker {
     // Save the variable aliases
     NotebookUtilities.setMetaDataNow(
       this.notebookPanel,
-      VARIABLE_ALIASES_KEY,
-      this.variableAliases
+      VARIABLE_INFO_KEY,
+      this.variableInfo
     );
 
     // Save the selected variables inbto  meta data
@@ -407,13 +364,6 @@ export class VariableTracker {
       this.notebookPanel,
       VARIABLES_LOADED_KEY,
       this.variables
-    );
-
-    // Save the variable file sources
-    NotebookUtilities.setMetaDataNow(
-      this.notebookPanel,
-      VARIABLE_SOURCES_KEY,
-      this.variableSources
     );
 
     await NotebookUtilities.saveNotebook(this.notebookPanel);
@@ -443,19 +393,12 @@ export class VariableTracker {
     // Update the variable sources from meta data
     result = await NotebookUtilities.getMetaData(
       this.notebookPanel,
-      VARIABLE_SOURCES_KEY
+      VARIABLE_INFO_KEY
     );
-    this.variableSources = result ? result : {};
-
-    // Update the variable aliases
-    result = await NotebookUtilities.getMetaData(
-      this.notebookPanel,
-      VARIABLE_ALIASES_KEY
-    );
-    this.variableAliases = result ? result : {};
+    this.variableInfo = result ? result : {};
 
     // Load the selected variables from meta data (if exists)
-    const selection: Variable[] = await NotebookUtilities.getMetaData(
+    const selection: any = await NotebookUtilities.getMetaData(
       this.notebookPanel,
       SELECTED_VARIABLES_KEY
     );
@@ -556,11 +499,12 @@ export class VariableTracker {
     }
 
     const newVars = Array<Variable>();
-    let srcName: string;
     Object.keys(notebookVariables).map(async (varAlias: string) => {
       const v: Variable = new Variable();
-      const originalName: string = this.variableAliases[varAlias];
-      v.name = originalName ? originalName : varAlias;
+      const existingInfo: { name: string; source: string } = this.variableInfo[
+        varAlias
+      ];
+      v.name = existingInfo ? existingInfo.name : varAlias;
       v.alias = varAlias;
       v.pythonID = notebookVariables[varAlias].pythonID;
       v.longName = notebookVariables[varAlias].name;
@@ -569,9 +513,8 @@ export class VariableTracker {
       v.units = notebookVariables[varAlias].units;
 
       // Update the data source
-      srcName = this.variableSources[v.varID];
-      if (srcName) {
-        v.sourceName = srcName;
+      v.sourceName = existingInfo ? existingInfo.source : "";
+      if (v.sourceName) {
         if (varGroups[v.sourceName]) {
           varGroups[v.sourceName].push(v);
         } else {
@@ -580,7 +523,6 @@ export class VariableTracker {
           varGroups[v.sourceName].push(v);
         }
       } else {
-        v.sourceName = "";
         derivedVars.push(v);
       }
 

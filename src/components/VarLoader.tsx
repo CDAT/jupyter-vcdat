@@ -85,7 +85,9 @@ export class VarLoader extends React.Component<
   }
 
   public isSelected(varID: string): boolean {
-    return this.props.varTracker.findVarByID(varID, this.selections)[0] >= 0;
+    return (
+      this.props.varTracker.findVariableByID(varID, this.selections)[0] >= 0
+    );
   }
 
   // Loads all the selected variables into the notebook, returns the number loaded
@@ -150,7 +152,7 @@ export class VarLoader extends React.Component<
    * @param variable Remove a variable from the list to be loaded
    */
   public deselectVariableForLoad(variable: Variable): void {
-    const idx: number = this.props.varTracker.findVarByAlias(
+    const idx: number = this.props.varTracker.findVariableByAlias(
       variable.alias,
       this.selections
     )[0];
@@ -196,7 +198,7 @@ export class VarLoader extends React.Component<
         const newVariables = this.state.fileVariables;
         newVariables[varIndex].alias = newName;
         const newSelection = this.selections;
-        const idx: number = this.props.varTracker.findVarByID(
+        const idx: number = this.props.varTracker.findVariableByID(
           varID,
           this.selections
         )[0];
@@ -211,16 +213,12 @@ export class VarLoader extends React.Component<
     );
   }
 
-  public varSelections = (): Variable[] => {
-    return this.selections;
-  };
-
   public varAliasExists(alias: string, varLoaderSelection: boolean) {
     let array: Variable[] = this.props.varTracker.variables;
     if (varLoaderSelection) {
       array = this.selections;
     }
-    return this.props.varTracker.findVarByAlias(alias, array)[0] >= 0;
+    return this.props.varTracker.findVariableByAlias(alias, array)[0] >= 0;
   }
 
   public render(): JSX.Element {
@@ -243,8 +241,6 @@ export class VarLoader extends React.Component<
                   <VarCard
                     renameVariable={this.renameVariable}
                     varAliasExists={this.varAliasExists}
-                    allowReload={false}
-                    varSelections={this.varSelections}
                     varSelectionChanged={this.selectionChanged}
                     updateDimInfo={this.updateDimInfo}
                     isSelected={this.isSelected}

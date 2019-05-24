@@ -17,10 +17,10 @@ import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
   CANVAS_CELL_KEY,
+  CHECK_PLOT_EXIST_CMD,
   CHECK_VCS_CMD,
   IMPORT_CELL_KEY,
   NOTEBOOK_STATE,
-  OUTPUT_RESULT_NAME,
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD
 } from "./constants";
@@ -432,10 +432,10 @@ export class LeftSideBarWidget extends Widget {
       this.usingKernel = true;
       const output: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        `${OUTPUT_RESULT_NAME} = canvas.listelements('display')`
+        CHECK_PLOT_EXIST_CMD
       );
       this.usingKernel = false;
-      return true;
+      return output !== "";
     } catch (error) {
       return false;
     }
@@ -448,7 +448,7 @@ export class LeftSideBarWidget extends Widget {
         this.usingKernel = true;
         const output: string = await NotebookUtilities.sendSimpleKernelRequest(
           this.notebookPanel,
-          `import json\n${OUTPUT_RESULT_NAME} = json.dumps(canvas.listelements('display'))`
+          CHECK_PLOT_EXIST_CMD
         );
         this.usingKernel = false;
         return Utilities.strToArray(output).length > 1;

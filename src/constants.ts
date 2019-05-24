@@ -19,11 +19,8 @@ export const OUTPUT_RESULT_NAME = "_private_vcdat_output";
 export const FILE_PATH_KEY: string = "vcdat_file_path";
 export const IMPORT_CELL_KEY: string = "vcdat_imports";
 export const CANVAS_CELL_KEY: string = "vcdat_canvases";
-export const READER_CELL_KEY: string = "vcdat_readers";
 export const SELECTED_VARIABLES_KEY: string = "selected_variables";
-export const DATA_LIST_KEY: string = "data_variable_file_paths";
-export const VARIABLE_ALIASES_KEY: string = "variable_aliases";
-export const VARIABLE_SOURCES_KEY: string = "variable_source_names";
+export const VARIABLE_INFO_KEY: string = "vcdat_variable_info";
 export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
 export const TEMPLATE_KEY: string = "template_selected";
 export const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
@@ -34,6 +31,14 @@ export const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.widt
 function safe(baseName: string) {
   return `${baseName}_F9FY9AE028RRF982`;
 }
+
+export const CHECK_PLOT_EXIST_CMD: string = `import json\n\
+del ${OUTPUT_RESULT_NAME}\n\
+try:\n\
+  ${OUTPUT_RESULT_NAME} = json.dumps(canvas.listelements('display'))\n\
+except:\n\
+  del ${OUTPUT_RESULT_NAME}\n\
+  pass`;
 
 export const CHECK_VCS_CMD: string = `import __main__\n\
 try:\n\
@@ -46,6 +51,7 @@ except:\n\
 
 export const REFRESH_NAMES_CMD = `import __main__\n\
 import json\n\
+del ${OUTPUT_RESULT_NAME}\n\
 def variables():\n\
 	out = []\n\
 	for nm, obj in __main__.__dict__.items():\n\
