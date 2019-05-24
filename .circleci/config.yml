@@ -1,20 +1,6 @@
 version: 2
 
 aliases:
-  - &setup_miniconda
-    name: setup_miniconda
-    command: |
-      mkdir -p workspace
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda3.sh
-      bash ./miniconda3.sh -b -p $WORKDIR/miniconda
-
-  - &create_conda_env
-    name: create_conda_env
-    command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       conda config --set always_yes yes --set changeps1 no
-       conda update -q conda
-       conda config --set anaconda_upload no
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -128,15 +114,18 @@ aliases:
 jobs:
   linux_jupyter_vcdat_py3:
     docker:
-      - image: circleci/node:jessie-browsers
+      # - image: circleci/node:jessie-browsers
+      - image: muryanto1/jupyter-vcdat:latest
     environment:
-      WORKDIR: "workspace/test_firefox"
+      # WORKDIR: "workspace/test"
+      WORKDIR: "/tmp/jp-vcdat"
       PY_VER: "py3"
     steps:
       - checkout
       - run: which firefox
       - run: which geckodriver
-      - run: *setup_miniconda
+      - run: pwd
+      - run: ls
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 8
