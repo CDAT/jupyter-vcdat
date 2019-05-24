@@ -74,7 +74,6 @@ class SavePlotPopUp(ActionsPage):
                 counter += 1
 
         assert file_exists
-        time.sleep(2)
         print("Plot is exported to: {}".format(filename))
 
     def _click_on_custom_dimensions(self):
@@ -84,7 +83,6 @@ class SavePlotPopUp(ActionsPage):
                                                        "Custom dimensions")
             print("FOUND 'Custom dimensions' selector")
             self.move_to_click(custom_dimension)
-            time.sleep(5)
         except NoSuchElementException as e:
             print("Could not find 'Custom dimensions' selector")
             raise e
@@ -92,7 +90,6 @@ class SavePlotPopUp(ActionsPage):
     def select_custom_dimensions(self):
         try:
             self._click_on_custom_dimensions()
-            time.sleep(1)
         except NoSuchElementException as e:
             print("Could not select 'Custom dimensions'")
             raise e
@@ -158,7 +155,6 @@ class SavePlotPopUp(ActionsPage):
                                                          "Capture Provenance")
             print("FOUND 'Capture Provenance' selector")
             self.move_to_click(capture_provenance)
-            time.sleep(5)
         except NoSuchElementException as e:
             print("Could not find 'Capture Provenance' selector")
             raise e
@@ -166,7 +162,6 @@ class SavePlotPopUp(ActionsPage):
     def select_capture_provenance(self):
         try:
             self._click_on_capture_provenance()
-            time.sleep(1)
         except NoSuchElementException as e:
             print("Could not select 'Capture Provenance'")
             raise e
