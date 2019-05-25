@@ -84,7 +84,7 @@ class SavePlotPopUp(ActionsPage):
                                                        "Custom dimensions")
             print("FOUND 'Custom dimensions' selector")
             self.move_to_click(custom_dimension)
-            time.sleep(3)
+            time.sleep(5)
         except NoSuchElementException as e:
             print("Could not find 'Custom dimensions' selector")
             raise e
@@ -158,7 +158,7 @@ class SavePlotPopUp(ActionsPage):
                                                          "Capture Provenance")
             print("FOUND 'Capture Provenance' selector")
             self.move_to_click(capture_provenance)
-            time.sleep(3)
+            time.sleep(5)
         except NoSuchElementException as e:
             print("Could not find 'Capture Provenance' selector")
             raise e
