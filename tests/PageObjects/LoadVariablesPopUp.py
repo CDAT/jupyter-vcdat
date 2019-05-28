@@ -122,7 +122,8 @@ class LoadVariablesPopUp(ActionsPage):
         locator = "//button[contains(@class, '{}')]".format(self._load_button_class)
         try:
             load_button = self.find_element_by_xpath(locator, "'Load' button")
-            self.move_to_click(load_button)
+            self.scroll_click(load_button)
+            # self.move_to_click(load_button)
             # REVISIT -- add checking instead of sleep
             time.sleep(2)
         except NoSuchElementException as e:
