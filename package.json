@@ -35,8 +35,8 @@
     "lint": "npx tslint 'src/**/*.{ts,tsx}'",
     "lint-file": "npx tslint ",
     "lint-fix-file": "npx tslint --fix ",
-    "prettier-all": "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
     "format": "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
+    "update-tags": "python update_tags.py --source src/**/*.tsx --suffix vcdat",
     "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
   },
   "lint-staged": {

@@ -8,11 +8,11 @@ from selenium.common.exceptions import NoSuchElementException
 
 class LoadVariablesPopUp(ActionsPage):
 
-    _var_loader_main_class = "varloader-main-vcdat"
+    _var_loader_items_class = "var-loader-items-vcdat"
     _var_button_class = "varcard-name-btn-vcdat"
     _var_axes_class = "varcard-axes-btn-vcdat"
 
-    _load_button_class = "varloader-load-btn-vcdat"
+    _load_button_class = "var-loader-load-btn-vcdat"
 
     def __init__(self, driver, server):
         super(LoadVariablesPopUp, self).__init__(driver, server)
@@ -53,7 +53,7 @@ class LoadVariablesPopUp(ActionsPage):
         '''
         locates the rows for variables, and return the elements.
         '''
-        rows_locator = "//div[contains(@class, '{}')]/div".format(self._var_loader_main_class)
+        rows_locator = "//div[contains(@class, '{}')]/div".format(self._var_loader_items_class)
         print("xxx xxx rows_locator: {}".format(rows_locator))
         try:
             rows = self.find_elements_by_xpath(rows_locator, 'variable rows')
@@ -122,7 +122,8 @@ class LoadVariablesPopUp(ActionsPage):
         locator = "//button[contains(@class, '{}')]".format(self._load_button_class)
         try:
             load_button = self.find_element_by_xpath(locator, "'Load' button")
-            self.move_to_click(load_button)
+            self.scroll_click(load_button)
+            # self.move_to_click(load_button)
             # REVISIT -- add checking instead of sleep
             time.sleep(2)
         except NoSuchElementException as e:
