@@ -94,7 +94,8 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
 
   public updateSelections() {
     this.setState({
-      selected: this.props.isSelected(this.state.variable.varID)
+      selected: this.props.isSelected(this.state.variable.varID),
+      variable: this.props.variable
     });
   }
 

@@ -152,6 +152,9 @@ export class VariableTracker {
       this._notebookPanel = notebookPanel;
       // Load any relevant meta data from new notebook
       await this.loadMetaData();
+
+      // Refresh the notebook
+      await this.refreshVariables();
     } else {
       this.resetVarTracker();
     }
@@ -228,12 +231,17 @@ export class VariableTracker {
   }
 
   /**
-   * Creates a copy of the variable, gives it a new name and adds it to varTracker
+   * Creates a copy of the variable, gives it a new name and returns the variable
    * @param variable - Variable: The original variable to copy
    * @param newName - string: The new name for the variable
+   * @param addVar - boolean: Whether the copy should be added to the varTracker
    * @returns - Variable: The newly created variable
    */
-  public copyVariable(variable: Variable, newName: string): Variable {
+  public copyVariable(
+    variable: Variable,
+    newName: string,
+    addVar: boolean
+  ): Variable {
     // Exit if variable is not defined, new name is same as current alias or blank
     if (!variable || !newName || variable.alias === newName) {
       return;
@@ -263,7 +271,9 @@ export class VariableTracker {
     this.selectedVariables.push(newCopy.varID);
 
     // Add copy to current variables
-    this.addVariable(newCopy);
+    if (addVar) {
+      this.addVariable(newCopy);
+    }
 
     return newCopy;
   }

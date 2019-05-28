@@ -99,17 +99,20 @@ export default class VarMenu extends React.Component<
    * @description toggles the varLoaders menu
    */
   public async launchVarLoader(fileVariables: Variable[]): Promise<void> {
+    // Reset the varloader
+    await this.varLoaderRef.reset();
     // Update state to show launcher with variables
     this.varLoaderRef.setState({
-      fileVariables,
       show: true
     });
+    this.varLoaderRef.updateFileVars(fileVariables);
   }
 
   public async copyVariable(variable: Variable, newName: string) {
     const copy: Variable = this.props.varTracker.copyVariable(
       variable,
-      newName
+      newName,
+      true
     );
     if (copy) {
       this.props.varTracker.selectedVariables = [variable.varID];
