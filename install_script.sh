@@ -38,11 +38,6 @@ while [ "$1" != "" ]; do
     shift
 done
 
-pwd=`pwd`
-echo "XXX pwd: ${pwd}"
-ls=`ls`
-echo "XXX ls: ${ls}"
-
 echo "Installing jupyter-vcdat extension"
 echo "Output will be redirected to $filename (you can control the filename with -f option)"
 # Redirect to logfile and possibly screen if verbose
@@ -92,8 +87,6 @@ trap 'handle_error $LINENO ${BASH_LINENO[@]}' ERR
 
 CONDA_EXE="$(which conda)"
 if [ ${CONDA_DEFAULT_ENV:-"NA"} != "jupyter-vcdat" ]; then
-  echo "XXX SHOULD NOT BE HERE...inside if"
-  echo "CONDA_DEFAULT_ENV: ${CONDA_DEFAULT_ENV}"
 
   $CONDA_EXE update --all -y -n base
   $CONDA_EXE create -y -n jupyter-vcdat -c cdat/label/v81 -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum jupyterhub libnetcdf=4.6.2
