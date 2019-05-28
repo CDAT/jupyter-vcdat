@@ -85,11 +85,10 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       deflateValue: 0,
       filename: "",
       newVariableName: "",
-      showAxis: false,
-      showSaveModal: false,
-      validateFileName: false
       selected: props.selected,
       showAxis: false,
+      showSaveModal: false,
+      validateFileName: false,
       variable: this.props.variable
     };
     this.openMenu = this.openMenu.bind(this);
