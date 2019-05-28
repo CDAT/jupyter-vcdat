@@ -17,10 +17,10 @@ import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
   CANVAS_CELL_KEY,
+  CHECK_PLOT_EXIST_CMD,
   CHECK_VCS_CMD,
   IMPORT_CELL_KEY,
   NOTEBOOK_STATE,
-  OUTPUT_RESULT_NAME,
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD
 } from "./constants";
@@ -245,20 +245,24 @@ export class LeftSideBarWidget extends Widget {
             IMPORT_CELL_KEY
           );
           if (idx >= 0) {
-            CellUtilities.runCellAtIndex(
+            await CellUtilities.runCellAtIndex(
               this.commands,
               this._notebookPanel,
               idx
             );
+            // select next cell
             this.notebookPanel.content.activeCellIndex = idx + 1;
-          } else {
-            // Select the next cell
-            this.notebookPanel.content.activeCellIndex =
-              this.notebookPanel.content.model.cells.length - 1;
             // Update kernel list to identify this kernel is ready
             this.kernels.push(this.notebookPanel.session.kernel.id);
             // Update state
             this.state = NOTEBOOK_STATE.VCS_Ready;
+          } else {
+            this.state = NOTEBOOK_STATE.ActiveNotebook;
+            // Leave notebook alone if its not vcs ready, refresh var list for UI
+            await this.varTracker.refreshVariables();
+            this.varTracker.currentFile = "";
+            this.setPlotExists(false);
+            return;
           }
         }
 
@@ -428,10 +432,10 @@ export class LeftSideBarWidget extends Widget {
       this.usingKernel = true;
       const output: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        `${OUTPUT_RESULT_NAME} = canvas.listelements('display')`
+        CHECK_PLOT_EXIST_CMD
       );
       this.usingKernel = false;
-      return true;
+      return output !== "";
     } catch (error) {
       return false;
     }
@@ -444,7 +448,7 @@ export class LeftSideBarWidget extends Widget {
         this.usingKernel = true;
         const output: string = await NotebookUtilities.sendSimpleKernelRequest(
           this.notebookPanel,
-          `import json\n${OUTPUT_RESULT_NAME} = json.dumps(canvas.listelements('display'))`
+          CHECK_PLOT_EXIST_CMD
         );
         this.usingKernel = false;
         return Utilities.strToArray(output).length > 1;
@@ -589,12 +593,6 @@ export class LeftSideBarWidget extends Widget {
       } else {
         this.varTracker.currentFile = "";
       }
-
-      // Inject the data file(s)
-      currentIdx = await this.codeInjector.injectDataReaders(
-        currentIdx + 1,
-        currentFile
-      );
 
       // Inject canvas(es)
       currentIdx = await this.codeInjector.injectCanvasCode(currentIdx + 1);

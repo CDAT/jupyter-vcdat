@@ -40,7 +40,7 @@ interface IVarMenuProps {
 interface IVarMenuState {
   modalOpen: boolean; // Whether a modal is currently open
   variables: Variable[]; // all variables for list (derived and loaded)
-  selectedVariables: Variable[]; // the names of the variables the user has selected
+  selectedVariables: string[]; // the names of the variables the user has selected
 }
 
 export default class VarMenu extends React.Component<
@@ -84,13 +84,8 @@ export default class VarMenu extends React.Component<
     );
   }
 
-  public isSelected(variable: Variable): boolean {
-    return (
-      this.props.varTracker.findVarByID(
-        variable.varID,
-        this.state.selectedVariables
-      )[0] >= 0
-    );
+  public isSelected(varID: string): boolean {
+    return this.state.selectedVariables.indexOf(varID) >= 0;
   }
 
   /**
@@ -117,14 +112,14 @@ export default class VarMenu extends React.Component<
       newName
     );
     if (copy) {
-      this.props.varTracker.selectedVariables = [variable];
+      this.props.varTracker.selectedVariables = [variable.varID];
       await this.props.codeInjector.loadVariable(copy);
     }
   }
 
   public async reloadVariable(variable: Variable): Promise<void> {
     await this.props.codeInjector.loadVariable(variable);
-    this.props.varTracker.selectedVariables = [variable];
+    this.props.varTracker.selectedVariables = [variable.varID];
     await this.props.varTracker.saveMetaData();
   }
 
@@ -132,12 +127,7 @@ export default class VarMenu extends React.Component<
     if (this.state.selectedVariables.length === 0) {
       return -1;
     }
-    return (
-      this.props.varTracker.findVarByID(
-        varID,
-        this.state.selectedVariables
-      )[0] + 1
-    );
+    return this.state.selectedVariables.indexOf(varID) + 1;
   }
 
   public setModalState(newState: boolean): void {
@@ -201,10 +191,10 @@ export default class VarMenu extends React.Component<
                     if (this.state.modalOpen) {
                       return;
                     }
-                    if (this.isSelected(item)) {
-                      this.props.varTracker.deselectVariable(item);
+                    if (this.isSelected(item.varID)) {
+                      this.props.varTracker.deselectVariable(item.varID);
                     } else {
-                      this.props.varTracker.selectVariable(item);
+                      this.props.varTracker.selectVariable(item.varID);
                     }
                   };
                   return (
@@ -214,11 +204,15 @@ export default class VarMenu extends React.Component<
                     >
                       <VarMini
                         modalOpen={this.setModalState}
+                        varSelectionChanged={
+                          this.props.varTracker.selectedVariablesChanged
+                        }
                         reload={reloadItem}
                         copyVariable={this.copyVariable}
                         deleteVariable={this.props.codeInjector.deleteVariable}
                         buttonColor={colors[this.getOrder(item.varID) - 1]}
                         allowReload={true}
+                        selected={this.isSelected(item.varID)}
                         isSelected={this.isSelected}
                         selectOrder={this.getOrder(item.varID)}
                         updateDimInfo={this.props.varTracker.updateDimInfo}
@@ -242,9 +236,9 @@ export default class VarMenu extends React.Component<
 
   private handleSelectionChanged(
     varTracker: VariableTracker,
-    newVariables: Variable[]
+    newSelection: string[]
   ): void {
-    this.setState({ selectedVariables: newVariables });
+    this.setState({ selectedVariables: newSelection });
   }
 
   private handleVariablesChanged(

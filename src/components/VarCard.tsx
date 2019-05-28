@@ -39,7 +39,6 @@ const forbidden: RegExp = /^[^a-z_]|[^a-z0-9_]+/i;
 
 interface IVarCardProps {
   variable: Variable;
-  varSelections: () => Variable[];
   varSelectionChanged: ISignal<VarLoader, Variable[]>;
   varAliasExists: (varAlias: string, varLoaderSelection: boolean) => boolean; // Method that returns true if specified variable name is already taken
   selectVariable: (variable: Variable) => void; // method to call to add this variable to the list to get loaded
@@ -47,17 +46,14 @@ interface IVarCardProps {
   updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
   renameVariable: (newName: string, varID: string) => void; // Method that updates a variable's name before it's loaded
   isSelected: (varAlias: string) => boolean; // method to check if this variable is selected in parent
-  allowReload: boolean;
   selected: boolean; // should the axis be hidden by default
 }
 interface IVarCardState {
   variable: Variable;
   nameValue: string;
   showAxis: boolean;
-  loadOrder: number;
   axisState: any;
   selected: boolean;
-  isChanged: boolean;
   nameState: NAME_STATUS;
 }
 
@@ -72,8 +68,6 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
     super(props);
     this.state = {
       axisState: [],
-      isChanged: false,
-      loadOrder: -1,
       nameState: "Rename",
       nameValue: "",
       selected: props.selected,
@@ -81,8 +75,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
       variable: this.props.variable
     };
     this.openMenu = this.openMenu.bind(this);
-    this.selectVariable = this.selectVariable.bind(this);
-    this.updateDimInfo = this.updateDimInfo.bind(this);
+    this.clickVariable = this.clickVariable.bind(this);
     this.handleAxesClick = this.handleAxesClick.bind(this);
     this.handleWarningsClick = this.handleWarningsClick.bind(this);
     this.handleNameInput = this.handleNameInput.bind(this);
@@ -108,22 +101,20 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
   /**
    * @description sets the isSelected attribute, and propagates up the selection action to the parent
    */
-  public selectVariable(): void {
-    if (this.props.isSelected(this.state.variable.varID)) {
-      this.setState({
-        nameState: "Rename",
-        nameValue: "",
-        selected: false
-      });
+  public clickVariable(): void {
+    const isSelected: boolean = this.props.isSelected(
+      this.state.variable.varID
+    );
+    if (isSelected) {
       this.props.deselectVariable(this.state.variable);
     } else {
-      this.setState({
-        nameState: "Rename",
-        nameValue: "",
-        selected: true
-      });
       this.props.selectVariable(this.state.variable);
     }
+    this.setState({
+      nameState: "Rename",
+      nameValue: "",
+      selected: !isSelected
+    });
   }
 
   /**
@@ -135,15 +126,6 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
         showAxis: true
       });
     }
-  }
-
-  public updateDimInfo(newInfo: any, varID: string): void {
-    if (this.props.allowReload) {
-      this.setState({
-        isChanged: true
-      });
-    }
-    this.props.updateDimInfo(newInfo, varID);
   }
 
   public render(): JSX.Element {
@@ -172,7 +154,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                       }
                       outline={true}
                       color={"success"}
-                      onClick={this.selectVariable}
+                      onClick={this.clickVariable}
                       active={this.state.selected}
                       style={buttonsStyle}
                     >
@@ -248,11 +230,11 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                 </Card>
               )}
               {this.state.showAxis &&
-                this.props.variable.axisInfo.map((item: AxisInfo) => {
+                this.state.variable.axisInfo.map((item: AxisInfo) => {
                   if (!item.data || item.data.length <= 1) {
                     return;
                   }
-                  item.updateDimInfo = this.updateDimInfo;
+                  item.updateDimInfo = this.props.updateDimInfo;
                   return (
                     <div key={item.name} style={axisStyle}>
                       <Card>

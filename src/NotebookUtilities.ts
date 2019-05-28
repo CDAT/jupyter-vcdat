@@ -262,7 +262,10 @@ export class NotebookUtilities {
     const content: any = message.content;
 
     if (content.status !== "ok") {
-      throw content; // If response is not 'ok', throw response contents as error
+      // If response is not 'ok', throw contents as error, log code
+      const msg: string = `Code caused an error:\n${runCode}`;
+      console.error(msg);
+      throw content;
     }
     // Return user_expressions of the content
     return content.user_expressions;
