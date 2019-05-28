@@ -271,7 +271,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
             style={axisStyle}
             onClick={this.handleSaveClick}
           >
-            save variable
+            save
           </Button>
           {this.props.isSelected(this.props.variable) && (
             <Badge
