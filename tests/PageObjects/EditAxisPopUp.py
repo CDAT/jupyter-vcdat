@@ -1,3 +1,5 @@
+import time
+
 from ActionsPage import ActionsPage
 from EditAxis import EditAxis
 
@@ -30,7 +32,7 @@ class EditAxisPopUp(ActionsPage):
             update_button = self.find_element_by_class(update_class,
                                                        "'Update' button on 'Edit Axis' pop up")
             self.move_to_click(update_button)
-
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             print("FAIL...EditAxisPopUp.click_on_update")
             raise e
