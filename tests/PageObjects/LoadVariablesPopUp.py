@@ -8,7 +8,7 @@ from selenium.common.exceptions import NoSuchElementException
 
 class LoadVariablesPopUp(ActionsPage):
 
-    _var_loader_main_class = "var-loader-modal-vcdat"
+    _var_loader_items_class = "var-loader-items-vcdat"
     _var_button_class = "varcard-name-btn-vcdat"
     _var_axes_class = "varcard-axes-btn-vcdat"
 
@@ -53,7 +53,7 @@ class LoadVariablesPopUp(ActionsPage):
         '''
         locates the rows for variables, and return the elements.
         '''
-        rows_locator = "//div[contains(@class, '{}')]/div".format(self._var_loader_main_class)
+        rows_locator = "//div[contains(@class, '{}')]/div".format(self._var_loader_items_class)
         print("xxx xxx rows_locator: {}".format(rows_locator))
         try:
             rows = self.find_elements_by_xpath(rows_locator, 'variable rows')
