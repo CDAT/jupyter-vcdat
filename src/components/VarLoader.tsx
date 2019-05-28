@@ -213,7 +213,7 @@ export class VarLoader extends React.Component<
     );
   }
 
-  public varAliasExists(alias: string, varLoaderSelection: boolean) {
+  public varAliasExists(alias: string, varLoaderSelection: boolean): boolean {
     let array: Variable[] = this.props.varTracker.variables;
     if (varLoaderSelection) {
       array = this.selections;

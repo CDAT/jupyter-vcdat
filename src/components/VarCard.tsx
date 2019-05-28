@@ -79,7 +79,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
     this.handleAxesClick = this.handleAxesClick.bind(this);
     this.handleWarningsClick = this.handleWarningsClick.bind(this);
     this.handleNameInput = this.handleNameInput.bind(this);
-    this.handleEnterClick = this.handleEnterClick.bind(this);
+    this.handleRenameClick = this.handleRenameClick.bind(this);
     this.updateSelections = this.updateSelections.bind(this);
     this.validateNameInput = this.validateNameInput.bind(this);
   }
@@ -218,7 +218,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                       <InputGroupAddon addonType="append">
                         <Button
                           className="float-right"
-                          onClick={this.handleEnterClick}
+                          onClick={this.handleRenameClick}
                           color={nameStateColor}
                           disabled={this.state.nameState === "Invalid!"}
                         >
@@ -284,7 +284,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
     this.setState({ nameValue: nameEntry });
   }
 
-  private async handleEnterClick(): Promise<void> {
+  private async handleRenameClick(): Promise<void> {
     const state: string = this.state.nameState;
 
     // Reset if name isn't being changed
@@ -292,7 +292,7 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
       this.setState({ nameValue: "", nameState: "Rename" });
       return;
     }
-    if (state === "") {
+    if (this.state.nameValue === "") {
       await NotebookUtilities.showMessage(
         "Notice",
         "Please enter the new name for the variable.",

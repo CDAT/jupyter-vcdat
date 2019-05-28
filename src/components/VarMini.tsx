@@ -14,7 +14,9 @@ import {
   Modal,
   ModalBody,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
+  InputGroup,
+  InputGroupAddon
 } from "reactstrap";
 
 // Project Components
@@ -40,6 +42,9 @@ const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
   overflow: "auto"
 };
+
+// Regex filter for unallowed variable names
+const forbidden: RegExp = /^[^a-z_]|[^a-z0-9_]+/i;
 
 interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
@@ -67,13 +72,18 @@ interface IVarMiniState {
   activateDeflate: boolean;
   deflateValue: number;
   filename: string;
-  newVariableName: string;
+  nameState: NAME_STATUS;
+  nameValue: string;
+  newVariableSaveName: string;
+  selected: boolean;
   showAxis: boolean; // should the edit axis modal be shown
   showSaveModal: boolean;
   validateFileName: boolean;
-  selected: boolean;
   variable: Variable;
+  editedVariable: Variable;
 }
+
+export type NAME_STATUS = "Invalid!" | "Valid";
 
 export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   constructor(props: IVarMiniProps) {
@@ -84,12 +94,15 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       activateShuffle: false,
       deflateValue: 0,
       filename: "",
-      newVariableName: "",
+      nameState: "Valid",
+      nameValue: this.props.variable.alias,
+      newVariableSaveName: "",
       selected: props.selected,
       showAxis: false,
       showSaveModal: false,
       validateFileName: false,
-      variable: this.props.variable
+      variable: this.props.variable,
+      editedVariable: new Variable()
     };
     this.openMenu = this.openMenu.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
@@ -108,6 +121,9 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.save = this.save.bind(this);
     this.dismissFilenameValidation = this.dismissFilenameValidation.bind(this);
     this.updateSelections = this.updateSelections.bind(this);
+    this.handleNameInput = this.handleNameInput.bind(this);
+    //this.handleRenameClick = this.handleRenameClick.bind(this);
+    this.validateNameInput = this.validateNameInput.bind(this);
   }
 
   public componentDidMount(): void {
@@ -203,7 +219,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   }
 
   public updateNewVariableName(event: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ newVariableName: event.target.value });
+    this.setState({ newVariableSaveName: event.target.value });
   }
 
   public dismissFilenameValidation() {
@@ -222,7 +238,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     await this.props.codeInjector.saveNetCDFFile(
       this.state.filename,
       this.props.variable.name,
-      this.state.newVariableName,
+      this.state.newVariableSaveName,
       this.state.activateAppend,
       this.state.activateShuffle,
       this.state.activateDeflate,
@@ -258,6 +274,12 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
   }
 
   public render(): JSX.Element {
+    // Set the input color
+    let nameStateColor = "success";
+    if (this.state.nameState === "Invalid!") {
+      nameStateColor = "danger";
+    }
+
     return (
       <div>
         <div
@@ -313,13 +335,33 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
           toggle={this.toggleModal}
           size="lg"
         >
-          <ModalHeader toggle={this.toggleModal}>Edit Axis</ModalHeader>
+          <ModalHeader toggle={this.toggleModal}>
+            Edit Variable: {this.state.editedVariable.alias}
+          </ModalHeader>
           <ModalBody
             className={/*@tag<varmini-edit-modal>*/ "varmini-edit-modal-vcdat"}
           >
+            <Card>
+              <CardBody>
+                <InputGroup style={{ marginTop: "5px" }}>
+                  <InputGroupAddon addonType="prepend">
+                    Rename Variable:
+                  </InputGroupAddon>
+                  <Input
+                    onChange={this.handleNameInput}
+                    //className="float-left"
+                    value={this.state.nameValue}
+                    placeholder="Enter new name here."
+                  />
+                  <InputGroupAddon color={nameStateColor} addonType="append">
+                    {this.state.nameState}
+                  </InputGroupAddon>
+                </InputGroup>
+              </CardBody>
+            </Card>
             {this.state.showAxis &&
-              this.state.variable.axisInfo.length > 0 &&
-              this.state.variable.axisInfo.map((item: AxisInfo) => {
+              this.state.editedVariable.axisInfo.length > 0 &&
+              this.state.editedVariable.axisInfo.map((item: AxisInfo) => {
                 if (!item.data || item.data.length <= 1) {
                   return;
                 }
@@ -330,7 +372,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
                       <CardBody>
                         <DimensionSlider
                           {...item}
-                          varID={this.state.variable.varID}
+                          varID={this.state.editedVariable.varID}
                         />
                       </CardBody>
                     </Card>
@@ -387,7 +429,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
               type="text"
               name="text"
               placeholder={this.props.variable.name}
-              value={this.state.newVariableName}
+              value={this.state.newVariableSaveName}
               onChange={this.updateNewVariableName}
             />
             <br />
@@ -471,7 +513,8 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
     }
   }
 
-  private handleUpdateClick(): void {
+  private async handleUpdateClick(): Promise<void> {
+    await this.setState({ variable: this.state.editedVariable });
     this.toggleModal();
     this.props.reload();
   }
@@ -481,5 +524,65 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
   ): void {
     this.toggleSaveModal();
     clickEvent.stopPropagation();
+  }
+
+  private validateNameInput(nameEntry: string): void {
+    if (nameEntry === this.state.variable.alias) {
+      this.setState({ nameState: "Valid" });
+      return;
+    }
+
+    const invalid: boolean = forbidden.test(nameEntry);
+    let state: NAME_STATUS = "Valid";
+    if (nameEntry === "" || invalid) {
+      state = "Invalid!";
+      this.setState({ nameState: state });
+    } else {
+      const updatedVariable: Variable = this.state.editedVariable;
+      updatedVariable.alias = this.state.nameValue;
+      this.setState({ nameState: state, editedVariable: updatedVariable });
+    }
+  }
+
+  /*private async handleRenameClick(): Promise<void> {
+    const state: string = this.state.nameState;
+
+    // Reset if name isn't being changed
+    if (this.state.nameValue === this.state.variable.alias) {
+      this.setState({ nameValue: "", nameState: "Valid" });
+      return;
+    }
+    if (this.state.nameValue === "") {
+      await NotebookUtilities.showMessage(
+        "Notice",
+        "Please enter the new name for the variable.",
+        "OK"
+      );
+      this.setState({ nameState: "Invalid!" });
+      return;
+    }
+    if (state === "Invalid!") {
+      await NotebookUtilities.showMessage(
+        "Notice",
+        "The name you entered has invalid characters.",
+        "Dismiss"
+      );
+      return;
+    }
+
+    // All checks and warnings done, create variable copy and del old variable;
+    const updatedVariable: Variable = this.state.editedVariable;
+    updatedVariable.alias = this.state.nameValue;
+    this.setState({
+      nameState: "Valid",
+      nameValue: this.state.nameValue,
+      editedVariable: updatedVariable
+    });
+  }*/
+
+  private handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
+    const nameEntry: string = event.target.value;
+    this.validateNameInput(nameEntry);
+    this.setState({ nameValue: nameEntry });
   }
 }
