@@ -8,11 +8,11 @@ from selenium.common.exceptions import NoSuchElementException
 
 class LoadVariablesPopUp(ActionsPage):
 
-    _var_loader_main_class = "varloader-main-vcdat"
+    _var_loader_main_class = "var-loader-modal-vcdat"
     _var_button_class = "varcard-name-btn-vcdat"
     _var_axes_class = "varcard-axes-btn-vcdat"
 
-    _load_button_class = "varloader-load-btn-vcdat"
+    _load_button_class = "var-loader-load-btn-vcdat"
 
     def __init__(self, driver, server):
         super(LoadVariablesPopUp, self).__init__(driver, server)

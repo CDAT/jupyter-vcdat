@@ -296,14 +296,11 @@ export class VarLoader extends React.Component<
   public render(): JSX.Element {
     return (
       <div>
-        <Modal
-          className={/*@tag<var-loader-modal>*/ "var-loader-modal-vcdat"}
-          isOpen={this.state.show}
-          toggle={this.toggle}
-          size="lg"
-        >
+        <Modal isOpen={this.state.show} toggle={this.toggle} size="lg">
           <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
-          <ModalBody>
+          <ModalBody
+            className={/*@tag<var-loader-modal>*/ "var-loader-modal-vcdat"}
+          >
             <div
               style={noScroll}
               className={/*@tag<var-loader-search>*/ "var-loader-search-vcdat"}
