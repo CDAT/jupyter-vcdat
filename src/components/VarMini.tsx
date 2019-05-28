@@ -16,6 +16,8 @@ import { Utilities } from "../Utilities";
 import { AxisInfo } from "./AxisInfo";
 import { DimensionSlider } from "./DimensionSlider";
 import { Variable } from "./Variable";
+import { ISignal } from "@phosphor/signaling";
+import { VariableTracker } from "../VariableTracker";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
@@ -25,37 +27,55 @@ const badgeStyle: React.CSSProperties = {
   marginLeft: "0.5em"
 };
 
-const modalOverflow: React.CSSProperties = {
-  maxHeight: "70vh",
-  overflow: "auto"
-};
-
 interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
   variable: Variable; // the variable this component will show
-  updateDimInfo: (newInfo: any, varName: string) => Promise<void>; // method passed by the parent to update their copy of the variables dimension info
-  isSelected: (varName: string) => boolean; // method to check if this variable is selected in parent
+  varSelectionChanged: ISignal<VariableTracker, string[]>;
+  updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
+  isSelected: (alias: string) => boolean; // method to check if this variable is selected in parent
+  selected: boolean; // should the axis be hidden by default
+  copyVariable: (variable: Variable, newName: string) => Promise<void>;
+  deleteVariable: (variable: Variable) => Promise<void>;
+  modalOpen: (isOpen: boolean) => void;
   selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
   reload: () => void; // a function to reload the variable
 }
 interface IVarMiniState {
   showAxis: boolean; // should the edit axis modal be shown
+  selected: boolean;
+  variable: Variable;
 }
 
 export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
-  public varName: string;
   constructor(props: IVarMiniProps) {
     super(props);
     this.state = {
-      showAxis: false
+      selected: props.selected,
+      showAxis: false,
+      variable: this.props.variable
     };
-    this.varName = this.props.variable.name;
     this.openMenu = this.openMenu.bind(this);
-    this.updateDimInfo = this.updateDimInfo.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleUpdateClick = this.handleUpdateClick.bind(this);
+    this.handleCopyClick = this.handleCopyClick.bind(this);
+    this.updateSelections = this.updateSelections.bind(this);
+  }
+
+  public componentDidMount(): void {
+    this.props.varSelectionChanged.connect(this.updateSelections);
+  }
+
+  public componentWillUnmount(): void {
+    this.props.varSelectionChanged.disconnect(this.updateSelections);
+  }
+
+  public updateSelections() {
+    this.setState({
+      selected: this.props.isSelected(this.state.variable.varID)
+    });
   }
 
   /**
@@ -69,14 +89,11 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     }
   }
 
-  public updateDimInfo(newInfo: any, varName: string): void {
-    this.props.updateDimInfo(newInfo, varName);
-  }
-
   /**
    * @description Toggles the variable loader modal
    */
   public toggleModal(): void {
+    this.props.modalOpen(!this.state.showAxis);
     this.setState({
       showAxis: !this.state.showAxis
     });
@@ -85,32 +102,37 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   public render(): JSX.Element {
     return (
       <div>
-        <div className="clearfix">
+        <div
+          className={
+            /*@tag<clearfix varmini-main>*/ "clearfix varmini-main-vcdat"
+          }
+        >
           <Button
+            className={/*@tag<varmini-name-btn>*/ "varmini-name-btn-vcdat"}
             outline={true}
             color={"success"}
             style={{ backgroundColor: this.props.buttonColor }}
-            active={this.props.isSelected(this.varName)}
+            active={this.props.isSelected(this.state.variable.varID)}
           >
-            {this.props.variable.name}
+            {this.state.variable.alias}
           </Button>
           <Button
+            className={/*@tag<varmini-edit-btn>*/ "varmini-edit-btn-vcdat"}
             outline={true}
             style={axisStyle}
             title={
-              this.props.variable.sourceName === ""
+              this.state.variable.sourceName === ""
                 ? "Editing of modified variables disabled for now."
                 : ""
             }
-            disabled={this.props.variable.sourceName === ""}
-            color={this.props.variable.sourceName === "" ? "dark" : "danger"}
+            color={"danger"}
             onClick={this.handleEditClick}
           >
             edit
           </Button>
-          {this.props.isSelected(this.varName) && (
+          {this.props.isSelected(this.state.variable.varID) && (
             <Badge
-              className="float-right"
+              className={"float-right"}
               style={{
                 ...badgeStyle,
                 ...{ backgroundColor: this.props.buttonColor }
@@ -121,25 +143,30 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
           )}
         </div>
         <Modal
-          id="var-loader-modal"
+          className={"var-loader-modal"}
           isOpen={this.state.showAxis}
           toggle={this.toggleModal}
           size="lg"
         >
           <ModalHeader toggle={this.toggleModal}>Edit Axis</ModalHeader>
-          <ModalBody style={modalOverflow}>
+          <ModalBody
+            className={/*@tag<varmini-edit-modal>*/ "varmini-edit-modal-vcdat"}
+          >
             {this.state.showAxis &&
-              this.props.variable.axisInfo.length > 0 &&
-              this.props.variable.axisInfo.map((item: AxisInfo) => {
+              this.state.variable.axisInfo.length > 0 &&
+              this.state.variable.axisInfo.map((item: AxisInfo) => {
                 if (!item.data || item.data.length <= 1) {
                   return;
                 }
-                item.updateDimInfo = this.updateDimInfo;
+                item.updateDimInfo = this.props.updateDimInfo;
                 return (
                   <div key={item.name} style={axisStyle}>
                     <Card>
                       <CardBody>
-                        <DimensionSlider {...item} varName={this.varName} />
+                        <DimensionSlider
+                          {...item}
+                          varID={this.state.variable.varID}
+                        />
                       </CardBody>
                     </Card>
                   </div>
@@ -147,7 +174,13 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
               })}
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={this.handleUpdateClick}>
+            <Button
+              className={
+                /*@tag<varmini-update-btn>*/ "varmini-update-btn-vcdat"
+              }
+              color="primary"
+              onClick={this.handleUpdateClick}
+            >
               Update
             </Button>
           </ModalFooter>
@@ -156,13 +189,31 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     );
   }
 
+  private async handleCopyClick(
+    clickEvent: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> {
+    clickEvent.stopPropagation();
+    await this.props.copyVariable(this.state.variable, "Test");
+  }
+
+  private async handleDeleteClick(
+    clickEvent: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> {
+    clickEvent.stopPropagation();
+    await this.props.deleteVariable(this.state.variable);
+  }
+
   private handleEditClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): void {
-    this.setState({
-      showAxis: !this.state.showAxis
-    });
     clickEvent.stopPropagation();
+    if (this.state.variable.axisInfo.length > 0) {
+      this.setState({ showAxis: true });
+      this.props.modalOpen(true);
+    } else {
+      this.setState({ showAxis: false });
+      this.props.modalOpen(false);
+    }
   }
 
   private handleUpdateClick(): void {

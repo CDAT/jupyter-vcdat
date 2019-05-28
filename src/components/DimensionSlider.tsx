@@ -39,7 +39,7 @@ const centered: React.CSSProperties = {
 };
 
 interface IDimensionSliderProps {
-  varName: string; // the name of the variable this axis belongs to
+  varID: string; // the name of the variable this axis belongs to
   min: number;
   max: number;
   data: number[]; // the raw axis data
@@ -50,7 +50,7 @@ interface IDimensionSliderProps {
   shape: number[]; // the shape of the axis
   units: string; // the units of the axis
   // method to be called updating the parent when the slider values change
-  updateDimInfo: (newInfo: any, varName: string) => Promise<void>;
+  updateDimInfo: (newInfo: any, varID: string) => Promise<void>;
 }
 
 interface IDimensionSliderState {
@@ -75,7 +75,7 @@ export class DimensionSlider extends React.Component<
 
     // Set slider values and formatting
     let format: any;
-    let pValues = props.data;
+    const pValues = props.data;
     if (_.includes(props.units, "since")) {
       const [span, , startTime] = props.units.split(" ");
       switch (span) {
@@ -102,16 +102,6 @@ export class DimensionSlider extends React.Component<
           .format(format);
       };
       this.formatter.bind(this);
-    }
-
-    // Calculate values based on modulo
-    if (props.modulo) {
-      const newPossibleValues = [];
-      const step = Math.abs(props.data[0] - props.data[1]);
-      for (let i = -props.modulo; i <= props.modulo; i += step) {
-        newPossibleValues.push(i);
-      }
-      pValues = newPossibleValues;
     }
 
     // Calculate display tick values and values
@@ -178,9 +168,9 @@ export class DimensionSlider extends React.Component<
 
   public render(): JSX.Element {
     return (
-      <div className="dimension-slider">
+      <div className={/*@tag<dimension-slider>*/ "dimension-slider-vcdat"}>
         {!this.singleValue && (
-          <div className="form-inline">
+          <div className={"form-inline"}>
             <div style={centered}>
               <Row>
                 <Col xs="auto"> {this.props.name} </Col>
@@ -203,7 +193,9 @@ export class DimensionSlider extends React.Component<
               </Rail>
               <Handles>
                 {({ handles, getHandleProps }) => (
-                  <div className="slider-handles">
+                  <div
+                    className={/*@tag<slider-handles>*/ "slider-handles-vcdat"}
+                  >
                     {handles.map(handle => (
                       <Handle
                         key={handle.id}
@@ -217,7 +209,9 @@ export class DimensionSlider extends React.Component<
               </Handles>
               <Tracks left={false} right={false}>
                 {({ tracks, getTrackProps }) => (
-                  <div className="slider-tracks">
+                  <div
+                    className={/*@tag<slider-tracks>*/ "slider-tracks-vcdat"}
+                  >
                     {tracks.map(({ id, source, target }) => (
                       <Track
                         key={id}
@@ -231,7 +225,7 @@ export class DimensionSlider extends React.Component<
               </Tracks>
               <Ticks values={this.state.tickValues}>
                 {({ ticks }) => (
-                  <div className="slider-ticks">
+                  <div className={/*@tag<slider-ticks>*/ "slider-ticks-vcdat"}>
                     {ticks.map((tick: SliderItem, idx: number) => (
                       <Tick
                         key={tick.id}
@@ -279,7 +273,7 @@ export class DimensionSlider extends React.Component<
         min: this.state.possibleValues[e[0]],
         name: this.props.name
       },
-      this.props.varName
+      this.props.varID
     );
   }
 }

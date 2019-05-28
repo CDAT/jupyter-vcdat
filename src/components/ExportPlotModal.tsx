@@ -174,7 +174,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
         this.props.showExportSuccessAlert();
       }
     } catch (error) {
-      console.log("error with checking file:", error);
+      console.error("error with checking file:", error);
     }
     this.clearExportInfo();
   }
@@ -209,9 +209,10 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.toggleModal}>
         <ModalHeader toggle={this.toggleModal}>Save Plot</ModalHeader>
-        <ModalBody>
+        <ModalBody className={/*@tag<export-modal>*/ "export-modal-vcdat"}>
           <Label>Name:</Label>
           <Input
+            className={/*@tag<export-name-input>*/ "export-name-input-vcdat"}
             type="text"
             name="text"
             placeholder="Name"
@@ -238,7 +239,9 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
             <br />
             <CustomInput
               type="switch"
-              id="dimensionsSwitch"
+              id={
+                /*@tag<export-dimension-switch>*/ "export-dimension-switch-vcdat"
+              }
               name="dimensionsSwitch"
               label="Custom dimensions"
               checked={this.state.displayDimensions}
@@ -251,6 +254,9 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
                 <br />
                 <Label for="width">Width</Label>
                 <Input
+                  className={
+                    /*@tag<export-width-input>*/ "export-width-input-vcdat"
+                  }
                   type="number"
                   name="width"
                   placeholder="Width"
@@ -259,6 +265,9 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
                 />
                 <Label for="height">Height</Label>
                 <Input
+                  className={
+                    /*@tag<export-height-input>*/ "export-height-input-vcdat"
+                  }
                   type="number"
                   name="height"
                   placeholder="Height"
@@ -270,8 +279,10 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
           </div>
           <br />
           <CustomInput
+            id={
+              /*@tag<export-capture-provenance-switch>*/ "export-capture-provenance-switch-vcdat"
+            }
             type="switch"
-            id="exampleCustomSwitch"
             name="customSwitch"
             label="Capture Provenance"
             disabled={this.state.disableProvenance}
@@ -280,10 +291,20 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
           />
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={this.save}>
+          <Button
+            className={/*@tag<export-button>*/ "export-button-vcdat"}
+            color="primary"
+            onClick={this.save}
+          >
             Export
           </Button>{" "}
-          <Button color="secondary" onClick={this.toggleModal}>
+          <Button
+            className={
+              /*@tag<export-cancel-button>*/ "export-cancel-button-vcdat"
+            }
+            color="secondary"
+            onClick={this.toggleModal}
+          >
             Cancel
           </Button>
         </ModalFooter>
@@ -302,6 +323,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
           };
           return (
             <Button
+              className={/*@tag<export-format-btn>*/ "export-format-btn-vcdat"}
               key={format}
               color="primary"
               onClick={clickHandler}
@@ -327,6 +349,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
           };
           return (
             <Button
+              className={/*@tag<export-unit-btn>*/ "export-unit-btn-vcdat"}
               key={unit}
               color="primary"
               onClick={clickHandler}

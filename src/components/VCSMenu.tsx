@@ -112,8 +112,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.getTemplateSelection = this.getTemplateSelection.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
-    this.loadVariable = this.loadVariable.bind(this);
-    this.launchVarSelect = this.launchVarSelect.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
     this.exportPlotAlerts = this.exportPlotAlerts.bind(this);
@@ -133,6 +131,14 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
     this.props.plotExistsChanged.connect(this.handlePlotExistsChanged);
     this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
+  }
+
+  public componentWillUnmount(): void {
+    this.props.plotReadyChanged.disconnect(this.handlePlotReadyChanged);
+    this.props.plotExistsChanged.disconnect(this.handlePlotExistsChanged);
+    this.props.varTracker.variablesChanged.disconnect(
+      this.handleVariablesChanged
+    );
   }
 
   public setPlotInfo(plotName: string, plotFormat: string) {
@@ -334,17 +340,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
   }
 
   /**
-   * @description take a variable and load it into the notebook
-   * @param variable The variable to load into the notebook
-   */
-  public async loadVariable(variable: Variable): Promise<any> {
-    // inject the code to load the variable into the notebook
-    await this.props.codeInjector.loadVariable(variable);
-
-    this.props.varTracker.addVariable(variable);
-  }
-
-  /**
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
   public plot(): void {
@@ -373,14 +368,6 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.props.codeInjector.clearPlot();
   }
 
-  /**
-   * @description Launch the file browser, and then load variables from a file after its been selected
-   * @param variables An array of variables to display in the launcher (loaded from a file)
-   */
-  public async launchVarSelect(variables: Variable[]): Promise<void> {
-    await this.varMenuRef.launchVarLoader(variables);
-  }
-
   public render(): JSX.Element {
     const graphicsMenuProps = {
       copyGraphicsMethod: this.copyGraphicsMethod,
@@ -391,8 +378,8 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       varInfo: new Variable()
     };
     const varMenuProps = {
+      codeInjector: this.props.codeInjector,
       commands: this.props.commands,
-      loadVariable: this.loadVariable,
       syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel,
       varTracker: this.props.varTracker
@@ -417,11 +404,14 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     return (
       <div style={{ ...centered, ...sidebarOverflow }}>
         <Card>
-          <CardBody>
+          <CardBody className={/*@tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
             <div style={centered}>
               <Row>
                 <Col sm={3}>
                   <Button
+                    className={
+                      /*@tag<vcsmenu-plot-btn>*/ "vcsmenu-plot-btn-vcdat"
+                    }
                     type="button"
                     color="primary"
                     style={btnStyle}
@@ -434,6 +424,9 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
                 </Col>
                 <Col sm={5} style={{ padding: "0 5px" }}>
                   <Button
+                    className={
+                      /*@tag<vcsmenu-export-btn>*/ "vcsmenu-export-btn-vcdat"
+                    }
                     type="button"
                     color="primary"
                     style={btnStyle}
@@ -446,6 +439,9 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
                 </Col>
                 <Col sm={4}>
                   <Button
+                    className={
+                      /*@tag<vcsmenu-clear-btn>*/ "vcsmenu-clear-btn-vcdat"
+                    }
                     type="button"
                     color="primary"
                     style={btnStyle}
@@ -459,7 +455,9 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
               </Row>
               <CustomInput
                 type="switch"
-                id="overlayModeSwitch"
+                id={
+                  /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
+                }
                 name="overlayModeSwitch"
                 label="Overlay Mode"
                 disabled={!this.state.plotReady}
