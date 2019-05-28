@@ -1,38 +1,18 @@
 version: 2
 
 aliases:
-  - &setup_miniconda
-    name: setup_miniconda
-    command: |
-      mkdir -p workspace
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda3.sh
-      bash ./miniconda3.sh -b -p $WORKDIR/miniconda
-
-  - &create_conda_env
-    name: create_conda_env
-    command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       conda config --set always_yes yes --set changeps1 no
-       conda update -q conda
-       conda config --set anaconda_upload no
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
     command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       export CDAT_ANONYMOUS_LOG=False
-       export CDAT_SETUP_PATH=${HOME}
-       git status
+       source activate jupyter-vcdat
        ./install_script.sh -v
-       conda install -n jupyter-vcdat -c cdat/label/v81 -c conda-forge testsrunner cdat_info
        git status
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
     command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
-       export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
        jupyter lab --ip='127.0.0.1'
     background: true
@@ -43,9 +23,6 @@ aliases:
       BROWSER_TYPE: "chrome"
       BROWSER_DRIVER: "/usr/local/bin/chromedriver"
     command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       export CDAT_ANONYMOUS_LOG=False
-       export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
@@ -63,12 +40,7 @@ aliases:
       BROWSER_BINARY: "/usr/local/bin/firefox"
       BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       export CDAT_ANONYMOUS_LOG=False
-       export CDAT_SETUP_PATH=${HOME}
        source activate jupyter-vcdat
-       pip install selenium
-       pip install pyvirtualdisplay
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
        python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
@@ -83,7 +55,6 @@ aliases:
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
-       export PATH=${HOME}/project/$WORKDIR/miniconda/bin:$PATH
        conda install conda-build anaconda-client
        conda config --set anaconda_upload no
        export CONDA_BLD_PATH=`pwd`/conda_build
@@ -102,41 +73,16 @@ aliases:
        conda build $PKG_NAME $CHANNELS --python=3.6
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
-  - &run_coveralls
-    name: run_coveralls
-    command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       source activate jupyter-vcdat
-       coveralls
-       source deactivate
-
-  - &prep_conda_cache
-    name: prep_conda_cache
-    command: |
-       mv $WORKDIR/miniconda miniconda
-
-  - &get_conda_cache
-    name: get_conda_cache
-    command: |
-       mkdir -p $WORKDIR
-       mv miniconda $WORKDIR/
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       conda config --set always_yes yes --set changeps1 no
-       conda update -y -q conda
-       conda config --set anaconda_upload no
-
 jobs:
-  linux_jupyter_vcdat_py3:
+  linux_jupyter_vcdat:
     docker:
-      - image: circleci/node:jessie-browsers
+      # - image: circleci/node:jessie-browsers
+      - image: muryanto1/jupyter-vcdat:latest
     environment:
-      WORKDIR: "workspace/test_firefox"
-      PY_VER: "py3"
+      WORKDIR: "/tmp/jp-vcdat"
     steps:
       - checkout
-      - run: which firefox
-      - run: which geckodriver
-      - run: *setup_miniconda
+      - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 8
@@ -156,7 +102,7 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_jupyter_vcdat_py3
+      - linux_jupyter_vcdat
 
 
 

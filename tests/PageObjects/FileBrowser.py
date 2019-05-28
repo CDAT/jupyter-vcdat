@@ -19,7 +19,6 @@ class FileBrowser(ActionsPage):
         file_element = self.find_element_by_xpath(file_locator,
                                                   "'{}' file".format(fname))
 
-        time.sleep(self._delay)
         self.move_to_double_click(file_element)
         time.sleep(self._delay)
 
@@ -29,6 +28,6 @@ class FileBrowser(ActionsPage):
             file_load_error_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
             self.wait_click(By.XPATH, file_load_error_ok_locator)
 
-        time.sleep(1)
+        time.sleep(self._delay)
         load_variables_pop_up = LoadVariablesPopUp(self.driver, None)
         return load_variables_pop_up
