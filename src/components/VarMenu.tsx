@@ -68,6 +68,7 @@ export default class VarMenu extends React.Component<
     this.reloadVariable = this.reloadVariable.bind(this);
     this.getOrder = this.getOrder.bind(this);
     this.setModalState = this.setModalState.bind(this);
+    this.varAliasExists = this.varAliasExists.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
@@ -123,6 +124,10 @@ export default class VarMenu extends React.Component<
       ? [newAlias]
       : [variable.varID];
     await this.props.varTracker.saveMetaData();
+  }
+
+  public varAliasExists(alias: string): boolean {
+    return this.props.varTracker.findVariableByAlias(alias)[0] >= 0;
   }
 
   public getOrder(varID: string): number {
@@ -203,6 +208,7 @@ export default class VarMenu extends React.Component<
                     >
                       <VarMini
                         modalOpen={this.setModalState}
+                        varAliasExists={this.varAliasExists}
                         varSelectionChanged={
                           this.props.varTracker.selectedVariablesChanged
                         }

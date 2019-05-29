@@ -51,7 +51,8 @@ interface IVarMiniProps {
   codeInjector: CodeInjector;
   variable: Variable; // the variable this component will show
   varSelectionChanged: ISignal<VariableTracker, string[]>;
-  //updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
+  varAliasExists: (varAlias: string) => boolean; // Method that returns true if specified variable name is already taken
+  // updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
   isSelected: (alias: string) => boolean; // method to check if this variable is selected in parent
   selected: boolean; // should the axis be hidden by default
   copyVariable: (
@@ -86,7 +87,7 @@ interface IVarMiniState {
   variable: Variable;
 }
 
-export type NAME_STATUS = "Invalid!" | "Valid";
+export type NAME_STATUS = "Invalid!" | "Variable Already Exists!" | "Valid";
 
 export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   constructor(props: IVarMiniProps) {
@@ -296,7 +297,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       updatedVar.axisInfo[axisIndex].max = newInfo.max;
     });
     this.setState({ variable: updatedVar });
-    //this.props.updateDimInfo(newInfo, this.state.variable.varID)
+    // this.props.updateDimInfo(newInfo, this.state.variable.varID)
   }
 
   public render(): JSX.Element {
@@ -304,6 +305,8 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     let nameStateColor = "success";
     if (this.state.nameState === "Invalid!") {
       nameStateColor = "danger";
+    } else if (this.state.nameState === "Variable Already Exists!") {
+      nameStateColor = "warning";
     }
 
     return (
@@ -537,13 +540,12 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> {
     clickEvent.stopPropagation();
-    let result: boolean = await NotebookUtilities.showYesNoDialog(
+    const result: boolean = await NotebookUtilities.showYesNoDialog(
       "Warning!",
       "Are you sure you want to delete this variable?",
       "OK",
       "Cancel"
     );
-    console.log(result);
     if (result) {
       await this.props.deleteVariable(this.state.variable);
     }
@@ -579,10 +581,11 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     let state: NAME_STATUS = "Valid";
     if (nameEntry === "" || invalid) {
       state = "Invalid!";
-      this.setState({ nameState: state });
-    } else {
-      this.setState({ nameState: state });
+    } else if (this.props.varAliasExists(nameEntry)) {
+      state = "Variable Already Exists!";
     }
+
+    this.setState({ nameState: state });
   }
 
   private handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
@@ -592,6 +595,16 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   }
 
   private async handleUpdateClick(): Promise<void> {
+    const proceed: boolean = await NotebookUtilities.showYesNoDialog(
+      "Warning!",
+      "Another variable already has this name. In order to rename this variable the other will be replaced. Continue?",
+      "Yes, replace other variable.",
+      "Cancel"
+    );
+    if (!proceed) {
+      return;
+    }
+
     this.toggleModal();
     // Load new variable
     await this.props.reload(this.state.variable, this.state.nameValue);
