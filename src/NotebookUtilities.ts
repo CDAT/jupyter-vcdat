@@ -49,9 +49,8 @@ export class NotebookUtilities {
     const result = await showDialog({ title, buttons, body: msg });
     if (result.button.label === acceptLabel) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

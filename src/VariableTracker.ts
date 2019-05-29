@@ -59,7 +59,7 @@ export class VariableTracker {
     this.setNotebook = this.setNotebook.bind(this);
     this.tryFilePath = this.tryFilePath.bind(this);
     this.updateAxesInfoGroup = this.updateAxesInfoGroup.bind(this);
-    //this.updateDimInfo = this.updateDimInfo.bind(this);
+    // this.updateDimInfo = this.updateDimInfo.bind(this);
     this.saveMetaData = this.saveMetaData.bind(this);
     this.copyVariable = this.copyVariable.bind(this);
     this.findVariableByID = this.findVariableByID.bind(this);
@@ -82,14 +82,13 @@ export class VariableTracker {
   }
 
   set variables(newVariables: Variable[]) {
-
     // Ensure selected variable list doesn't contain deleted variables
     const newSelection: string[] = Array<string>();
-    this.selectedVariables.forEach((selection) => {
-      if(this.findVariableByID(selection,newVariables)[0] >= 0){
+    this.selectedVariables.forEach(selection => {
+      if (this.findVariableByID(selection, newVariables)[0] >= 0) {
         newSelection.push(selection);
       }
-    })
+    });
     this.selectedVariables = newSelection;
 
     this._variables = newVariables;
