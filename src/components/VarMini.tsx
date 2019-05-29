@@ -10,13 +10,13 @@ import {
   Collapse,
   CustomInput,
   Input,
+  InputGroup,
+  InputGroupAddon,
   Label,
   Modal,
   ModalBody,
   ModalFooter,
-  ModalHeader,
-  InputGroup,
-  InputGroupAddon
+  ModalHeader
 } from "reactstrap";
 
 // Project Components
@@ -26,7 +26,7 @@ import { AxisInfo } from "./AxisInfo";
 import { DimensionSlider } from "./DimensionSlider";
 import { Variable } from "./Variable";
 import { NotebookUtilities } from "../NotebookUtilities";
-import { OUTPUT_RESULT_NAME } from "../constants";
+import { checkForExportedFileCommand } from "../PythonCommands";
 import { ISignal } from "@phosphor/signaling";
 import { VariableTracker } from "../VariableTracker";
 
@@ -51,15 +51,19 @@ interface IVarMiniProps {
   codeInjector: CodeInjector;
   variable: Variable; // the variable this component will show
   varSelectionChanged: ISignal<VariableTracker, string[]>;
-  updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
+  //updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
   isSelected: (alias: string) => boolean; // method to check if this variable is selected in parent
   selected: boolean; // should the axis be hidden by default
-  copyVariable: (variable: Variable, newName: string) => Promise<void>;
+  copyVariable: (
+    variable: Variable,
+    newName: string,
+    addVariable: boolean
+  ) => Variable;
   deleteVariable: (variable: Variable) => Promise<void>;
   modalOpen: (isOpen: boolean) => void;
   selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
-  reload: () => void; // a function to reload the variable
+  reload: (item: Variable, newAlias?: string) => void; // a function to reload the variable
   setPlotInfo: (plotName: string, plotFormat: string) => void;
   exportAlerts: () => void;
   dismissSavePlotSpinnerAlert: () => void;
@@ -80,7 +84,6 @@ interface IVarMiniState {
   showSaveModal: boolean;
   validateFileName: boolean;
   variable: Variable;
-  editedVariable: Variable;
 }
 
 export type NAME_STATUS = "Invalid!" | "Valid";
@@ -101,8 +104,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       showAxis: false,
       showSaveModal: false,
       validateFileName: false,
-      variable: this.props.variable,
-      editedVariable: new Variable()
+      variable: this.props.variable
     };
     this.openMenu = this.openMenu.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
@@ -122,8 +124,8 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.dismissFilenameValidation = this.dismissFilenameValidation.bind(this);
     this.updateSelections = this.updateSelections.bind(this);
     this.handleNameInput = this.handleNameInput.bind(this);
-    //this.handleRenameClick = this.handleRenameClick.bind(this);
     this.validateNameInput = this.validateNameInput.bind(this);
+    this.updateDimensionInfo = this.updateDimensionInfo.bind(this);
   }
 
   public componentDidMount(): void {
@@ -134,7 +136,25 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.props.varSelectionChanged.disconnect(this.updateSelections);
   }
 
-  public updateSelections() {
+  public reset(): void {
+    this.setState({
+      activateAppend: false,
+      activateDeflate: false,
+      activateShuffle: false,
+      deflateValue: 0,
+      filename: "",
+      nameState: "Valid",
+      nameValue: this.props.variable.alias,
+      newVariableSaveName: "",
+      selected: this.props.selected,
+      showAxis: false,
+      showSaveModal: false,
+      validateFileName: false,
+      variable: this.props.variable
+    });
+  }
+
+  public updateSelections(): void {
     this.setState({
       selected: this.props.isSelected(this.state.variable.varID)
     });
@@ -165,6 +185,11 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
    * @description Toggles the save variable modal
    */
   public toggleSaveModal(): void {
+    if (this.state.showSaveModal) {
+      this.props.modalOpen(false);
+    } else {
+      this.props.modalOpen(true);
+    }
     this.setState({
       activateDeflate: false,
       activateShuffle: false,
@@ -227,7 +252,6 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   }
 
   public async save() {
-    console.log("this.props.variable:", this.props.variable);
     const splitFileName = this.state.filename.split(".");
 
     if (!this.state.filename) {
@@ -251,26 +275,28 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     try {
       const result: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.props.notebookPanel,
-        `import os\n\
-import time\n\
-def check_for_exported_file():\n\
-  exported_file_path = os.path.join(os.getcwd(), '${this.state.filename}')\n\
-  counter = 0\n\
-  while not os.path.exists(exported_file_path):\n\
-    time.sleep(1)\n\
-    counter +=1\n\
-    if counter == 15:\n\
-      raise Exception("Exporting plot timed out.")\n\
-  return True\n\
-${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
+        checkForExportedFileCommand(this.state.filename)
       );
       if (result === "True") {
         this.props.dismissSavePlotSpinnerAlert();
         this.props.showExportSuccessAlert();
       }
     } catch (error) {
-      console.log("error with checking file:", error);
+      console.error("error with checking file:", error);
     }
+  }
+
+  public updateDimensionInfo(newInfo: any): void {
+    const updatedVar: Variable = this.state.variable;
+    updatedVar.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
+      if (axis.name !== newInfo.name) {
+        return;
+      }
+      updatedVar.axisInfo[axisIndex].min = newInfo.min;
+      updatedVar.axisInfo[axisIndex].max = newInfo.max;
+    });
+    this.setState({ variable: updatedVar });
+    //this.props.updateDimInfo(newInfo, this.state.variable.varID)
   }
 
   public render(): JSX.Element {
@@ -291,7 +317,6 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
             className={/*@tag<varmini-name-btn>*/ "varmini-name-btn-vcdat"}
             outline={true}
             color={"success"}
-            style={{ backgroundColor: this.props.buttonColor }}
             active={this.props.isSelected(this.state.variable.varID)}
           >
             {this.state.variable.alias}
@@ -302,20 +327,29 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
             style={axisStyle}
             title={
               this.state.variable.sourceName === ""
-                ? "Editing of modified variables disabled for now."
+                ? "Note: This variable was not loaded from a file."
                 : ""
             }
-            color={"danger"}
+            color={"info"}
             onClick={this.handleEditClick}
           >
             edit
           </Button>
           <Button
             outline={true}
+            color={"secondary"}
             style={axisStyle}
             onClick={this.handleSaveClick}
           >
             save
+          </Button>
+          <Button
+            outline={true}
+            color={"danger"}
+            style={axisStyle}
+            onClick={this.handleDeleteClick}
+          >
+            delete
           </Button>
           {this.props.isSelected(this.state.variable.varID) && (
             <Badge
@@ -336,7 +370,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
           size="lg"
         >
           <ModalHeader toggle={this.toggleModal}>
-            Edit Variable: {this.state.editedVariable.alias}
+            Edit Variable: {this.state.variable.alias}
           </ModalHeader>
           <ModalBody
             className={/*@tag<varmini-edit-modal>*/ "varmini-edit-modal-vcdat"}
@@ -349,30 +383,31 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
                   </InputGroupAddon>
                   <Input
                     onChange={this.handleNameInput}
-                    //className="float-left"
                     value={this.state.nameValue}
                     placeholder="Enter new name here."
                   />
-                  <InputGroupAddon color={nameStateColor} addonType="append">
-                    {this.state.nameState}
+                  <InputGroupAddon addonType="append">
+                    <Button color={nameStateColor} disabled={true}>
+                      {this.state.nameState}
+                    </Button>
                   </InputGroupAddon>
                 </InputGroup>
               </CardBody>
             </Card>
             {this.state.showAxis &&
-              this.state.editedVariable.axisInfo.length > 0 &&
-              this.state.editedVariable.axisInfo.map((item: AxisInfo) => {
+              this.state.variable.axisInfo.length > 0 &&
+              this.state.variable.axisInfo.map((item: AxisInfo) => {
                 if (!item.data || item.data.length <= 1) {
                   return;
                 }
-                item.updateDimInfo = this.props.updateDimInfo;
+                item.updateDimInfo = this.updateDimensionInfo;
                 return (
                   <div key={item.name} style={axisStyle}>
                     <Card>
                       <CardBody>
                         <DimensionSlider
                           {...item}
-                          varID={this.state.editedVariable.varID}
+                          varID={this.state.variable.varID}
                         />
                       </CardBody>
                     </Card>
@@ -490,19 +525,33 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> {
     clickEvent.stopPropagation();
-    await this.props.copyVariable(this.state.variable, "Test");
+    const copy: Variable = this.props.copyVariable(
+      this.state.variable,
+      this.state.nameValue,
+      true
+    );
+    await this.props.codeInjector.loadVariable(copy);
   }
 
   private async handleDeleteClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> {
     clickEvent.stopPropagation();
-    await this.props.deleteVariable(this.state.variable);
+    let result: boolean = await NotebookUtilities.showYesNoDialog(
+      "Warning!",
+      "Are you sure you want to delete this variable?",
+      "OK",
+      "Cancel"
+    );
+    console.log(result);
+    if (result) {
+      await this.props.deleteVariable(this.state.variable);
+    }
   }
 
-  private handleEditClick(
+  private async handleEditClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
-  ): void {
+  ): Promise<void> {
     clickEvent.stopPropagation();
     if (this.state.variable.axisInfo.length > 0) {
       this.setState({ showAxis: true });
@@ -511,12 +560,6 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
       this.setState({ showAxis: false });
       this.props.modalOpen(false);
     }
-  }
-
-  private async handleUpdateClick(): Promise<void> {
-    await this.setState({ variable: this.state.editedVariable });
-    this.toggleModal();
-    this.props.reload();
   }
 
   private handleSaveClick(
@@ -538,51 +581,34 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
       state = "Invalid!";
       this.setState({ nameState: state });
     } else {
-      const updatedVariable: Variable = this.state.editedVariable;
-      updatedVariable.alias = this.state.nameValue;
-      this.setState({ nameState: state, editedVariable: updatedVariable });
+      this.setState({ nameState: state });
     }
   }
 
-  /*private async handleRenameClick(): Promise<void> {
-    const state: string = this.state.nameState;
-
-    // Reset if name isn't being changed
-    if (this.state.nameValue === this.state.variable.alias) {
-      this.setState({ nameValue: "", nameState: "Valid" });
-      return;
-    }
-    if (this.state.nameValue === "") {
-      await NotebookUtilities.showMessage(
-        "Notice",
-        "Please enter the new name for the variable.",
-        "OK"
-      );
-      this.setState({ nameState: "Invalid!" });
-      return;
-    }
-    if (state === "Invalid!") {
-      await NotebookUtilities.showMessage(
-        "Notice",
-        "The name you entered has invalid characters.",
-        "Dismiss"
-      );
-      return;
-    }
-
-    // All checks and warnings done, create variable copy and del old variable;
-    const updatedVariable: Variable = this.state.editedVariable;
-    updatedVariable.alias = this.state.nameValue;
-    this.setState({
-      nameState: "Valid",
-      nameValue: this.state.nameValue,
-      editedVariable: updatedVariable
-    });
-  }*/
-
   private handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
     const nameEntry: string = event.target.value;
-    this.validateNameInput(nameEntry);
     this.setState({ nameValue: nameEntry });
+    this.validateNameInput(nameEntry);
+  }
+
+  private async handleUpdateClick(): Promise<void> {
+    this.toggleModal();
+    // Load new variable
+    await this.props.reload(this.state.variable, this.state.nameValue);
+
+    // Delete old variable if rename was done
+    if (this.state.variable.alias !== this.state.nameValue) {
+      // Create a copy with the new name
+      const copy: Variable = this.props.copyVariable(
+        this.state.variable,
+        this.state.nameValue,
+        true
+      );
+
+      // Delete variable of the old name
+      await this.props.deleteVariable(this.state.variable);
+      await this.setState({ variable: copy });
+    }
+    this.reset();
   }
 }

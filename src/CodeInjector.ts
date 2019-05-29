@@ -10,13 +10,15 @@ import { VariableTracker } from "./VariableTracker";
 import {
   BASE_DATA_READER_NAME,
   CANVAS_CELL_KEY,
-  CHECK_MODULES_CMD,
   EXPORT_FORMATS,
   IMAGE_UNITS,
   IMPORT_CELL_KEY,
   MAX_SLABS,
   REQUIRED_MODULES
 } from "./constants";
+
+import { CHECK_MODULES_CMD } from "./PythonCommands";
+
 import { NotebookUtilities } from "./NotebookUtilities";
 import { Utilities } from "./Utilities";
 
@@ -212,8 +214,6 @@ export class CodeInjector {
     if (deflate) {
       cmd += `cdms2.setNetcdfDeflateFlag(1)\n`;
       cmd += `cdms2.setNetcdfDeflateLevelFlag(int(${deflateValue}))\n`;
-      console.log("deflateValue:", deflateValue);
-      console.log("deflateValue type:", typeof deflateValue);
     }
     const writeMode = appendToExistingFile ? "r+" : "w";
     const variableNameInFile = newVariableName
@@ -372,7 +372,7 @@ export class CodeInjector {
     this.varTracker.refreshVariables();
   }
 
-  public async loadVariable(variable: Variable) {
+  public async loadVariable(variable: Variable, newAlias?: string) {
     // If the variable doesn't have a source listed, load as a derived variable
     let isDerived: boolean = false;
     if (!variable.sourceName) {
@@ -380,9 +380,10 @@ export class CodeInjector {
     }
 
     // inject the code to load the variable into the notebook
+    const varAlias: string = newAlias ? newAlias : variable.alias;
     let cmd: string = isDerived
-      ? `${variable.alias} = ${variable.alias}(`
-      : `${variable.alias} = ${BASE_DATA_READER_NAME}("${variable.name}"`;
+      ? `${varAlias} = ${variable.alias}(`
+      : `${varAlias} = ${BASE_DATA_READER_NAME}("${variable.name}"`;
 
     // update axis info
     const axesCount: number = variable.axisInfo.length;

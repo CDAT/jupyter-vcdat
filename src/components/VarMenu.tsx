@@ -15,7 +15,6 @@ import {
 
 // Project Components
 import { CodeInjector } from "../CodeInjector";
-import { AxisInfo } from "./AxisInfo";
 import { ColorFunctions } from "../ColorFunctions";
 import { Variable } from "./Variable";
 import { VarLoader } from "./VarLoader";
@@ -67,7 +66,6 @@ export default class VarMenu extends React.Component<
     this.launchVarLoader = this.launchVarLoader.bind(this);
     this.isSelected = this.isSelected.bind(this);
     this.reloadVariable = this.reloadVariable.bind(this);
-    this.copyVariable = this.copyVariable.bind(this);
     this.getOrder = this.getOrder.bind(this);
     this.setModalState = this.setModalState.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
@@ -115,21 +113,15 @@ export default class VarMenu extends React.Component<
     this.varLoaderRef.updateFileVars(fileVariables);
   }
 
-  public async copyVariable(variable: Variable, newName: string) {
-    const copy: Variable = this.props.varTracker.copyVariable(
-      variable,
-      newName,
-      true
-    );
-    if (copy) {
-      this.props.varTracker.selectedVariables = [variable.varID];
-      await this.props.codeInjector.loadVariable(copy);
-    }
-  }
-
-  public async reloadVariable(variable: Variable): Promise<void> {
-    await this.props.codeInjector.loadVariable(variable);
-    this.props.varTracker.selectedVariables = [variable.varID];
+  public async reloadVariable(
+    variable: Variable,
+    newAlias?: string
+  ): Promise<void> {
+    await this.props.codeInjector.loadVariable(variable, newAlias);
+    this.props.varTracker.addVariable(variable);
+    this.props.varTracker.selectedVariables = newAlias
+      ? [newAlias]
+      : [variable.varID];
     await this.props.varTracker.saveMetaData();
   }
 
@@ -194,9 +186,6 @@ export default class VarMenu extends React.Component<
                 style={formOverflow}
               >
                 {this.state.variables.map((item: Variable, idx: number) => {
-                  const reloadItem = () => {
-                    this.reloadVariable(item);
-                  };
                   const toggleSelection = () => {
                     if (this.state.modalOpen) {
                       return;
@@ -217,15 +206,14 @@ export default class VarMenu extends React.Component<
                         varSelectionChanged={
                           this.props.varTracker.selectedVariablesChanged
                         }
-                        reload={reloadItem}
-                        copyVariable={this.copyVariable}
+                        reload={this.reloadVariable}
+                        copyVariable={this.props.varTracker.copyVariable}
                         deleteVariable={this.props.codeInjector.deleteVariable}
                         buttonColor={colors[this.getOrder(item.varID) - 1]}
                         allowReload={true}
                         selected={this.isSelected(item.varID)}
                         isSelected={this.isSelected}
                         selectOrder={this.getOrder(item.varID)}
-                        updateDimInfo={this.props.varTracker.updateDimInfo}
                         variable={item}
                         codeInjector={this.props.codeInjector}
                         setPlotInfo={this.props.setPlotInfo}

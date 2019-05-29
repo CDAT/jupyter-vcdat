@@ -15,11 +15,8 @@ import {
 
 // Project Components
 import { CodeInjector } from "../CodeInjector";
-import {
-  CANVAS_DIMENSIONS_CMD,
-  GRAPHICS_METHOD_KEY,
-  TEMPLATE_KEY
-} from "../constants";
+import { GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
+import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
 import { NotebookUtilities } from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
 import GraphicsMenu from "./GraphicsMenu";
