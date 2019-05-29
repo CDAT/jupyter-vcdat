@@ -3,9 +3,9 @@
 ## Test suite structure 
 
 The test suite is organized as follows:
-- **tests/PageObjects/*py** implement classes that encapsulate locators which are means to find the selenium elements in the html page.
-- **tests/TestUtils/*py** implement BaseTestCase and BaseTestCaseWithNoteBook classes. Test cases should inherit BaseTestCaseWithNoteBook class which will create a new note book and name it uniquely before starting test steps, and clean up after finishing test steps.
-- **tests/*py** implements the test cases.
+- tests/PageObjects/*py implement classes that encapsulate locators which are means to find the selenium elements in the html page.
+- tests/TestUtils/*py implement BaseTestCase and BaseTestCaseWithNoteBook classes. Test cases should inherit BaseTestCaseWithNoteBook class which will create a new note book and name it uniquely before starting test steps, and clean up after finishing test steps.
+- tests/*py implements the test cases.
 
 ## Guidelines
 
