@@ -179,10 +179,10 @@ def check_for_exported_file():\n\
 	exported_file_path = os.path.join(os.getcwd(), '${filename}')\n\
 	counter = 0\n\
 	while not os.path.exists(exported_file_path):\n\
-	time.sleep(1)\n\
-	counter +=1\n\
-	if counter == 15:\n\
-		raise Exception("Exporting plot timed out.")\n\
+		time.sleep(1)\n\
+		counter +=1\n\
+		if counter == 15:\n\
+			raise Exception("Exporting plot timed out.")\n\
 	return True\n\
 ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`;
 }

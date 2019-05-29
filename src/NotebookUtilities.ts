@@ -12,6 +12,7 @@ export class NotebookUtilities {
    * @param title The title for the message popup
    * @param msg The message
    * @param buttonLabel The label to use for the button. Default is 'OK'
+   * @param buttonClassName The classname to give to the 'ok' button
    * @returns Promise<void> - A promise once the message is closed.
    */
   public static async showMessage(
@@ -32,6 +33,8 @@ export class NotebookUtilities {
    * @param msg The message
    * @param acceptLabel The label to use for the accept button. Default is 'YES'
    * @param rejectLabel The label to use for the reject button. Default is 'NO'
+   * @param yesButtonClassName The classname to give to the accept button.
+   * @param noButtonClassName The  classname to give to the cancel button.
    * @returns Promise<void> - A promise once the message is closed.
    */
   public static async showYesNoDialog(

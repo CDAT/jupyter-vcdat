@@ -44,7 +44,6 @@ interface IVarCardProps {
   selectVariable: (variable: Variable) => void; // method to call to add this variable to the list to get loaded
   deselectVariable: (variable: Variable) => void; // method to call to remove a variable from the list
   updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
-  // renameVariable: (newName: string, varID: string) => void; // Method that updates a variable's name before it's loaded
   isSelected: (varAlias: string) => boolean; // method to check if this variable is selected in parent
   selected: boolean; // should the axis be hidden by default
 }
@@ -79,7 +78,6 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
     this.handleAxesClick = this.handleAxesClick.bind(this);
     this.handleWarningsClick = this.handleWarningsClick.bind(this);
     this.handleNameInput = this.handleNameInput.bind(this);
-    // this.handleRenameClick = this.handleRenameClick.bind(this);
     this.updateSelections = this.updateSelections.bind(this);
     this.validateNameInput = this.validateNameInput.bind(this);
     this.updateDimensionInfo = this.updateDimensionInfo.bind(this);
@@ -140,7 +138,6 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
       updatedVar.axisInfo[axisIndex].max = newInfo.max;
     });
     this.setState({ variable: updatedVar });
-    // this.props.updateDimInfo(newInfo, this.state.variable.varID)
   }
 
   public render(): JSX.Element {
@@ -233,11 +230,8 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
                       <InputGroupAddon addonType="append">
                         <Button
                           className="float-right"
-                          // onClick={this.handleRenameClick}
                           color={nameStateColor}
-                          disabled={
-                            true /*this.state.nameState === "Invalid!"*/
-                          }
+                          disabled={true}
                         >
                           {this.state.nameState}
                         </Button>
@@ -278,11 +272,6 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
   }
 
   private async validateNameInput(nameEntry: string): Promise<void> {
-    /*if (nameEntry === this.state.variable.alias) {
-      this.setState({ nameState: "Rename" });
-      return;
-    }*/
-
     const invalid: boolean = forbidden.test(nameEntry);
     let state: NAME_STATUS = "Valid";
     if (nameEntry === "" || invalid) {
@@ -302,73 +291,15 @@ export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
     await this.validateNameInput(nameEntry);
 
     if (this.state.nameState !== "Invalid!") {
-      // All checks and warnings done, rename variable;
-      // this.props.renameVariable(nameEntry, this.state.variable.varID);
       const updatedVariable: Variable = this.state.variable;
       updatedVariable.alias = nameEntry;
       this.setState({
-        // nameState: "Valid",
-        // nameValue: "",
         variable: updatedVariable
       });
     }
 
     this.setState({ nameValue: nameEntry });
   }
-
-  /*private async handleRenameClick(): Promise<void> {
-    const state: string = this.state.nameState;
-
-    // Reset if name isn't being changed
-    if (this.state.nameValue === this.state.variable.alias) {
-      this.setState({ nameValue: "", nameState: "Rename" });
-      return;
-    }
-    if (this.state.nameValue === "") {
-      await NotebookUtilities.showMessage(
-        "Notice",
-        "Please enter the new name for the variable.",
-        "OK"
-      );
-      this.setState({ nameState: "Invalid!" });
-      return;
-    }
-    if (state === "Invalid!") {
-      await NotebookUtilities.showMessage(
-        "Notice",
-        "The name you entered has invalid characters.",
-        "Dismiss"
-      );
-      return;
-    }
-    if (state === "Name already selected!") {
-      await NotebookUtilities.showMessage(
-        "Notice",
-        `The name you entered is already selected in this form. \
-        You cannot load multiple variables of the same name.`,
-        "Dismiss"
-      );
-      return;
-    }
-    if (state === "Name already loaded!") {
-      await NotebookUtilities.showMessage(
-        "Notice",
-        `The selected name matches the name of another variable that has loaded. \
-        You should rename this variable something else if you don't want to override the other variable.`,
-        "OK"
-      );
-    }
-
-    // All checks and warnings done, rename variable;
-    this.props.renameVariable(state, this.state.variable.varID);
-    const updatedVariable: Variable = this.state.variable;
-    updatedVariable.alias = this.state.nameValue;
-    this.setState({
-      nameState: "Rename",
-      nameValue: "",
-      variable: updatedVariable
-    });
-  }*/
 
   private handleAxesClick(): void {
     this.setState({ showAxis: !this.state.showAxis });

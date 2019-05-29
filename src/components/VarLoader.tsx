@@ -60,7 +60,6 @@ export class VarLoader extends React.Component<
     this.handleLoadClick = this.handleLoadClick.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.updateFileVars = this.updateFileVars.bind(this);
-    // this.renameVariable = this.renameVariable.bind(this);
     this.varAliasExists = this.varAliasExists.bind(this);
   }
 
@@ -256,28 +255,6 @@ export class VarLoader extends React.Component<
       variablesToShow: newVarsToShow.sort(this.variableSort)
     });
   }
-
-  /*public renameVariable(newName: string, varID: string): void {
-    this.state.fileVariables.forEach(
-      (fileVariable: Variable, varIndex: number) => {
-        if (fileVariable.varID !== varID) {
-          return;
-        }
-        const newVariables = this.state.fileVariables;
-        newVariables[varIndex].alias = newName;
-        const newSelection = this.selections;
-        const idx: number = this.props.varTracker.findVariableByID(
-          varID,
-          this.selections
-        )[0];
-        if (idx >= 0) {
-          newSelection[idx] = newVariables[varIndex];
-        }
-        this.selections = newSelection;
-        this.updateFileVars(newVariables);
-      }
-    );
-  }*/
 
   public varAliasExists(alias: string, varLoaderSelection: boolean): boolean {
     let array: Variable[] = this.props.varTracker.variables;

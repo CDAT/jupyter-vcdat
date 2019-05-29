@@ -52,7 +52,6 @@ interface IVarMiniProps {
   variable: Variable; // the variable this component will show
   varSelectionChanged: ISignal<VariableTracker, string[]>;
   varAliasExists: (varAlias: string) => boolean; // Method that returns true if specified variable name is already taken
-  // updateDimInfo: (newInfo: any, varID: string) => void; // method passed by the parent to update their copy of the variables dimension info
   isSelected: (alias: string) => boolean; // method to check if this variable is selected in parent
   selected: boolean; // should the axis be hidden by default
   copyVariable: (
@@ -262,7 +261,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
     this.setState({ validateFileName: false });
     await this.props.codeInjector.saveNetCDFFile(
       this.state.filename,
-      this.props.variable.name,
+      this.state.variable.alias,
       this.state.newVariableSaveName,
       this.state.activateAppend,
       this.state.activateShuffle,
@@ -297,7 +296,6 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       updatedVar.axisInfo[axisIndex].max = newInfo.max;
     });
     this.setState({ variable: updatedVar });
-    // this.props.updateDimInfo(newInfo, this.state.variable.varID)
   }
 
   public render(): JSX.Element {
@@ -453,7 +451,7 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
             >
               The file name can not be blank
             </Alert>
-            <CustomInput
+            {/*<CustomInput
               type="switch"
               id="appendSwitch"
               name="appendSwitch"
@@ -461,12 +459,12 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
               checked={this.state.activateAppend}
               onChange={this.toggleAppend}
             />
-            <br />
+            <br />*/}
             <Label>Variable Name in File:</Label>
             <Input
               type="text"
               name="text"
-              placeholder={this.props.variable.name}
+              placeholder={this.state.variable.alias}
               value={this.state.newVariableSaveName}
               onChange={this.updateNewVariableName}
             />
@@ -595,14 +593,16 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
   }
 
   private async handleUpdateClick(): Promise<void> {
-    const proceed: boolean = await NotebookUtilities.showYesNoDialog(
-      "Warning!",
-      "Another variable already has this name. In order to rename this variable the other will be replaced. Continue?",
-      "Yes, replace other variable.",
-      "Cancel"
-    );
-    if (!proceed) {
-      return;
+    if (this.state.nameState === "Variable Already Exists!") {
+      const proceed: boolean = await NotebookUtilities.showYesNoDialog(
+        "Warning!",
+        "Another variable already has this name. In order to rename this variable the other will be replaced. Continue?",
+        "Yes, replace other variable.",
+        "Cancel"
+      );
+      if (!proceed) {
+        return;
+      }
     }
 
     this.toggleModal();

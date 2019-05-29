@@ -59,7 +59,6 @@ export class VariableTracker {
     this.setNotebook = this.setNotebook.bind(this);
     this.tryFilePath = this.tryFilePath.bind(this);
     this.updateAxesInfoGroup = this.updateAxesInfoGroup.bind(this);
-    // this.updateDimInfo = this.updateDimInfo.bind(this);
     this.saveMetaData = this.saveMetaData.bind(this);
     this.copyVariable = this.copyVariable.bind(this);
     this.findVariableByID = this.findVariableByID.bind(this);
@@ -622,25 +621,4 @@ export class VariableTracker {
       }
     });
   }
-
-  /**
-   * @param newInfo new dimension info for the variables axis
-   * @param varID the name of the variable to update
-   */
-  /*public updateDimInfo(newInfo: any, varID: string): void {
-    const newVariables: Variable[] = this._variables;
-    newVariables.forEach((variable: Variable, varIndex: number) => {
-      if (variable.varID !== varID) {
-        return;
-      }
-      variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-        if (axis.name !== newInfo.name) {
-          return;
-        }
-        newVariables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-        newVariables[varIndex].axisInfo[axisIndex].max = newInfo.max;
-      });
-    });
-    this.variables = newVariables;
-  }*/
 }

@@ -219,8 +219,8 @@ export class CodeInjector {
     const variableNameInFile = newVariableName
       ? newVariableName
       : currentVariableName;
-    cmd += `with cdms2.open('${filename}', "${writeMode}") as f:\n
-  f.write(${currentVariableName}, id='${variableNameInFile}') `;
+    cmd += `with cdms2.open('${filename}', "${writeMode}") as f:\n`;
+    cmd += `\tf.write(${currentVariableName}, id='${variableNameInFile}')`;
 
     await this.inject(
       cmd,
