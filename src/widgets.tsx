@@ -30,6 +30,8 @@ import {
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD
 } from "./PythonCommands";
+import { IDisposable } from "@phosphor/disposable";
+import { ISplashScreen } from "@jupyterlab/apputils";
 
 /**
  * This is the main component for the vcdat extension.
@@ -37,6 +39,7 @@ import {
 export class LeftSideBarWidget extends Widget {
   public div: HTMLDivElement; // The div container for this widget
   public commands: CommandRegistry; // Jupyter app CommandRegistry
+  public splashScreen: ISplashScreen; // The jupyterlab splash screen object
   public notebookTracker: NotebookTracker; // This is to track current notebooks
   public application: JupyterLab; // The JupyterLab application object
   public vcsMenuRef: VCSMenu; // the LeftSidebar component
@@ -55,10 +58,16 @@ export class LeftSideBarWidget extends Widget {
   private _notebookPanel: NotebookPanel; // The notebook this widget is interacting with
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
   private preparing: boolean; // Whether the notebook is currently being prepared
+  private loading: boolean; // Whether the widget is loading the vcs import
   private isBusy: boolean;
 
-  constructor(app: JupyterLab, tracker: NotebookTracker) {
+  constructor(
+    app: JupyterLab,
+    tracker: NotebookTracker,
+    splash: ISplashScreen
+  ) {
     super();
+    this.splashScreen = splash;
     this.application = app;
     this.notebookTracker = tracker;
     this.div = document.createElement("div");
@@ -72,6 +81,7 @@ export class LeftSideBarWidget extends Widget {
     this.varTracker = new VariableTracker();
     this.codeInjector = new CodeInjector(app.commands, this.varTracker);
     this.usingKernel = false;
+    this.loading = false;
     this.refreshExt = true;
     this.canvasCount = 0;
     this._notebookPanel = null;
@@ -170,6 +180,25 @@ export class LeftSideBarWidget extends Widget {
   }
 
   // =======PROPS FUNCTIONS=======
+  public async delay(ms: number): Promise<any> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  public async loadScreenOn(): Promise<void> {
+    this.loading = true;
+    let disposable: IDisposable = this.splashScreen.show(true);
+    while (this.loading) {
+      await this.delay(1800);
+      disposable.dispose();
+      disposable = this.splashScreen.show(true);
+    }
+    disposable.dispose();
+  }
+
+  public loadScreenOff(): void {
+    this.loading = false;
+  }
+
   public syncNotebook = () => {
     return (
       !this.preparing &&
@@ -338,6 +367,9 @@ export class LeftSideBarWidget extends Widget {
     try {
       this.preparing = true;
 
+      // Start load screen
+      this.loadScreenOn();
+
       // Check the active widget is a notebook panel
       if (this.application.shell.currentWidget instanceof NotebookPanel) {
         await this.setNotebookPanel(this.application.shell.currentWidget);
@@ -380,6 +412,9 @@ export class LeftSideBarWidget extends Widget {
       await this.refreshGraphicsList();
       await this.refreshTemplatesList();
       await this.varTracker.refreshVariables();
+
+      // Start load screen
+      this.loadScreenOff();
 
       // Select last cell in notebook
       this.notebookPanel.content.activeCellIndex =
@@ -581,6 +616,9 @@ export class LeftSideBarWidget extends Widget {
       // Set as current notebook (if not already)
       await this.setNotebookPanel(newNotebookPanel);
 
+      // Start load screen
+      this.loadScreenOn();
+
       // Inject the imports
       let currentIdx: number = 0;
       currentIdx = await this.codeInjector.injectImportsCode();
@@ -589,6 +627,9 @@ export class LeftSideBarWidget extends Widget {
       const fileVars: Variable[] = await this.varTracker.getFileVariables(
         currentFile
       );
+
+      // Stop load screen
+      this.loadScreenOff();
 
       if (fileVars.length > 0) {
         await this.vcsMenuRef.varMenuRef.launchVarLoader(fileVars);
