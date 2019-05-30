@@ -10,13 +10,15 @@ import { VariableTracker } from "./VariableTracker";
 import {
   BASE_DATA_READER_NAME,
   CANVAS_CELL_KEY,
-  CHECK_MODULES_CMD,
   EXPORT_FORMATS,
   IMAGE_UNITS,
   IMPORT_CELL_KEY,
   MAX_SLABS,
   REQUIRED_MODULES
 } from "./constants";
+
+import { CHECK_MODULES_CMD } from "./PythonCommands";
+
 import { NotebookUtilities } from "./NotebookUtilities";
 import { Utilities } from "./Utilities";
 
@@ -196,6 +198,39 @@ export class CodeInjector {
     return cellIdx;
   }
 
+  public async saveNetCDFFile(
+    filename: string,
+    currentVariableName: string,
+    newVariableName: string,
+    appendToExistingFile: boolean,
+    shuffle: boolean,
+    deflate: boolean,
+    deflateValue: number
+  ): Promise<void> {
+    let cmd: string = ``;
+    if (shuffle) {
+      cmd += `cdms2.setNetcdfShuffleFlag(1)\n`;
+    }
+    if (deflate) {
+      cmd += `cdms2.setNetcdfDeflateFlag(1)\n`;
+      cmd += `cdms2.setNetcdfDeflateLevelFlag(int(${deflateValue}))\n`;
+    }
+    const writeMode = appendToExistingFile ? "r+" : "w";
+    const variableNameInFile = newVariableName
+      ? newVariableName
+      : currentVariableName;
+    cmd += `with cdms2.open('${filename}', "${writeMode}") as f:\n`;
+    cmd += `\tf.write(${currentVariableName}, id='${variableNameInFile}')`;
+
+    await this.inject(
+      cmd,
+      undefined,
+      "Failed to save NetCDF file.",
+      "saveNetCDFFile",
+      arguments
+    );
+  }
+
   /**
    * Injects code into the bottom cell of the notebook, doesn't display results (output or error)
    * @param code A string that has the code to inject into the notebook cell.
@@ -337,7 +372,7 @@ export class CodeInjector {
     this.varTracker.refreshVariables();
   }
 
-  public async loadVariable(variable: Variable) {
+  public async loadVariable(variable: Variable, newAlias?: string) {
     // If the variable doesn't have a source listed, load as a derived variable
     let isDerived: boolean = false;
     if (!variable.sourceName) {
@@ -345,9 +380,10 @@ export class CodeInjector {
     }
 
     // inject the code to load the variable into the notebook
+    const varAlias: string = newAlias ? newAlias : variable.alias;
     let cmd: string = isDerived
-      ? `${variable.alias} = ${variable.alias}(`
-      : `${variable.alias} = ${BASE_DATA_READER_NAME}("${variable.name}"`;
+      ? `${varAlias} = ${variable.alias}(`
+      : `${varAlias} = ${BASE_DATA_READER_NAME}("${variable.name}"`;
 
     // update axis info
     const axesCount: number = variable.axisInfo.length;

@@ -17,17 +17,19 @@ import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
   CANVAS_CELL_KEY,
-  CHECK_PLOT_EXIST_CMD,
-  CHECK_VCS_CMD,
   IMPORT_CELL_KEY,
-  NOTEBOOK_STATE,
-  REFRESH_GRAPHICS_CMD,
-  REFRESH_TEMPLATES_CMD
+  NOTEBOOK_STATE
 } from "./constants";
 import { NotebookUtilities } from "./NotebookUtilities";
 import { Utilities } from "./Utilities";
 import { VariableTracker } from "./VariableTracker";
 import { ISignal, Signal } from "@phosphor/signaling";
+import {
+  CHECK_PLOT_EXIST_CMD,
+  CHECK_VCS_CMD,
+  REFRESH_GRAPHICS_CMD,
+  REFRESH_TEMPLATES_CMD
+} from "./PythonCommands";
 
 /**
  * This is the main component for the vcdat extension.

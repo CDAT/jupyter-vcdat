@@ -15,11 +15,8 @@ import {
 
 // Project Components
 import { CodeInjector } from "../CodeInjector";
-import {
-  CANVAS_DIMENSIONS_CMD,
-  GRAPHICS_METHOD_KEY,
-  TEMPLATE_KEY
-} from "../constants";
+import { GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
+import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
 import { NotebookUtilities } from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
 import GraphicsMenu from "./GraphicsMenu";
@@ -380,6 +377,12 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     const varMenuProps = {
       codeInjector: this.props.codeInjector,
       commands: this.props.commands,
+      dismissSavePlotSpinnerAlert: this.dismissSavePlotSpinnerAlert,
+      exportAlerts: this.exportPlotAlerts,
+      notebookPanel: this.state.notebookPanel,
+      saveNotebook: this.saveNotebook,
+      setPlotInfo: this.setPlotInfo,
+      showExportSuccessAlert: this.showExportSuccessAlert,
       syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel,
       varTracker: this.props.varTracker

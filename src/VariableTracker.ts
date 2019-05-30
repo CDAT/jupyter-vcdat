@@ -5,14 +5,16 @@ import { ISignal, Signal } from "@phosphor/signaling";
 import { NotebookUtilities } from "./NotebookUtilities";
 import {
   FILE_PATH_KEY,
-  getAxisInfoFromFileCommand,
-  getAxisInfoFromVariableCommand,
-  getFileVarsCommand,
-  REFRESH_VAR_CMD,
   SELECTED_VARIABLES_KEY,
   VARIABLE_INFO_KEY,
   VARIABLES_LOADED_KEY
 } from "./constants";
+import {
+  getAxisInfoFromFileCommand,
+  getAxisInfoFromVariableCommand,
+  getFileVarsCommand,
+  REFRESH_VAR_CMD
+} from "./PythonCommands";
 import { Utilities } from "./Utilities";
 import { AxisInfo } from "./components/AxisInfo";
 
@@ -57,7 +59,6 @@ export class VariableTracker {
     this.setNotebook = this.setNotebook.bind(this);
     this.tryFilePath = this.tryFilePath.bind(this);
     this.updateAxesInfoGroup = this.updateAxesInfoGroup.bind(this);
-    this.updateDimInfo = this.updateDimInfo.bind(this);
     this.saveMetaData = this.saveMetaData.bind(this);
     this.copyVariable = this.copyVariable.bind(this);
     this.findVariableByID = this.findVariableByID.bind(this);
@@ -80,6 +81,15 @@ export class VariableTracker {
   }
 
   set variables(newVariables: Variable[]) {
+    // Ensure selected variable list doesn't contain deleted variables
+    const newSelection: string[] = Array<string>();
+    this.selectedVariables.forEach(selection => {
+      if (this.findVariableByID(selection, newVariables)[0] >= 0) {
+        newSelection.push(selection);
+      }
+    });
+    this.selectedVariables = newSelection;
+
     this._variables = newVariables;
     this._variablesChanged.emit(newVariables);
   }
@@ -228,6 +238,7 @@ export class VariableTracker {
     }
 
     this.variables = currentVars;
+    this.refreshVariables();
   }
 
   /**
@@ -242,16 +253,8 @@ export class VariableTracker {
     newName: string,
     addVar: boolean
   ): Variable {
-    // Exit if variable is not defined, new name is same as current alias or blank
-    if (!variable || !newName || variable.alias === newName) {
-      return;
-    }
-
-    // Exit if name already exists
-    if (
-      this.variableInfo &&
-      Object.keys(this.variableInfo).indexOf(newName) >= 0
-    ) {
+    // Exit if variable is not defined or blank
+    if (!variable || !newName) {
       return;
     }
 
@@ -617,26 +620,5 @@ export class VariableTracker {
         variable.axisInfo.push(axesInfo[item]);
       }
     });
-  }
-
-  /**
-   * @param newInfo new dimension info for the variables axis
-   * @param varID the name of the variable to update
-   */
-  public updateDimInfo(newInfo: any, varID: string): void {
-    const newVariables: Variable[] = this._variables;
-    newVariables.forEach((variable: Variable, varIndex: number) => {
-      if (variable.varID !== varID) {
-        return;
-      }
-      variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-        if (axis.name !== newInfo.name) {
-          return;
-        }
-        newVariables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-        newVariables[varIndex].axisInfo[axisIndex].max = newInfo.max;
-      });
-    });
-    this.variables = newVariables;
   }
 }

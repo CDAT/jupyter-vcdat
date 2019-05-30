@@ -1,3 +1,5 @@
+import time
+
 from ActionsPage import ActionsPage
 from EditAxis import EditAxis
 
@@ -11,10 +13,10 @@ class EditAxisPopUp(ActionsPage):
         self.edit_axis = EditAxis(driver, None)
 
     def _validate_page(self):
-        edit_axis_locator = "//div[@class='modal-header']/h5[contains(text(), 'Edit Axis')]"
+        edit_axis_locator = "//div[@class='modal-header']/h5[contains(text(), 'Edit')]"
         print("...EditAxisPopUp.validate_page()...")
         try:
-            self.find_element_by_xpath(edit_axis_locator, "'Edit Axis' header")
+            self.find_element_by_xpath(edit_axis_locator, "'Edit' header")
         except NoSuchElementException as e:
             print("Not finding 'Edit Axis' pop up")
             raise e
@@ -30,7 +32,7 @@ class EditAxisPopUp(ActionsPage):
             update_button = self.find_element_by_class(update_class,
                                                        "'Update' button on 'Edit Axis' pop up")
             self.move_to_click(update_button)
-
+            time.sleep(self._delay)
         except NoSuchElementException as e:
             print("FAIL...EditAxisPopUp.click_on_update")
             raise e

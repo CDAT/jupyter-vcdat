@@ -12,17 +12,48 @@ export class NotebookUtilities {
    * @param title The title for the message popup
    * @param msg The message
    * @param buttonLabel The label to use for the button. Default is 'OK'
+   * @param buttonClassName The classname to give to the 'ok' button
    * @returns Promise<void> - A promise once the message is closed.
    */
   public static async showMessage(
     title: string,
     msg: string,
-    buttonLabel: string = "OK"
+    buttonLabel: string = "OK",
+    buttonClassName: string = ""
   ): Promise<void> {
     const buttons: ReadonlyArray<Dialog.IButton> = [
-      Dialog.okButton({ label: buttonLabel })
+      Dialog.okButton({ label: buttonLabel, className: buttonClassName })
     ];
     await showDialog({ title, buttons, body: msg });
+  }
+
+  /**
+   * Opens a pop-up dialog in JupyterLab to display a yes/no dialog.
+   * @param title The title for the message popup
+   * @param msg The message
+   * @param acceptLabel The label to use for the accept button. Default is 'YES'
+   * @param rejectLabel The label to use for the reject button. Default is 'NO'
+   * @param yesButtonClassName The classname to give to the accept button.
+   * @param noButtonClassName The  classname to give to the cancel button.
+   * @returns Promise<void> - A promise once the message is closed.
+   */
+  public static async showYesNoDialog(
+    title: string,
+    msg: string,
+    acceptLabel: string = "YES",
+    rejectLabel: string = "NO",
+    yesButtonClassName: string = "",
+    noButtonClassName: string = ""
+  ): Promise<boolean> {
+    const buttons: ReadonlyArray<Dialog.IButton> = [
+      Dialog.okButton({ label: acceptLabel, className: yesButtonClassName }),
+      Dialog.cancelButton({ label: rejectLabel, className: noButtonClassName })
+    ];
+    const result = await showDialog({ title, buttons, body: msg });
+    if (result.button.label === acceptLabel) {
+      return true;
+    }
+    return false;
   }
 
   /**

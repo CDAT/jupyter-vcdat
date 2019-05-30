@@ -1,5 +1,6 @@
 // Dependencies
 import * as React from "react";
+import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Button,
   Card,
@@ -13,12 +14,12 @@ import {
 } from "reactstrap";
 
 // Project Components
+import { CodeInjector } from "../CodeInjector";
 import { ColorFunctions } from "../ColorFunctions";
 import { Variable } from "./Variable";
 import { VarLoader } from "./VarLoader";
 import { VarMini } from "./VarMini";
 import { VariableTracker } from "../VariableTracker";
-import { CodeInjector } from "../CodeInjector";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -35,6 +36,11 @@ interface IVarMenuProps {
   commands?: any; // the command executer
   updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
   syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
+  setPlotInfo: (plotName: string, plotFormat: string) => void;
+  exportAlerts: () => void;
+  dismissSavePlotSpinnerAlert: () => void;
+  showExportSuccessAlert: () => void;
+  notebookPanel: NotebookPanel;
 }
 
 interface IVarMenuState {
@@ -60,9 +66,9 @@ export default class VarMenu extends React.Component<
     this.launchVarLoader = this.launchVarLoader.bind(this);
     this.isSelected = this.isSelected.bind(this);
     this.reloadVariable = this.reloadVariable.bind(this);
-    this.copyVariable = this.copyVariable.bind(this);
     this.getOrder = this.getOrder.bind(this);
     this.setModalState = this.setModalState.bind(this);
+    this.varAliasExists = this.varAliasExists.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
@@ -108,22 +114,20 @@ export default class VarMenu extends React.Component<
     this.varLoaderRef.updateFileVars(fileVariables);
   }
 
-  public async copyVariable(variable: Variable, newName: string) {
-    const copy: Variable = this.props.varTracker.copyVariable(
-      variable,
-      newName,
-      true
-    );
-    if (copy) {
-      this.props.varTracker.selectedVariables = [variable.varID];
-      await this.props.codeInjector.loadVariable(copy);
-    }
+  public async reloadVariable(
+    variable: Variable,
+    newAlias?: string
+  ): Promise<void> {
+    await this.props.codeInjector.loadVariable(variable, newAlias);
+    this.props.varTracker.addVariable(variable);
+    this.props.varTracker.selectedVariables = newAlias
+      ? [newAlias]
+      : [variable.varID];
+    await this.props.varTracker.saveMetaData();
   }
 
-  public async reloadVariable(variable: Variable): Promise<void> {
-    await this.props.codeInjector.loadVariable(variable);
-    this.props.varTracker.selectedVariables = [variable.varID];
-    await this.props.varTracker.saveMetaData();
+  public varAliasExists(alias: string): boolean {
+    return this.props.varTracker.findVariableByAlias(alias)[0] >= 0;
   }
 
   public getOrder(varID: string): number {
@@ -187,9 +191,6 @@ export default class VarMenu extends React.Component<
                 style={formOverflow}
               >
                 {this.state.variables.map((item: Variable, idx: number) => {
-                  const reloadItem = () => {
-                    this.reloadVariable(item);
-                  };
                   const toggleSelection = () => {
                     if (this.state.modalOpen) {
                       return;
@@ -207,19 +208,30 @@ export default class VarMenu extends React.Component<
                     >
                       <VarMini
                         modalOpen={this.setModalState}
+                        varAliasExists={this.varAliasExists}
                         varSelectionChanged={
                           this.props.varTracker.selectedVariablesChanged
                         }
-                        reload={reloadItem}
-                        copyVariable={this.copyVariable}
+                        reload={this.reloadVariable}
+                        copyVariable={this.props.varTracker.copyVariable}
+                        selectVariable={this.props.varTracker.selectVariable}
                         deleteVariable={this.props.codeInjector.deleteVariable}
                         buttonColor={colors[this.getOrder(item.varID) - 1]}
                         allowReload={true}
                         selected={this.isSelected(item.varID)}
                         isSelected={this.isSelected}
                         selectOrder={this.getOrder(item.varID)}
-                        updateDimInfo={this.props.varTracker.updateDimInfo}
                         variable={item}
+                        codeInjector={this.props.codeInjector}
+                        setPlotInfo={this.props.setPlotInfo}
+                        exportAlerts={this.props.exportAlerts}
+                        dismissSavePlotSpinnerAlert={
+                          this.props.dismissSavePlotSpinnerAlert
+                        }
+                        showExportSuccessAlert={
+                          this.props.showExportSuccessAlert
+                        }
+                        notebookPanel={this.props.notebookPanel}
                       />
                     </ListGroupItem>
                   );
