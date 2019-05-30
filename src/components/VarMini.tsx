@@ -60,6 +60,7 @@ interface IVarMiniProps {
     addVariable: boolean
   ) => Variable;
   deleteVariable: (variable: Variable) => Promise<void>;
+  selectVariable: (varID: string) => Promise<void>;
   modalOpen: (isOpen: boolean) => void;
   selectOrder: number;
   allowReload: boolean; // is this variable allowed to be reloaded
@@ -622,6 +623,8 @@ export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
       await this.props.deleteVariable(this.state.variable);
       await this.setState({ variable: copy });
     }
+    // Select the new variable (if previous one deleted)
+    this.props.selectVariable(this.state.variable.varID);
     this.reset();
   }
 }

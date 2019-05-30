@@ -214,6 +214,7 @@ export default class VarMenu extends React.Component<
                         }
                         reload={this.reloadVariable}
                         copyVariable={this.props.varTracker.copyVariable}
+                        selectVariable={this.props.varTracker.selectVariable}
                         deleteVariable={this.props.codeInjector.deleteVariable}
                         buttonColor={colors[this.getOrder(item.varID) - 1]}
                         allowReload={true}
