@@ -14,11 +14,9 @@ class EditAxisPopUp(ActionsPage):
 
     def _validate_page(self):
         edit_axis_locator = "//div[@class='modal-header']/h5[contains(text(), 'Edit')]"
-        # edit_axis_locator = "varcard-axes-btn-vcdat"
         print("...EditAxisPopUp.validate_page()...")
         try:
-            self.find_element_by_class(edit_axis_locator, "'Edit Variable' header")
-            # self.find_element_by_xpath(edit_axis_locator, "'Edit' header")
+            self.find_element_by_xpath(edit_axis_locator, "'Edit' header")
         except NoSuchElementException as e:
             print("Not finding 'Edit Axis' pop up")
             raise e
