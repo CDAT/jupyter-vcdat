@@ -21,10 +21,9 @@ import { EXTENSIONS } from "./constants";
 import { LeftSideBarWidget } from "./widgets";
 import { NCViewerWidget } from "./NCViewerWidget";
 import { NotebookUtilities } from "./NotebookUtilities";
-// import { ISplashScreen } from "@jupyterlab/apputils";
 
 const FILETYPE = "NetCDF";
-const FACTORY_NAME = "vcs";
+const FACTORY_NAME = "vcdat";
 
 // Declare the widget variables
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
@@ -38,7 +37,7 @@ const extension: JupyterLabPlugin<void> = {
   activate,
   autoStart: true,
   id: "jupyter-vcdat",
-  requires: [INotebookTracker, IMainMenu /*, ISplashScreen*/]
+  requires: [INotebookTracker, IMainMenu]
 };
 
 export default extension;
@@ -75,7 +74,7 @@ function activate(
   // Creates the left side bar widget once the app has fully started
   app.started
     .then(() => {
-      sidebar = new LeftSideBarWidget(app, tracker /*, splash*/);
+      sidebar = new LeftSideBarWidget(app, tracker);
       sidebar.id = /*@tag<left-side-bar>*/ "left-side-bar-vcdat";
       sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
       sidebar.title.closable = true;

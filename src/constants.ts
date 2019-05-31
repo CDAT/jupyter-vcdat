@@ -11,7 +11,8 @@ export const EXTENSIONS: string[] = [
   ".ctl",
   ".dic",
   ".pp",
-  ".cdf"
+  ".cdf",
+  ".xml"
 ];
 
 export const EXTENSIONS_REGEX: RegExp = Utilities.filenameFilter(EXTENSIONS);
