@@ -15,7 +15,6 @@ export const EXTENSIONS: string[] = [
   ".cdf"
 ];
 
-export const EXTENSIONS_REGEX: RegExp = Utilities.filenameFilter(EXTENSIONS);
 export const OUTPUT_RESULT_NAME = "_private_vcdat_output";
 export const FILE_PATH_KEY: string = "vcdat_file_path";
 export const IMPORT_CELL_KEY: string = "vcdat_imports";

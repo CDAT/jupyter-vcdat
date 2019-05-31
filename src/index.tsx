@@ -69,7 +69,6 @@ function activate(
   };
 
   app.docRegistry.addFileType(ft);
-
   app.docRegistry.addWidgetFactory(factory);
 
   // Creates the left side bar widget once the app has fully started
