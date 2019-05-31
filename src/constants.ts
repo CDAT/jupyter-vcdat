@@ -8,11 +8,11 @@ export const EXTENSIONS: string[] = [
   ".nc",
   ".nc3",
   ".nc4",
+  ".xml",
   ".ctl",
   ".dic",
   ".pp",
-  ".cdf",
-  ".xml"
+  ".cdf"
 ];
 
 export const EXTENSIONS_REGEX: RegExp = Utilities.filenameFilter(EXTENSIONS);
