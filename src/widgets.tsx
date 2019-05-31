@@ -13,6 +13,7 @@ import { CodeInjector } from "./CodeInjector";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Variable } from "./components/Variable";
 import { VCSMenu } from "./components/VCSMenu";
+import { PopUpModal } from "./components/PopUpModal";
 import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
@@ -30,8 +31,6 @@ import {
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD
 } from "./PythonCommands";
-import { IDisposable } from "@phosphor/disposable";
-import { ISplashScreen } from "@jupyterlab/apputils";
 
 /**
  * This is the main component for the vcdat extension.
@@ -39,10 +38,10 @@ import { ISplashScreen } from "@jupyterlab/apputils";
 export class LeftSideBarWidget extends Widget {
   public div: HTMLDivElement; // The div container for this widget
   public commands: CommandRegistry; // Jupyter app CommandRegistry
-  public splashScreen: ISplashScreen; // The jupyterlab splash screen object
   public notebookTracker: NotebookTracker; // This is to track current notebooks
   public application: JupyterLab; // The JupyterLab application object
   public vcsMenuRef: VCSMenu; // the LeftSidebar component
+  public loadingModalRef: PopUpModal;
   public graphicsMethods: any; // The current available graphics methods
   public templatesList: string[]; // The list of current templates
   public usingKernel: boolean; // The widgets is running a ker nel command
@@ -58,16 +57,10 @@ export class LeftSideBarWidget extends Widget {
   private _notebookPanel: NotebookPanel; // The notebook this widget is interacting with
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
   private preparing: boolean; // Whether the notebook is currently being prepared
-  private loading: boolean; // Whether the widget is loading the vcs import
   private isBusy: boolean;
 
-  constructor(
-    app: JupyterLab,
-    tracker: NotebookTracker,
-    splash: ISplashScreen
-  ) {
+  constructor(app: JupyterLab, tracker: NotebookTracker) {
     super();
-    this.splashScreen = splash;
     this.application = app;
     this.notebookTracker = tracker;
     this.div = document.createElement("div");
@@ -81,7 +74,6 @@ export class LeftSideBarWidget extends Widget {
     this.varTracker = new VariableTracker();
     this.codeInjector = new CodeInjector(app.commands, this.varTracker);
     this.usingKernel = false;
-    this.loading = false;
     this.refreshExt = true;
     this.canvasCount = 0;
     this._notebookPanel = null;
@@ -107,6 +99,7 @@ export class LeftSideBarWidget extends Widget {
 
     this.setBusy = this.setBusy.bind(this);
     this.vcsMenuRef = (React as any).createRef();
+    this.loadingModalRef = (React as any).createRef();
     ReactDOM.render(
       <ErrorBoundary>
         <VCSMenu
@@ -125,6 +118,12 @@ export class LeftSideBarWidget extends Widget {
           refreshGraphicsList={this.refreshGraphicsList}
           notebookPanel={this._notebookPanel}
           updateNotebookPanel={this.recognizeNotebookPanel}
+        />
+        <PopUpModal
+          title="Notice"
+          message="Loading CDAT core modules. Please wait..."
+          btnText="OK"
+          ref={loader => (this.loadingModalRef = loader)}
         />
       </ErrorBoundary>,
       this.div
@@ -182,21 +181,6 @@ export class LeftSideBarWidget extends Widget {
   // =======PROPS FUNCTIONS=======
   public async delay(ms: number): Promise<any> {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  public async loadScreenOn(): Promise<void> {
-    this.loading = true;
-    let disposable: IDisposable = this.splashScreen.show(true);
-    while (this.loading) {
-      await this.delay(1800);
-      disposable.dispose();
-      disposable = this.splashScreen.show(true);
-    }
-    disposable.dispose();
-  }
-
-  public loadScreenOff(): void {
-    this.loading = false;
   }
 
   public syncNotebook = () => {
@@ -367,9 +351,6 @@ export class LeftSideBarWidget extends Widget {
     try {
       this.preparing = true;
 
-      // Start load screen
-      this.loadScreenOn();
-
       // Check the active widget is a notebook panel
       if (this.application.shell.currentWidget instanceof NotebookPanel) {
         await this.setNotebookPanel(this.application.shell.currentWidget);
@@ -396,6 +377,9 @@ export class LeftSideBarWidget extends Widget {
         return;
       }
 
+      // Start load screen
+      await this.loadingModalRef.show();
+
       // Inject the imports
       let currentIdx: number =
         this.notebookPanel.content.model.cells.length - 1;
@@ -408,13 +392,13 @@ export class LeftSideBarWidget extends Widget {
         await this.codeInjector.injectCanvasCode(currentIdx);
       }
 
+      // Start load screen
+      await this.loadingModalRef.hide();
+
       // Update the selected graphics method, variable list, templates and loaded variables
       await this.refreshGraphicsList();
       await this.refreshTemplatesList();
       await this.varTracker.refreshVariables();
-
-      // Start load screen
-      this.loadScreenOff();
 
       // Select last cell in notebook
       this.notebookPanel.content.activeCellIndex =
@@ -508,6 +492,11 @@ export class LeftSideBarWidget extends Widget {
         REFRESH_GRAPHICS_CMD
       );
       this.usingKernel = false;
+
+      // Exit if result is blank
+      if (!output) {
+        return;
+      }
 
       // Update the list of latest variables and data
       this.graphicsMethods = output
@@ -617,7 +606,7 @@ export class LeftSideBarWidget extends Widget {
       await this.setNotebookPanel(newNotebookPanel);
 
       // Start load screen
-      this.loadScreenOn();
+      await this.loadingModalRef.show();
 
       // Inject the imports
       let currentIdx: number = 0;
@@ -629,7 +618,7 @@ export class LeftSideBarWidget extends Widget {
       );
 
       // Stop load screen
-      this.loadScreenOff();
+      await this.loadingModalRef.hide();
 
       if (fileVars.length > 0) {
         await this.vcsMenuRef.varMenuRef.launchVarLoader(fileVars);

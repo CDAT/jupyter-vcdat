@@ -218,7 +218,7 @@ export class NotebookUtilities {
     // Get results from the request for validation
     const output: any = result.result;
 
-    if (output === null || output.data === undefined) {
+    if (!output || output.data === undefined) {
       // Output was empty
       return "";
     }
@@ -293,6 +293,14 @@ export class NotebookUtilities {
     const content: any = message.content;
 
     if (content.status !== "ok") {
+      // If cdat is requesting user input, return nothing
+      if (
+        content.status === "error" &&
+        content.ename === "StdinNotImplementedError"
+      ) {
+        return "";
+      }
+
       // If response is not 'ok', throw contents as error, log code
       const msg: string = `Code caused an error:\n${runCode}`;
       console.error(msg);
