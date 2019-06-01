@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/147574270.svg)](https://zenodo.org/badge/latestdoi/147574270)
+
+
 # jupyter-react-ext
 
 A Jupyter Lab extension that integrates vCDAT features directly in a notebook.
