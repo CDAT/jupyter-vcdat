@@ -18,7 +18,8 @@ import {
 // Project Components
 import { CodeInjector } from "../CodeInjector";
 import { NotebookUtilities } from "../NotebookUtilities";
-import { EXPORT_FORMATS, IMAGE_UNITS, OUTPUT_RESULT_NAME } from "../constants";
+import { EXPORT_FORMATS, IMAGE_UNITS } from "../constants";
+import { checkForExportedFileCommand } from "../PythonCommands";
 
 export interface IExportPlotModalProps {
   isOpen: boolean;
@@ -156,18 +157,7 @@ export class ExportPlotModal extends React.Component<
     try {
       const result: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.props.notebookPanel,
-        `import os\n\
-import time\n\
-def check_for_exported_file():\n\
-  exported_file_path = os.path.join(os.getcwd(), '${plotFileName}')\n\
-  counter = 0\n\
-  while not os.path.exists(exported_file_path):\n\
-    time.sleep(1)\n\
-    counter +=1\n\
-    if counter == 15:\n\
-      raise Exception("Exporting plot timed out.")\n\
-  return True\n\
-${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
+        checkForExportedFileCommand(plotFileName)
       );
       if (result === "True") {
         this.props.dismissSavePlotSpinnerAlert();

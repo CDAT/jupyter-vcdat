@@ -23,7 +23,7 @@ import { NCViewerWidget } from "./NCViewerWidget";
 import { NotebookUtilities } from "./NotebookUtilities";
 
 const FILETYPE = "NetCDF";
-const FACTORY_NAME = "vcs";
+const FACTORY_NAME = "vcdat";
 
 // Declare the widget variables
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app

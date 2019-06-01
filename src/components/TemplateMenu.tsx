@@ -32,7 +32,7 @@ interface ITemplateMenuState {
   plotReady: boolean;
 }
 
-export default class TemplateMenu extends React.Component<
+export class TemplateMenu extends React.Component<
   ITemplateMenuProps,
   ITemplateMenuState
 > {

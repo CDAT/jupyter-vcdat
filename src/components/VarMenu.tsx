@@ -49,10 +49,7 @@ interface IVarMenuState {
   selectedVariables: string[]; // the names of the variables the user has selected
 }
 
-export default class VarMenu extends React.Component<
-  IVarMenuProps,
-  IVarMenuState
-> {
+export class VarMenu extends React.Component<IVarMenuProps, IVarMenuState> {
   public varLoaderRef: VarLoader;
   constructor(props: IVarMenuProps) {
     super(props);

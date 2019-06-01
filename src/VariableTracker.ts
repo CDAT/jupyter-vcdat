@@ -457,6 +457,11 @@ export class VariableTracker {
       );
       this._isBusy = false;
 
+      // Exit if result is blank
+      if (!result) {
+        return;
+      }
+
       // Parse the resulting output into an object
       const fileVariables: any = JSON.parse(result.slice(1, result.length - 1));
       const newVars = Array<Variable>();
@@ -495,6 +500,11 @@ export class VariableTracker {
       REFRESH_VAR_CMD
     );
     this._isBusy = false;
+
+    // Exit if result is blank
+    if (!result) {
+      return;
+    }
 
     // A grouping object so that variables from each data source are updated together
     const varGroups: { [sourceName: string]: Variable[] } = {};
@@ -578,6 +588,11 @@ export class VariableTracker {
     );
     this._isBusy = false;
 
+    // Exit if result is blank
+    if (!result) {
+      return;
+    }
+
     // Parse the resulting output as file specific axes
     const axesInfo: any = JSON.parse(result.slice(1, result.length - 1));
 
@@ -607,6 +622,11 @@ export class VariableTracker {
       getAxisInfoFromVariableCommand(variable.alias)
     );
     this._isBusy = false;
+
+    // Exit if result is blank
+    if (!result) {
+      return;
+    }
 
     // Parse the resulting output as file specific axes
     const axesInfo: any = JSON.parse(result.slice(1, result.length - 1));
