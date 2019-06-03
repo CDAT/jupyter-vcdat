@@ -1,6 +1,7 @@
-FROM cdoutrix/vcdat:core
+FROM cdoutrix/vcdat:lab-extensions
 # Get the setup image
 ENV CDAT_ANONYMOUS_LOG false
 # extension
-RUN git clone https://github.com/CDAT/jupyter-vcdat.git && cd jupyter-vcdat && git checkout variables_switching && python setup.py install && rm -rf node_modules && npm install && npm run build && jupyter lab build && jupyter-labextension install . && cd .. && rm -rf jupyter-vcdat
-
+# run with --build-args BRANCH=master
+# e.g.: sudo docker build --build-arg BRANCH=master -f kube/Dockerfile.extension .
+RUN git clone https://github.com/CDAT/jupyter-vcdat.git && cd jupyter-vcdat && git checkout $BRANCH && npm install && npm run build && jupyter lab build && jupyter-labextension install . && cd .. && rm -rf jupyter-vcdat

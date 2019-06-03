@@ -18,11 +18,12 @@ import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 // Project Components
 import "../style/css/index.css";
 import { EXTENSIONS } from "./constants";
+import { LeftSideBarWidget } from "./widgets";
+import { NCViewerWidget } from "./NCViewerWidget";
 import { NotebookUtilities } from "./NotebookUtilities";
-import { LeftSideBarWidget, NCViewerWidget } from "./widgets";
 
 const FILETYPE = "NetCDF";
-const FACTORY_NAME = "vcs";
+const FACTORY_NAME = "vcdat";
 
 // Declare the widget variables
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
@@ -33,10 +34,10 @@ let mainMenu: MainMenu;
  * Initialization data for the jupyter-vcdat extension.
  */
 const extension: JupyterLabPlugin<void> = {
-  id: "jupyter-vcdat",
+  activate,
   autoStart: true,
-  requires: [INotebookTracker, IMainMenu],
-  activate
+  id: "jupyter-vcdat",
+  requires: [INotebookTracker, IMainMenu]
 };
 
 export default extension;
@@ -53,58 +54,66 @@ function activate(
   mainMenu = menu;
 
   const factory = new NCViewerFactory({
-    name: FACTORY_NAME,
-    fileTypes: [FILETYPE],
     defaultFor: [FILETYPE],
+    fileTypes: [FILETYPE],
+    name: FACTORY_NAME,
     readOnly: true
   });
 
   const ft: DocumentRegistry.IFileType = {
-    name: FILETYPE,
-    extensions: EXTENSIONS,
-    mimeTypes: ["application/netcdf"],
     contentType: "file",
-    fileFormat: "base64"
+    extensions: EXTENSIONS,
+    fileFormat: "base64",
+    mimeTypes: ["application/netcdf"],
+    name: FILETYPE
   };
 
   app.docRegistry.addFileType(ft);
   app.docRegistry.addWidgetFactory(factory);
 
   // Creates the left side bar widget once the app has fully started
-  app.started.then(() => {
-    sidebar = new LeftSideBarWidget(app, tracker);
-    sidebar.id = "vcdat-left-side-bar";
-    sidebar.title.iconClass = "jp-vcdat-icon jp-SideBar-tabIcon";
-    sidebar.title.closable = true;
+  app.started
+    .then(() => {
+      sidebar = new LeftSideBarWidget(app, tracker);
+      sidebar.id = /*@tag<left-side-bar>*/ "left-side-bar-vcdat";
+      sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
+      sidebar.title.closable = true;
 
-    // Attach it to the left side of main area
-    shell.addToLeftArea(sidebar);
+      // Attach it to the left side of main area
+      shell.addToLeftArea(sidebar);
 
-    // Activate the widget
-    shell.activateById(sidebar.id);
-  });
+      // Activate the widget
+      shell.activateById(sidebar.id);
+    })
+    .catch(error => {
+      console.error(error);
+    });
 
   // Initializes the sidebar widget once the application shell has been restored
   // and all the widgets have been added to the notebooktracker
-  app.shell.restored.then(() => {
-    addHelpReference(
-      mainMenu,
-      "VCS Reference",
-      "https://cdat-vcs.readthedocs.io/en/latest/"
-    );
-    addHelpReference(
-      mainMenu,
-      "CDMS Reference",
-      "https://cdms.readthedocs.io/en/latest/"
-    );
-    sidebar.initialize();
-  });
+  app.shell.restored
+    .then(() => {
+      addHelpReference(
+        mainMenu,
+        "VCS Reference",
+        "https://cdat-vcs.readthedocs.io/en/latest/"
+      );
+      addHelpReference(
+        mainMenu,
+        "CDMS Reference",
+        "https://cdms.readthedocs.io/en/latest/"
+      );
+      sidebar.initialize();
+    })
+    .catch(error => {
+      console.error(error);
+    });
 }
 
 // Adds a reference link to the help menu in JupyterLab
-function addHelpReference(mainMenu: MainMenu, text: string, url: string): void {
+function addHelpReference(menu: MainMenu, text: string, url: string): void {
   // Add item to help menu
-  mainMenu.helpMenu.menu.addItem({
+  menu.helpMenu.menu.addItem({
     args: { text, url },
     command: "help:open"
   });
@@ -122,7 +131,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
     const content = new NCViewerWidget(context);
     const ncWidget = new DocumentWidget({ content, context });
 
-    if (sidebar == null || context == null) {
+    if (sidebar === null || context === null) {
       return;
     }
 
@@ -131,9 +140,9 @@ export class NCViewerFactory extends ABCWidgetFactory<
 
     // Prepare the notebook for code injection
     sidebar.prepareNotebookPanel(context.session.path).catch(error => {
-      if (error.status == "error") {
+      if (error.status === "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
-      } else if (error.message != null) {
+      } else if (error.message) {
         NotebookUtilities.showMessage("Error", error.message);
       } else {
         NotebookUtilities.showMessage(

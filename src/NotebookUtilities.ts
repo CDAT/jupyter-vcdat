@@ -6,24 +6,54 @@ import { CommandRegistry } from "@phosphor/commands";
 import { OUTPUT_RESULT_NAME } from "./constants";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
-namespace NotebookUtilities {
-
+export class NotebookUtilities {
   /**
    * Opens a pop-up dialog in JupyterLab to display a simple message.
    * @param title The title for the message popup
    * @param msg The message
    * @param buttonLabel The label to use for the button. Default is 'OK'
+   * @param buttonClassName The classname to give to the 'ok' button
    * @returns Promise<void> - A promise once the message is closed.
    */
-  export async function showMessage(
+  public static async showMessage(
     title: string,
     msg: string,
-    buttonLabel: string = "OK"
+    buttonLabel: string = "OK",
+    buttonClassName: string = ""
   ): Promise<void> {
     const buttons: ReadonlyArray<Dialog.IButton> = [
-      Dialog.okButton({ label: buttonLabel })
+      Dialog.okButton({ label: buttonLabel, className: buttonClassName })
     ];
-    return showDialog({ title, body: msg, buttons }).then(() => {});
+    await showDialog({ title, buttons, body: msg });
+  }
+
+  /**
+   * Opens a pop-up dialog in JupyterLab to display a yes/no dialog.
+   * @param title The title for the message popup
+   * @param msg The message
+   * @param acceptLabel The label to use for the accept button. Default is 'YES'
+   * @param rejectLabel The label to use for the reject button. Default is 'NO'
+   * @param yesButtonClassName The classname to give to the accept button.
+   * @param noButtonClassName The  classname to give to the cancel button.
+   * @returns Promise<void> - A promise once the message is closed.
+   */
+  public static async showYesNoDialog(
+    title: string,
+    msg: string,
+    acceptLabel: string = "YES",
+    rejectLabel: string = "NO",
+    yesButtonClassName: string = "",
+    noButtonClassName: string = ""
+  ): Promise<boolean> {
+    const buttons: ReadonlyArray<Dialog.IButton> = [
+      Dialog.okButton({ label: acceptLabel, className: yesButtonClassName }),
+      Dialog.cancelButton({ label: rejectLabel, className: noButtonClassName })
+    ];
+    const result = await showDialog({ title, buttons, body: msg });
+    if (result.button.label === acceptLabel) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -31,7 +61,7 @@ namespace NotebookUtilities {
    * @param command The command registry
    * @returns Promise<NotebookPanel> - A promise containing the notebook panel object that was created (if successful).
    */
-  export async function createNewNotebook(
+  public static async createNewNotebook(
     command: CommandRegistry
   ): Promise<NotebookPanel> {
     const notebook: any = await command.execute("notebook:create-new", {
@@ -44,6 +74,21 @@ namespace NotebookUtilities {
   }
 
   /**
+   * Safely saves the Jupyter notebook document contents to disk
+   * @param notebookPanel The notebook panel containing the notebook to save
+   */
+  public static async saveNotebook(
+    notebookPanel: NotebookPanel
+  ): Promise<boolean> {
+    if (notebookPanel) {
+      await notebookPanel.context.ready;
+      notebookPanel.context.save();
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * @description Gets the value of a key from specified notebook's metadata.
    * This asynchronous version checks the notebook session is ready before getting metadata.
    * If the notebook is null, an error will occur.
@@ -51,19 +96,18 @@ namespace NotebookUtilities {
    * @param key The key of the value.
    * @returns Promise<any> - The value of the metadata. Returns null if the key doesn't exist.
    */
-  export async function getMetaData(
+  public static async getMetaData(
     notebookPanel: NotebookPanel,
     key: string
   ): Promise<any> {
-    if (notebookPanel == null) {
+    if (!notebookPanel) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
-    await notebookPanel.activated;
-    await notebookPanel.session.ready;
-    if (notebookPanel.content.model.metadata.has(key)) {
-      return notebookPanel.content.model.metadata.get(key);
+    await notebookPanel.session.ready; // Wait for session to load in notebook
+    if (notebookPanel.model && notebookPanel.model.metadata.has(key)) {
+      return notebookPanel.model.metadata.get(key);
     }
     return null;
   }
@@ -74,17 +118,14 @@ namespace NotebookUtilities {
    * @param key The key of the value.
    * @returns any -The value of the metadata. Returns null if the key doesn't exist.
    */
-  export function getMetaDataNow(
-    notebookPanel: NotebookPanel,
-    key: string
-  ): any {
-    if (notebookPanel == null) {
+  public static getMetaDataNow(notebookPanel: NotebookPanel, key: string): any {
+    if (!notebookPanel) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
-    if (notebookPanel.content.model.metadata.has(key)) {
-      return notebookPanel.content.model.metadata.get(key);
+    if (notebookPanel.model && notebookPanel.model.metadata.has(key)) {
+      return notebookPanel.model.metadata.get(key);
     }
     return null;
   }
@@ -98,21 +139,21 @@ namespace NotebookUtilities {
    * @param save Default is false. Whether the notebook should be saved after the meta data is set.
    * @returns The old value for the key, or undefined if it did not exist.
    */
-  export async function setMetaData(
+  public static async setMetaData(
     notebookPanel: NotebookPanel,
     key: string,
     value: any,
     save: boolean = false
   ): Promise<any> {
-    if (notebookPanel == null) {
+    if (!notebookPanel) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
     await notebookPanel.session.ready;
-    const oldVal: any = notebookPanel.content.model.metadata.set(key, value);
+    const oldVal: any = notebookPanel.model.metadata.set(key, value);
     if (save) {
-      await notebookPanel.context.save();
+      this.saveNotebook(notebookPanel);
     }
     return oldVal;
   }
@@ -127,15 +168,20 @@ namespace NotebookUtilities {
    * Note: This function will not wait for the save to complete, it only sends a save request.
    * @returns The old value for the key, or undefined if it did not exist.
    */
-  export function setMetaDataNow(
+  public static setMetaDataNow(
     notebookPanel: NotebookPanel,
     key: string,
     value: any,
     save: boolean = false
   ): any {
-    const oldVal = notebookPanel.content.model.metadata.set(key, value);
+    if (!notebookPanel) {
+      throw new Error(
+        "The notebook is null or undefined. No meta data available."
+      );
+    }
+    const oldVal = notebookPanel.model.metadata.set(key, value);
     if (save) {
-      notebookPanel.context.save();
+      this.saveNotebook(notebookPanel);
     }
     return oldVal;
   }
@@ -153,13 +199,13 @@ namespace NotebookUtilities {
    * @returns Promise<string> - A promise containing the execution results of the code as a string.
    * Or an empty string if there were no results.
    */
-  export async function sendSimpleKernelRequest(
+  public static async sendSimpleKernelRequest(
     notebookPanel: NotebookPanel,
     code: string,
     storeHistory: boolean = false
   ): Promise<string> {
     // Send request to kernel with pre-filled parameters
-    const result: any = await sendKernelRequest(
+    const result: any = await NotebookUtilities.sendKernelRequest(
       notebookPanel,
       code,
       { result: OUTPUT_RESULT_NAME },
@@ -172,7 +218,7 @@ namespace NotebookUtilities {
     // Get results from the request for validation
     const output: any = result.result;
 
-    if (output == null || output.data == undefined) {
+    if (!output || output.data === undefined) {
       // Output was empty
       return "";
     }
@@ -186,9 +232,9 @@ namespace NotebookUtilities {
    * @description This function runs code directly in the notebook's kernel and then evaluates the
    * result and returns it as a promise.
    * @param notebookPanel The notebook to run the code in.
-   * @param code The code to run in the kernel.
+   * @param runCode The code to run in the kernel.
    * @param userExpressions The expressions used to capture the desired info from the executed code.
-   * @param silent Default is false. If true, kernel will execute as quietly as possible.
+   * @param runSilent Default is false. If true, kernel will execute as quietly as possible.
    * store_history will be set to false, and no broadcast on IOPUB channel will be made.
    * @param storeHistory Default is false. If true, the code executed will be stored in the kernel's history
    * and the counter which is shown in the cells will be incremented to reflect code was run.
@@ -214,42 +260,53 @@ namespace NotebookUtilities {
    * @see For more information on JupyterLab messages:
    * https://jupyter-client.readthedocs.io/en/latest/messaging.html#execution-results
    */
-  export async function sendKernelRequest(
+  public static async sendKernelRequest(
     notebookPanel: NotebookPanel,
-    code: string,
+    runCode: string,
     userExpressions: any,
-    silent: boolean = false,
+    runSilent: boolean = false,
     storeHistory: boolean = false,
     allowStdIn: boolean = false,
     stopOnError: boolean = false
   ): Promise<any> {
     // Check notebook panel is ready
-    if (notebookPanel == null) {
+    if (notebookPanel === null) {
       throw new Error("The notebook is null or undefined.");
     }
+
     // Wait for kernel to be ready before sending request
     await notebookPanel.activated;
     await notebookPanel.session.ready;
     await notebookPanel.session.kernel.ready;
+
     const message: KernelMessage.IShellMessage = await notebookPanel.session.kernel.requestExecute(
       {
-        code,
-        silent,
-        store_history: storeHistory,
-        user_expressions: userExpressions,
         allow_stdin: allowStdIn,
-        stop_on_error: stopOnError
+        code: runCode,
+        silent: runSilent,
+        stop_on_error: stopOnError,
+        store_history: storeHistory,
+        user_expressions: userExpressions
       }
     ).done;
 
     const content: any = message.content;
 
-    if (content.status != "ok") {
-      throw content; // If response is not 'ok', throw response contents as error
+    if (content.status !== "ok") {
+      // If cdat is requesting user input, return nothing
+      if (
+        content.status === "error" &&
+        content.ename === "StdinNotImplementedError"
+      ) {
+        return "";
+      }
+
+      // If response is not 'ok', throw contents as error, log code
+      const msg: string = `Code caused an error:\n${runCode}`;
+      console.error(msg);
+      throw content;
     }
     // Return user_expressions of the content
     return content.user_expressions;
   }
 }
-
-export { NotebookUtilities };

@@ -1,29 +1,38 @@
 import os
+import sys
+
+this_dir = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(this_dir, '..', 'PageObjects'))
+
+from JupyterUtils import JupyterUtils
+from MainPage import MainPage
+from NoteBookPage import NoteBookPage
+
 import time
 import unittest
 import tempfile
 
-from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from pyvirtualdisplay import Display
 
-from JupyterUtils import JupyterUtils
-from VcdatLeftSideBar import VcdatLeftSideBar
-from FileBrowser import FileBrowser
-from MainPage import MainPage
-from NoteBookPage import NoteBookPage
-
 
 class BaseTestCase(unittest.TestCase):
-
-    _delay = 1
-    _wait_timeout = 3
+    '''
+    Following env variable should be set:
+    BROWSER_MODE: '--foreground' or '--headless'
+    BROWSER_TYPE: 'chrome' or 'firefox'
+    BROWSER_DRIVER: full path to your browser driver (chromedriver or geckodriver)
+    If running with firefox on Linux, should also set:
+       BROWSER_BINARY: full path to your firefox binary
+    '''
+    _delay = 0.1
+    _wait_timeout = 10
 
     def setUp(self):
+        print("\n\n#########...{}...".format(self._testMethodName))
         self._download_dir = tempfile.mkdtemp()
         browser = os.getenv("BROWSER_TYPE", 'chrome')
         mode = os.getenv("BROWSER_MODE", '--headless')
@@ -46,11 +55,10 @@ class BaseTestCase(unittest.TestCase):
         utils = JupyterUtils()
         self.server = utils.get_server()
         self.main_page = MainPage(self.driver, self.server)
-        self.close_notebook_if_any()
 
     def tearDown(self):
-        self.main_page.shutdown_kernel()
-        self.close_notebook_if_any()
+        print("...BaseTestCase.tearDown()...")
+        # self.main_page.shutdown_kernel()
         self.driver.quit()
 
     def setup_for_chrome(self, mode):
@@ -58,49 +66,35 @@ class BaseTestCase(unittest.TestCase):
         chrome_options.add_argument(mode)
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("window-size=1200x600")
-        self.driver = webdriver.Chrome(executable_path="/usr/local/bin/chromedriver",
+        self.driver = webdriver.Chrome(executable_path=os.getenv("BROWSER_DRIVER", "/usr/local/bin/chromedriver"),
                                        chrome_options=chrome_options,
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
 
     def setup_for_firefox(self, mode):
         firefox_profile = FirefoxProfile()
-        firefox_profile.set_preference('extensions.logging.enabled', False)
-        firefox_profile.set_preference('network.dns.disableIPv6', False)
-        firefox_profile.set_preference('browser.download.dir', self._download_dir)
-        firefox_profile.set_preference('browser.download.folderList', 2)
-        firefox_profile.set_preference('browser.download.useDownloadDir', True)
-        firefox_profile.set_preference('browser.download.panel.shown', False)
-        firefox_profile.set_preference('browser.download.manager.showWhenStarting', False)
-        firefox_profile.set_preference('browser.download.manager.showAlertOnComplete', False)
+        firefox_profile.set_preference('dom.disable_open_during_load', False)
         firefox_capabilities = DesiredCapabilities().FIREFOX
         firefox_capabilities['marionette'] = True
         firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
-        options = Options()
-        options.binary_location = "/usr/local/bin/geckodriver"
-        firefox_binary = FirefoxBinary("/usr/local/bin/firefox")
+
+        firefox_binary = FirefoxBinary(os.getenv("BROWSER_BINARY", "/usr/bin/firefox"))
+        geckodriver_loc = os.getenv("BROWSER_DRIVER", "/usr/local/bin/geckodriver")
         self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
                                         firefox_binary=firefox_binary,
-                                        executable_path="/usr/local/bin/geckodriver",
-                                        options=options,
+                                        executable_path=geckodriver_loc,
                                         capabilities=firefox_capabilities)
 
-    def close_notebook_if_any(self):
-        try:
-            note_book = NoteBookPage(self.driver)
-            note_book.close()
-            time.sleep(self._delay)
-        except NoSuchElementException:
-            print("No notebook opened")
-            pass
+    #
+    # Test Util functions
+    #
+    def new_notebook(self, launcher, notebook_name):
+        notebook = NoteBookPage(self.driver, None)
+        notebook.new_notebook(launcher, notebook_name)
+        return notebook
 
-    def load_data_file(self, filename):
-        left_side_bar = VcdatLeftSideBar(self.driver, None)
-        left_side_bar.click_on_jp_vcdat_icon()
-        time.sleep(self._delay)
-        left_side_bar.click_on_load_variables()
-
-        file_browser = FileBrowser(self.driver, None)
-        file_browser.double_click_on_a_file(filename)
-        time.sleep(self._delay)
-
-        return left_side_bar
+    def save_close_notebook(self, notebook):
+        '''
+        save and close current notebook
+        '''
+        notebook.save_current_notebook()
+        notebook.close_current_notebook()

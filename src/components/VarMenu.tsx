@@ -1,5 +1,6 @@
 // Dependencies
 import * as React from "react";
+import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Button,
   Card,
@@ -11,13 +12,14 @@ import {
   ListGroupItem,
   Row
 } from "reactstrap";
-import { ColorFunctions } from "../Utilities";
 
 // Project Components
-import AxisInfo from "./AxisInfo";
-import Variable from "./Variable";
-import VarLoader from "./VarLoader";
-import VarMini from "./VarMini";
+import { CodeInjector } from "../CodeInjector";
+import { ColorFunctions } from "../ColorFunctions";
+import { Variable } from "./Variable";
+import { VarLoader } from "./VarLoader";
+import { VarMini } from "./VarMini";
+import { VariableTracker } from "../VariableTracker";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -25,57 +27,68 @@ const varButtonStyle: React.CSSProperties = {
 
 const formOverflow: React.CSSProperties = {
   maxHeight: "250px",
-  overflow: "auto"
+  overflowY: "auto"
 };
 
-interface VarMenuProps {
-  loadVariable: Function; // a method to call when loading the variable
+interface IVarMenuProps {
+  codeInjector: CodeInjector;
+  varTracker: VariableTracker;
   commands?: any; // the command executer
-  variables: Variable[]; // an array of all current variables
-  selectedVariables: string[]; // array of names for variables that have been selected
-  updateSelectedVariables: Function; // update the list of selected variables
-  updateVariables: Function; // update the list of all variables
-  saveNotebook: Function; // function that saves the current notebook
+  updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
+  syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
+  setPlotInfo: (plotName: string, plotFormat: string) => void;
+  exportAlerts: () => void;
+  dismissSavePlotSpinnerAlert: () => void;
+  showExportSuccessAlert: () => void;
+  notebookPanel: NotebookPanel;
 }
 
-interface VarMenuState {
+interface IVarMenuState {
+  modalOpen: boolean; // Whether a modal is currently open
   variables: Variable[]; // all variables for list (derived and loaded)
   selectedVariables: string[]; // the names of the variables the user has selected
 }
 
-export default class VarMenu extends React.Component<
-  VarMenuProps,
-  VarMenuState
-> {
+export class VarMenu extends React.Component<IVarMenuProps, IVarMenuState> {
   public varLoaderRef: VarLoader;
-  constructor(props: VarMenuProps) {
+  constructor(props: IVarMenuProps) {
     super(props);
     this.state = {
-      selectedVariables: this.props.selectedVariables,
-      variables: this.props.variables
+      modalOpen: false,
+      selectedVariables: this.props.varTracker.selectedVariables,
+      variables: this.props.varTracker.variables
     };
     this.varLoaderRef = (React as any).createRef();
     this.launchFilebrowser = this.launchFilebrowser.bind(this);
     this.launchVarLoader = this.launchVarLoader.bind(this);
-    this.loadFileVariable = this.loadFileVariable.bind(this);
     this.isSelected = this.isSelected.bind(this);
-    this.selectVariable = this.selectVariable.bind(this);
-    this.deselectVariable = this.deselectVariable.bind(this);
-    this.updateDimInfo = this.updateDimInfo.bind(this);
     this.reloadVariable = this.reloadVariable.bind(this);
-    this.resetVarMenuState = this.resetVarMenuState.bind(this);
+    this.getOrder = this.getOrder.bind(this);
+    this.setModalState = this.setModalState.bind(this);
+    this.varAliasExists = this.varAliasExists.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
+    this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
+    this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
   }
 
-  // Resets the graphics menu to initial, (for when a new notebook is selected)
-  public async resetVarMenuState(): Promise<void> {
-    this.setState({
-      selectedVariables: this.props.selectedVariables,
-      variables: this.props.variables
-    });
+  public componentDidMount(): void {
+    this.props.varTracker.selectedVariablesChanged.connect(
+      this.handleSelectionChanged
+    );
+    this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
   }
 
-  public isSelected(varName: string): boolean {
-    return this.state.selectedVariables.indexOf(varName) >= 0;
+  public componentWillUnmount(): void {
+    this.props.varTracker.selectedVariablesChanged.disconnect(
+      this.handleSelectionChanged
+    );
+    this.props.varTracker.variablesChanged.disconnect(
+      this.handleVariablesChanged
+    );
+  }
+
+  public isSelected(varID: string): boolean {
+    return this.state.selectedVariables.indexOf(varID) >= 0;
   }
 
   /**
@@ -89,165 +102,133 @@ export default class VarMenu extends React.Component<
    * @description toggles the varLoaders menu
    */
   public async launchVarLoader(fileVariables: Variable[]): Promise<void> {
-    // Look through current loaded variable names to see if any haven't been loaded
-    const unloaded: string[] = new Array<string>();
-    const loadedVars: string[] = this.state.variables.map(
-      (variable: Variable) => {
-        return variable.name;
-      }
-    );
-    fileVariables.forEach((fileVar: Variable) => {
-      if (loadedVars.indexOf(fileVar.name) < 0) {
-        unloaded.push(fileVar.name);
-      }
-    });
+    // Reset the varloader
+    await this.varLoaderRef.reset();
     // Update state to show launcher with variables
     this.varLoaderRef.setState({
-      fileVariables,
-      unloadedVariables: unloaded,
       show: true
     });
+    this.varLoaderRef.updateFileVars(fileVariables);
   }
 
-  /**
-   *
-   * @param variable the variable to load
-   */
-  public async loadFileVariable(variable: Variable): Promise<void> {
-    // if the variable ISNT already loaded, add it to the loaded list
-    const newVariables: Variable[] = this.state.variables;
-    let replaced: boolean = false;
-    await this.state.variables.forEach(
-      async (loadedVar: Variable, idx: number) => {
-        if (variable.name == loadedVar.name) {
-          newVariables[idx] = variable;
-          await this.props.updateVariables(newVariables);
-          replaced = true;
-          return;
-        }
-      }
-    );
-    if (!replaced) {
-      newVariables.push(variable);
-      await this.props.updateVariables(newVariables);
-    }
-
-    await this.props.loadVariable(variable);
+  public async reloadVariable(
+    variable: Variable,
+    newAlias?: string
+  ): Promise<void> {
+    await this.props.codeInjector.loadVariable(variable, newAlias);
+    this.props.varTracker.addVariable(variable);
+    this.props.varTracker.selectedVariables = newAlias
+      ? [newAlias]
+      : [variable.varID];
+    await this.props.varTracker.saveMetaData();
   }
 
-  public async selectVariable(variableName: string): Promise<void> {
-    const idx: number = this.state.selectedVariables.indexOf(variableName);
-
-    if (idx < 0) {
-      // Limit number of variables selected by deselecting last element
-      const selection = this.state.selectedVariables;
-      selection.push(variableName);
-
-      await this.props.updateSelectedVariables(selection);
-    }
+  public varAliasExists(alias: string): boolean {
+    return this.props.varTracker.findVariableByAlias(alias)[0] >= 0;
   }
 
-  /**
-   * @description removes a variable from the state.selectedVariables list
-   * @param variable the variable to remove from the selected list
-   */
-  public async deselectVariable(variableName: string): Promise<void> {
-    const idx: number = this.state.selectedVariables.indexOf(variableName);
-
-    if (idx >= 0) {
-      const newSelection = this.state.selectedVariables;
-      newSelection.splice(idx, 1);
-      await this.setState(
-        {
-          selectedVariables: newSelection
-        },
-        () => {
-          this.props.updateSelectedVariables(this.state.selectedVariables);
-        }
-      );
-    }
-  }
-
-  /**
-   * @description this is just a placeholder for now
-   * @param newInfo new dimension info for the variables axis
-   * @param varName the name of the variable to update
-   */
-  public async updateDimInfo(newInfo: any, varName: string): Promise<void> {
-    this.state.variables.forEach((variable: Variable, varIndex: number) => {
-      if (variable.name != varName) {
-        return;
-      }
-      variable.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
-        if (axis.name != newInfo.name) {
-          return;
-        }
-        this.state.variables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-        this.state.variables[varIndex].axisInfo[axisIndex].max = newInfo.max;
-      });
-    });
-  }
-
-  public async reloadVariable(variable: Variable): Promise<void> {
-    await this.props.loadVariable(variable);
-    await this.props.saveNotebook();
-  }
-
-  public getOrder(varName: string): number {
-    if (this.state.selectedVariables.length == 0) {
+  public getOrder(varID: string): number {
+    if (this.state.selectedVariables.length === 0) {
       return -1;
     }
-    return this.state.selectedVariables.indexOf(varName) + 1;
+    return this.state.selectedVariables.indexOf(varID) + 1;
+  }
+
+  public setModalState(newState: boolean): void {
+    this.setState({ modalOpen: newState });
   }
 
   public render(): JSX.Element {
-    const Colors: string[] = ColorFunctions.createGradient(
+    const colors: string[] = ColorFunctions.createGradient(
       this.state.selectedVariables.length,
       "#28a745",
       "#17a2b8"
     );
+
     return (
       <div>
         <Card>
-          <CardBody>
+          <CardBody className={/*@tag<varmenu-main>*/ "varmenu-main-vcdat"}>
             <CardTitle>Variable Options</CardTitle>
             <CardSubtitle>
               <Row>
                 <Col>
                   <Button
+                    className={
+                      /*@tag<varmenu-load-variables-btn>*/ "varmenu-load-variables-btn-vcdat"
+                    }
                     color="info"
                     onClick={this.launchFilebrowser}
                     style={varButtonStyle}
+                    title="Load variables from a data file."
                   >
-                    Load Variables
+                    Load Variable(s)
                   </Button>
                 </Col>
+                {this.props.syncNotebook() && (
+                  <Col>
+                    <Button
+                      className={
+                        /*@tag<varmenu-sync-btn>*/ "varmenu-sync-btn-vcdat"
+                      }
+                      color="info"
+                      onClick={this.props.updateNotebook}
+                      style={varButtonStyle}
+                      title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
+                    >
+                      Sync Notebook
+                    </Button>
+                  </Col>
+                )}
               </Row>
             </CardSubtitle>
             {this.state.variables.length > 0 && (
-              <ListGroup style={formOverflow}>
-                {this.state.variables.map(item => {
+              <ListGroup
+                className={/*@tag<varmenu-varlist>*/ "varmenu-varlist-vcdat"}
+                style={formOverflow}
+              >
+                {this.state.variables.map((item: Variable, idx: number) => {
+                  const toggleSelection = () => {
+                    if (this.state.modalOpen) {
+                      return;
+                    }
+                    if (this.isSelected(item.varID)) {
+                      this.props.varTracker.deselectVariable(item.varID);
+                    } else {
+                      this.props.varTracker.selectVariable(item.varID);
+                    }
+                  };
                   return (
                     <ListGroupItem
-                      key={item.name}
-                      onClick={() => {
-                        if (this.isSelected(item.name)) {
-                          this.deselectVariable(item.name);
-                        } else {
-                          this.selectVariable(item.name);
-                        }
-                      }}
+                      key={`${item.varID}${idx}`}
+                      onClick={toggleSelection}
                     >
                       <VarMini
-                        reload={() => {
-                          this.reloadVariable(item);
-                        }}
-                        buttonColor={Colors[this.getOrder(item.name) - 1]}
+                        modalOpen={this.setModalState}
+                        varAliasExists={this.varAliasExists}
+                        varSelectionChanged={
+                          this.props.varTracker.selectedVariablesChanged
+                        }
+                        reload={this.reloadVariable}
+                        copyVariable={this.props.varTracker.copyVariable}
+                        selectVariable={this.props.varTracker.selectVariable}
+                        deleteVariable={this.props.codeInjector.deleteVariable}
+                        buttonColor={colors[this.getOrder(item.varID) - 1]}
                         allowReload={true}
+                        selected={this.isSelected(item.varID)}
                         isSelected={this.isSelected}
-                        selectOrder={this.getOrder(item.name)}
-                        updateDimInfo={this.updateDimInfo}
+                        selectOrder={this.getOrder(item.varID)}
                         variable={item}
+                        codeInjector={this.props.codeInjector}
+                        setPlotInfo={this.props.setPlotInfo}
+                        exportAlerts={this.props.exportAlerts}
+                        dismissSavePlotSpinnerAlert={
+                          this.props.dismissSavePlotSpinnerAlert
+                        }
+                        showExportSuccessAlert={
+                          this.props.showExportSuccessAlert
+                        }
+                        notebookPanel={this.props.notebookPanel}
                       />
                     </ListGroupItem>
                   );
@@ -257,13 +238,25 @@ export default class VarMenu extends React.Component<
           </CardBody>
         </Card>
         <VarLoader
-          updateSelectedVariables={this.props.updateSelectedVariables}
-          loadFileVariable={this.loadFileVariable}
-          variables={this.state.variables}
-          saveNotebook={this.props.saveNotebook}
+          varTracker={this.props.varTracker}
+          loadSelectedVariables={this.props.codeInjector.loadMultipleVariables}
           ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
         />
       </div>
     );
+  }
+
+  private handleSelectionChanged(
+    varTracker: VariableTracker,
+    newSelection: string[]
+  ): void {
+    this.setState({ selectedVariables: newSelection });
+  }
+
+  private handleVariablesChanged(
+    varTracker: VariableTracker,
+    variables: Variable[]
+  ): void {
+    this.setState({ variables });
   }
 }
