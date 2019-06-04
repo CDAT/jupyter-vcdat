@@ -6,7 +6,7 @@ import { CommandRegistry } from "@phosphor/commands";
 import { OUTPUT_RESULT_NAME } from "./constants";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
-export class NotebookUtilities {
+export default class NotebookUtilities {
   /**
    * Opens a pop-up dialog in JupyterLab to display a simple message.
    * @param title The title for the message popup

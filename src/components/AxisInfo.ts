@@ -1,4 +1,4 @@
-export class AxisInfo {
+export default class AxisInfo {
   public data: number[]; // the raw axis data
   public isTime: boolean; // is this a time axis
   public modulo: number; // is this axis repeating

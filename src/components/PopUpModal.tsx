@@ -12,7 +12,10 @@ interface IPopUpState {
   modalOpen: boolean; // Whether a modal is currently open
 }
 
-export class PopUpModal extends React.Component<IPopUpProps, IPopUpState> {
+export default class PopUpModal extends React.Component<
+  IPopUpProps,
+  IPopUpState
+> {
   constructor(props: IPopUpProps) {
     super(props);
     this.state = {

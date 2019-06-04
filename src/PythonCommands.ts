@@ -62,10 +62,14 @@ def canvases():\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(canvases())`;
 
 const AXIS_INFO_CODE: string = `
+	${safe("min")} = float(${safe("axis")}[:].min())
+	${safe("max")} = float(${safe("axis")}[:].max())
 	if len(${safe("axis")}) < ${MAX_DIM_LENGTH}:\n\
 		${safe("axis_data")} = ${safe("axis")}[:].tolist()\n\
 	else:\n\
-		${safe("axis_data")} = None\n\
+		${safe("axis_data")} = vcs.utils.mkscale(${safe("min")},${safe(
+  "max"
+)},${MAX_DIM_LENGTH})\n\
 	# Get a displayable name for the variable\n\
 	if hasattr(${safe("axis")}, 'id'):\n\
 		${safe("name")} = ${safe("axis")}.id\n\
@@ -82,8 +86,8 @@ const AXIS_INFO_CODE: string = `
 		'modulo': ${safe("axis")}.getModulo(),\n\
 		'moduloCycle': ${safe("axis")}.getModuloCycle(),\n\
 		'data': ${safe("axis_data")},\n\
-		'min': float(${safe("axis")}[:].min()),\n\
-		'max': float(${safe("axis")}[:].max()),\n\
+		'min': ${safe("min")},\n\
+		'max': ${safe("max")},\n\
 		'isTime': ${safe("axis")}.isTime()\n\
 	}\n`;
 
@@ -117,12 +121,12 @@ const VAR_INFO_CODE: string = `# Get a displayable name for the variable\n\
 			${safe("outVars")}[lonName] = {}\n\
 		lonData =${safe("var")}.getLongitude()[:]\n\
 		${safe("outVars")}[lonName]['bounds'] = \
-		[float(np.amin(lonData)), float(np.amax(lonData))]\n\
+		[float(numpy.amin(lonData)), float(numpy.amax(lonData))]\n\
 		if (latName not in ${safe("outVars")}):\n\
 			${safe("outVars")}[latName] = {}\n\
 		latData =${safe("var")}.getLatitude()[:]\n\
 		${safe("outVars")}[latName]['bounds'] = \
-		[float(np.amin(latData)), float(np.amax(latData))]\n\
+		[float(numpy.amin(latData)), float(numpy.amax(latData))]\n\
 	if (isinstance(${safe("var")}.getGrid(), cdms2.grid.AbstractRectGrid)):\n\
 		gridType = 'rectilinear'\n\
 	elif (isinstance(${safe("var")}.getGrid(), cdms2.hgrid.AbstractCurveGrid)):\n\
@@ -148,6 +152,7 @@ const VAR_INFO_CODE: string = `# Get a displayable name for the variable\n\
 export const REFRESH_VAR_CMD: string = `import __main__\n\
 import json\n\
 import cdms2\n\
+import numpy\n\
 def variables():\n\
 	out = []\n\
 	for nm, obj in __main__.__dict__.items():\n\
@@ -180,6 +185,8 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`;
 export function getFileVarsCommand(relativePath: string): string {
   return `import json\n\
 import cdms2\n\
+import vcs\n\
+import numpy\n\
 ${safe("reader")} = cdms2.open('${relativePath}')\n\
 ${safe("outVars")} = {}\n\
 for ${safe("vname")} in ${safe("reader")}.variables:\n\
@@ -200,6 +207,7 @@ ${safe("var")} = None`;
 export function getAxisInfoFromFileCommand(relativePath: string): string {
   return `import json\n\
 import cdms2\n\
+import vcs\n\
 ${safe("reader")} = cdms2.open('${relativePath}')\n\
 ${safe("outAxes")} = {}\n\
 for ${safe("aname")} in ${safe("reader")}.axes:\n\
@@ -212,6 +220,7 @@ ${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})`;
 export function getAxisInfoFromVariableCommand(varName: string): string {
   return `import json\n\
 import cdms2\n\
+import vcs\n\
 ${safe("outAxes")} = {}\n\
 ${safe("names")} = ${varName}.getAxisIds()\n\
 for idx in ${varName}.getAxisListIndex():\n\

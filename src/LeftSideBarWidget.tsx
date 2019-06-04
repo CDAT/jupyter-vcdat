@@ -8,12 +8,12 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 // Project Components
-import { CellUtilities } from "./CellUtilities";
-import { CodeInjector } from "./CodeInjector";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { Variable } from "./components/Variable";
-import { VCSMenu } from "./components/VCSMenu";
-import { PopUpModal } from "./components/PopUpModal";
+import CellUtilities from "./CellUtilities";
+import CodeInjector from "./CodeInjector";
+import ErrorBoundary from "./components/ErrorBoundary";
+import Variable from "./components/Variable";
+import VCSMenu from "./components/VCSMenu";
+import PopUpModal from "./components/PopUpModal";
 import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
@@ -21,9 +21,9 @@ import {
   IMPORT_CELL_KEY,
   NOTEBOOK_STATE
 } from "./constants";
-import { NotebookUtilities } from "./NotebookUtilities";
-import { Utilities } from "./Utilities";
-import { VariableTracker } from "./VariableTracker";
+import NotebookUtilities from "./NotebookUtilities";
+import Utilities from "./Utilities";
+import VariableTracker from "./VariableTracker";
 import { ISignal, Signal } from "@phosphor/signaling";
 import {
   CHECK_PLOT_EXIST_CMD,
@@ -35,7 +35,7 @@ import {
 /**
  * This is the main component for the vcdat extension.
  */
-export class LeftSideBarWidget extends Widget {
+export default class LeftSideBarWidget extends Widget {
   public div: HTMLDivElement; // The div container for this widget
   public commands: CommandRegistry; // Jupyter app CommandRegistry
   public notebookTracker: NotebookTracker; // This is to track current notebooks

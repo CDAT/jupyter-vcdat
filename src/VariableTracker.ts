@@ -1,8 +1,8 @@
+// Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
-import { Variable } from "./components/Variable";
 import { ISignal, Signal } from "@phosphor/signaling";
 
-import { NotebookUtilities } from "./NotebookUtilities";
+// Project Components
 import {
   FILE_PATH_KEY,
   SELECTED_VARIABLES_KEY,
@@ -15,10 +15,12 @@ import {
   getFileVarsCommand,
   REFRESH_VAR_CMD
 } from "./PythonCommands";
-import { Utilities } from "./Utilities";
-import { AxisInfo } from "./components/AxisInfo";
+import Utilities from "./Utilities";
+import NotebookUtilities from "./NotebookUtilities";
+import Variable from "./components/Variable";
+import AxisInfo from "./components/AxisInfo";
 
-export class VariableTracker {
+export default class VariableTracker {
   private _isBusy: boolean;
   private _notebookPanel: NotebookPanel;
   private _currentFile: string; // The last file source that was used
@@ -473,9 +475,11 @@ export class VariableTracker {
         v.longName = fileVariables.vars[varName].name;
         v.axisList = fileVariables.vars[varName].axisList;
         v.axisInfo = Array<AxisInfo>();
-        fileVariables.vars[varName].axisList.map((item: any) => {
-          v.axisInfo.push(fileVariables.axes[item]);
-        });
+        if (v.axisList) {
+          v.axisList.map((item: any) => {
+            v.axisInfo.push(fileVariables.axes[item]);
+          });
+        }
         v.units = fileVariables.vars[varName].units;
         v.sourceName = filePath;
         newVars.push(v);
@@ -598,14 +602,16 @@ export class VariableTracker {
 
     // Update axes info for each variable in the group
     varGroup.forEach((variable: Variable) => {
-      variable.axisList.map((item: any) => {
-        if (axesInfo[item].data) {
-          axesInfo[item].min = axesInfo[item].data[0];
-          axesInfo[item].max =
-            axesInfo[item].data[axesInfo[item].data.length - 1];
-          variable.axisInfo.push(axesInfo[item]);
-        }
-      });
+      if (variable.axisList) {
+        variable.axisList.map((item: any) => {
+          if (axesInfo[item].data) {
+            axesInfo[item].min = axesInfo[item].data[0];
+            axesInfo[item].max =
+              axesInfo[item].data[axesInfo[item].data.length - 1];
+            variable.axisInfo.push(axesInfo[item]);
+          }
+        });
+      }
     });
   }
 
@@ -632,13 +638,15 @@ export class VariableTracker {
     const axesInfo: any = JSON.parse(result.slice(1, result.length - 1));
 
     // Update axes info for the variable
-    variable.axisList.map((item: any) => {
-      if (axesInfo[item].data) {
-        axesInfo[item].min = axesInfo[item].data[0];
-        axesInfo[item].max =
-          axesInfo[item].data[axesInfo[item].data.length - 1];
-        variable.axisInfo.push(axesInfo[item]);
-      }
-    });
+    if (variable.axisList) {
+      variable.axisList.map((item: any) => {
+        if (axesInfo[item].data) {
+          axesInfo[item].min = axesInfo[item].data[0];
+          axesInfo[item].max =
+            axesInfo[item].data[axesInfo[item].data.length - 1];
+          variable.axisInfo.push(axesInfo[item]);
+        }
+      });
+    }
   }
 }

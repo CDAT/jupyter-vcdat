@@ -3,10 +3,10 @@ import { ICellModel, isCodeCellModel } from "@jupyterlab/cells";
 import { nbformat } from "@jupyterlab/coreutils";
 import { Notebook, NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
-import { NotebookUtilities } from "./NotebookUtilities";
+import NotebookUtilities from "./NotebookUtilities";
 
 /** Contains some utility functions for handling notebook cells */
-export class CellUtilities {
+export default class CellUtilities {
   /**
    * @description Reads the output at a cell within the specified notebook and returns it as a string
    * @param notebook The notebook to get the cell from

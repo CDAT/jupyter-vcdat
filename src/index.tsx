@@ -18,9 +18,9 @@ import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 // Project Components
 import "../style/css/index.css";
 import { EXTENSIONS } from "./constants";
-import { LeftSideBarWidget } from "./widgets";
-import { NCViewerWidget } from "./NCViewerWidget";
-import { NotebookUtilities } from "./NotebookUtilities";
+import NCViewerWidget from "./NCViewerWidget";
+import NotebookUtilities from "./NotebookUtilities";
+import LeftSideBarWidget from "./LeftSideBarWidget";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";
