@@ -37,7 +37,10 @@ interface IPlotMenuState {
   validName: boolean; // is the given plot name valid
 }
 
-export class PlotMenu extends React.Component<IPlotMenuProps, IPlotMenuState> {
+export default class PlotMenu extends React.Component<
+  IPlotMenuProps,
+  IPlotMenuState
+> {
   constructor(props: IPlotMenuProps) {
     super(props);
     this.state = {

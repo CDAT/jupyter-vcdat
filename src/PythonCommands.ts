@@ -26,16 +26,6 @@ for nm, obj in __main__.__dict__.items():\n\
 except:\n\
 	${OUTPUT_RESULT_NAME}=False\n`;
 
-export const REFRESH_NAMES_CMD = `import __main__\n\
-import json\n\
-def variables():\n\
-	out = []\n\
-	for nm, obj in __main__.__dict__.items():\n\
-		if isinstance(obj, cdms2.MV2.TransientVariable):\n\
-			out+=[nm]\n\
-	return out\n\
-${OUTPUT_RESULT_NAME} = json.dumps(variables())`;
-
 export const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
 import json\n\
 def graphic_methods():\n\

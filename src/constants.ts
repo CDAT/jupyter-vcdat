@@ -8,13 +8,13 @@ export const EXTENSIONS: string[] = [
   ".nc",
   ".nc3",
   ".nc4",
+  ".xml",
   ".ctl",
   ".dic",
   ".pp",
   ".cdf"
 ];
 
-export const EXTENSIONS_REGEX: RegExp = Utilities.filenameFilter(EXTENSIONS);
 export const OUTPUT_RESULT_NAME = "_private_vcdat_output";
 export const FILE_PATH_KEY: string = "vcdat_file_path";
 export const IMPORT_CELL_KEY: string = "vcdat_imports";

@@ -13,6 +13,7 @@ import CodeInjector from "./CodeInjector";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Variable from "./components/Variable";
 import VCSMenu from "./components/VCSMenu";
+import PopUpModal from "./components/PopUpModal";
 import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
@@ -40,6 +41,7 @@ export default class LeftSideBarWidget extends Widget {
   public notebookTracker: NotebookTracker; // This is to track current notebooks
   public application: JupyterLab; // The JupyterLab application object
   public vcsMenuRef: VCSMenu; // the LeftSidebar component
+  public loadingModalRef: PopUpModal;
   public graphicsMethods: any; // The current available graphics methods
   public templatesList: string[]; // The list of current templates
   public usingKernel: boolean; // The widgets is running a ker nel command
@@ -97,6 +99,7 @@ export default class LeftSideBarWidget extends Widget {
 
     this.setBusy = this.setBusy.bind(this);
     this.vcsMenuRef = (React as any).createRef();
+    this.loadingModalRef = (React as any).createRef();
     ReactDOM.render(
       <ErrorBoundary>
         <VCSMenu
@@ -115,6 +118,12 @@ export default class LeftSideBarWidget extends Widget {
           refreshGraphicsList={this.refreshGraphicsList}
           notebookPanel={this._notebookPanel}
           updateNotebookPanel={this.recognizeNotebookPanel}
+        />
+        <PopUpModal
+          title="Notice"
+          message="Loading CDAT core modules. Please wait..."
+          btnText="OK"
+          ref={loader => (this.loadingModalRef = loader)}
         />
       </ErrorBoundary>,
       this.div
@@ -170,6 +179,10 @@ export default class LeftSideBarWidget extends Widget {
   }
 
   // =======PROPS FUNCTIONS=======
+  public async delay(ms: number): Promise<any> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   public syncNotebook = () => {
     return (
       !this.preparing &&
@@ -364,6 +377,9 @@ export default class LeftSideBarWidget extends Widget {
         return;
       }
 
+      // Start load screen
+      await this.loadingModalRef.show();
+
       // Inject the imports
       let currentIdx: number =
         this.notebookPanel.content.model.cells.length - 1;
@@ -375,6 +391,9 @@ export default class LeftSideBarWidget extends Widget {
         currentIdx = this.notebookPanel.content.model.cells.length - 1;
         await this.codeInjector.injectCanvasCode(currentIdx);
       }
+
+      // Start load screen
+      await this.loadingModalRef.hide();
 
       // Update the selected graphics method, variable list, templates and loaded variables
       await this.refreshGraphicsList();
@@ -473,6 +492,11 @@ export default class LeftSideBarWidget extends Widget {
         REFRESH_GRAPHICS_CMD
       );
       this.usingKernel = false;
+
+      // Exit if result is blank
+      if (!output) {
+        return;
+      }
 
       // Update the list of latest variables and data
       this.graphicsMethods = output
@@ -581,6 +605,9 @@ export default class LeftSideBarWidget extends Widget {
       // Set as current notebook (if not already)
       await this.setNotebookPanel(newNotebookPanel);
 
+      // Start load screen
+      await this.loadingModalRef.show();
+
       // Inject the imports
       let currentIdx: number = 0;
       currentIdx = await this.codeInjector.injectImportsCode();
@@ -589,6 +616,9 @@ export default class LeftSideBarWidget extends Widget {
       const fileVars: Variable[] = await this.varTracker.getFileVariables(
         currentFile
       );
+
+      // Stop load screen
+      await this.loadingModalRef.hide();
 
       if (fileVars.length > 0) {
         await this.vcsMenuRef.varMenuRef.launchVarLoader(fileVars);

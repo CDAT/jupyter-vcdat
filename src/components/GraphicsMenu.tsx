@@ -21,7 +21,7 @@ import {
 
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
-import widgets from "../widgets";
+import LeftSideBarWidget from "../LeftSideBarWidget";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",

@@ -20,10 +20,10 @@ import "../style/css/index.css";
 import { EXTENSIONS } from "./constants";
 import NCViewerWidget from "./NCViewerWidget";
 import NotebookUtilities from "./NotebookUtilities";
-import widgets from "./widgets";
+import LeftSideBarWidget from "./LeftSideBarWidget";
 
 const FILETYPE = "NetCDF";
-const FACTORY_NAME = "vcs";
+const FACTORY_NAME = "vcdat";
 
 // Declare the widget variables
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app

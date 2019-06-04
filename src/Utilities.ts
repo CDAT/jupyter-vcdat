@@ -26,22 +26,6 @@ export default class Utilities {
   }
 
   /**
-   * Creates a regular expression to use for testing a file's extension
-   * @param extensions An array of strings representing valid extensions. The string is used in
-   * a regular expression and can contain regex if needed to match more cases. Case is ignored.
-   * Example: ['.clt','.nc','.nc3','.nc4'] can also be ['.clt','.nc[34]?']
-   * @returns RegExp - A regular expression that will filter for the specified extensions
-   */
-  public static filenameFilter(extensions: string[]): RegExp {
-    let regexStr: string = `.+((${extensions.pop()})`;
-    extensions.forEach((ext: string) => {
-      regexStr += `|(${ext})`;
-    });
-    regexStr += ")$";
-    return new RegExp(regexStr, "i");
-  }
-
-  /**
    * Will return a string of a filename or path with it's extension removed.
    * Example: test.nc => test, test.sdf.tes.nc43534 => test.sdf.tes, test. => test
    * @param filename The filename/path to remove extension from
