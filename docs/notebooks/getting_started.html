@@ -13188,7 +13188,7 @@ div#notebook {
 <div class="highlight"><pre><span></span>ln -s /scratch/some_data my_link_to_some_data
 </pre></div>
 <p>Now in the jupyter interface you should see a directory called <code>my_link_to_some_data</code> simply click on it and you are where you want to be.</p>
-<h3 id="Download-the-Sample-Data">Download the Sample Data<a class="anchor-link" href="#Download-the-Sample-Data">&#182;</a></h3><p>To download some test data we've provided, enter the code below within a cell in a Jupyter notebook (like the untitled notebook you just opened) and run the cell by holding down shift and pressing enter while that cell is highlighted:</p>
+<h3 id="Download-the-Sample-Data">Download the Sample Data<a class="anchor-link" href="#Download-the-Sample-Data">&#182;</a></h3><p>To download some test data we've provided, enter the code below within a cell in a Jupyter notebook and run the cell by holding down shift and pressing enter while that cell is highlighted:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vcs</span>
 <span class="kn">import</span> <span class="nn">cdms2</span>
 <span class="kn">import</span> <span class="nn">cdat_info</span>
@@ -13361,7 +13361,7 @@ Executing transaction: done
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In the upper right hand corner, you can click the button shown below to select the new kernel.</p>
+<p>In the upper right-hand corner, you can click the button similar to the one shown below to select the new "test" kernel.</p>
 
 </div>
 </div>
@@ -13396,7 +13396,7 @@ Executing transaction: done
 <p>Using the Jupyter Lab terminal you can activate the conda environment and install additional software.</p>
 <div class="highlight"><pre><span></span>conda activate <span class="nb">test</span>
 
-conda install -c conda-forge cdms2
+conda install -c conda-forge vcs
 </pre></div>
 <p>You can also do this from within a Notebook.</p>
 <p><strong>NOTE: This will run everytime the cell runs.</strong></p>
@@ -13522,7 +13522,7 @@ Executing transaction: done
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Finally you can remove the environment but first if you activated the environment in this notebook you must choose another environment, e.g. "root", by changing the kernel in the "Kernel" tab (Kernel &gt; Change Kernel).</p>
+<p>Finally you can remove the environment but first if you activated the environment in this notebook you must choose another environment, e.g. "root", by changing the kernel either as you did before using the button in the upper right-hand corner or by clicking on the "Kernel" tab in the upper left and choosing "Change Kernel".</p>
 
 </div>
 </div>
@@ -13585,14 +13585,12 @@ Remove all packages in environment /Users/davis278/miniconda3/envs/test:
 <pre># conda environments:
 #
 base                     /Users/davis278/miniconda3
-cdat81                *  /Users/davis278/miniconda3/envs/cdat81
+cdat81                   /Users/davis278/miniconda3/envs/cdat81
 cdat_nightly             /Users/davis278/miniconda3/envs/cdat_nightly
 e3sm                     /Users/davis278/miniconda3/envs/e3sm
 globus                   /Users/davis278/miniconda3/envs/globus
 jekyll                   /Users/davis278/miniconda3/envs/jekyll
-jupyter-vcdat            /Users/davis278/miniconda3/envs/jupyter-vcdat
-nightly                  /Users/davis278/miniconda3/envs/nightly
-nightly_Feb19            /Users/davis278/miniconda3/envs/nightly_Feb19
+jupyter-vcdat         *  /Users/davis278/miniconda3/envs/jupyter-vcdat
 rtd                      /Users/davis278/miniconda3/envs/rtd
 vcdat                    /Users/davis278/miniconda3/envs/vcdat
 
@@ -13604,18 +13602,14 @@ vcdat                    /Users/davis278/miniconda3/envs/vcdat
 </div>
 
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Next-Steps">Next Steps<a class="anchor-link" href="#Next-Steps">&#182;</a></h2><p>Additional details on the interface and accessing data are included on the vCDAT <a href="https://github.com/CDAT/jupyter-vcdat/wiki/Access-Data">Access Data</a> help page. CDAT (and vCDAT) can open any OPeNDAP file so if you wanted to get the latest CMIP6 data or other climate data you could use the Earth System Grid Federation (ESGF) data warehouse interface to access the OPeNDAP URL for that data. <a href="https://www.earthsystemcog.org/projects/cog/doc/opendap">This page</a> provides details on browsing and downloading data from ESGF using OPeNDAP.</p>
+<p>Once you have a sample or "real" dataset, you might want to <a href="https://github.com/CDAT/jupyter-vcdat/wiki/Load-Variables">Load Variables</a> and plot them (see the <a href="https://github.com/CDAT/jupyter-vcdat/wiki/Plot-Variables">Plot Variables</a> page).</p>
 
-    </div>
 </div>
 </div>
-
 </div>
     </div>
   </div>
