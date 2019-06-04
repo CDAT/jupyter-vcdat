@@ -60,7 +60,7 @@ interface IDimensionSliderState {
   possibleValues: number[];
 }
 
-export class DimensionSlider extends React.Component<
+export default class DimensionSlider extends React.Component<
   IDimensionSliderProps,
   IDimensionSliderState
 > {

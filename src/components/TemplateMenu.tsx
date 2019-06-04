@@ -11,7 +11,9 @@ import {
   DropdownToggle
 } from "reactstrap";
 import { ISignal } from "@phosphor/signaling";
-import { LeftSideBarWidget } from "../widgets";
+
+// Project Components
+import LeftSideBarWidget from "../widgets";
 
 const dropdownMenuStype: React.CSSProperties = {
   maxHeight: "250px",
@@ -32,7 +34,7 @@ interface ITemplateMenuState {
   plotReady: boolean;
 }
 
-export class TemplateMenu extends React.Component<
+export default class TemplateMenu extends React.Component<
   ITemplateMenuProps,
   ITemplateMenuState
 > {

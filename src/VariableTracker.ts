@@ -1,8 +1,8 @@
+// Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
-import { Variable } from "./components/Variable";
 import { ISignal, Signal } from "@phosphor/signaling";
 
-import { NotebookUtilities } from "./NotebookUtilities";
+// Project Components
 import {
   FILE_PATH_KEY,
   SELECTED_VARIABLES_KEY,
@@ -15,10 +15,12 @@ import {
   getFileVarsCommand,
   REFRESH_VAR_CMD
 } from "./PythonCommands";
-import { Utilities } from "./Utilities";
-import { AxisInfo } from "./components/AxisInfo";
+import Utilities from "./Utilities";
+import NotebookUtilities from "./NotebookUtilities";
+import Variable from "./components/Variable";
+import AxisInfo from "./components/AxisInfo";
 
-export class VariableTracker {
+export default class VariableTracker {
   private _isBusy: boolean;
   private _notebookPanel: NotebookPanel;
   private _currentFile: string; // The last file source that was used

@@ -18,9 +18,10 @@ import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 // Project Components
 import "../style/css/index.css";
 import { EXTENSIONS } from "./constants";
-import { LeftSideBarWidget } from "./widgets";
-import { NCViewerWidget } from "./NCViewerWidget";
-import { NotebookUtilities } from "./NotebookUtilities";
+import LeftSideBarWidget from "./widgets";
+import NCViewerWidget from "./NCViewerWidget";
+import NotebookUtilities from "./NotebookUtilities";
+import Utilities from "./Utilities";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";
@@ -74,7 +75,7 @@ function activate(
   // Creates the left side bar widget once the app has fully started
   app.started
     .then(() => {
-      sidebar = new LeftSideBarWidget(app, tracker);
+      sidebar = new LeftSideBarWidget(app, tracker, menu);
       sidebar.id = /*@tag<left-side-bar>*/ "left-side-bar-vcdat";
       sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
       sidebar.title.closable = true;
@@ -93,12 +94,12 @@ function activate(
   // and all the widgets have been added to the notebooktracker
   app.shell.restored
     .then(() => {
-      addHelpReference(
+      Utilities.addHelpReference(
         mainMenu,
         "VCS Reference",
         "https://cdat-vcs.readthedocs.io/en/latest/"
       );
-      addHelpReference(
+      Utilities.addHelpReference(
         mainMenu,
         "CDMS Reference",
         "https://cdms.readthedocs.io/en/latest/"
@@ -108,15 +109,6 @@ function activate(
     .catch(error => {
       console.error(error);
     });
-}
-
-// Adds a reference link to the help menu in JupyterLab
-function addHelpReference(menu: MainMenu, text: string, url: string): void {
-  // Add item to help menu
-  menu.helpMenu.menu.addItem({
-    args: { text, url },
-    command: "help:open"
-  });
 }
 
 /**

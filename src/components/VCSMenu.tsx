@@ -1,6 +1,7 @@
 // Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
+import { ISignal } from "@phosphor/signaling";
 import * as React from "react";
 import {
   Alert,
@@ -10,23 +11,24 @@ import {
   Col,
   CustomInput,
   Row,
-  Spinner
+  Spinner,
+  Badge
 } from "reactstrap";
 
 // Project Components
-import { CodeInjector } from "../CodeInjector";
+import CodeInjector from "../CodeInjector";
 import { GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
 import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
-import { NotebookUtilities } from "../NotebookUtilities";
-import { ExportPlotModal } from "./ExportPlotModal";
-import { GraphicsMenu } from "./GraphicsMenu";
-import { TemplateMenu } from "./TemplateMenu";
-import { Variable } from "./Variable";
-import { VarMenu } from "./VarMenu";
-import { VariableTracker } from "../VariableTracker";
-import { Utilities } from "../Utilities";
-import { ISignal } from "@phosphor/signaling";
-import { LeftSideBarWidget } from "../widgets";
+import NotebookUtilities from "../NotebookUtilities";
+import ExportPlotModal from "./ExportPlotModal";
+import GraphicsMenu from "./GraphicsMenu";
+import TemplateMenu from "./TemplateMenu";
+import Variable from "./Variable";
+import VarMenu from "./VarMenu";
+import VariableTracker from "../VariableTracker";
+import Utilities from "../Utilities";
+import LeftSideBarWidget from "../widgets";
+import JoyrideTutorial, { TUTORIAL_NAMES } from "../Tutorials";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -77,10 +79,14 @@ interface IVCSMenuState {
   plotExists: boolean;
 }
 
-export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
+export default class VCSMenu extends React.Component<
+  IVCSMenuProps,
+  IVCSMenuState
+> {
   public varMenuRef: VarMenu;
   public graphicsMenuRef: GraphicsMenu;
   public templateMenuRef: TemplateMenu;
+  public joyrideTutorialRef: JoyrideTutorial;
   constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
@@ -100,6 +106,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
+    this.joyrideTutorialRef = (React as any).createRef();
     this.plot = this.plot.bind(this);
     this.clear = this.clear.bind(this);
     this.resetState = this.resetState.bind(this);
@@ -144,7 +151,7 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
 
   public dismissSavePlotSpinnerAlert(): void {
     this.setState({ savePlotAlert: false });
-    this.props.commands.execute("vcs:refresh-browser");
+    this.props.commands.execute("vcdat:refresh-browser");
   }
 
   public dismissExportSuccessAlert(): void {
@@ -404,8 +411,17 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
       showExportSuccessAlert: this.showExportSuccessAlert,
       toggle: this.toggleModal
     };
+
+    const joyrideTutorialProps = {
+      runOnStart: true
+    };
+
     return (
       <div style={{ ...centered, ...sidebarOverflow }}>
+        <JoyrideTutorial
+          {...joyrideTutorialProps}
+          ref={loader => (this.joyrideTutorialRef = loader)}
+        />
         <Card>
           <CardBody className={/*@tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
             <div style={centered}>
@@ -456,17 +472,21 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
                   </Button>
                 </Col>
               </Row>
-              <CustomInput
-                type="switch"
-                id={
-                  /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
-                }
-                name="overlayModeSwitch"
-                label="Overlay Mode"
-                disabled={!this.state.plotReady}
-                checked={this.state.overlayMode}
-                onChange={this.toggleOverlayMode}
-              />
+              <Row>
+                <Col>
+                  <CustomInput
+                    type="switch"
+                    id={
+                      /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
+                    }
+                    name="overlayModeSwitch"
+                    label="Overlay Mode"
+                    disabled={!this.state.plotReady}
+                    checked={this.state.overlayMode}
+                    onChange={this.toggleOverlayMode}
+                  />
+                </Col>
+              </Row>
             </div>
           </CardBody>
         </Card>
@@ -516,5 +536,3 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.setState({ variables });
   }
 }
-
-export default VCSMenu;

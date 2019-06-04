@@ -4,15 +4,15 @@ import "bootstrap/dist/css/bootstrap.min.css";
 // Dependencies
 import * as React from "react";
 import * as _ from "lodash";
+import { ISignal, Signal } from "@phosphor/signaling";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 // Project Components
-import { AxisInfo } from "./AxisInfo";
-import { VarCard } from "./VarCard";
-import { Variable } from "./Variable";
-import { VariableTracker } from "../VariableTracker";
-import { NotebookUtilities } from "../NotebookUtilities";
-import { ISignal, Signal } from "@phosphor/signaling";
+import AxisInfo from "./AxisInfo";
+import VarCard from "./VarCard";
+import Variable from "./Variable";
+import VariableTracker from "../VariableTracker";
+import NotebookUtilities from "../NotebookUtilities";
 
 const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
@@ -33,7 +33,7 @@ interface IVarLoaderState {
   variablesToShow: Variable[];
 }
 
-export class VarLoader extends React.Component<
+export default class VarLoader extends React.Component<
   IVarLoaderProps,
   IVarLoaderState
 > {
@@ -41,7 +41,6 @@ export class VarLoader extends React.Component<
 
   constructor(props: IVarLoaderProps) {
     super(props);
-
     this.state = {
       fileVariables: Array<Variable>(),
       selectedVariables: Array<Variable>(),

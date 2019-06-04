@@ -1,4 +1,6 @@
-export class Utilities {
+import { MainMenu } from "@jupyterlab/mainmenu";
+
+export default class Utilities {
   /**
    * Converts a number to and ordinal shorthand string.
    * @param value
@@ -99,5 +101,31 @@ export class Utilities {
    */
   public static strToArray(inStr: string): any[] {
     return JSON.parse(inStr.replace(/^'|'$/g, ""));
+  }
+
+  // Adds a reference link to the help menu in JupyterLab
+  public static addHelpReference(
+    menu: MainMenu,
+    text: string,
+    url: string
+  ): void {
+    // Add item to help menu
+    menu.helpMenu.menu.addItem({
+      args: { text, url },
+      command: "help:open"
+    });
+  }
+
+  // Adds a button item to the help menu in JupyterLab
+  public static addHelpMenuItem(
+    menu: MainMenu,
+    args: {},
+    command: string
+  ): void {
+    // Add item to help menu
+    menu.helpMenu.menu.addItem({
+      args: args,
+      command: command
+    });
   }
 }

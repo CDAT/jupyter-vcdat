@@ -1,4 +1,4 @@
-export class ColorFunctions {
+export default class ColorFunctions {
   public static isHexColor(hexCol: string): boolean {
     const regex = /^#[0-9a-fA-F]{6}$/i;
     return regex.test(hexCol);

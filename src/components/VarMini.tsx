@@ -1,5 +1,6 @@
 // Dependencies
 import * as React from "react";
+import { ISignal } from "@phosphor/signaling";
 import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Alert,
@@ -20,15 +21,14 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { CodeInjector } from "../CodeInjector";
-import { Utilities } from "../Utilities";
-import { AxisInfo } from "./AxisInfo";
-import { DimensionSlider } from "./DimensionSlider";
-import { Variable } from "./Variable";
-import { NotebookUtilities } from "../NotebookUtilities";
+import CodeInjector from "../CodeInjector";
+import Utilities from "../Utilities";
+import AxisInfo from "./AxisInfo";
+import DimensionSlider from "./DimensionSlider";
+import Variable from "./Variable";
+import NotebookUtilities from "../NotebookUtilities";
 import { checkForExportedFileCommand } from "../PythonCommands";
-import { ISignal } from "@phosphor/signaling";
-import { VariableTracker } from "../VariableTracker";
+import VariableTracker from "../VariableTracker";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
@@ -89,7 +89,10 @@ interface IVarMiniState {
 
 export type NAME_STATUS = "Invalid!" | "Variable Already Exists!" | "Valid";
 
-export class VarMini extends React.Component<IVarMiniProps, IVarMiniState> {
+export default class VarMini extends React.Component<
+  IVarMiniProps,
+  IVarMiniState
+> {
   constructor(props: IVarMiniProps) {
     super(props);
     this.state = {

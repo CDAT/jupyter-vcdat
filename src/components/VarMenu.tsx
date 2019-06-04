@@ -14,12 +14,12 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { CodeInjector } from "../CodeInjector";
-import { ColorFunctions } from "../ColorFunctions";
-import { Variable } from "./Variable";
-import { VarLoader } from "./VarLoader";
-import { VarMini } from "./VarMini";
-import { VariableTracker } from "../VariableTracker";
+import CodeInjector from "../CodeInjector";
+import ColorFunctions from "../ColorFunctions";
+import Variable from "./Variable";
+import VarLoader from "./VarLoader";
+import VarMini from "./VarMini";
+import VariableTracker from "../VariableTracker";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -49,7 +49,7 @@ interface IVarMenuState {
   selectedVariables: string[]; // the names of the variables the user has selected
 }
 
-export class VarMenu extends React.Component<IVarMenuProps, IVarMenuState> {
+export default class VarMenu extends React.Component<IVarMenuProps, IVarMenuState> {
   public varLoaderRef: VarLoader;
   constructor(props: IVarMenuProps) {
     super(props);
@@ -95,7 +95,7 @@ export class VarMenu extends React.Component<IVarMenuProps, IVarMenuState> {
    * @description launches the notebooks filebrowser so the user can select a data file
    */
   public async launchFilebrowser(): Promise<void> {
-    await this.props.commands.execute("vcs:load-data");
+    await this.props.commands.execute("filebrowser:activate");
   }
 
   /**
