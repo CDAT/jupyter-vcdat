@@ -3,10 +3,10 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 
 // Project Components
-import { CellUtilities } from "./CellUtilities";
-import { AxisInfo } from "./components/AxisInfo";
-import { Variable } from "./components/Variable";
-import { VariableTracker } from "./VariableTracker";
+import CellUtilities from "./CellUtilities";
+import AxisInfo from "./components/AxisInfo";
+import Variable from "./components/Variable";
+import VariableTracker from "./VariableTracker";
 import {
   BASE_DATA_READER_NAME,
   CANVAS_CELL_KEY,
@@ -19,13 +19,13 @@ import {
 
 import { CHECK_MODULES_CMD } from "./PythonCommands";
 
-import { NotebookUtilities } from "./NotebookUtilities";
-import { Utilities } from "./Utilities";
+import NotebookUtilities from "./NotebookUtilities";
+import Utilities from "./Utilities";
 
 /**
  * A class that manages the code injection of vCDAT commands
  */
-export class CodeInjector {
+export default class CodeInjector {
   private _isBusy: boolean;
   private canvasReady: boolean; // Whether the canvas is ready/has been already run
   private _notebookPanel: NotebookPanel;

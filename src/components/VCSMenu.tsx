@@ -1,6 +1,7 @@
 // Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
+import { ISignal } from "@phosphor/signaling";
 import * as React from "react";
 import {
   Alert,
@@ -14,19 +15,18 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { CodeInjector } from "../CodeInjector";
+import CodeInjector from "../CodeInjector";
 import { GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
 import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
-import { NotebookUtilities } from "../NotebookUtilities";
+import NotebookUtilities from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
 import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
-import { Variable } from "./Variable";
+import Variable from "./Variable";
 import VarMenu from "./VarMenu";
-import { VariableTracker } from "../VariableTracker";
-import { Utilities } from "../Utilities";
-import { ISignal } from "@phosphor/signaling";
-import { LeftSideBarWidget } from "../widgets";
+import VariableTracker from "../VariableTracker";
+import Utilities from "../Utilities";
+import widgets from "../widgets";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -77,7 +77,10 @@ interface IVCSMenuState {
   plotExists: boolean;
 }
 
-export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
+export default class VCSMenu extends React.Component<
+  IVCSMenuProps,
+  IVCSMenuState
+> {
   public varMenuRef: VarMenu;
   public graphicsMenuRef: GraphicsMenu;
   public templateMenuRef: TemplateMenu;
@@ -516,5 +519,3 @@ export class VCSMenu extends React.Component<IVCSMenuProps, IVCSMenuState> {
     this.setState({ variables });
   }
 }
-
-export default VCSMenu;

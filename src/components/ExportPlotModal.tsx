@@ -16,11 +16,11 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { CodeInjector } from "../CodeInjector";
-import { NotebookUtilities } from "../NotebookUtilities";
+import CodeInjector from "../CodeInjector";
+import NotebookUtilities from "../NotebookUtilities";
 import { EXPORT_FORMATS, IMAGE_UNITS, OUTPUT_RESULT_NAME } from "../constants";
 
-export interface IExportPlotModalProps {
+interface IExportPlotModalProps {
   isOpen: boolean;
   toggle: () => void;
   exportAlerts: () => void;
@@ -48,7 +48,7 @@ interface IExportPlotModalState {
   plotUnits: IMAGE_UNITS;
 }
 
-export class ExportPlotModal extends React.Component<
+export default class ExportPlotModal extends React.Component<
   IExportPlotModalProps,
   IExportPlotModalState
 > {
@@ -363,5 +363,3 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`
     );
   }
 }
-
-export default ExportPlotModal;

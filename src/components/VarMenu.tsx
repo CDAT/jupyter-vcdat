@@ -14,12 +14,12 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { CodeInjector } from "../CodeInjector";
-import { ColorFunctions } from "../ColorFunctions";
-import { Variable } from "./Variable";
-import { VarLoader } from "./VarLoader";
-import { VarMini } from "./VarMini";
-import { VariableTracker } from "../VariableTracker";
+import CodeInjector from "../CodeInjector";
+import ColorFunctions from "../ColorFunctions";
+import Variable from "./Variable";
+import VarLoader from "./VarLoader";
+import VarMini from "./VarMini";
+import VariableTracker from "../VariableTracker";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"

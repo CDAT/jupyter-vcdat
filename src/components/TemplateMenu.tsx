@@ -11,7 +11,8 @@ import {
   DropdownToggle
 } from "reactstrap";
 import { ISignal } from "@phosphor/signaling";
-import { LeftSideBarWidget } from "../widgets";
+
+import widgets from "../widgets";
 
 const dropdownMenuStype: React.CSSProperties = {
   maxHeight: "250px",

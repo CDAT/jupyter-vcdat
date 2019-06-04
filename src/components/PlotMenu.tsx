@@ -21,7 +21,7 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { Variable } from "./Variable";
+import Variable from "./Variable";
 
 interface IPlotMenuProps {
   updatePlotOptions: (plotOptions: any) => void; // the method to call when the users wants to update the plot options

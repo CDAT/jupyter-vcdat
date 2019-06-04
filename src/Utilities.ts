@@ -1,4 +1,4 @@
-export class Utilities {
+export default class Utilities {
   /**
    * Converts a number to and ordinal shorthand string.
    * @param value

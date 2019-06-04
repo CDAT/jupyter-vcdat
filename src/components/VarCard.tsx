@@ -1,4 +1,5 @@
 // Dependencies
+import { ISignal } from "@phosphor/signaling";
 import * as React from "react";
 import {
   Button,
@@ -15,12 +16,11 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { NotebookUtilities } from "../NotebookUtilities";
-import { AxisInfo } from "./AxisInfo";
+import NotebookUtilities from "../NotebookUtilities";
+import AxisInfo from "./AxisInfo";
 import { DimensionSlider } from "./DimensionSlider";
-import { Variable } from "./Variable";
-import { ISignal } from "@phosphor/signaling";
-import { VarLoader } from "./VarLoader";
+import Variable from "./Variable";
+import VarLoader from "./VarLoader";
 
 const cardStyle: React.CSSProperties = {
   margin: ".5em"
@@ -62,7 +62,10 @@ export type NAME_STATUS =
   | "Name already selected!"
   | "Valid";
 
-export class VarCard extends React.Component<IVarCardProps, IVarCardState> {
+export default class VarCard extends React.Component<
+  IVarCardProps,
+  IVarCardState
+> {
   constructor(props: IVarCardProps) {
     super(props);
     this.state = {
