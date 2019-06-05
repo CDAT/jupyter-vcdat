@@ -26,7 +26,6 @@ import Variable from "./Variable";
 import VarMenu from "./VarMenu";
 import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
-import JoyrideTutorial from "../JoyrideTutorial";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 
 const btnStyle: React.CSSProperties = {
@@ -85,7 +84,6 @@ export default class VCSMenu extends React.Component<
   public varMenuRef: VarMenu;
   public graphicsMenuRef: GraphicsMenu;
   public templateMenuRef: TemplateMenu;
-  public joyrideTutorialRef: JoyrideTutorial;
   constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
@@ -105,7 +103,6 @@ export default class VCSMenu extends React.Component<
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
-    this.joyrideTutorialRef = (React as any).createRef();
     this.plot = this.plot.bind(this);
     this.clear = this.clear.bind(this);
     this.resetState = this.resetState.bind(this);
@@ -411,16 +408,8 @@ export default class VCSMenu extends React.Component<
       toggle: this.toggleModal
     };
 
-    const joyrideTutorialProps = {
-      runOnStart: true
-    };
-
     return (
       <div style={{ ...centered, ...sidebarOverflow }}>
-        <JoyrideTutorial
-          {...joyrideTutorialProps}
-          ref={loader => (this.joyrideTutorialRef = loader)}
-        />
         <Card>
           <CardBody className={/*@tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
             <div style={centered}>

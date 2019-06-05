@@ -1,20 +1,8 @@
 import * as React from "react";
 // tslint:disable-next-line
-import ReactJoyride, { CallBackProps } from "react-joyride";
+import ReactJoyride, { CallBackProps, STATUS } from "react-joyride";
 
-const defaultOptions = {
-  arrowColor: "#fff",
-  backgroundColor: "#fff",
-  beaconSize: 36,
-  overlayColor: "rgba(0, 0, 0, 0.5)",
-  primaryColor: "#f04",
-  spotlightShadow: "0 0 15px rgba(0, 0, 0, 0.5)",
-  textColor: "#333",
-  zIndex: 100
-};
-
-export type TUTORIAL_NAMES =
-  | "default"
+export type TUTORIALS =
   | "main"
   | "topMenu"
   | "varMenu"
@@ -36,13 +24,14 @@ const WELCOME_TUTORIAL = [
   {
     content: `This is the vcdat extension icon. 
     Click it to open and close the vcdat side menu.`,
-    event: "hover",
-    offset: 0,
     placement: "right",
     target: ".jp-icon-vcdat",
     textAlign: "right",
     title: "VCDAT 2.0"
-  },
+  }
+];
+
+const TOP_MENU_TUTORIAL = [
   {
     content: "This is the plot button!",
     placement: "bottom",
@@ -57,7 +46,6 @@ const WELCOME_TUTORIAL = [
   },
   {
     content: "This is the clear plot button!",
-
     placement: "bottom",
     target: ".vcsmenu-clear-btn-vcdat",
     textAlign: "center"
@@ -69,9 +57,9 @@ interface IJoyrideTutorialProps {
 }
 
 interface IJoyrideTutorialState {
+  currentTutorial: TUTORIALS;
   run: boolean;
   steps: any;
-  modalOpen: boolean;
 }
 
 export default class JoyrideTutorial extends React.Component<
@@ -82,45 +70,50 @@ export default class JoyrideTutorial extends React.Component<
   constructor(props: IJoyrideTutorialProps) {
     super(props);
     this.state = {
-      modalOpen: this.props.runOnStart,
-      run: this.props.runOnStart,
+      currentTutorial: "main",
+      run: false,
       steps: WELCOME_TUTORIAL
     };
     this.handleJoyrideEvents = this.handleJoyrideEvents.bind(this);
     this.startTutorial = this.startTutorial.bind(this);
-
-    this.joyrideRef = (React as any).createRef();
+    this.componentDidMount = this.componentDidMount.bind(this);
   }
 
-  public startTutorial(tutorial: TUTORIAL_NAMES): void {
-    let steps: any;
+  public componentDidMount(): void {
+    this.joyrideRef = (React as any).createRef();
+    if (this.props.runOnStart) {
+      this.startTutorial("main");
+    }
+  }
+
+  public async startTutorial(tutorial: TUTORIALS): Promise<void> {
+    let tutorialSteps: any;
     switch (tutorial) {
       case "main":
-        steps = WELCOME_TUTORIAL;
+        tutorialSteps = WELCOME_TUTORIAL;
+        break;
+      case "topMenu":
+        tutorialSteps = TOP_MENU_TUTORIAL;
         break;
       default:
-        steps = WELCOME_TUTORIAL;
+        tutorialSteps = WELCOME_TUTORIAL;
     }
-    this.setState({ steps, run: true });
-    addEventListener("click", this.isVCDATIcon, {
-      passive: true
+    await this.setState({
+      currentTutorial: tutorial,
+      run: true,
+      steps: tutorialSteps
     });
+    this.joyrideRef.render();
   }
 
-  public async handleJoyrideEvents(event: CallBackProps): Promise<void> {
-    if (!event) {
+  public async handleJoyrideEvents(data: CallBackProps): Promise<void> {
+    if (!data) {
       return;
     }
-    switch (event.type) {
-      case "step:after":
-        if (event.action !== "close") {
-          return;
-        }
-      case "tour:end":
-        await this.setState({ run: false });
-        return;
-      case "error:target_not_found":
-        console.error(`Joyride element missing on step ${event.index}`);
+    const { status, type } = data;
+
+    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+      this.setState({ run: false });
     }
   }
 
@@ -147,15 +140,5 @@ export default class JoyrideTutorial extends React.Component<
         />
       </div>
     );
-  }
-
-  private isVCDATIcon(event: MouseEvent) {
-    if (event.target instanceof HTMLElement) {
-      console.log(event.target);
-      if (event.target.classList.contains("jp-icon-vcdat")) {
-        console.log("Yay!");
-        removeEventListener("click", this.isVCDATIcon);
-      }
-    }
   }
 }

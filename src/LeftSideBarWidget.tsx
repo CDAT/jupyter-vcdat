@@ -32,6 +32,7 @@ import {
   REFRESH_TEMPLATES_CMD
 } from "./PythonCommands";
 import { MainMenu } from "@jupyterlab/mainmenu";
+import JoyrideTutorial from "./JoyrideTutorial";
 
 /**
  * This is the main component for the vcdat extension.
@@ -44,6 +45,7 @@ export default class LeftSideBarWidget extends Widget {
   private menu: MainMenu; // The main top menu in JupyterLab
   private vcsMenuRef: VCSMenu; // the LeftSidebar component
   private loadingModalRef: PopUpModal;
+  private joyrideTutorialRef: JoyrideTutorial;
   private graphicsMethods: any; // The current available graphics methods
   private templatesList: string[]; // The list of current templates
   private codeInjector: CodeInjector; // The code injector object which is responsible for injecting code into notebooks
@@ -95,8 +97,13 @@ export default class LeftSideBarWidget extends Widget {
     this.setBusy = this.setBusy.bind(this);
     this.vcsMenuRef = (React as any).createRef();
     this.loadingModalRef = (React as any).createRef();
+    this.joyrideTutorialRef = (React as any).createRef();
     ReactDOM.render(
       <ErrorBoundary>
+        <JoyrideTutorial
+          runOnStart={false}
+          ref={loader => (this.joyrideTutorialRef = loader)}
+        />
         <VCSMenu
           ref={loader => (this.vcsMenuRef = loader)}
           commands={this.commands}
@@ -134,7 +141,7 @@ export default class LeftSideBarWidget extends Widget {
     // Add command for starting introductory tutorial
     this.commands.addCommand("vcdat:welcome-tutorial", {
       execute: () => {
-        this.vcsMenuRef.joyrideTutorialRef.startTutorial("default");
+        this.joyrideTutorialRef.startTutorial("main");
       },
       label: "Welcome Tutorial"
     });
