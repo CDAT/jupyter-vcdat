@@ -11,8 +11,7 @@ import {
   Col,
   CustomInput,
   Row,
-  Spinner,
-  Badge
+  Spinner
 } from "reactstrap";
 
 // Project Components
@@ -27,8 +26,8 @@ import Variable from "./Variable";
 import VarMenu from "./VarMenu";
 import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
-import LeftSideBarWidget from "../widgets";
-import JoyrideTutorial, { TUTORIAL_NAMES } from "../Tutorials";
+import widgets from "../widgets";
+import Tutorials from "../Tutorials";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"

@@ -77,7 +77,6 @@ export default class DimensionSlider extends React.Component<
     let format: any;
     const pValues = props.data;
 
-
     if (_.includes(props.units, "since")) {
       const [span, , startTime] = props.units.split(" ");
       switch (span) {

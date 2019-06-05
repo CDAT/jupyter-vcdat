@@ -124,8 +124,8 @@ export default class Utilities {
   ): void {
     // Add item to help menu
     menu.helpMenu.menu.addItem({
-      args: args,
-      command: command
+      args,
+      command
     });
   }
 }

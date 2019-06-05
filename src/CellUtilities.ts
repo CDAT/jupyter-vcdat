@@ -5,7 +5,7 @@ import { Notebook, NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 
 // Project Components
-import  NotebookUtilities  from "./NotebookUtilities";
+import NotebookUtilities from "./NotebookUtilities";
 
 /** Contains some utility functions for handling notebook cells */
 export default class CellUtilities {

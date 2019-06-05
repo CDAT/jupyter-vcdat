@@ -1,5 +1,5 @@
 import * as React from "react";
-import Joyride, { CallBackProps } from "react-joyride";
+import reactJoyride, { CallBackProps } from "react-joyride";
 import Modal from "reactstrap/lib/Modal";
 import ModalHeader from "reactstrap/lib/ModalHeader";
 import ModalBody from "reactstrap/lib/ModalBody";
@@ -81,7 +81,7 @@ export default class JoyrideTutorial extends React.Component<
   IJoyrideTutorialProps,
   IJoyrideTutorialState
 > {
-  joyrideRef: Joyride;
+  public joyrideRef: Joyride;
   constructor(props: IJoyrideTutorialProps) {
     super(props);
     this.state = {
@@ -104,20 +104,10 @@ export default class JoyrideTutorial extends React.Component<
       default:
         steps = WELCOME_TUTORIAL;
     }
-    this.setState({ steps: steps, run: true });
+    this.setState({ steps, run: true });
     addEventListener("click", this.isVCDATIcon, {
       passive: true
     });
-  }
-
-  private isVCDATIcon(event: MouseEvent) {
-    if (event.target instanceof HTMLElement) {
-      console.log(event.target);
-      if (event.target.classList.contains("jp-icon-vcdat")) {
-        console.log("Yay!");
-        removeEventListener("click", this.isVCDATIcon);
-      }
-    }
   }
 
   public async handleJoyrideEvents(event: CallBackProps): Promise<void> {
@@ -160,5 +150,15 @@ export default class JoyrideTutorial extends React.Component<
         />
       </div>
     );
+  }
+
+  private isVCDATIcon(event: MouseEvent) {
+    if (event.target instanceof HTMLElement) {
+      console.log(event.target);
+      if (event.target.classList.contains("jp-icon-vcdat")) {
+        console.log("Yay!");
+        removeEventListener("click", this.isVCDATIcon);
+      }
+    }
   }
 }

@@ -20,7 +20,7 @@ import {
 
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
-import LeftSideBarWidget from "../widgets";
+import widgets from "../widgets";
 import { ISignal } from "@phosphor/signaling";
 
 const dropdownMenuStyle: React.CSSProperties = {
