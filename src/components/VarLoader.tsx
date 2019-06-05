@@ -189,8 +189,8 @@ export default class VarLoader extends React.Component<
             return;
           }
           const fileVariables = this.state.fileVariables;
-          fileVariables[varIndex].axisInfo[axisIndex].min = newInfo.min;
-          fileVariables[varIndex].axisInfo[axisIndex].max = newInfo.max;
+          fileVariables[varIndex].axisInfo[axisIndex].first = newInfo.first;
+          fileVariables[varIndex].axisInfo[axisIndex].last = newInfo.last;
           this.setState({
             fileVariables
           });

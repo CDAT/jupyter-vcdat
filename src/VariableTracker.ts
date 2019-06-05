@@ -600,6 +600,7 @@ export default class VariableTracker {
 
     // Update axes info for each variable in the group
     varGroup.forEach((variable: Variable) => {
+<<<<<<< Updated upstream
       variable.axisList.map((item: any) => {
         if (axesInfo[item].data) {
           axesInfo[item].min = axesInfo[item].data[0];
@@ -608,6 +609,18 @@ export default class VariableTracker {
           variable.axisInfo.push(axesInfo[item]);
         }
       });
+=======
+      if (variable.axisList) {
+        variable.axisList.map((item: any) => {
+          if (axesInfo[item] && axesInfo[item].data) {
+            axesInfo[item].first = axesInfo[item].data[0];
+            axesInfo[item].last =
+              axesInfo[item].data[axesInfo[item].data.length - 1];
+            variable.axisInfo.push(axesInfo[item]);
+          }
+        });
+      }
+>>>>>>> Stashed changes
     });
   }
 
@@ -634,6 +647,7 @@ export default class VariableTracker {
     const axesInfo: any = JSON.parse(result.slice(1, result.length - 1));
 
     // Update axes info for the variable
+<<<<<<< Updated upstream
     variable.axisList.map((item: any) => {
       if (axesInfo[item].data) {
         axesInfo[item].min = axesInfo[item].data[0];
@@ -642,5 +656,17 @@ export default class VariableTracker {
         variable.axisInfo.push(axesInfo[item]);
       }
     });
+=======
+    if (variable.axisList) {
+      variable.axisList.map((item: any) => {
+        if (axesInfo[item] && axesInfo[item].data) {
+          axesInfo[item].first = axesInfo[item].data[0];
+          axesInfo[item].last =
+            axesInfo[item].data[axesInfo[item].data.length - 1];
+          variable.axisInfo.push(axesInfo[item]);
+        }
+      });
+    }
+>>>>>>> Stashed changes
   }
 }

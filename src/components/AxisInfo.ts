@@ -7,6 +7,6 @@ export default class AxisInfo {
   public name: string; // the name of the axis
   public shape: number[]; // the shape of the axis
   public units: string; // what units this is measuring
-  public min: number;
-  public max: number;
+  public first: number;
+  public last: number;
 }

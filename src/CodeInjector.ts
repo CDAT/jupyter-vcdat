@@ -394,16 +394,16 @@ export default class CodeInjector {
     if (axesCount > 0) {
       let axis: AxisInfo = variable.axisInfo[0];
       const axisCmd: string =
-        axis.min === axis.max
-          ? `${axis.name}=(${axis.min})`
-          : `${axis.name}=(${axis.min}, ${axis.max})`;
+        axis.first === axis.last
+          ? `${axis.name}=(${axis.first})`
+          : `${axis.name}=(${axis.first}, ${axis.last})`;
       cmd += isDerived ? axisCmd : `, ${axisCmd}`;
       for (let idx: number = 1; idx < axesCount; idx += 1) {
         axis = variable.axisInfo[idx];
         cmd +=
-          axis.min === axis.max
-            ? `, ${axis.name}=(${axis.min})`
-            : `, ${axis.name}=(${axis.min}, ${axis.max})`;
+          axis.first === axis.last
+            ? `, ${axis.name}=(${axis.first})`
+            : `, ${axis.name}=(${axis.first}, ${axis.last})`;
       }
     }
     cmd += ")";
@@ -442,9 +442,9 @@ export default class CodeInjector {
       cmd += `${variable.alias} = ${BASE_DATA_READER_NAME}("${variable.name}"`;
       variable.axisInfo.forEach((axis: AxisInfo) => {
         cmd +=
-          axis.min === axis.max
-            ? `, ${axis.name}=(${axis.min})`
-            : `, ${axis.name}=(${axis.min}, ${axis.max})`;
+          axis.first === axis.last
+            ? `, ${axis.name}=(${axis.first})`
+            : `, ${axis.name}=(${axis.first}, ${axis.last})`;
       });
       cmd += ")\n";
 

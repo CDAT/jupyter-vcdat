@@ -137,8 +137,8 @@ export default class VarCard extends React.Component<
       if (axis.name !== newInfo.name) {
         return;
       }
-      updatedVar.axisInfo[axisIndex].min = newInfo.min;
-      updatedVar.axisInfo[axisIndex].max = newInfo.max;
+      updatedVar.axisInfo[axisIndex].first = newInfo.first;
+      updatedVar.axisInfo[axisIndex].last = newInfo.last;
     });
     this.setState({ variable: updatedVar });
   }
