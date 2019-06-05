@@ -1,4 +1,5 @@
 // Dependencies
+import { ISignal } from "@phosphor/signaling";
 import * as React from "react";
 import {
   Button,
@@ -13,7 +14,6 @@ import {
   InputGroupAddon,
   Row
 } from "reactstrap";
-import { ISignal } from "@phosphor/signaling";
 
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";

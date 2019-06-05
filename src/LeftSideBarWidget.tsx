@@ -133,10 +133,10 @@ export default class LeftSideBarWidget extends Widget {
 
     // Add command for starting introductory tutorial
     this.commands.addCommand("vcdat:welcome-tutorial", {
-      label: "Welcome Tutorial",
       execute: () => {
         this.vcsMenuRef.joyrideTutorialRef.startTutorial("default");
-      }
+      },
+      label: "Welcome Tutorial"
     });
   }
 

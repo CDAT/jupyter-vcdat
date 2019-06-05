@@ -137,8 +137,8 @@ export default class DimensionSlider extends React.Component<
 
     // Update initial state
     this.state = {
-      last: idxLast,
       first: idxFirst,
+      last: idxLast,
       possibleValues: pValues,
       tickValues: tickVals
     };
@@ -259,8 +259,8 @@ export default class DimensionSlider extends React.Component<
     }
 
     this.setState({
-      last: e[1],
-      first: e[0]
+      first: e[0],
+      last: e[1]
     });
   }
 
@@ -270,8 +270,8 @@ export default class DimensionSlider extends React.Component<
     }
     this.props.updateDimInfo(
       {
-        last: this.state.possibleValues[e[1]],
         first: this.state.possibleValues[e[0]],
+        last: this.state.possibleValues[e[1]],
         name: this.props.name
       },
       this.props.varID

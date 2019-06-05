@@ -1,10 +1,6 @@
 import * as React from "react";
-import reactJoyride, { CallBackProps } from "react-joyride";
-import Modal from "reactstrap/lib/Modal";
-import ModalHeader from "reactstrap/lib/ModalHeader";
-import ModalBody from "reactstrap/lib/ModalBody";
-import ModalFooter from "reactstrap/lib/ModalFooter";
-import { HoverBox } from "@jupyterlab/apputils";
+// tslint:disable-next-line
+import ReactJoyride, { CallBackProps } from "react-joyride";
 
 const defaultOptions = {
   arrowColor: "#fff",
@@ -28,42 +24,43 @@ export type TUTORIAL_NAMES =
 
 const WELCOME_TUTORIAL = [
   {
-    title: "Welcome to vCDAT 2.0!",
-    target: "#main",
     content: `This is a bunch of tutorial text.
     This is a bunch of tutorial text.
     This is a bunch of tutorial text. This is a bunch of tutorial text.
     This is a bunch of tutorial text.`,
+    placement: "center",
+    target: "#main",
     textAlign: "left",
-    placement: "center"
+    title: "Welcome to vCDAT 2.0!"
   },
   {
-    offset: 0,
-    event: "hover",
-    title: "VCDAT 2.0",
-    target: ".jp-icon-vcdat",
     content: `This is the vcdat extension icon. 
     Click it to open and close the vcdat side menu.`,
+    event: "hover",
+    offset: 0,
+    placement: "right",
+    target: ".jp-icon-vcdat",
     textAlign: "right",
-    placement: "right"
+    title: "VCDAT 2.0"
   },
   {
-    target: ".vcsmenu-plot-btn-vcdat",
     content: "This is the plot button!",
-    textAlign: "center",
-    placement: "bottom"
+    placement: "bottom",
+    target: ".vcsmenu-plot-btn-vcdat",
+    textAlign: "center"
   },
   {
-    target: ".vcsmenu-export-btn-vcdat",
     content: "This is the export plot button!",
-    textAlign: "center",
-    placement: "bottom"
+    placement: "bottom",
+    target: ".vcsmenu-export-btn-vcdat",
+    textAlign: "center"
   },
   {
-    target: ".vcsmenu-clear-btn-vcdat",
     content: "This is the clear plot button!",
-    textAlign: "center",
-    placement: "bottom"
+
+    placement: "bottom",
+    target: ".vcsmenu-clear-btn-vcdat",
+    textAlign: "center"
   }
 ];
 
@@ -81,13 +78,13 @@ export default class JoyrideTutorial extends React.Component<
   IJoyrideTutorialProps,
   IJoyrideTutorialState
 > {
-  public joyrideRef: Joyride;
+  public joyrideRef: ReactJoyride;
   constructor(props: IJoyrideTutorialProps) {
     super(props);
     this.state = {
+      modalOpen: this.props.runOnStart,
       run: this.props.runOnStart,
-      steps: WELCOME_TUTORIAL,
-      modalOpen: this.props.runOnStart
+      steps: WELCOME_TUTORIAL
     };
     this.handleJoyrideEvents = this.handleJoyrideEvents.bind(this);
     this.startTutorial = this.startTutorial.bind(this);
@@ -130,7 +127,7 @@ export default class JoyrideTutorial extends React.Component<
   public render(): JSX.Element {
     return (
       <div>
-        <Joyride
+        <ReactJoyride
           run={this.state.run}
           steps={this.state.steps}
           callback={this.handleJoyrideEvents}

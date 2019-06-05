@@ -1,4 +1,5 @@
 // Dependencies
+import { ISignal } from "@phosphor/signaling";
 import * as React from "react";
 import {
   Button,
@@ -20,8 +21,7 @@ import {
 
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
-import widgets from "../widgets";
-import { ISignal } from "@phosphor/signaling";
+import LeftSideBarWidget from "../LeftSideBarWidget";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",

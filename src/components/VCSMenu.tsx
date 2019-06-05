@@ -26,8 +26,8 @@ import Variable from "./Variable";
 import VarMenu from "./VarMenu";
 import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
-import widgets from "../widgets";
-import Tutorials from "../Tutorials";
+import JoyrideTutorial from "../JoyrideTutorial";
+import LeftSideBarWidget from "../LeftSideBarWidget";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"

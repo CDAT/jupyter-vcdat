@@ -475,9 +475,11 @@ export default class VariableTracker {
         v.longName = fileVariables.vars[varName].name;
         v.axisList = fileVariables.vars[varName].axisList;
         v.axisInfo = Array<AxisInfo>();
-        fileVariables.vars[varName].axisList.map((item: any) => {
-          v.axisInfo.push(fileVariables.axes[item]);
-        });
+        if (v.axisList) {
+          v.axisList.map((item: any) => {
+            v.axisInfo.push(fileVariables.axes[item]);
+          });
+        }
         v.units = fileVariables.vars[varName].units;
         v.sourceName = filePath;
         newVars.push(v);

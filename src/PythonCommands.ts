@@ -185,6 +185,7 @@ ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`;
 export function getFileVarsCommand(relativePath: string): string {
   return `import json\n\
 import cdms2\n\
+import vcs\n\
 import numpy\n\
 ${safe("reader")} = cdms2.open('${relativePath}')\n\
 ${safe("outVars")} = {}\n\
@@ -206,6 +207,7 @@ ${safe("var")} = None`;
 export function getAxisInfoFromFileCommand(relativePath: string): string {
   return `import json\n\
 import cdms2\n\
+import vcs\n\
 ${safe("reader")} = cdms2.open('${relativePath}')\n\
 ${safe("outAxes")} = {}\n\
 for ${safe("aname")} in ${safe("reader")}.axes:\n\
@@ -218,6 +220,7 @@ ${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})`;
 export function getAxisInfoFromVariableCommand(varName: string): string {
   return `import json\n\
 import cdms2\n\
+import vcs\n\
 ${safe("outAxes")} = {}\n\
 ${safe("names")} = ${varName}.getAxisIds()\n\
 for idx in ${varName}.getAxisListIndex():\n\
