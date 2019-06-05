@@ -13,7 +13,7 @@ A Jupyter Lab extension that integrates vCDAT features directly in a notebook.
 
 ## Installation
 
-If you didn't let Anaconda or Miniconda prepend the Anaconda<2 or 3> install location to PATH, make sure conda is in your PATH (for more information see the Anaconda Documentation). Assuming Ananconda is installed in ${HOME}/anaconda:
+If you didn't let Anaconda or Miniconda prepend the Anaconda<2 or 3> install location to PATH, make sure conda is in your PATH (for more information see the [Anaconda Documentation](https://docs.anaconda.com/anaconda/user-guide/faq/#installing-anaconda)). Assuming Ananconda is installed in ${HOME}/anaconda:
 * export PATH=${HOME}/anaconda/bin:${PATH} # for [ba]sh
 * setenv PATH ${HOME}/anaconda/bin:${PATH} # for [t]csh
 
