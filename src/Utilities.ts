@@ -35,6 +35,16 @@ export default class Utilities {
   }
 
   /**
+   * Will return the extension of a filename/filepath or empty string.
+   * Example: test.nc => "nc", "test.sdf.tes.nc43534" => "nc43534", test. => "" , test => ""
+   * @param filename The filename/path to remove extension from
+   */
+  public static getExtension(filename: string): string {
+    const match: string[] = filename.match(/\.[^/.]*$/);
+    return match ? match[0].substring(1) : "";
+  }
+
+  /**
    * Will return a string of the path with it's filename removed.
    * Example: folder/dir/test.nc => folder/dir/, test.sdf.tes.nc43534 => /
    * @param path The filename/path to remove extension from

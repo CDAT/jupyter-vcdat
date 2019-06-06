@@ -344,7 +344,7 @@ export default class GraphicsMenu extends React.Component<
 
   private handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
     // Regex filter for unallowed name characters
-    const forbidden: RegExp = /^[^a-z_]|[^a-z0-9]+/i;
+    const forbidden: RegExp = /^[^_a-z]|[^_a-z0-9]+/i;
     const invalid: boolean = forbidden.test(event.target.value);
     this.setState({ nameValue: event.target.value, invalidName: invalid });
   }
