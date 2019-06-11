@@ -177,7 +177,7 @@ def check_for_exported_file():\n\
 		time.sleep(1)\n\
 		counter +=1\n\
 		if counter == 15:\n\
-			raise Exception("Exporting plot timed out.")\n\
+			return False\n\
 	return True\n\
 ${OUTPUT_RESULT_NAME}=check_for_exported_file()\n`;
 }
