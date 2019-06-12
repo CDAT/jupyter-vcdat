@@ -148,7 +148,7 @@ fi
 
 # We need to allow pipe to break in case we are not in a git repo directory
 set +o pipefail
-REMOTE=$(git config --get remote.origin.url)
+REMOTE=$(git config --get remote.origin.url) || REMOTE="NO"
 echo "REMOTE: $REMOTE"
 PROTOCOL_SEP=${REMOTE:3:1}
 echo "PROTOCOL SEPARATOR: $PROTOCOL_SEP"
