@@ -5,9 +5,19 @@
 # http://jvns.ca/blog/2017/03/26/bash-quirks/
 
 # default logfile name
-filename="jupyter-vcdat_logfile.txt"
+FILENAME="jupyter-vcdat_logfile.txt"
 # NOT verbose by default
 verbose=0
+
+# default env name
+REQUESTED_CONDA_ENV_NAME="jupyter-vcdat"
+
+
+# conda channels
+DEFAULT_CONDA_CHANNELS="-c cdat/label/v81 -c conda-forge"
+
+# extra conda channels
+CUSTOM_CONDA_CHANNELS=""
 
 function usage() {
   cat << EOF
@@ -15,10 +25,17 @@ usage: Install vcdat jupyter-lab extension
 
 optional arguments:
   -h, --help            show this help message and exit
-  -f FILENAME, --filename FILENAME
+  -f FILENAME, --FILENAME FILENAME
                         name of file where to log output
   -v VERBOSE
                         Also prints output to screen
+  -e CONDA_ENV_NAME --environment CONDA_ENV_NAME
+                        Name of the conda environment to install in (will create if not existing)
+  -c CONDA_EXTRA_CHANNEL 
+                        extra conda channels to use (use an extra -c if more than one)
+                        example:
+                        -c "cdat/label/nightly"
+                        -c "cdat/label/nightly" -c "cdat/label/v81"
 EOF
 exit 0
 }
@@ -26,9 +43,15 @@ exit 0
 while [ "$1" != "" ]; do
     case $1 in
         -f | --file )           shift
-                                filename=$1
+                                FILENAME=$1
                                 ;;
         -v | --verbose )        verbose=1
+                                ;;
+        -e | --environment ) shift
+                                REQUESTED_CONDA_ENV_NAME=$1
+                                ;;
+        -c ) shift
+                                CUSTOM_CONDA_CHANNELS=${CUSTOM_CONDA_CHANNELS}" -c "$1
                                 ;;
         -h | --help )           usage
                                 ;;
@@ -38,12 +61,13 @@ while [ "$1" != "" ]; do
     shift
 done
 
-echo "Installing jupyter-vcdat extension"
-echo "Output will be redirected to $filename (you can control the filename with -f option)"
+echo "Installing jupyter-vcdat extension in conda env: '${REQUESTED_CONDA_ENV_NAME}' (you can change this via -c option)"
+echo "Using following conda channels: '${CUSTOM_CONDA_CHANNELS} ${DEFAULT_CONDA_CHANNELS}'"
+echo "Output will be redirected to: '$FILENAME' (you can control the FILENAME with -f option)"
 # Redirect to logfile and possibly screen if verbose
 if [ $verbose == 1 ]; then
   # Redirect stdout ( > ) into a named pipe ( >() ) running "tee"
-  exec > >(tee -i $filename)
+  exec > >(tee -i $FILENAME)
 
 else
   echo "Going into quiet mode, suppressing output"
@@ -55,7 +79,7 @@ else
   exec 2<&-
 
   # Open STDOUT as $LOG_FILE file for read and write.
-  exec 1<>$filename
+  exec 1<>$FILENAME
 fi
 # Without this, only stdout would be captured - i.e. your
 # log file would not contain any error messages.
@@ -86,13 +110,31 @@ function handle_error {
 trap 'handle_error $LINENO ${BASH_LINENO[@]}' ERR
 
 CONDA_EXE="$(which conda)"
-if [ ${CONDA_DEFAULT_ENV:-"NA"} != "jupyter-vcdat" ]; then
+if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
+    echo "Ok current conda does not match requested conda: ${CONDA_DEFAULT_ENV:-'NA'} vs ${REQUESTED_CONDA_ENV_NAME}"
+    envs=$(${CONDA_EXE} env list | cut -d ' ' -f1)
+    found=0
+    for a_env in $envs
+    do
+        if [ $a_env == ${REQUESTED_CONDA_ENV_NAME} ]; then
+            found=1
+        fi
+    done
+    if [ $found == 1 ]; then
+        echo "ACTIVATING existing env: ${REQUESTED_CONDA_ENV_NAME}"
+        source activate ${REQUESTED_CONDA_ENV_NAME}
+    else
+        echo "The requested env ${REQUESTED_CONDA_ENV_NAME} does not seem to exist we will create it"
+    fi
+fi
 
+if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
+  echo "Creating conda env: ${REQUESTED_CONDA_ENV_NAME}"
   $CONDA_EXE update --all -y -n base
-  $CONDA_EXE create -y -n jupyter-vcdat -c cdat/label/v81 -c conda-forge nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum jupyterhub libnetcdf=4.6.2
+  $CONDA_EXE create -y -n ${REQUESTED_CONDA_ENV_NAME} ${CUSTOM_CONDA_CHANNELS} ${DEFAULT_CONDA_CHANNELS} nodejs "python>3" vcs jupyterlab pip nb_conda nb_conda_kernels plumbum jupyterhub libnetcdf=4.6.2
   CONDA_BASE=$(conda info --base)
   source $CONDA_BASE/etc/profile.d/conda.sh
-  conda activate jupyter-vcdat
+  conda activate ${REQUESTED_CONDA_ENV_NAME}
 
   # Install sidecar
   python -m pip install sidecar || pip install sidecar
