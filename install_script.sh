@@ -29,9 +29,9 @@ optional arguments:
                         name of file where to log output
   -v VERBOSE
                         Also prints output to screen
-  -e CONDA_ENV_NAME --environment CONDA_ENV_NAME
+  -n CONDA_ENV_NAME, --name CONDA_ENV_NAME
                         Name of the conda environment to install in (will create if not existing)
-  -c CONDA_EXTRA_CHANNEL 
+  -c CONDA_EXTRA_CHANNEL, --channel CONDA_EXTRA_CHANNEL
                         extra conda channels to use (use an extra -c if more than one)
                         example:
                         -c "cdat/label/nightly"
@@ -47,10 +47,10 @@ while [ "$1" != "" ]; do
                                 ;;
         -v | --verbose )        verbose=1
                                 ;;
-        -e | --environment ) shift
+        -n | --name ) shift
                                 REQUESTED_CONDA_ENV_NAME=$1
                                 ;;
-        -c ) shift
+        -c | --channel ) shift
                                 CUSTOM_CONDA_CHANNELS=${CUSTOM_CONDA_CHANNELS}" -c "$1
                                 ;;
         -h | --help )           usage
