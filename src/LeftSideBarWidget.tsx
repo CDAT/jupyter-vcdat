@@ -1,7 +1,11 @@
 // Dependencies
-import { JupyterLab } from "@jupyterlab/application";
-import { IChangedArgs } from "@jupyterlab/coreutils";
-import { Notebook, NotebookPanel, NotebookTracker } from "@jupyterlab/notebook";
+import { JupyterFrontEnd } from "@jupyterlab/application";
+import {
+  Notebook,
+  NotebookActions,
+  NotebookPanel,
+  NotebookTracker
+} from "@jupyterlab/notebook";
 import { ISignal, Signal } from "@phosphor/signaling";
 import { CommandRegistry } from "@phosphor/commands";
 import { Widget } from "@phosphor/widgets";
@@ -33,7 +37,7 @@ import {
 } from "./PythonCommands";
 import { MainMenu } from "@jupyterlab/mainmenu";
 import JoyrideTutorial from "./JoyrideTutorial";
-
+import { Cell } from "@jupyterlab/cells";
 /**
  * This is the main component for the vcdat extension.
  */
@@ -41,7 +45,7 @@ export default class LeftSideBarWidget extends Widget {
   public div: HTMLDivElement; // The div container for this widget
   private commands: CommandRegistry; // Jupyter app CommandRegistry
   private notebookTracker: NotebookTracker; // This is to track current notebooks
-  private application: JupyterLab; // The JupyterLab application object
+  private application: JupyterFrontEnd; // The JupyterLab application object
   private menu: MainMenu; // The main top menu in JupyterLab
   private vcsMenuRef: VCSMenu; // the LeftSidebar component
   private loadingModalRef: PopUpModal;
@@ -57,9 +61,8 @@ export default class LeftSideBarWidget extends Widget {
   private _notebookPanel: NotebookPanel; // The notebook this widget is interacting with
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
   private preparing: boolean; // Whether the notebook is currently being prepared
-  private isBusy: boolean; // Whether the kernel is busy processing a request
 
-  constructor(app: JupyterLab, tracker: NotebookTracker, menu: MainMenu) {
+  constructor(app: JupyterFrontEnd, tracker: NotebookTracker, menu: MainMenu) {
     super();
     this.application = app;
     this.notebookTracker = tracker;
@@ -81,11 +84,9 @@ export default class LeftSideBarWidget extends Widget {
     this.initialize = this.initialize.bind(this);
     this.setNotebookPanel = this.setNotebookPanel.bind(this);
     this.updateNotebookState = this.updateNotebookState.bind(this);
-    this.handleNotebookStateChanged = this.handleNotebookStateChanged.bind(
-      this
-    );
     this.handleNotebookChanged = this.handleNotebookChanged.bind(this);
     this.handleNotebookDisposed = this.handleNotebookDisposed.bind(this);
+    this.handleNotebookCellRun = this.handleNotebookCellRun.bind(this);
     this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
     this.checkVCS = this.checkVCS.bind(this);
     this.checkPlotExists = this.checkPlotExists.bind(this);
@@ -93,8 +94,6 @@ export default class LeftSideBarWidget extends Widget {
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
     this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
     this.setPlotExists = this.setPlotExists.bind(this);
-
-    this.setBusy = this.setBusy.bind(this);
     this.vcsMenuRef = (React as any).createRef();
     this.loadingModalRef = (React as any).createRef();
     this.joyrideTutorialRef = (React as any).createRef();
@@ -105,6 +104,7 @@ export default class LeftSideBarWidget extends Widget {
           ref={loader => (this.joyrideTutorialRef = loader)}
         />
         <VCSMenu
+          application={this.application}
           ref={loader => (this.vcsMenuRef = loader)}
           commands={this.commands}
           codeInjector={this.codeInjector}
@@ -209,10 +209,6 @@ export default class LeftSideBarWidget extends Widget {
     this._plotExistsChanged.emit(value);
   }
 
-  public setBusy(value: boolean): void {
-    this.isBusy = value;
-  }
-
   // =======ASYNC SETTER FUNCTIONS=======
 
   /**
@@ -229,9 +225,7 @@ export default class LeftSideBarWidget extends Widget {
 
       // Disconnect handlers from previous notebook_panel (if exists)
       if (this._notebookPanel) {
-        this._notebookPanel.content.stateChanged.disconnect(
-          this.handleNotebookStateChanged
-        );
+        // NotebookActions.executed.disconnect(this.handleNotebookCellRun);
         this._notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
       }
 
@@ -265,11 +259,7 @@ export default class LeftSideBarWidget extends Widget {
             IMPORT_CELL_KEY
           );
           if (idx >= 0) {
-            await CellUtilities.runCellAtIndex(
-              this.commands,
-              this._notebookPanel,
-              idx
-            );
+            await CellUtilities.runCellAtIndex(this._notebookPanel, idx);
             // select next cell
             this.notebookPanel.content.activeCellIndex = idx + 1;
             // Update kernel list to identify this kernel is ready
@@ -298,11 +288,6 @@ export default class LeftSideBarWidget extends Widget {
         const plotExists = await this.checkPlotExists();
         this.setPlotExists(plotExists);
 
-        // Set up notebook's handlers to keep track of notebook status
-        this.notebookPanel.content.stateChanged.connect(
-          this.handleNotebookStateChanged,
-          this
-        );
         this.notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
       } else {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
@@ -331,14 +316,13 @@ export default class LeftSideBarWidget extends Widget {
    * The status of the notebook is set and the notebook switching handler is connected.
    */
   public async initialize(): Promise<void> {
-    // Add a welcome tutorial to help menu
-    Utilities.addHelpMenuItem(this.menu, {}, "vcdat:welcome-tutorial");
-
     // Notebook tracker will signal when a notebook is changed
     this.notebookTracker.currentChanged.connect(
       this.handleNotebookChanged,
       this
     );
+
+    NotebookActions.executed.connect(this.handleNotebookCellRun, this);
 
     // Set notebook widget if one is open
     if (this.notebookTracker.currentWidget) {
@@ -421,11 +405,6 @@ export default class LeftSideBarWidget extends Widget {
       // Activate current notebook
       this.application.shell.activateById(this.notebookPanel.id);
 
-      // Connect the handler specific to current notebook
-      this._notebookPanel.content.stateChanged.connect(
-        this.handleNotebookStateChanged,
-        this
-      );
       this._notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
 
       this.state = NOTEBOOK_STATE.VCS_Ready;
@@ -443,12 +422,10 @@ export default class LeftSideBarWidget extends Widget {
     }
 
     // Try to initialize a vcs instant, if error then it's not vcs ready
-    this.isBusy = true;
     const result: string = await NotebookUtilities.sendSimpleKernelRequest(
       this.notebookPanel,
       CHECK_VCS_CMD
     );
-    this.isBusy = false;
     if (result === "True") {
       return true;
     }
@@ -458,12 +435,10 @@ export default class LeftSideBarWidget extends Widget {
   public async checkCanvasExists(): Promise<boolean> {
     try {
       // Get the list of display elements in the canvas
-      this.isBusy = true;
       const output: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
         CHECK_PLOT_EXIST_CMD
       );
-      this.isBusy = false;
       return output !== "";
     } catch (error) {
       return false;
@@ -474,12 +449,10 @@ export default class LeftSideBarWidget extends Widget {
     try {
       if (this.state === NOTEBOOK_STATE.VCS_Ready) {
         // Get the list of display elements in the canvas
-        this.isBusy = true;
         const output: string = await NotebookUtilities.sendSimpleKernelRequest(
           this.notebookPanel,
           CHECK_PLOT_EXIST_CMD
         );
-        this.isBusy = false;
         return Utilities.strToArray(output).length > 1;
       }
       return false;
@@ -494,12 +467,10 @@ export default class LeftSideBarWidget extends Widget {
   public async refreshGraphicsList(): Promise<void> {
     if (this.state === NOTEBOOK_STATE.VCS_Ready) {
       // Refresh the graphic methods
-      this.isBusy = true;
       const output: string = await NotebookUtilities.sendSimpleKernelRequest(
         this.notebookPanel,
         REFRESH_GRAPHICS_CMD
       );
-      this.isBusy = false;
 
       // Exit if result is blank
       if (!output) {
@@ -522,14 +493,12 @@ export default class LeftSideBarWidget extends Widget {
     try {
       if (this.state === NOTEBOOK_STATE.VCS_Ready) {
         // Refresh the graphic methods
-        this.isBusy = true;
         const output: string = await NotebookUtilities.sendSimpleKernelRequest(
           this.notebookPanel,
           REFRESH_TEMPLATES_CMD
         );
         // Update the list of latest variables and data
         this.templatesList = Utilities.strToArray(output);
-        this.isBusy = false;
       } else {
         this.templatesList = BASE_TEMPLATES;
       }
@@ -653,11 +622,6 @@ export default class LeftSideBarWidget extends Widget {
       // Activate current notebook
       this.application.shell.activateById(this.notebookPanel.id);
 
-      // Connect the handler specific to current notebook
-      this._notebookPanel.content.stateChanged.connect(
-        this.handleNotebookStateChanged,
-        this
-      );
       this._notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
     } catch (error) {
       throw error;
@@ -691,38 +655,27 @@ export default class LeftSideBarWidget extends Widget {
   }
 
   private async handleNotebookDisposed(notebookPanel: NotebookPanel) {
-    notebookPanel.content.stateChanged.disconnect(
-      this.handleNotebookStateChanged
-    );
     notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
   }
 
-  /**
-   * This handles when the state of the notebook changes, like when a cell is modified, or run etc.
-   * Using this handler, the variable list is refreshed whenever a cell's code is run in a vcs ready
-   * notebook.
-   */
-  private async handleNotebookStateChanged(
-    notebook: Notebook,
-    stateChange: IChangedArgs<any>
+  private async handleNotebookCellRun(
+    things: any,
+    result: {
+      notebook: Notebook;
+      cell: Cell;
+    }
   ): Promise<void> {
-    // Perform actions when the notebook state has a command run and the notebook is vcs ready
-    if (
-      !this.isBusy &&
-      !this.codeInjector.isBusy &&
-      !this.varTracker.isBusy &&
-      this.state === NOTEBOOK_STATE.VCS_Ready &&
-      stateChange.newValue !== "edit"
-    ) {
-      try {
-        this.varTracker.refreshVariables();
-        this.refreshGraphicsList();
-        await this.refreshTemplatesList();
-        const plotExists = await this.checkPlotExists();
-        this.setPlotExists(plotExists);
-      } catch (error) {
-        console.error(error);
-      }
+    if (this.state !== NOTEBOOK_STATE.VCS_Ready) {
+      return;
+    }
+    try {
+      this.refreshGraphicsList();
+      this.refreshTemplatesList();
+      await this.varTracker.refreshVariables();
+      const plotExists = await this.checkPlotExists();
+      this.setPlotExists(plotExists);
+    } catch (error) {
+      console.error(error);
     }
   }
 }

@@ -62,7 +62,6 @@ export default class GraphicsMenu extends React.Component<
   IGraphicsMenuProps,
   IGraphicsMenuState
 > {
-  public nameInputRef: Input;
   constructor(props: IGraphicsMenuProps) {
     super(props);
     this.state = {
@@ -165,17 +164,11 @@ export default class GraphicsMenu extends React.Component<
     // Set the dropdown title based on state
     let dropdownTitle = "Select Plot Type";
     if (this.state.tempGroup) {
-      if (this.state.tempGroup === this.state.selectedGroup) {
-        dropdownTitle = `${this.state.tempGroup} (${
-          this.state.selectedMethod
-        })`;
-      } else {
-        dropdownTitle = `${this.state.tempGroup}`;
-      }
+      this.state.tempGroup === this.state.selectedGroup
+        ? (dropdownTitle = `${this.state.tempGroup} (${this.state.selectedMethod})`)
+        : (dropdownTitle = `${this.state.tempGroup}`);
     } else if (this.state.selectedMethod) {
-      dropdownTitle = `${this.state.selectedGroup} (${
-        this.state.selectedMethod
-      })`;
+      dropdownTitle = `${this.state.selectedGroup} (${this.state.selectedMethod})`;
     }
     // Set the input color
     let validInputColor = "success";

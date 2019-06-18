@@ -311,11 +311,7 @@ export default class VarCard extends React.Component<
   private handleWarningsClick(): void {
     NotebookUtilities.showMessage(
       "Warning",
-      `Loading '${
-        this.state.variable.alias
-      }' from this file will overwrite the current '${
-        this.state.variable.alias
-      }' variable. Rename this variable if you don't want to overwrite the previously loaded variable.`,
+      `Loading '${this.state.variable.alias}' from this file will overwrite the current '${this.state.variable.alias}' variable. Rename this variable if you don't want to overwrite the previously loaded variable.`,
       "Dismiss"
     );
   }

@@ -129,11 +129,7 @@ export default class CodeInjector {
     } else {
       // Inject code into existing imports cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
-      await CellUtilities.runCellAtIndex(
-        this.cmdRegistry,
-        this._notebookPanel,
-        cellIdx
-      );
+      await CellUtilities.runCellAtIndex(this._notebookPanel, cellIdx);
     }
 
     // Set cell meta data to identify it as containing imports
@@ -156,7 +152,7 @@ export default class CodeInjector {
    */
   public async injectCanvasCode(index: number): Promise<number> {
     // Creates canvas(es)
-    const cmd: string = `#Create canvas and sidecar\ncanvas = vcs.init()`;
+    const cmd: string = `#Create canvas\ncanvas = vcs.init()`;
 
     // Find the index where the canvas code is injected
     let cellIdx: number = CellUtilities.findCellWithMetaKey(
@@ -182,11 +178,7 @@ export default class CodeInjector {
       }
       // Replace code in canvas cell and run
       CellUtilities.injectCodeAtIndex(this.notebookPanel.content, cellIdx, cmd);
-      await CellUtilities.runCellAtIndex(
-        this.cmdRegistry,
-        this.notebookPanel,
-        cellIdx
-      );
+      await CellUtilities.runCellAtIndex(this.notebookPanel, cellIdx);
     }
 
     // Set cell meta data to identify it as containing canvases
@@ -488,7 +480,7 @@ export default class CodeInjector {
     selectedGMGroup: string,
     selectedTemplate: string,
     overlayMode: boolean
-  ) {
+  ): Promise<[number, string]> {
     // Limit selection to MAX_SLABS
     let selectedVariables: string[] = this.varTracker.selectedVariables;
     if (selectedVariables.length > MAX_SLABS) {
@@ -519,7 +511,7 @@ export default class CodeInjector {
     }
     cmd += `${templateParam}, ${gmParam})`;
 
-    await this.inject(
+    return this.inject(
       cmd,
       undefined,
       "Failed to make plot.",
@@ -535,6 +527,7 @@ export default class CodeInjector {
    * @param errorMsg The error message to provide if injection throws an error
    * @param funcName The name of the function calling the injection
    * @param funcArgs The arguments object of the calling function
+   * @returns [number, string] The index of the following the newly injected cell, and the output result as a string
    */
   private async inject(
     code: string,
@@ -555,7 +548,6 @@ export default class CodeInjector {
         string
       ] = await CellUtilities.insertRunShow(
         this.notebookPanel,
-        this.cmdRegistry,
         idx,
         code,
         true
@@ -568,9 +560,7 @@ export default class CodeInjector {
       const funcStr = funcName ? `\nFunction Name: ${funcName}${argStr}` : "";
 
       let message = errorMsg || "An error occurred.";
-      message = `${message}${funcStr}\nCode Injected: ${code}\nOriginal${
-        error.stack
-      }`;
+      message = `${message}${funcStr}\nCode Injected: ${code}\nOriginal${error.stack}`;
 
       if (this.logErrorsToConsole) {
         console.error(message);

@@ -27,6 +27,7 @@ import VarMenu from "./VarMenu";
 import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
+import { JupyterFrontEnd } from "@jupyterlab/application";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -46,6 +47,7 @@ const DEFAULT_WIDTH: string = "800";
 const DEFAULT_HEIGHT: string = "600";
 
 interface IVCSMenuProps {
+  application: JupyterFrontEnd;
   commands: CommandRegistry; // the command executor
   notebookPanel: NotebookPanel;
   plotReady: boolean; // The notebook is ready for code injection an plots
@@ -342,7 +344,7 @@ export default class VCSMenu extends React.Component<
   /**
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
-  public plot(): void {
+  public async plot(): Promise<void> {
     try {
       if (this.props.varTracker.selectedVariables.length === 0) {
         NotebookUtilities.showMessage(
@@ -351,7 +353,7 @@ export default class VCSMenu extends React.Component<
         );
       } else {
         // Inject the plot
-        this.props.codeInjector.plot(
+        await this.props.codeInjector.plot(
           this.state.selectedGM,
           this.state.selectedGMgroup,
           this.state.selectedTemplate,

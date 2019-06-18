@@ -28,6 +28,24 @@ const WELCOME_TUTORIAL = [
     target: ".jp-icon-vcdat",
     textAlign: "right",
     title: "VCDAT 2.0"
+  },
+  {
+    content: "This is the plot button!",
+    placement: "bottom",
+    target: ".vcsmenu-plot-btn-vcdat",
+    textAlign: "center"
+  },
+  {
+    content: "This is the export plot button!",
+    placement: "bottom",
+    target: ".vcsmenu-export-btn-vcdat",
+    textAlign: "center"
+  },
+  {
+    content: "This is the clear plot button!",
+    placement: "bottom",
+    target: ".vcsmenu-clear-btn-vcdat",
+    textAlign: "center"
   }
 ];
 
@@ -66,7 +84,8 @@ export default class JoyrideTutorial extends React.Component<
   IJoyrideTutorialProps,
   IJoyrideTutorialState
 > {
-  public joyrideRef: ReactJoyride;
+  private joyrideRef: ReactJoyride;
+  private tutorials: {};
   constructor(props: IJoyrideTutorialProps) {
     super(props);
     this.state = {
