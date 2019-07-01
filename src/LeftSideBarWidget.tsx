@@ -633,7 +633,6 @@ export default class LeftSideBarWidget extends Widget {
     tracker: NotebookTracker,
     notebook: NotebookPanel
   ): Promise<void> {
-    console.log(notebook);
     // Set the current notebook and wait for the session to be ready
     await this.setNotebookPanel(notebook);
   }
