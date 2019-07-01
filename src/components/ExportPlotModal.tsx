@@ -20,6 +20,7 @@ import { checkForExportedFileCommand } from "../PythonCommands";
 import CodeInjector from "../CodeInjector";
 import NotebookUtilities from "../NotebookUtilities";
 import { EXPORT_FORMATS, IMAGE_UNITS } from "../constants";
+import Utilities from "../Utilities";
 
 interface IExportPlotModalProps {
   isOpen: boolean;
@@ -128,7 +129,8 @@ export default class ExportPlotModal extends React.Component<
   }
 
   public async save() {
-    const plotName = this.state.plotName;
+    let plotName = this.state.plotName;
+
     if (!plotName) {
       this.setState({ validateExportName: true });
       return;
@@ -143,7 +145,16 @@ export default class ExportPlotModal extends React.Component<
     this.setState({ validateFileFormat: false });
 
     this.props.toggle();
-    this.props.setPlotInfo(this.state.plotName, this.state.plotFileFormat);
+
+    // Remove extension if user typed it in and it matches current format
+    if (Utilities.getExtension(plotName) === fileFormat) {
+      plotName = Utilities.removeExtension(plotName);
+      await this.setState({
+        plotName
+      });
+    }
+
+    this.props.setPlotInfo(plotName, fileFormat);
     this.props.exportAlerts();
     await this.props.codeInjector.exportPlot(
       fileFormat,
@@ -160,9 +171,10 @@ export default class ExportPlotModal extends React.Component<
         checkForExportedFileCommand(plotFileName)
       );
       if (result === "True") {
-        this.props.dismissSavePlotSpinnerAlert();
         this.props.showExportSuccessAlert();
       }
+
+      this.props.dismissSavePlotSpinnerAlert();
     } catch (error) {
       console.error("error with checking file:", error);
     }
@@ -198,7 +210,7 @@ export default class ExportPlotModal extends React.Component<
   public render(): JSX.Element {
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.toggleModal}>
-        <ModalHeader toggle={this.toggleModal}>Save Plot</ModalHeader>
+        <ModalHeader toggle={this.toggleModal}>Export Plot</ModalHeader>
         <ModalBody className={/*@tag<export-modal>*/ "export-modal-vcdat"}>
           <Label>Name:</Label>
           <Input
