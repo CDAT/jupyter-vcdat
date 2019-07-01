@@ -6,13 +6,14 @@ import {
   IDocumentWidget
 } from "@jupyterlab/docregistry";
 
+import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
+
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from "@jupyterlab/application";
 
 import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
-import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 // Project Components
 import "../style/css/index.css";

@@ -36,7 +36,6 @@ import {
   REFRESH_TEMPLATES_CMD
 } from "./PythonCommands";
 import { MainMenu } from "@jupyterlab/mainmenu";
-import JoyrideTutorial from "./JoyrideTutorial";
 import { Cell } from "@jupyterlab/cells";
 /**
  * This is the main component for the vcdat extension.
@@ -46,10 +45,8 @@ export default class LeftSideBarWidget extends Widget {
   private commands: CommandRegistry; // Jupyter app CommandRegistry
   private notebookTracker: NotebookTracker; // This is to track current notebooks
   private application: JupyterFrontEnd; // The JupyterLab application object
-  private menu: MainMenu; // The main top menu in JupyterLab
   private vcsMenuRef: VCSMenu; // the LeftSidebar component
   private loadingModalRef: PopUpModal;
-  private joyrideTutorialRef: JoyrideTutorial;
   private graphicsMethods: any; // The current available graphics methods
   private templatesList: string[]; // The list of current templates
   private codeInjector: CodeInjector; // The code injector object which is responsible for injecting code into notebooks
@@ -66,7 +63,6 @@ export default class LeftSideBarWidget extends Widget {
     super();
     this.application = app;
     this.notebookTracker = tracker;
-    this.menu = menu;
     this.div = document.createElement("div");
     this.div.id = "left-sidebar";
     this.node.appendChild(this.div);
@@ -96,13 +92,8 @@ export default class LeftSideBarWidget extends Widget {
     this.setPlotExists = this.setPlotExists.bind(this);
     this.vcsMenuRef = (React as any).createRef();
     this.loadingModalRef = (React as any).createRef();
-    this.joyrideTutorialRef = (React as any).createRef();
     ReactDOM.render(
       <ErrorBoundary>
-        <JoyrideTutorial
-          runOnStart={false}
-          ref={loader => (this.joyrideTutorialRef = loader)}
-        />
         <VCSMenu
           application={this.application}
           ref={loader => (this.vcsMenuRef = loader)}
@@ -136,14 +127,6 @@ export default class LeftSideBarWidget extends Widget {
       execute: args => {
         this.commands.execute("filebrowser:navigate", { path: "." });
       }
-    });
-
-    // Add command for starting introductory tutorial
-    this.commands.addCommand("vcdat:welcome-tutorial", {
-      execute: () => {
-        this.joyrideTutorialRef.startTutorial("main");
-      },
-      label: "Welcome Tutorial"
     });
   }
 
@@ -648,23 +631,18 @@ export default class LeftSideBarWidget extends Widget {
    */
   private async handleNotebookChanged(
     tracker: NotebookTracker,
-    notebookPanel: NotebookPanel
+    notebook: NotebookPanel
   ): Promise<void> {
+    console.log(notebook);
     // Set the current notebook and wait for the session to be ready
-    await this.setNotebookPanel(notebookPanel);
+    await this.setNotebookPanel(notebook);
   }
 
   private async handleNotebookDisposed(notebookPanel: NotebookPanel) {
     notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
   }
 
-  private async handleNotebookCellRun(
-    things: any,
-    result: {
-      notebook: Notebook;
-      cell: Cell;
-    }
-  ): Promise<void> {
+  private async handleNotebookCellRun(): Promise<void> {
     if (this.state !== NOTEBOOK_STATE.VCS_Ready) {
       return;
     }
