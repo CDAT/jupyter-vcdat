@@ -1,13 +1,7 @@
 // Dependencies
 import { ICellModel, isCodeCellModel } from "@jupyterlab/cells";
 import { nbformat } from "@jupyterlab/coreutils";
-import {
-  Notebook,
-  NotebookActions,
-  NotebookPanel,
-  NotebookTools
-} from "@jupyterlab/notebook";
-import { CommandRegistry } from "@phosphor/commands";
+import { Notebook, NotebookActions, NotebookPanel } from "@jupyterlab/notebook";
 
 // Project Components
 import NotebookUtilities from "./NotebookUtilities";

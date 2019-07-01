@@ -1,7 +1,7 @@
 // Dependencies
 import { Dialog, showDialog } from "@jupyterlab/apputils";
-import { NotebookActions, NotebookPanel } from "@jupyterlab/notebook";
-import { KernelManager, KernelMessage } from "@jupyterlab/services";
+import { NotebookPanel } from "@jupyterlab/notebook";
+import { KernelMessage } from "@jupyterlab/services";
 import { CommandRegistry } from "@phosphor/commands";
 
 // Project Components

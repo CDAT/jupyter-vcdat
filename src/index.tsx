@@ -75,7 +75,7 @@ function activate(
   // Creates the left side bar widget once the app has fully started
   app.started
     .then(() => {
-      sidebar = new LeftSideBarWidget(app, tracker, menu);
+      sidebar = new LeftSideBarWidget(app, tracker);
       sidebar.id = /*@tag<left-side-bar>*/ "left-side-bar-vcdat";
       sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
       sidebar.title.closable = true;

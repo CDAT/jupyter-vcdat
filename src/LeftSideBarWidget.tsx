@@ -1,11 +1,11 @@
 // Dependencies
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import {
-  Notebook,
   NotebookActions,
   NotebookPanel,
   NotebookTracker
 } from "@jupyterlab/notebook";
+
 import { ISignal, Signal } from "@phosphor/signaling";
 import { CommandRegistry } from "@phosphor/commands";
 import { Widget } from "@phosphor/widgets";
@@ -13,10 +13,10 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 // Project Components
-import PopUpModal from "./components/PopUpModal";
 import CellUtilities from "./CellUtilities";
 import CodeInjector from "./CodeInjector";
 import ErrorBoundary from "./components/ErrorBoundary";
+import PopUpModal from "./components/PopUpModal";
 import Variable from "./components/Variable";
 import VCSMenu from "./components/VCSMenu";
 import {
@@ -35,8 +35,7 @@ import {
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD
 } from "./PythonCommands";
-import { MainMenu } from "@jupyterlab/mainmenu";
-import { Cell } from "@jupyterlab/cells";
+
 /**
  * This is the main component for the vcdat extension.
  */
@@ -59,7 +58,7 @@ export default class LeftSideBarWidget extends Widget {
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
   private preparing: boolean; // Whether the notebook is currently being prepared
 
-  constructor(app: JupyterFrontEnd, tracker: NotebookTracker, menu: MainMenu) {
+  constructor(app: JupyterFrontEnd, tracker: NotebookTracker) {
     super();
     this.application = app;
     this.notebookTracker = tracker;
