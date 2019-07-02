@@ -12,7 +12,7 @@ class BaseTestCaseWithNoteBook(BaseTestCase):
     def setUp(self):
         super(BaseTestCaseWithNoteBook, self).setUp()
         notebook_name = "{}.ipynb".format(self._testMethodName)
-        launcher = "Python [conda env:jupyter-vcdat] *"
+        launcher = "Python 3"
         notebook = self.new_notebook(launcher, notebook_name)
         self.notebooks = []
         self.notebooks.append(notebook)
@@ -22,7 +22,6 @@ class BaseTestCaseWithNoteBook(BaseTestCase):
     def tearDown(self):
         for nb in self.notebooks:
             self.save_close_notebook(nb)
-        self.main_page.shutdown_all_kernels()
         self.driver.quit()
 
         for nb in self.notebooks:

@@ -43,7 +43,8 @@ class MainPage(ActionsPage):
         try:
             element = self.locate_top_menu_item(name)
             time.sleep(self._a_bit_delay)
-            ActionChains(self.driver).move_to_element(element).click().perform()
+            ActionChains(self.driver).move_to_element(
+                element).click().perform()
             # self.move_to_click(element)
         except NoSuchElementException as e:
             print("...did not find tab for '{}'".format(name))
@@ -54,13 +55,15 @@ class MainPage(ActionsPage):
         click on submenu that shows up as a result of click_top_menu_item()
         '''
         try:
-            submenu_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{}')]".format(submenu_name)
+            submenu_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{}')]".format(
+                submenu_name)
             # submenu = self.wait_till_element_is_visible(By.XPATH, submenu_locator,
             #                                             "submenu '{}'".format(submenu_name))
             submenu = self.find_element_by_xpath(submenu_locator,
                                                  "submenu '{}'".format(submenu_name))
             time.sleep(self._delay * 2)
-            ActionChains(self.driver).move_to_element(submenu).click().perform()
+            ActionChains(self.driver).move_to_element(
+                submenu).click().perform()
             time.sleep(self._delay)
         except NoSuchElementException as e:
             raise e
@@ -71,13 +74,16 @@ class MainPage(ActionsPage):
         '''
         try:
             # data_command = "//li[@data-command='{dc}']".format(dc=submenu_data_command)
-            data_command = "//li[contains(@data-command, '{dc}')]".format(dc=submenu_data_command)
-            text_label = "//div[@class='p-Menu-itemLabel'][contains(text(), '{name}')]".format(name=submenu_name)
-            submenu_locator = "{dc}{text}".format(dc=data_command, text=text_label)
+            data_command = "//li[contains(@data-command, '{dc}')]".format(
+                dc=submenu_data_command)
+            text_label = "//div[@class='p-Menu-itemLabel']"
+            submenu_locator = "{dc}{text}".format(
+                dc=data_command, text=text_label)
             submenu = self.find_element_by_xpath(submenu_locator,
                                                  "sub menu item name: {}".format(submenu_name))
             time.sleep(self._a_bit_delay * 2)
-            ActionChains(self.driver).move_to_element(submenu).click().perform()
+            ActionChains(self.driver).move_to_element(
+                submenu).click().perform()
             time.sleep(self._delay)
 
         except NoSuchElementException as e:
@@ -87,7 +93,7 @@ class MainPage(ActionsPage):
         return self.find_element_by_class("jp-FolderIcon", "Jupyter lab file tab")
 
     def locate_running_tab(self):
-        return self.find_element_by_class("jp-DirectionsRunIcon", "Running terminals and kernels tab")
+        return self.find_element_by_class("jp-RunningIcon", "Running terminals and kernels tab")
 
     def locate_command_palette_tab(self):
         return self.find_element_by_class("jp-PaletteIcon", "Jupyter lab command palette tab")
@@ -170,8 +176,9 @@ class MainPage(ActionsPage):
         self.move_to_click(element)
 
     def locate_home_icon(self):
-        return self.find_element_by_class("jp-HomeIcon",
-                                          "Jupyter file browser home icon")
+        loc = ("// *[@id='filebrowser']/div[contains(@class, 'jp-FileBrowser-crumbs')]"
+               "/ span[contains(@class, 'jp-FolderIcon')]")
+        return self.find_element_by_xpath(loc, "Folder Icon")
 
     def click_on_home_icon(self):
         element = self.locate_home_icon()
@@ -181,7 +188,7 @@ class MainPage(ActionsPage):
     # select jp tool bar icon
     #
     def locate_jp_tool_bar_icon(self, icon_title):
-        loc = "//button[@class='jp-ToolbarButtonComponent' and @title='{}']".format(icon_title)
+        loc = "//*[@id='filebrowser']//button[@title='{}']".format(icon_title)
         try:
             element = self.find_element_by_xpath(loc, icon_title)
         except NoSuchElementException as e:
@@ -230,12 +237,14 @@ class MainPage(ActionsPage):
         click on the 'SELECT' button in the 'Select Kernel' pop up.
         '''
         select_kernel_popup_locator = "//span[contains(text(), 'Select Kernel')]"
-        kernel_select_button_locator = "//button//div[contains(text(), 'SELECT')]"
+        kernel_select_button_locator = "//button//div[contains(text(), 'Select')]"
 
         print("...click on 'SELECT' in the 'Select Kernel' pop up")
         try:
-            self.find_element_by_xpath(select_kernel_popup_locator, "Select Kernel popup")
-            el = self.find_element_by_xpath(kernel_select_button_locator, "Kernel Select button")
+            self.find_element_by_xpath(
+                select_kernel_popup_locator, "Select Kernel popup")
+            el = self.find_element_by_xpath(
+                kernel_select_button_locator, "Kernel Select button")
             # time.sleep(self._a_bit_delay)
             self.move_to_click(el)
             # time.sleep(self._delay)
@@ -248,19 +257,19 @@ class MainPage(ActionsPage):
         self.click_on_top_menu_item('Kernel')
         data_command = "kernelmenu:shutdown"
         self.click_on_submenu_with_data_command(data_command,
-                                                'Shutdown Kernel')
+                                                'Shut Down Kernel')
 
     def shutdown_all_kernels(self):
         print("...shutdown all kernels...")
         self.click_on_top_menu_item('Kernel')
         data_command = "kernelmenu:shutdownAll"
         self.click_on_submenu_with_data_command(data_command,
-                                                'Shutdown All Kernels')
-        shutdown_locator = "//button[contains(@class, 'jp-Dialog-button')]//div[contains(text(), 'SHUTDOWN')]"
+                                                'Shut Down All Kernels')
+        shutdown_locator = "//div[contains(@class,'jp-Dialog-buttonLabel')][contains(text(),'Shut Down All')]"
         try:
             shutdown = self.find_element_by_xpath(shutdown_locator,
-                                                  "'SHUTDOWN' button")
+                                                  "'Shut Down All' button")
             self.move_to_click(shutdown)
         except NoSuchElementException as e:
-            print("Did not find 'SHUTDOWN' button in the 'Shutdown All?' popup")
+            print("Did not find 'Shut Down All' button in the 'Shut Down All?' popup")
             raise e

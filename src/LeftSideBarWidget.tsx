@@ -70,7 +70,7 @@ export default class LeftSideBarWidget extends Widget {
     this._plotReadyChanged = new Signal<this, boolean>(this);
     this._plotExistsChanged = new Signal<this, boolean>(this);
     this.varTracker = new VariableTracker();
-    this.codeInjector = new CodeInjector(app.commands, this.varTracker);
+    this.codeInjector = new CodeInjector(this.varTracker);
     this._notebookPanel = null;
     this.graphicsMethods = BASE_GRAPHICS;
     this.templatesList = BASE_TEMPLATES;

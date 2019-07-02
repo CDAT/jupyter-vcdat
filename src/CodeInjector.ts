@@ -29,15 +29,13 @@ export default class CodeInjector {
   private _isBusy: boolean;
   private canvasReady: boolean; // Whether the canvas is ready/has been already run
   private _notebookPanel: NotebookPanel;
-  private cmdRegistry: CommandRegistry;
   private varTracker: VariableTracker;
   private logErrorsToConsole: boolean; // Whether errors should log to console. Should be false during production.
 
-  constructor(commands: CommandRegistry, variableTracker: VariableTracker) {
+  constructor(variableTracker: VariableTracker) {
     this._notebookPanel = null;
     this._isBusy = false;
     this.canvasReady = false;
-    this.cmdRegistry = commands;
     this.varTracker = variableTracker;
     this.logErrorsToConsole = true;
     this.inject = this.inject.bind(this);

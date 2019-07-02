@@ -51,7 +51,7 @@ class TestLocators(BaseTestCase):
 
         # Select each notebook launcher
         locator.locate_notebook_launcher("Python 3")
-        locator.locate_notebook_launcher("Python [conda env:jupyter-vcdat] *")
+        locator.locate_notebook_launcher("Python [conda env:jupyter-vcdat]")
 
     def test_open_widgets(self):
         locator = self.main_page
@@ -76,7 +76,7 @@ class TestLocators(BaseTestCase):
         print("\n\n...{}...".format(self._testMethodName))
         notebook_name = "{}.ipynb".format(self._testMethodName)
         # notebook = NoteBookPage(self.driver, None)
-        notebook = self.new_notebook("Python [conda env:jupyter-vcdat] *", notebook_name)
+        notebook = self.new_notebook("Python 3", notebook_name)
         time.sleep(5)
         self.save_close_notebook(notebook)
         self.main_page.shutdown_kernel()

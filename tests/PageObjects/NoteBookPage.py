@@ -44,9 +44,9 @@ class NoteBookPage(MainPage):
     def close_current_notebook(self):
         print("...close_current_notebook...")
         self.click_on_top_menu_item("File")
-        data_command = "docmanager:close"
+        data_command = "filemenu:close-and-cleanup"
         self.click_on_submenu_with_data_command(data_command,
-                                                "Close Notebook")
+                                                "Close and Shutdown")
         # check if we are getting "Close without saving?" pop up
         close_without_saving_ok_locator = "//div[contains(text(), 'OK')]"
         try:
