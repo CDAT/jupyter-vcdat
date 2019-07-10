@@ -1,4 +1,3 @@
-import Utilities from "./Utilities";
 export const MAX_SLABS: number = 2;
 export const MAX_DIM_LENGTH: number = 1000;
 export const BASE_URL: string = "/vcs";
@@ -24,7 +23,7 @@ export const VARIABLE_INFO_KEY: string = "vcdat_variable_info";
 export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
 export const TEMPLATE_KEY: string = "template_selected";
 export const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
-export const REQUIRED_MODULES: string = '["cdms2","vcs","sidecar","numpy"]';
+export const REQUIRED_MODULES: string = '["cdms2","vcs","numpy"]';
 
 export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
   "1d": [

@@ -6,14 +6,14 @@ import {
   IDocumentWidget
 } from "@jupyterlab/docregistry";
 
+import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
+
 import {
-  ApplicationShell,
-  JupyterLab,
-  JupyterLabPlugin
+  JupyterFrontEnd,
+  JupyterFrontEndPlugin
 } from "@jupyterlab/application";
 
 import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
-import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 // Project Components
 import "../style/css/index.css";
@@ -21,19 +21,20 @@ import { EXTENSIONS } from "./constants";
 import NCViewerWidget from "./NCViewerWidget";
 import NotebookUtilities from "./NotebookUtilities";
 import LeftSideBarWidget from "./LeftSideBarWidget";
+import Utilities from "./Utilities";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";
 
 // Declare the widget variables
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
-let shell: ApplicationShell;
+let shell: JupyterFrontEnd.IShell;
 let mainMenu: MainMenu;
 
 /**
  * Initialization data for the jupyter-vcdat extension.
  */
-const extension: JupyterLabPlugin<void> = {
+const extension: JupyterFrontEndPlugin<void> = {
   activate,
   autoStart: true,
   id: "jupyter-vcdat",
@@ -46,7 +47,7 @@ export default extension;
  * Activate the vcs widget extension.
  */
 function activate(
-  app: JupyterLab,
+  app: JupyterFrontEnd,
   tracker: NotebookTracker,
   menu: MainMenu
 ): void {
@@ -80,7 +81,7 @@ function activate(
       sidebar.title.closable = true;
 
       // Attach it to the left side of main area
-      shell.addToLeftArea(sidebar);
+      shell.add(sidebar, "left");
 
       // Activate the widget
       shell.activateById(sidebar.id);
@@ -91,14 +92,14 @@ function activate(
 
   // Initializes the sidebar widget once the application shell has been restored
   // and all the widgets have been added to the notebooktracker
-  app.shell.restored
+  app.restored
     .then(() => {
-      addHelpReference(
+      Utilities.addHelpReference(
         mainMenu,
         "VCS Reference",
         "https://cdat-vcs.readthedocs.io/en/latest/"
       );
-      addHelpReference(
+      Utilities.addHelpReference(
         mainMenu,
         "CDMS Reference",
         "https://cdms.readthedocs.io/en/latest/"
@@ -108,15 +109,6 @@ function activate(
     .catch(error => {
       console.error(error);
     });
-}
-
-// Adds a reference link to the help menu in JupyterLab
-function addHelpReference(menu: MainMenu, text: string, url: string): void {
-  // Add item to help menu
-  menu.helpMenu.menu.addItem({
-    args: { text, url },
-    command: "help:open"
-  });
 }
 
 /**

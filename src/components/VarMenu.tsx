@@ -98,7 +98,7 @@ export default class VarMenu extends React.Component<
    * @description launches the notebooks filebrowser so the user can select a data file
    */
   public async launchFilebrowser(): Promise<void> {
-    await this.props.commands.execute("vcs:load-data");
+    await this.props.commands.execute("filebrowser:activate");
   }
 
   /**

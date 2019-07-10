@@ -27,6 +27,7 @@ import VarMenu from "./VarMenu";
 import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
+import { JupyterFrontEnd } from "@jupyterlab/application";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -46,6 +47,7 @@ const DEFAULT_WIDTH: string = "800";
 const DEFAULT_HEIGHT: string = "600";
 
 interface IVCSMenuProps {
+  application: JupyterFrontEnd;
   commands: CommandRegistry; // the command executor
   notebookPanel: NotebookPanel;
   plotReady: boolean; // The notebook is ready for code injection an plots
@@ -147,7 +149,7 @@ export default class VCSMenu extends React.Component<
 
   public dismissSavePlotSpinnerAlert(): void {
     this.setState({ savePlotAlert: false });
-    this.props.commands.execute("vcs:refresh-browser");
+    this.props.commands.execute("vcdat:refresh-browser");
   }
 
   public dismissExportSuccessAlert(): void {
@@ -342,7 +344,7 @@ export default class VCSMenu extends React.Component<
   /**
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
-  public plot(): void {
+  public async plot(): Promise<void> {
     try {
       if (this.props.varTracker.selectedVariables.length === 0) {
         NotebookUtilities.showMessage(
@@ -351,7 +353,7 @@ export default class VCSMenu extends React.Component<
         );
       } else {
         // Inject the plot
-        this.props.codeInjector.plot(
+        await this.props.codeInjector.plot(
           this.state.selectedGM,
           this.state.selectedGMgroup,
           this.state.selectedTemplate,
@@ -407,6 +409,7 @@ export default class VCSMenu extends React.Component<
       showExportSuccessAlert: this.showExportSuccessAlert,
       toggle: this.toggleModal
     };
+
     return (
       <div style={{ ...centered, ...sidebarOverflow }}>
         <Card>
@@ -459,17 +462,21 @@ export default class VCSMenu extends React.Component<
                   </Button>
                 </Col>
               </Row>
-              <CustomInput
-                type="switch"
-                id={
-                  /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
-                }
-                name="overlayModeSwitch"
-                label="Overlay Mode"
-                disabled={!this.state.plotReady}
-                checked={this.state.overlayMode}
-                onChange={this.toggleOverlayMode}
-              />
+              <Row>
+                <Col>
+                  <CustomInput
+                    type="switch"
+                    id={
+                      /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
+                    }
+                    name="overlayModeSwitch"
+                    label="Overlay Mode"
+                    disabled={!this.state.plotReady}
+                    checked={this.state.overlayMode}
+                    onChange={this.toggleOverlayMode}
+                  />
+                </Col>
+              </Row>
             </div>
           </CardBody>
         </Card>

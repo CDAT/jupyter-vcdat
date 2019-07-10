@@ -3,6 +3,8 @@ import { Dialog, showDialog } from "@jupyterlab/apputils";
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { KernelMessage } from "@jupyterlab/services";
 import { CommandRegistry } from "@phosphor/commands";
+
+// Project Components
 import { OUTPUT_RESULT_NAME } from "./constants";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */

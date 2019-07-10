@@ -62,13 +62,13 @@ def canvases():\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(canvases())`;
 
 const AXIS_INFO_CODE: string = `
-	${safe("min")} = float(${safe("axis")}[:].min())
-	${safe("max")} = float(${safe("axis")}[:].max())
+	${safe("first")} = float(${safe("axis")}[:].min())
+	${safe("last")} = float(${safe("axis")}[:].max())
 	if len(${safe("axis")}) < ${MAX_DIM_LENGTH}:\n\
 		${safe("axis_data")} = ${safe("axis")}[:].tolist()\n\
 	else:\n\
-		${safe("axis_data")} = vcs.utils.mkscale(${safe("min")},${safe(
-  "max"
+		${safe("axis_data")} = vcs.utils.mkscale(${safe("first")},${safe(
+  "last"
 )},${MAX_DIM_LENGTH})\n\
 	# Get a displayable name for the variable\n\
 	if hasattr(${safe("axis")}, 'id'):\n\
@@ -86,8 +86,8 @@ const AXIS_INFO_CODE: string = `
 		'modulo': ${safe("axis")}.getModulo(),\n\
 		'moduloCycle': ${safe("axis")}.getModuloCycle(),\n\
 		'data': ${safe("axis_data")},\n\
-		'min': ${safe("min")},\n\
-		'max': ${safe("max")},\n\
+		'first': ${safe("first")},\n\
+		'last': ${safe("last")},\n\
 		'isTime': ${safe("axis")}.isTime()\n\
 	}\n`;
 

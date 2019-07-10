@@ -1,8 +1,9 @@
 // Dependencies
 import { ICellModel, isCodeCellModel } from "@jupyterlab/cells";
 import { nbformat } from "@jupyterlab/coreutils";
-import { Notebook, NotebookPanel } from "@jupyterlab/notebook";
-import { CommandRegistry } from "@phosphor/commands";
+import { Notebook, NotebookActions, NotebookPanel } from "@jupyterlab/notebook";
+
+// Project Components
 import NotebookUtilities from "./NotebookUtilities";
 
 /** Contains some utility functions for handling notebook cells */
@@ -41,9 +42,7 @@ export default class CellUtilities {
       const errData: nbformat.IError = out;
 
       throw new Error(
-        `Code resulted in errors. Error name: ${errData.ename}.\nMessage: ${
-          errData.evalue
-        }.`
+        `Code resulted in errors. Error name: ${errData.ename}.\nMessage: ${errData.evalue}.`
       );
     }
   }
@@ -153,16 +152,15 @@ export default class CellUtilities {
    * @returns Promise<string> - A promise containing the output after the code has executed.
    */
   public static async runCellAtIndex(
-    command: CommandRegistry,
     notebookPanel: NotebookPanel,
     index: number
   ): Promise<string> {
-    if (command === null || notebookPanel === null) {
+    if (notebookPanel === null) {
       throw new Error(
         "Null or undefined parameter was given for command or notebook argument."
       );
     }
-    await notebookPanel.session.ready;
+    // await notebookPanel.session.ready;
     const notebook = notebookPanel.content;
     if (index < 0 || index >= notebook.widgets.length) {
       throw new Error("The index was out of range.");
@@ -171,7 +169,9 @@ export default class CellUtilities {
     const oldIndex = notebook.activeCellIndex;
     notebook.activeCellIndex = index;
     try {
-      await command.execute("notebook:run-cell");
+      await NotebookActions.run(notebook, notebookPanel.session);
+
+      // await command.execute("notebook:run-cell");
       const output = CellUtilities.readOutput(notebook, index);
       notebook.activeCellIndex = oldIndex;
       return output;
@@ -186,16 +186,12 @@ export default class CellUtilities {
    * @param index The index that the cell will be deleted at
    * @returns void
    */
-  public static deleteCellAtIndex(
-    notebookPanel: NotebookPanel,
-    index: number
-  ): void {
-    if (notebookPanel === null) {
+  public static deleteCellAtIndex(notebook: Notebook, index: number): void {
+    if (notebook === null) {
       throw new Error(
         "Null or undefined parameter was given for notebook argument."
       );
     }
-    const notebook = notebookPanel.content;
     if (index < 0 || index >= notebook.widgets.length) {
       throw new Error("The index was out of range.");
     }
@@ -217,18 +213,13 @@ export default class CellUtilities {
 
   /**
    * @description Inserts a cell into the notebook, the new cell will be at the specified index.
-   * @param notebookPanel The notebook panel to insert the cell in
+   * @param notebook The notebook panel to insert the cell in
    * @param index The index of where the new cell will be inserted.
    * If the cell index is less than or equal to 0, it will be added at the top.
    * If the cell index is greater than the last index, it will be added at the bottom.
    * @returns number - The index it where the cell was inserted
    */
-  public static insertCellAtIndex(
-    notebookPanel: NotebookPanel,
-    index: number
-  ): number {
-    const notebook = notebookPanel.content;
-
+  public static insertCellAtIndex(notebook: Notebook, index: number): number {
     // Create a new cell
     const cell = notebook.model.contentFactory.createCodeCell({});
 
@@ -292,12 +283,12 @@ export default class CellUtilities {
    * @returns number - index of where the cell was inserted
    */
   public static insertInjectCode(
-    notebookPanel: NotebookPanel,
+    notebook: Notebook,
     index: number,
     code: string
   ): number {
-    const newIndex = CellUtilities.insertCellAtIndex(notebookPanel, index);
-    CellUtilities.injectCodeAtIndex(notebookPanel.content, newIndex, code);
+    const newIndex = CellUtilities.insertCellAtIndex(notebook, index);
+    CellUtilities.injectCodeAtIndex(notebook, newIndex, code);
     return newIndex;
   }
 
@@ -322,7 +313,7 @@ export default class CellUtilities {
     let insertionIndex;
     try {
       insertionIndex = CellUtilities.insertInjectCode(
-        notebookPanel,
+        notebookPanel.content,
         index,
         code
       );
@@ -334,7 +325,7 @@ export default class CellUtilities {
       return [insertionIndex, output];
     } catch (error) {
       if (deleteOnError) {
-        CellUtilities.deleteCellAtIndex(notebookPanel, insertionIndex);
+        CellUtilities.deleteCellAtIndex(notebookPanel.content, insertionIndex);
       }
       throw error;
     }
@@ -355,7 +346,6 @@ export default class CellUtilities {
    */
   public static async insertRunShow(
     notebookPanel: NotebookPanel,
-    command: CommandRegistry,
     index: number,
     code: string,
     deleteOnError: boolean
@@ -363,19 +353,18 @@ export default class CellUtilities {
     let insertionIndex;
     try {
       insertionIndex = CellUtilities.insertInjectCode(
-        notebookPanel,
+        notebookPanel.content,
         index,
         code
       );
       const output: string = await CellUtilities.runCellAtIndex(
-        command,
         notebookPanel,
         insertionIndex
       );
       return [insertionIndex, output];
     } catch (error) {
       if (deleteOnError) {
-        CellUtilities.deleteCellAtIndex(notebookPanel, insertionIndex);
+        CellUtilities.deleteCellAtIndex(notebookPanel.content, insertionIndex);
       }
       throw error;
     }
@@ -407,7 +396,7 @@ export default class CellUtilities {
       code,
       true
     );
-    CellUtilities.deleteCellAtIndex(notebookPanel, index);
+    CellUtilities.deleteCellAtIndex(notebookPanel.content, index);
     return result;
   }
 }

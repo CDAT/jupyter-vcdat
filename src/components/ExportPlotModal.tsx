@@ -16,10 +16,10 @@ import {
 } from "reactstrap";
 
 // Project Components
+import { checkForExportedFileCommand } from "../PythonCommands";
 import CodeInjector from "../CodeInjector";
 import NotebookUtilities from "../NotebookUtilities";
 import { EXPORT_FORMATS, IMAGE_UNITS } from "../constants";
-import { checkForExportedFileCommand } from "../PythonCommands";
 import Utilities from "../Utilities";
 
 interface IExportPlotModalProps {

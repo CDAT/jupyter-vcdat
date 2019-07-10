@@ -1,3 +1,4 @@
+// Dependencies
 import { Widget } from "@phosphor/widgets";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 

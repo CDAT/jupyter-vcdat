@@ -40,8 +40,8 @@ const centered: React.CSSProperties = {
 
 interface IDimensionSliderProps {
   varID: string; // the name of the variable this axis belongs to
-  min: number;
-  max: number;
+  first: number;
+  last: number;
   data: number[]; // the raw axis data
   isTime: boolean; // is this a time axis
   modulo: any; // ???
@@ -54,13 +54,13 @@ interface IDimensionSliderProps {
 }
 
 interface IDimensionSliderState {
-  min: number; // the current minimum value
-  max: number; // the current max value
-  tickValues: number[]; // the absolute min and absolute max values
+  first: number; // the current first value
+  last: number; // the current last value
+  tickValues: number[]; // the absolute first and absolute last values
   possibleValues: number[];
 }
 
-export class DimensionSlider extends React.Component<
+export default class DimensionSlider extends React.Component<
   IDimensionSliderProps,
   IDimensionSliderState
 > {
@@ -76,6 +76,7 @@ export class DimensionSlider extends React.Component<
     // Set slider values and formatting
     let format: any;
     const pValues = props.data;
+
     if (_.includes(props.units, "since")) {
       const [span, , startTime] = props.units.split(" ");
       switch (span) {
@@ -125,19 +126,19 @@ export class DimensionSlider extends React.Component<
     this.domain = [0, lastIdx];
 
     // Set initial selected range
-    let idxMin: number = pValues.indexOf(this.props.min);
-    let idxMax: number = pValues.indexOf(this.props.max);
-    if (idxMin < 0) {
-      idxMin = 0;
+    let idxFirst: number = pValues.indexOf(this.props.first);
+    let idxLast: number = pValues.indexOf(this.props.last);
+    if (idxFirst < 0) {
+      idxFirst = 0;
     }
-    if (idxMax < 0) {
-      idxMax = lastIdx;
+    if (idxLast < 0) {
+      idxLast = lastIdx;
     }
 
     // Update initial state
     this.state = {
-      max: idxMax,
-      min: idxMin,
+      first: idxFirst,
+      last: idxLast,
       possibleValues: pValues,
       tickValues: tickVals
     };
@@ -184,7 +185,7 @@ export class DimensionSlider extends React.Component<
               rootStyle={sliderStyle}
               onChange={this.handleSliderChange}
               onUpdate={this.handleSliderUpdate}
-              values={[this.state.min, this.state.max]}
+              values={[this.state.first, this.state.last]}
             >
               <Rail>
                 {({ getRailProps }) => (
@@ -241,8 +242,8 @@ export class DimensionSlider extends React.Component<
             <div style={centered}>
               <Row>
                 <Col xs="auto">
-                  {`[${this.state.possibleValues[this.state.min]} ... ${
-                    this.state.possibleValues[this.state.max]
+                  {`[${this.state.possibleValues[this.state.first]} ... ${
+                    this.state.possibleValues[this.state.last]
                   }]`}
                 </Col>
               </Row>
@@ -258,8 +259,8 @@ export class DimensionSlider extends React.Component<
     }
 
     this.setState({
-      max: e[1],
-      min: e[0]
+      first: e[0],
+      last: e[1]
     });
   }
 
@@ -269,8 +270,8 @@ export class DimensionSlider extends React.Component<
     }
     this.props.updateDimInfo(
       {
-        max: this.state.possibleValues[e[1]],
-        min: this.state.possibleValues[e[0]],
+        first: this.state.possibleValues[e[0]],
+        last: this.state.possibleValues[e[1]],
         name: this.props.name
       },
       this.props.varID

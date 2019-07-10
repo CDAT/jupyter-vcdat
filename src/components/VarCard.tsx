@@ -18,7 +18,7 @@ import {
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
 import AxisInfo from "./AxisInfo";
-import { DimensionSlider } from "./DimensionSlider";
+import DimensionSlider from "./DimensionSlider";
 import Variable from "./Variable";
 import VarLoader from "./VarLoader";
 
@@ -137,8 +137,8 @@ export default class VarCard extends React.Component<
       if (axis.name !== newInfo.name) {
         return;
       }
-      updatedVar.axisInfo[axisIndex].min = newInfo.min;
-      updatedVar.axisInfo[axisIndex].max = newInfo.max;
+      updatedVar.axisInfo[axisIndex].first = newInfo.first;
+      updatedVar.axisInfo[axisIndex].last = newInfo.last;
     });
     this.setState({ variable: updatedVar });
   }
@@ -311,11 +311,7 @@ export default class VarCard extends React.Component<
   private handleWarningsClick(): void {
     NotebookUtilities.showMessage(
       "Warning",
-      `Loading '${
-        this.state.variable.alias
-      }' from this file will overwrite the current '${
-        this.state.variable.alias
-      }' variable. Rename this variable if you don't want to overwrite the previously loaded variable.`,
+      `Loading '${this.state.variable.alias}' from this file will overwrite the current '${this.state.variable.alias}' variable. Rename this variable if you don't want to overwrite the previously loaded variable.`,
       "Dismiss"
     );
   }

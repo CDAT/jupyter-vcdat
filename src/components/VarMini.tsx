@@ -1,7 +1,7 @@
 // Dependencies
 import * as React from "react";
-import { NotebookPanel } from "@jupyterlab/notebook";
 import { ISignal } from "@phosphor/signaling";
+import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Alert,
   Badge,
@@ -24,7 +24,7 @@ import {
 import CodeInjector from "../CodeInjector";
 import Utilities from "../Utilities";
 import AxisInfo from "./AxisInfo";
-import { DimensionSlider } from "./DimensionSlider";
+import DimensionSlider from "./DimensionSlider";
 import Variable from "./Variable";
 import NotebookUtilities from "../NotebookUtilities";
 import { checkForExportedFileCommand } from "../PythonCommands";
@@ -296,8 +296,8 @@ export default class VarMini extends React.Component<
       if (axis.name !== newInfo.name) {
         return;
       }
-      updatedVar.axisInfo[axisIndex].min = newInfo.min;
-      updatedVar.axisInfo[axisIndex].max = newInfo.max;
+      updatedVar.axisInfo[axisIndex].first = newInfo.first;
+      updatedVar.axisInfo[axisIndex].last = newInfo.last;
     });
     this.setState({ variable: updatedVar });
   }

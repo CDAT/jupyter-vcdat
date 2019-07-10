@@ -604,9 +604,9 @@ export default class VariableTracker {
     varGroup.forEach((variable: Variable) => {
       if (variable.axisList) {
         variable.axisList.map((item: any) => {
-          if (axesInfo[item].data) {
-            axesInfo[item].min = axesInfo[item].data[0];
-            axesInfo[item].max =
+          if (axesInfo[item] && axesInfo[item].data) {
+            axesInfo[item].first = axesInfo[item].data[0];
+            axesInfo[item].last =
               axesInfo[item].data[axesInfo[item].data.length - 1];
             variable.axisInfo.push(axesInfo[item]);
           }
@@ -640,9 +640,9 @@ export default class VariableTracker {
     // Update axes info for the variable
     if (variable.axisList) {
       variable.axisList.map((item: any) => {
-        if (axesInfo[item].data) {
-          axesInfo[item].min = axesInfo[item].data[0];
-          axesInfo[item].max =
+        if (axesInfo[item] && axesInfo[item].data) {
+          axesInfo[item].first = axesInfo[item].data[0];
+          axesInfo[item].last =
             axesInfo[item].data[axesInfo[item].data.length - 1];
           variable.axisInfo.push(axesInfo[item]);
         }
