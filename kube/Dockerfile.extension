@@ -2,15 +2,7 @@ FROM cdoutrix/vcdat_labextensions:latest
 # Get the setup image
 ENV CDAT_ANONYMOUS_LOG false
 # extension
-# Our extension needs to be built from npm repo or  container cannot be ran
-# read-only here are the steps:
-
-# npm login
-# editpackage.json to set new version
-# npm install
-# npm publish
-
-# At this point you can build our extension as container
-# run with --build-args BRANCH=master
-# e.g.: sudo docker build --build-arg BRANCH=latest -f kube/Dockerfile.extension .
-RUN conda install --force -c cdat/label/nightly -c conda-forge 'jupyterlab==1.0.1' && jupyter-labextension install jupyter-vcdat@2.0.1 && conda update -c cdat/label/nightly -c conda-forge vcs cdms2 cdutil genutil libcdms
+# Our extension needs to be built from npm repo otherwise jupyter-lab
+# tries to write into image and shifter does not let us do this.
+# e.g.: sudo docker build -f kube/Dockerfile.extension .
+RUN jupyter-labextension install jupyter-vcdat@2.0.1 && conda update -c cdat/label/nightly -c conda-forge vcs cdms2 cdutil genutil libcdms
