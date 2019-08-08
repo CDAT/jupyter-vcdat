@@ -29,6 +29,7 @@ const styling: React.CSSProperties = {
 };
 
 const iconStyling: React.CSSProperties = {
+  backgroundImage: `url(${require("../../style/icons/cdat_icon_colored.png")})`,
   backgroundSize: "100px",
   height: "100px",
   width: "100px"
@@ -71,17 +72,17 @@ export default class AboutVCDAT extends React.Component<
         <ModalHeader>
           <Row>
             <Col>
-              <div className="jp-icon-vcdat" style={{ ...iconStyling }} />
+              <div style={{ ...iconStyling }} />
             </Col>
             <Col>
               <Row>
                 <Col>
-                  <h1>VCDAT</h1>
+                  <h1 className="text-primary">VCDAT</h1>
                 </Col>
               </Row>
               <Row>
                 <Col>
-                  <h4>Version {this.props.version}</h4>
+                  <h4 className="text-info">Version {this.props.version}</h4>
                 </Col>
               </Row>
             </Col>
@@ -93,6 +94,7 @@ export default class AboutVCDAT extends React.Component<
           <Row>
             <Col>
               <a
+                className="text-muted"
                 target="_blank"
                 href="https://github.com/CDAT/jupyter-vcdat/graphs/contributors"
               >
@@ -101,6 +103,7 @@ export default class AboutVCDAT extends React.Component<
             </Col>
             <Col style={{ textAlign: "right" }}>
               <a
+                className="text-muted"
                 target="_blank"
                 href="https://github.com/CDAT/jupyter-vcdat/wiki"
               >

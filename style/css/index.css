@@ -11,13 +11,6 @@
   background-image: url("../icons/cdat_icon_colored.png");
 }
 
-/*.about-vcdat-icon {
-  background-image: url("../icons/cdat_icon_colored.png");
-  width: 100px;
-  height: 100px;
-  object-fit: "";
-}*/
-
 #gm_card .dropdown-menu::-webkit-scrollbar {
   -webkit-appearance: none;
 }
