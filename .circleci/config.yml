@@ -73,7 +73,26 @@ aliases:
        conda build $PKG_NAME $CHANNELS --python=3.6
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
+  - &npm_publish
+    name: npm_publish
+    command: |
+      npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+      npm publish --tag nightly
+
+  - &docker_publish
+    name: docker_publish
+    command: | 
+      docker build -f kube/Dockerfile.extension --no-cache --tag=cdoutrix/vcdat:nightly .
+      docker login -u cdoutrix -p $DOCKER_PASSWORD
+      docker push cdoutrix/vcdat:nightly
+
 jobs:
+  publish:
+    steps:
+      - checkout
+      - run: *npm_publish
+      - run: *docker_publish
+
   linux_jupyter_vcdat:
     docker:
       # - image: circleci/node:jessie-browsers
@@ -102,7 +121,8 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_jupyter_vcdat
+      #- linux_jupyter_vcdat
+      - publish
 
 
 
