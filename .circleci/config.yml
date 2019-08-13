@@ -88,6 +88,8 @@ aliases:
 
 jobs:
   publish:
+    docker:
+      - image: jasonb87/nimbus-basic
     steps:
       - checkout
       - run: *npm_publish
