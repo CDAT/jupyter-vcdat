@@ -1,6 +1,4 @@
 // Dependencies
-import * as React from "react";
-
 import {
   ABCWidgetFactory,
   DocumentRegistry,

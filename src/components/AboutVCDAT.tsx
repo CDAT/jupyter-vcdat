@@ -18,7 +18,7 @@ interface IAboutState {
   modalOpen: boolean; // Whether a modal is currently open
 }
 
-const styling: React.CSSProperties = {
+const modalStyling: React.CSSProperties = {
   left: "50%",
   position: "fixed",
   textAlign: "left",
@@ -28,12 +28,23 @@ const styling: React.CSSProperties = {
   width: "400px"
 };
 
+const copyrightStyling: React.CSSProperties = {
+  bottom: 0,
+  fontSize: "0.8rem",
+  fontWeight: "bold",
+  left: 0,
+  margin: 0,
+  position: "absolute"
+};
+
 const iconStyling: React.CSSProperties = {
   backgroundImage: `url(${require("../../style/icons/cdat_icon_colored.png")})`,
   backgroundSize: "100px",
   height: "100px",
   width: "100px"
 };
+
+const YEAR: number = new Date().getFullYear();
 
 export default class AboutVCDAT extends React.Component<
   IAboutProps,
@@ -64,7 +75,7 @@ export default class AboutVCDAT extends React.Component<
   public render(): JSX.Element {
     return (
       <Modal
-        style={{ ...styling }}
+        style={{ ...modalStyling }}
         isOpen={this.state.modalOpen}
         toggle={this.toggle}
         size="lg"
@@ -115,18 +126,7 @@ export default class AboutVCDAT extends React.Component<
         <ModalFooter>
           <Row style={{ width: "100%", margin: 0 }}>
             <Col>
-              <p
-                style={{
-                  bottom: 0,
-                  fontSize: "0.8rem",
-                  fontWeight: "bold",
-                  left: 0,
-                  margin: 0,
-                  position: "absolute"
-                }}
-              >
-                &#169;2019 LLNL CDAT TEAM
-              </p>
+              <p style={copyrightStyling}>&#169;{YEAR} LLNL CDAT TEAM</p>
             </Col>
             <Col style={{ padding: 0 }}>
               <Button

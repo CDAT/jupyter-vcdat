@@ -1,6 +1,5 @@
 // Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
-import { CommandRegistry } from "@phosphor/commands";
 
 // Project Components
 import CellUtilities from "./CellUtilities";
