@@ -16,6 +16,7 @@ RUN /bin/bash -c "source ${workdir}/miniconda/etc/profile.d/conda.sh; \
                   python -m pip install sidecar || pip install sidecar; \
                   jupyter labextension install @jupyter-widgets/jupyterlab-manager; \
                   jupyter labextension install @jupyter-widgets/jupyterlab-sidecar; \
+                  jupyter labextension install jupyterlab-tutorial-extension; \
                   jupyter labextension install @jupyterlab/hub-extension; \
 		  	    pip install selenium; \
 			    	  pip install pyvirtualdisplay"
