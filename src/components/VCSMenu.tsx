@@ -37,6 +37,7 @@ const centered: React.CSSProperties = {
 };
 
 const sidebarOverflow: React.CSSProperties = {
+  height: "calc(100vh - 52px)",
   maxHeight: "100vh",
   minWidth: "365px",
   overflow: "auto"
@@ -411,7 +412,7 @@ export default class VCSMenu extends React.Component<
     };
 
     return (
-      <div style={{ ...centered, ...sidebarOverflow }}>
+      <Card style={{ ...centered, ...sidebarOverflow }}>
         <Card>
           <CardBody className={/*@tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
             <div style={centered}>
@@ -507,7 +508,7 @@ export default class VCSMenu extends React.Component<
             {`Exported ${this.state.plotName}.${this.state.plotFormat}`}
           </Alert>
         </div>
-      </div>
+      </Card>
     );
   }
 

@@ -1,6 +1,5 @@
 // Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
-import { CommandRegistry } from "@phosphor/commands";
 
 // Project Components
 import CellUtilities from "./CellUtilities";
@@ -14,7 +13,9 @@ import {
   IMAGE_UNITS,
   IMPORT_CELL_KEY,
   MAX_SLABS,
-  REQUIRED_MODULES
+  REQUIRED_MODULES,
+  VCDAT_VERSION,
+  VCDAT_VERSION_KEY
 } from "./constants";
 
 import { CHECK_MODULES_CMD } from "./PythonCommands";
@@ -137,6 +138,13 @@ export default class CodeInjector {
       IMPORT_CELL_KEY,
       "saved",
       true
+    );
+
+    // Save the notebook's version to its meta data
+    await NotebookUtilities.setMetaData(
+      this.notebookPanel,
+      VCDAT_VERSION_KEY,
+      VCDAT_VERSION
     );
 
     return cellIdx;

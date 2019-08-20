@@ -24,7 +24,11 @@ import {
   BASE_TEMPLATES,
   CANVAS_CELL_KEY,
   IMPORT_CELL_KEY,
-  NOTEBOOK_STATE
+  NO_VERSION,
+  NOTEBOOK_STATE,
+  OLD_VCDAT_VERSION,
+  VCDAT_VERSION,
+  VCDAT_VERSION_KEY
 } from "./constants";
 import NotebookUtilities from "./NotebookUtilities";
 import Utilities from "./Utilities";
@@ -35,17 +39,21 @@ import {
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD
 } from "./PythonCommands";
+import AboutVCDAT from "./components/AboutVCDAT";
+import { ICellModel } from "@jupyterlab/cells";
 
 /**
  * This is the main component for the vcdat extension.
  */
 export default class LeftSideBarWidget extends Widget {
   public div: HTMLDivElement; // The div container for this widget
+  public version: string; // The VCDAT version for tracking versions between notebooks
   private commands: CommandRegistry; // Jupyter app CommandRegistry
   private notebookTracker: NotebookTracker; // This is to track current notebooks
   private application: JupyterFrontEnd; // The JupyterLab application object
   private vcsMenuRef: VCSMenu; // the LeftSidebar component
   private loadingModalRef: PopUpModal;
+  private aboutRef: AboutVCDAT;
   private graphicsMethods: any; // The current available graphics methods
   private templatesList: string[]; // The list of current templates
   private codeInjector: CodeInjector; // The code injector object which is responsible for injecting code into notebooks
@@ -60,6 +68,7 @@ export default class LeftSideBarWidget extends Widget {
 
   constructor(app: JupyterFrontEnd, tracker: NotebookTracker) {
     super();
+    this.version = OLD_VCDAT_VERSION;
     this.application = app;
     this.notebookTracker = tracker;
     this.div = document.createElement("div");
@@ -91,6 +100,7 @@ export default class LeftSideBarWidget extends Widget {
     this.setPlotExists = this.setPlotExists.bind(this);
     this.vcsMenuRef = (React as any).createRef();
     this.loadingModalRef = (React as any).createRef();
+    this.aboutRef = (React as any).createRef();
     ReactDOM.render(
       <ErrorBoundary>
         <VCSMenu
@@ -117,6 +127,10 @@ export default class LeftSideBarWidget extends Widget {
           btnText="OK"
           ref={loader => (this.loadingModalRef = loader)}
         />
+        <AboutVCDAT
+          version={VCDAT_VERSION}
+          ref={loader => (this.aboutRef = loader)}
+        />
       </ErrorBoundary>,
       this.div
     );
@@ -126,6 +140,15 @@ export default class LeftSideBarWidget extends Widget {
       execute: args => {
         this.commands.execute("filebrowser:navigate", { path: "." });
       }
+    });
+
+    // Add command that displays the 'About' dialog
+    app.commands.addCommand("vcdat-show-about", {
+      caption: "See the VCDAT about page.",
+      execute: () => {
+        this.aboutRef.show();
+      },
+      label: "About VCDAT"
     });
   }
 
@@ -619,7 +642,19 @@ export default class LeftSideBarWidget extends Widget {
     if (this.notebookPanel) {
       return this.notebookPanel;
     }
-    return NotebookUtilities.createNewNotebook(this.commands);
+
+    const newNotebookPanel: NotebookPanel = await NotebookUtilities.createNewNotebook(
+      this.commands
+    );
+
+    // Save the new notebook's version to its meta data
+    await NotebookUtilities.setMetaData(
+      newNotebookPanel,
+      VCDAT_VERSION_KEY,
+      VCDAT_VERSION
+    );
+
+    return newNotebookPanel;
   }
 
   // =======WIDGET SIGNAL HANDLERS=======
@@ -634,6 +669,23 @@ export default class LeftSideBarWidget extends Widget {
   ): Promise<void> {
     // Set the current notebook and wait for the session to be ready
     await this.setNotebookPanel(notebook);
+
+    if (notebook) {
+      // Update notebook version
+      const vcdatVersion: string = await NotebookUtilities.getMetaData(
+        notebook,
+        VCDAT_VERSION_KEY
+      );
+      const vcdatReady: ICellModel = CellUtilities.findCellWithMetaKey(
+        notebook,
+        IMPORT_CELL_KEY
+      )[1];
+      this.version = vcdatVersion
+        ? vcdatVersion
+        : vcdatReady
+        ? OLD_VCDAT_VERSION
+        : NO_VERSION;
+    }
   }
 
   private async handleNotebookDisposed(notebookPanel: NotebookPanel) {

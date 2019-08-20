@@ -8,7 +8,7 @@
 }
 
 .jp-icon-vcdat {
-    background-image: url('../icons/cdat_icon_colored.png');
+  background-image: url("../icons/cdat_icon_colored.png");
 }
 
 #gm_card .dropdown-menu::-webkit-scrollbar {

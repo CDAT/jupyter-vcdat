@@ -1,3 +1,10 @@
+import { Step } from "react-joyride";
+import reactHtmlParser from "react-html-parser";
+
+export const NO_VERSION: string = "N/A";
+export const OLD_VCDAT_VERSION: string = "<=2.0";
+export const VCDAT_VERSION: string = "2.1";
+export const VCDAT_VERSION_KEY = "vcdat_version";
 export const MAX_SLABS: number = 2;
 export const MAX_DIM_LENGTH: number = 1000;
 export const BASE_URL: string = "/vcs";
@@ -171,3 +178,133 @@ export enum NOTEBOOK_STATE {
 // Specifies valid plot export formats
 export type EXPORT_FORMATS = "png" | "pdf" | "svg" | "ps" | "";
 export type IMAGE_UNITS = "px" | "in" | "cm" | "mm" | "dot";
+
+export const GETTING_STARTED: Step[] = [
+  {
+    content: reactHtmlParser(`This tutorial will help you use the main features
+    of the <span style='color: #00426e'>VCDAT ${VCDAT_VERSION}</span>
+    JupyterLab extension.<br />
+    To quit this tutorial early, click the 'Skip' button. Let's get started!`),
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "center",
+    target: "#jp-main-dock-panel",
+    title: `VCDAT ${VCDAT_VERSION} Introduction`
+  },
+  {
+    content: reactHtmlParser(
+      `This is the VCDAT ${VCDAT_VERSION} tab. Clicking on this tab will toggle 
+    the VCDAT panel open and closed. The panel is currently 
+    <span style='color: #3ede69'>open</span>.<br />
+    Click 'Next' to continue the tutorial...`
+    ),
+    disableCloseOnEsc: true,
+    disableOverlay: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: `#jp-main-content-panel > 
+    div.p-Widget.p-TabBar.jp-SideBar.jp-mod-left.p-BoxPanel-child 
+    > ul > li.p-TabBar-tab.p-mod-closable > 
+    div.p-TabBar-tabIcon.jp-SideBar-tabIcon.jp-icon-vcdat`,
+    title: `VCDAT ${VCDAT_VERSION} Icon`
+  },
+  {
+    content: `This is the main VCDAT ${VCDAT_VERSION} panel. From here you can select
+    variables, graphics methods and layout templates. You can also choose to
+    load variables, plot variables, export plots etc. Let's quickly highlight
+    what each button does...`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: "#left-side-bar-vcdat",
+    title: `VCDAT ${VCDAT_VERSION} Main Panel`
+  },
+  {
+    content: `When a variable is ready to plot, just click this button and a 
+    plot will be rendered.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".vcsmenu-plot-btn-vcdat",
+    title: "Plot Button"
+  },
+  {
+    content: `When a plot has been made, click this button to open the export
+    options modal where you can export a plot with a specified name and format.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".vcsmenu-export-btn-vcdat",
+    title: "Export Plot"
+  },
+  {
+    content: `When you wish to clear the plot canvas, click this button.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".vcsmenu-clear-btn-vcdat",
+    title: "Clear"
+  },
+  {
+    content: `When the overlay mode is on, new plots will overlap previous plots.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: `#left-sidebar > div > div.card > div > div
+     > div:nth-child(2) > div > div`,
+    title: "Overlay Mode"
+  },
+  {
+    content: `When a plot has been made, click this button to open the export
+    options modal where you can export a plot with a specified name and format.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".varmenu-load-variables-btn-vcdat",
+    title: "Load Variable"
+  },
+  {
+    content: `This is the graphics dropdown.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".graphics-dropdown-vcdat",
+    title: "Graphics Options"
+  },
+  {
+    content: `When you wish to clear the plot canvas, click this button.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".template-dropdown-vcdat",
+    title: "Layout Template"
+  }
+];
+
+export const REPLACEMENT_STEPS: Step[] = [
+  {
+    content: `The next element in this tutorial was not found. The tutorial will end at this point.`,
+    hideCloseButton: true,
+    locale: { next: "End" },
+    placement: "center",
+    showProgress: false,
+    target: "#jp-main-dock-panel",
+    title: "Tutorial Error"
+  },
+  {
+    content: reactHtmlParser(`This is the VCDAT ${VCDAT_VERSION} tab. Clicking on this tab will toggle 
+    the VCDAT ${VCDAT_VERSION} panel open and closed. The panel is currently 
+    <span style='color: #3ede69'>closed</span>.<br />
+    Open the panel to continue the tutorial...`),
+    disableOverlay: true,
+    hideCloseButton: true,
+    locale: { next: "Exit" },
+    placement: "right",
+    showProgress: false,
+    target: `#jp-main-content-panel > 
+      div.p-Widget.p-TabBar.jp-SideBar.jp-mod-left.p-BoxPanel-child 
+      > ul > li.p-TabBar-tab.p-mod-closable > 
+      div.p-TabBar-tabIcon.jp-SideBar-tabIcon.jp-icon-vcdat`,
+    title: `VCDAT ${VCDAT_VERSION} Icon`
+  }
+];
