@@ -481,6 +481,24 @@ export default class CodeInjector {
     );
   }
 
+  /**
+   * Updates the colormap thats to be used by the selected graphics method
+   * @param gm_name: the name of the graphics method to update the color map for
+   * @param cm_name: the name of the color map
+   * @returns Promise<[number, string]> - A promise for when the cell code has executed containing
+   * the cell's index and output result
+   */
+  public async updateColormapName(gm_name: string, gm_group: string, cm_name: string): Promise<[number, string]>{
+    let cmd = `${gm_name}_${gm_group}.colormap = '${cm_name}'`;
+    return this.inject(
+      cmd,
+      undefined,
+      "Failed to update colormap.",
+      "updateColormapName",
+      arguments
+    );
+  }
+
   public async plot(
     selectedGM: string,
     selectedGMGroup: string,
