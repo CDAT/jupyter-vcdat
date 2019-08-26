@@ -114,6 +114,7 @@ export default class VCSMenu extends React.Component<
     this.getGraphicsSelections = this.getGraphicsSelections.bind(this);
     this.getTemplateSelection = this.getTemplateSelection.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
+    this.updateColormap = this.updateColormap.bind(this);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
@@ -327,6 +328,13 @@ export default class VCSMenu extends React.Component<
     );
   }
 
+  public async updateColormap(cm_name: string){
+    await this.props.codeInjector.updateColormapName(
+      this.state.selectedGM,
+      this.state.selectedGMgroup,
+      cm_name);
+  }
+
   public async updateTemplateOptions(templateName: string): Promise<void> {
     // Attempt code injection
     await this.props.codeInjector.getTemplate(templateName);
@@ -378,6 +386,7 @@ export default class VCSMenu extends React.Component<
       plotReady: this.state.plotReady,
       plotReadyChanged: this.props.plotReadyChanged,
       updateGraphicsOptions: this.updateGraphicsOptions,
+      updateColormap: this.updateColormap,
       varInfo: new Variable()
     };
     const varMenuProps = {

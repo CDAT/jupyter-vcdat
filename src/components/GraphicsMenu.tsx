@@ -22,6 +22,7 @@ import {
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
+import ColormapEditor from "./ColormapEditor";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
@@ -40,6 +41,7 @@ interface IGraphicsMenuProps {
   getGraphicsList: () => any; // a method that gets the current list of graphics methods
   // a method to call when the user has selected their desired graphics method
   updateGraphicsOptions: (group: string, name: string) => Promise<void>;
+  updateColormap: (name: string) => Promise<void>;
   copyGraphicsMethod: (
     groupName: string,
     methodName: string,
@@ -158,6 +160,10 @@ export default class GraphicsMenu extends React.Component<
         })}
       </ListGroup>
     );
+  }
+
+  public openColormapEditor(): void {
+    
   }
 
   public render(): JSX.Element {
@@ -279,6 +285,10 @@ export default class GraphicsMenu extends React.Component<
                 Cancel
               </Button>
             </CardSubtitle>
+            <ColormapEditor 
+              updateColormap={this.props.updateColormap}
+              plotReady={this.state.selectedMethod ? true : false} 
+            />
             <InputGroup
               hidden={!this.state.enterName}
               style={{ marginTop: "5px" }}
