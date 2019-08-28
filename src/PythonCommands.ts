@@ -1,4 +1,5 @@
 import {
+  DisplayMode,
   MAX_DIM_LENGTH,
   OUTPUT_RESULT_NAME,
   REQUIRED_MODULES
@@ -25,6 +26,13 @@ for nm, obj in __main__.__dict__.items():\n\
 		break\n\
 except:\n\
 	${OUTPUT_RESULT_NAME}=False\n`;
+
+export const CHECK_SIDECAR_EXISTS: string = `
+try:
+	sidecar
+	${OUTPUT_RESULT_NAME}=True
+except NameError:
+	${OUTPUT_RESULT_NAME}=False`;
 
 export const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
 import json\n\
@@ -228,4 +236,28 @@ for idx in ${varName}.getAxisListIndex():\n\
 	${safe("axis")} = ${varName}.getAxis(idx)\n\
 	${AXIS_INFO_CODE}\
 ${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})`;
+}
+
+export function getSidecarDisplayCommand(
+  displayMode: DisplayMode,
+  sidecarReady: boolean,
+  sidecarTitle: string
+): string {
+  if (displayMode === "notebook") {
+    return `canvas._display_target = 'off'\n`;
+  }
+
+  if (sidecarReady) {
+    return `canvas._display_target = sidecar\n`;
+  }
+
+  return `try:
+	#Set display to sidecar
+	canvas._display_target = sidecar
+except NameError:
+	#Sidecar was undefined, create new sidecar for plot display
+	from sidecar import Sidecar
+	sidecar = Sidecar(title='${sidecarTitle}')
+	canvas._display_target = sidecar
+`;
 }

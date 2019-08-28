@@ -9,8 +9,9 @@ import VariableTracker from "./VariableTracker";
 import {
   BASE_DATA_READER_NAME,
   CANVAS_CELL_KEY,
-  EXPORT_FORMATS,
-  IMAGE_UNITS,
+  DisplayMode,
+  ExportFormat,
+  ImageUnit,
   IMPORT_CELL_KEY,
   MAX_SLABS,
   REQUIRED_MODULES,
@@ -18,7 +19,11 @@ import {
   VCDAT_VERSION_KEY
 } from "./constants";
 
-import { CHECK_MODULES_CMD } from "./PythonCommands";
+import {
+  CHECK_MODULES_CMD,
+  CHECK_SIDECAR_EXISTS,
+  getSidecarDisplayCommand
+} from "./PythonCommands";
 
 import NotebookUtilities from "./NotebookUtilities";
 import Utilities from "./Utilities";
@@ -158,7 +163,8 @@ export default class CodeInjector {
    */
   public async injectCanvasCode(index: number): Promise<number> {
     // Creates canvas(es)
-    const cmd: string = `#Create canvas\ncanvas = vcs.init()`;
+    const cmd: string = `#Create canvas
+canvas = vcs.init(display_target='off')`;
 
     // Find the index where the canvas code is injected
     let cellIdx: number = CellUtilities.findCellWithMetaKey(
@@ -241,11 +247,11 @@ export default class CodeInjector {
    */
 
   public async exportPlot(
-    format: EXPORT_FORMATS,
+    format: ExportFormat,
     name: string,
     width?: string,
     height?: string,
-    units?: IMAGE_UNITS,
+    units?: ImageUnit,
     provenance?: boolean
   ): Promise<void> {
     let cmd: string;
@@ -485,7 +491,9 @@ export default class CodeInjector {
     selectedGM: string,
     selectedGMGroup: string,
     selectedTemplate: string,
-    overlayMode: boolean
+    overlayMode: boolean,
+    previousDisplayMode: DisplayMode,
+    currentDisplayMode: DisplayMode
   ): Promise<[number, string]> {
     // Limit selection to MAX_SLABS
     let selectedVariables: string[] = this.varTracker.selectedVariables;
@@ -508,10 +516,23 @@ export default class CodeInjector {
       templateParam = '"default"';
     }
 
+    let cmd: string = "";
+    const sidecarReady: string = await NotebookUtilities.sendSimpleKernelRequest(
+      this.notebookPanel,
+      CHECK_SIDECAR_EXISTS
+    );
+
+    // Change display target if neccessary
+    if (previousDisplayMode !== currentDisplayMode) {
+      cmd = getSidecarDisplayCommand(
+        currentDisplayMode,
+        sidecarReady === "True",
+        this.notebookPanel.title.label
+      );
+    }
+
     // Create plot injection command string
-    let cmd: string = overlayMode
-      ? "canvas.plot("
-      : "canvas.clear()\ncanvas.plot(";
+    cmd += overlayMode ? `canvas.plot(` : `canvas.clear()\ncanvas.plot(`;
     for (const varID of selectedVariables) {
       cmd += `${this.varTracker.findVariableByID(varID)[1].alias}, `;
     }

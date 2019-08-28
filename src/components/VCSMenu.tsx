@@ -16,7 +16,7 @@ import {
 
 // Project Components
 import CodeInjector from "../CodeInjector";
-import { GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
+import { DisplayMode, GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
 import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
 import NotebookUtilities from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
@@ -78,6 +78,8 @@ interface IVCSMenuState {
   overlayMode: boolean;
   plotReady: boolean;
   plotExists: boolean;
+  previousDisplayMode: DisplayMode;
+  currentDisplayMode: DisplayMode;
 }
 
 export default class VCSMenu extends React.Component<
@@ -90,6 +92,7 @@ export default class VCSMenu extends React.Component<
   constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
+      currentDisplayMode: "notebook",
       exportSuccessAlert: false,
       isModalOpen: false,
       notebookPanel: this.props.notebookPanel,
@@ -98,6 +101,7 @@ export default class VCSMenu extends React.Component<
       plotFormat: "",
       plotName: "",
       plotReady: this.props.plotReady,
+      previousDisplayMode: "not_set",
       savePlotAlert: false,
       selectedGM: "",
       selectedGMgroup: "",
@@ -117,6 +121,7 @@ export default class VCSMenu extends React.Component<
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
+    this.toggleSidecar = this.toggleSidecar.bind(this);
     this.exportPlotAlerts = this.exportPlotAlerts.bind(this);
     this.dismissSavePlotSpinnerAlert = this.dismissSavePlotSpinnerAlert.bind(
       this
@@ -177,6 +182,12 @@ export default class VCSMenu extends React.Component<
     this.setState({ overlayMode: !this.state.overlayMode });
   }
 
+  public async toggleSidecar(): Promise<void> {
+    this.state.currentDisplayMode === "notebook"
+      ? this.setState({ currentDisplayMode: "sidecar" })
+      : this.setState({ currentDisplayMode: "notebook" });
+  }
+
   public saveNotebook() {
     NotebookUtilities.saveNotebook(this.props.notebookPanel);
   }
@@ -185,7 +196,9 @@ export default class VCSMenu extends React.Component<
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
     this.setState({
+      currentDisplayMode: "notebook",
       overlayMode: false,
+      previousDisplayMode: "not_set",
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: ""
@@ -358,8 +371,11 @@ export default class VCSMenu extends React.Component<
           this.state.selectedGM,
           this.state.selectedGMgroup,
           this.state.selectedTemplate,
-          this.state.overlayMode
+          this.state.overlayMode,
+          this.state.previousDisplayMode,
+          this.state.currentDisplayMode
         );
+        this.setState({ previousDisplayMode: this.state.currentDisplayMode });
         this.props.setPlotExists(true);
       }
     } catch (error) {
@@ -475,6 +491,19 @@ export default class VCSMenu extends React.Component<
                     disabled={!this.state.plotReady}
                     checked={this.state.overlayMode}
                     onChange={this.toggleOverlayMode}
+                  />
+                </Col>
+                <Col>
+                  <CustomInput
+                    type="switch"
+                    id={
+                      /*@tag<vcsmenu-sidecar-enabled-switch>*/ "vcsmenu-sidecar-enabled-switch-vcdat"
+                    }
+                    name="sidecarEnabledSwitch"
+                    label="Plot to Sidecar"
+                    disabled={!this.state.plotReady}
+                    checked={this.state.currentDisplayMode === "sidecar"}
+                    onChange={this.toggleSidecar}
                   />
                 </Col>
               </Row>

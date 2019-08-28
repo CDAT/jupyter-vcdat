@@ -176,8 +176,11 @@ export enum NOTEBOOK_STATE {
 }
 
 // Specifies valid plot export formats
-export type EXPORT_FORMATS = "png" | "pdf" | "svg" | "ps" | "";
-export type IMAGE_UNITS = "px" | "in" | "cm" | "mm" | "dot";
+export type ExportFormat = "png" | "pdf" | "svg" | "ps" | "";
+export type ImageUnit = "px" | "in" | "cm" | "mm" | "dot";
+
+// Sepcifies the display target modes (whether to plot in notebook or on sidecar)
+export type DisplayMode = "notebook" | "sidecar" | "not_set";
 
 export const GETTING_STARTED: Step[] = [
   {

@@ -1,6 +1,6 @@
 Tag in: src/components/AboutVCDAT.tsx
-    Line 43, Col 31: "about-vcdat-modal" --> "about-vcdat-modal-vcdat"
-    Line 48, Col 24: "about-modal-btn" --> "about-modal-btn-vcdat"
+    Line 103, Col 22: "about-vcdat-modal" --> "about-vcdat-modal-vcdat"
+    Line 134, Col 19: "float-right about-modal-btn" --> "float-right about-modal-btn-vcdat"
 Tag in: src/components/DimensionSlider.tsx
     Line 172, Col 23: "dimension-slider" --> "dimension-slider-vcdat"
     Line 198, Col 32: "slider-handles" --> "slider-handles-vcdat"
@@ -8,16 +8,16 @@ Tag in: src/components/DimensionSlider.tsx
     Line 229, Col 35: "slider-ticks" --> "slider-ticks-vcdat"
 No tags found in: src/components/ErrorBoundary.tsx
 Tag in: src/components/ExportPlotModal.tsx
-    Line 214, Col 31: "export-modal" --> "export-modal-vcdat"
-    Line 217, Col 24: "export-name-input" --> "export-name-input-vcdat"
-    Line 245, Col 17: "export-dimension-switch" --> "export-dimension-switch-vcdat"
-    Line 260, Col 21: "export-width-input" --> "export-width-input-vcdat"
-    Line 271, Col 21: "export-height-input" --> "export-height-input-vcdat"
-    Line 285, Col 15: "export-capture-provenance-switch" --> "export-capture-provenance-switch-vcdat"
-    Line 297, Col 24: "export-button" --> "export-button-vcdat"
-    Line 305, Col 15: "export-cancel-button" --> "export-cancel-button-vcdat"
-    Line 328, Col 26: "export-format-btn" --> "export-format-btn-vcdat"
-    Line 354, Col 26: "export-unit-btn" --> "export-unit-btn-vcdat"
+    Line 217, Col 31: "export-modal" --> "export-modal-vcdat"
+    Line 220, Col 24: "export-name-input" --> "export-name-input-vcdat"
+    Line 248, Col 17: "export-dimension-switch" --> "export-dimension-switch-vcdat"
+    Line 263, Col 21: "export-width-input" --> "export-width-input-vcdat"
+    Line 274, Col 21: "export-height-input" --> "export-height-input-vcdat"
+    Line 288, Col 15: "export-capture-provenance-switch" --> "export-capture-provenance-switch-vcdat"
+    Line 300, Col 24: "export-button" --> "export-button-vcdat"
+    Line 308, Col 15: "export-cancel-button" --> "export-cancel-button-vcdat"
+    Line 331, Col 26: "export-format-btn" --> "export-format-btn-vcdat"
+    Line 357, Col 26: "export-unit-btn" --> "export-unit-btn-vcdat"
 Tag in: src/components/GraphicsMenu.tsx
     Line 181, Col 32: "graphics-menu" --> "graphics-menu-vcdat"
     Line 192, Col 21: "graphics-dropdown" --> "graphics-dropdown-vcdat"
@@ -35,14 +35,15 @@ Tag in: src/components/PopUpModal.tsx
 Tag in: src/components/TemplateMenu.tsx
     Line 87, Col 32: "template-main" --> "template-main-vcdat"
     Line 96, Col 21: "template-dropdown" --> "template-dropdown-vcdat"
-    Line 117, Col 27: "template-item" --> "template-item-vcdat"
+    Line 118, Col 29: "template-item" --> "template-item-vcdat"
 No tags found in: src/components/Tracks.tsx
 Tag in: src/components/VCSMenu.tsx
-    Line 417, Col 32: "vcsmenu-main" --> "vcsmenu-main-vcdat"
-    Line 423, Col 23: "vcsmenu-plot-btn" --> "vcsmenu-plot-btn-vcdat"
-    Line 438, Col 23: "vcsmenu-export-btn" --> "vcsmenu-export-btn-vcdat"
-    Line 453, Col 23: "vcsmenu-clear-btn" --> "vcsmenu-clear-btn-vcdat"
-    Line 471, Col 23: "vcsmenu-overlay-mode-switch" --> "vcsmenu-overlay-mode-switch-vcdat"
+    Line 433, Col 32: "vcsmenu-main" --> "vcsmenu-main-vcdat"
+    Line 439, Col 23: "vcsmenu-plot-btn" --> "vcsmenu-plot-btn-vcdat"
+    Line 454, Col 23: "vcsmenu-export-btn" --> "vcsmenu-export-btn-vcdat"
+    Line 469, Col 23: "vcsmenu-clear-btn" --> "vcsmenu-clear-btn-vcdat"
+    Line 487, Col 23: "vcsmenu-overlay-mode-switch" --> "vcsmenu-overlay-mode-switch-vcdat"
+    Line 500, Col 23: "vcsmenu-sidecar-enabled-switch" --> "vcsmenu-sidecar-enabled-switch-vcdat"
 Tag in: src/components/VarCard.tsx
     Line 164, Col 33: "varcard-main" --> "varcard-main-vcdat"
     Line 168, Col 25: "varcard-name-btn" --> "varcard-name-btn-vcdat"
@@ -50,11 +51,11 @@ Tag in: src/components/VarCard.tsx
     Line 204, Col 29: "varcard-warning-btn" --> "varcard-warning-btn-vcdat"
     Line 257, Col 29: "varcard-dimension" --> "varcard-dimension-vcdat"
 Tag in: src/components/VarLoader.tsx
-    Line 278, Col 24: "var-loader-modal" --> "var-loader-modal-vcdat"
-    Line 282, Col 26: "var-loader-search" --> "var-loader-search-vcdat"
-    Line 289, Col 23: "var-loader-search-input" --> "var-loader-search-input-vcdat"
-    Line 301, Col 26: "var-loader-items" --> "var-loader-items-vcdat"
-    Line 325, Col 17: "var-loader-load-btn" --> "var-loader-load-btn-vcdat"
+    Line 276, Col 24: "var-loader-modal" --> "var-loader-modal-vcdat"
+    Line 280, Col 26: "var-loader-search" --> "var-loader-search-vcdat"
+    Line 287, Col 23: "var-loader-search-input" --> "var-loader-search-input-vcdat"
+    Line 299, Col 26: "var-loader-items" --> "var-loader-items-vcdat"
+    Line 323, Col 17: "var-loader-load-btn" --> "var-loader-load-btn-vcdat"
 Tag in: src/components/VarMenu.tsx
     Line 154, Col 32: "varmenu-main" --> "varmenu-main-vcdat"
     Line 161, Col 23: "varmenu-load-variables-btn" --> "varmenu-load-variables-btn-vcdat"

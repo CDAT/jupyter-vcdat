@@ -46,6 +46,41 @@ import { ICellModel } from "@jupyterlab/cells";
  * This is the main component for the vcdat extension.
  */
 export default class LeftSideBarWidget extends Widget {
+  // =======GETTERS AND SETTERS=======
+  public get plotReady(): boolean {
+    return (
+      this.state === NOTEBOOK_STATE.VCS_Ready ||
+      this.state === NOTEBOOK_STATE.InitialCellsReady
+    );
+  }
+
+  public get plotReadyChanged(): ISignal<this, boolean> {
+    return this._plotReadyChanged;
+  }
+
+  public get plotExists(): boolean {
+    return this._plotExists;
+  }
+
+  public get plotExistsChanged(): ISignal<this, boolean> {
+    return this._plotExistsChanged;
+  }
+
+  public get state(): NOTEBOOK_STATE {
+    return this._state;
+  }
+
+  public set state(notebookState: NOTEBOOK_STATE) {
+    this._state = notebookState;
+    const plotReady: boolean =
+      this._state === NOTEBOOK_STATE.VCS_Ready ||
+      this._state === NOTEBOOK_STATE.InitialCellsReady;
+    this._plotReadyChanged.emit(plotReady);
+  }
+
+  public get notebookPanel(): NotebookPanel {
+    return this._notebookPanel;
+  }
   public div: HTMLDivElement; // The div container for this widget
   public version: string; // The VCDAT version for tracking versions between notebooks
   private commands: CommandRegistry; // Jupyter app CommandRegistry
@@ -97,6 +132,7 @@ export default class LeftSideBarWidget extends Widget {
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
     this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
+    this.switchActiveSidecar = this.switchActiveSidecar.bind(this); // EXPERIMENTAL
     this.setPlotExists = this.setPlotExists.bind(this);
     this.vcsMenuRef = (React as any).createRef();
     this.loadingModalRef = (React as any).createRef();
@@ -138,7 +174,7 @@ export default class LeftSideBarWidget extends Widget {
     // Add command to refresh the filebrowser
     this.commands.addCommand("vcdat:refresh-browser", {
       execute: args => {
-        this.commands.execute("filebrowser:navigate", { path: "." });
+        this.commands.execute("filebrowser:go-to-path", { path: "." });
       }
     });
 
@@ -150,42 +186,6 @@ export default class LeftSideBarWidget extends Widget {
       },
       label: "About VCDAT"
     });
-  }
-
-  // =======GETTERS AND SETTERS=======
-  public get plotReady(): boolean {
-    return (
-      this.state === NOTEBOOK_STATE.VCS_Ready ||
-      this.state === NOTEBOOK_STATE.InitialCellsReady
-    );
-  }
-
-  public get plotReadyChanged(): ISignal<this, boolean> {
-    return this._plotReadyChanged;
-  }
-
-  public get plotExists(): boolean {
-    return this._plotExists;
-  }
-
-  public get plotExistsChanged(): ISignal<this, boolean> {
-    return this._plotExistsChanged;
-  }
-
-  public get state(): NOTEBOOK_STATE {
-    return this._state;
-  }
-
-  public set state(notebookState: NOTEBOOK_STATE) {
-    this._state = notebookState;
-    const plotReady: boolean =
-      this._state === NOTEBOOK_STATE.VCS_Ready ||
-      this._state === NOTEBOOK_STATE.InitialCellsReady;
-    this._plotReadyChanged.emit(plotReady);
-  }
-
-  public get notebookPanel(): NotebookPanel {
-    return this._notebookPanel;
   }
 
   // =======PROPS FUNCTIONS=======
@@ -209,9 +209,14 @@ export default class LeftSideBarWidget extends Widget {
     return this.templatesList;
   };
 
-  public setPlotExists(value: boolean): void {
-    this._plotExists = value;
-    this._plotExistsChanged.emit(value);
+  public setPlotExists(plotExists: boolean): void {
+    this._plotExists = plotExists;
+    this._plotExistsChanged.emit(plotExists);
+
+    // EXPERIMENTAL
+    if (plotExists) {
+      this.switchActiveSidecar();
+    }
   }
 
   // =======ASYNC SETTER FUNCTIONS=======
@@ -657,6 +662,32 @@ export default class LeftSideBarWidget extends Widget {
     return newNotebookPanel;
   }
 
+  // EXPERIMENTAL
+  public switchActiveSidecar(): void {
+    const widgets = this.application.shell.widgets("right");
+
+    for (let w = widgets.next(); w !== undefined; w = widgets.next()) {
+      if (w.hasClass("jupyterlab-sidecar")) {
+        w.title.closable = false;
+        if (
+          this.notebookPanel &&
+          w.title.label === this.notebookPanel.title.label
+        ) {
+          this.application.shell.activateById(w.id);
+        } else {
+          const notebookMatch = this.notebookTracker.find(
+            (openNotebook: NotebookPanel) => {
+              return openNotebook.title.label === w.title.label;
+            }
+          );
+          if (!notebookMatch) {
+            w.close();
+          }
+        }
+      }
+    }
+  }
+
   // =======WIDGET SIGNAL HANDLERS=======
 
   /**
@@ -690,6 +721,7 @@ export default class LeftSideBarWidget extends Widget {
 
   private async handleNotebookDisposed(notebookPanel: NotebookPanel) {
     notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
+    this.switchActiveSidecar();
   }
 
   private async handleNotebookCellRun(): Promise<void> {
