@@ -1,9 +1,9 @@
 import {
+  DISPLAY_MODE,
   MAX_DIM_LENGTH,
   OUTPUT_RESULT_NAME,
   REQUIRED_MODULES
 } from "./constants";
-import { DisplayMode } from "./types";
 
 // Simple function to prevent variable names from overlapping with user-created names
 function safe(baseName: string) {
@@ -242,11 +242,11 @@ ${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})\n`;
 }
 
 export function getSidecarDisplayCommand(
-  displayMode: DisplayMode,
+  displayMode: DISPLAY_MODE,
   sidecarReady: boolean,
   sidecarTitle: string
 ): string {
-  if (displayMode === "notebook") {
+  if (displayMode === DISPLAY_MODE.Notebook) {
     return `canvas._display_target = 'off'\n`;
   }
 

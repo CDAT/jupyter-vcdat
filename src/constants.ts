@@ -175,6 +175,15 @@ export enum NOTEBOOK_STATE {
   VCS_Ready // The notebook is ready for code injection
 }
 
+// Specifies the display target modes (whether to plot in notebook or on sidecar)
+// export type DisplayMode = "notebook" | "sidecar" | "not_set";
+
+export enum DISPLAY_MODE {
+  Notebook,
+  Sidecar,
+  None
+}
+
 // Note: Using reactHtmlParser function, tutorial steps can be rendered as HTML
 export const GETTING_STARTED: Step[] = [
   {

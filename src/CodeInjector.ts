@@ -9,6 +9,7 @@ import VariableTracker from "./VariableTracker";
 import {
   BASE_DATA_READER_NAME,
   CANVAS_CELL_KEY,
+  DISPLAY_MODE,
   IMPORT_CELL_KEY,
   MAX_SLABS,
   REQUIRED_MODULES,
@@ -24,7 +25,7 @@ import {
 
 import NotebookUtilities from "./NotebookUtilities";
 import Utilities from "./Utilities";
-import { DisplayMode, ExportFormat, ImageUnit } from "./types";
+import { ExportFormat, ImageUnit } from "./types";
 
 /**
  * A class that manages the code injection of vCDAT commands
@@ -490,8 +491,8 @@ canvas = vcs.init(display_target='off')`;
     selectedGMGroup: string,
     selectedTemplate: string,
     overlayMode: boolean,
-    previousDisplayMode: DisplayMode,
-    currentDisplayMode: DisplayMode
+    previousDisplayMode: DISPLAY_MODE,
+    currentDisplayMode: DISPLAY_MODE
   ): Promise<[number, string]> {
     // Limit selection to MAX_SLABS
     let selectedVariables: string[] = this.varTracker.selectedVariables;

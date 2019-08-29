@@ -16,7 +16,7 @@ import {
 
 // Project Components
 import CodeInjector from "../CodeInjector";
-import { GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
+import { DISPLAY_MODE, GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
 import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
 import NotebookUtilities from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
@@ -28,7 +28,6 @@ import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import { JupyterFrontEnd } from "@jupyterlab/application";
-import { DisplayMode } from "../types";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -79,8 +78,8 @@ interface IVCSMenuState {
   overlayMode: boolean;
   plotReady: boolean;
   plotExists: boolean;
-  previousDisplayMode: DisplayMode;
-  currentDisplayMode: DisplayMode;
+  previousDisplayMode: DISPLAY_MODE;
+  currentDisplayMode: DISPLAY_MODE;
 }
 
 export default class VCSMenu extends React.Component<
@@ -93,7 +92,7 @@ export default class VCSMenu extends React.Component<
   constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
-      currentDisplayMode: "notebook",
+      currentDisplayMode: DISPLAY_MODE.Notebook,
       exportSuccessAlert: false,
       isModalOpen: false,
       notebookPanel: this.props.notebookPanel,
@@ -102,7 +101,7 @@ export default class VCSMenu extends React.Component<
       plotFormat: "",
       plotName: "",
       plotReady: this.props.plotReady,
-      previousDisplayMode: "not_set",
+      previousDisplayMode: DISPLAY_MODE.None,
       savePlotAlert: false,
       selectedGM: "",
       selectedGMgroup: "",
@@ -184,9 +183,9 @@ export default class VCSMenu extends React.Component<
   }
 
   public async toggleSidecar(): Promise<void> {
-    this.state.currentDisplayMode === "notebook"
-      ? this.setState({ currentDisplayMode: "sidecar" })
-      : this.setState({ currentDisplayMode: "notebook" });
+    this.state.currentDisplayMode === DISPLAY_MODE.Notebook
+      ? this.setState({ currentDisplayMode: DISPLAY_MODE.Sidecar })
+      : this.setState({ currentDisplayMode: DISPLAY_MODE.Notebook });
   }
 
   public saveNotebook() {
@@ -197,9 +196,9 @@ export default class VCSMenu extends React.Component<
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
     this.setState({
-      currentDisplayMode: "notebook",
+      currentDisplayMode: DISPLAY_MODE.Notebook,
       overlayMode: false,
-      previousDisplayMode: "not_set",
+      previousDisplayMode: DISPLAY_MODE.None,
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: ""
@@ -503,7 +502,9 @@ export default class VCSMenu extends React.Component<
                     name="sidecarSwitch"
                     label="Plot to Sidecar"
                     disabled={!this.state.plotReady}
-                    checked={this.state.currentDisplayMode === "sidecar"}
+                    checked={
+                      this.state.currentDisplayMode === DISPLAY_MODE.Sidecar
+                    }
                     onChange={this.toggleSidecar}
                   />
                 </Col>
