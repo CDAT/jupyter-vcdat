@@ -78,7 +78,7 @@ jobs:
   linux_jupyter_vcdat:
     docker:
       # - image: circleci/node:jessie-browsers
-      - image: muryanto1/jupyter-vcdat.2.0.1:latest
+      - image: muryanto1/jupyter-vcdat:latest
     environment:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
