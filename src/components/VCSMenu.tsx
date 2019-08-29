@@ -16,7 +16,7 @@ import {
 
 // Project Components
 import CodeInjector from "../CodeInjector";
-import { DisplayMode, GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
+import { GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
 import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
 import NotebookUtilities from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
@@ -28,6 +28,7 @@ import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import { JupyterFrontEnd } from "@jupyterlab/application";
+import { DisplayMode } from "../types";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -497,9 +498,9 @@ export default class VCSMenu extends React.Component<
                   <CustomInput
                     type="switch"
                     id={
-                      /*@tag<vcsmenu-sidecar-enabled-switch>*/ "vcsmenu-sidecar-enabled-switch-vcdat"
+                      /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
                     }
-                    name="sidecarEnabledSwitch"
+                    name="sidecarSwitch"
                     label="Plot to Sidecar"
                     disabled={!this.state.plotReady}
                     checked={this.state.currentDisplayMode === "sidecar"}

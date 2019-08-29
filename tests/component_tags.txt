@@ -38,12 +38,12 @@ Tag in: src/components/TemplateMenu.tsx
     Line 118, Col 29: "template-item" --> "template-item-vcdat"
 No tags found in: src/components/Tracks.tsx
 Tag in: src/components/VCSMenu.tsx
-    Line 433, Col 32: "vcsmenu-main" --> "vcsmenu-main-vcdat"
-    Line 439, Col 23: "vcsmenu-plot-btn" --> "vcsmenu-plot-btn-vcdat"
-    Line 454, Col 23: "vcsmenu-export-btn" --> "vcsmenu-export-btn-vcdat"
-    Line 469, Col 23: "vcsmenu-clear-btn" --> "vcsmenu-clear-btn-vcdat"
-    Line 487, Col 23: "vcsmenu-overlay-mode-switch" --> "vcsmenu-overlay-mode-switch-vcdat"
-    Line 500, Col 23: "vcsmenu-sidecar-enabled-switch" --> "vcsmenu-sidecar-enabled-switch-vcdat"
+    Line 434, Col 32: "vcsmenu-main" --> "vcsmenu-main-vcdat"
+    Line 440, Col 23: "vcsmenu-plot-btn" --> "vcsmenu-plot-btn-vcdat"
+    Line 455, Col 23: "vcsmenu-export-btn" --> "vcsmenu-export-btn-vcdat"
+    Line 470, Col 23: "vcsmenu-clear-btn" --> "vcsmenu-clear-btn-vcdat"
+    Line 488, Col 23: "vcsmenu-overlay-mode-switch" --> "vcsmenu-overlay-mode-switch-vcdat"
+    Line 501, Col 23: "vcsmenu-sidecar-switch" --> "vcsmenu-sidecar-switch-vcdat"
 Tag in: src/components/VarCard.tsx
     Line 164, Col 33: "varcard-main" --> "varcard-main-vcdat"
     Line 168, Col 25: "varcard-name-btn" --> "varcard-name-btn-vcdat"

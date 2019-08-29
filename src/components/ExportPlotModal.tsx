@@ -19,8 +19,8 @@ import {
 import { checkForExportedFileCommand } from "../PythonCommands";
 import CodeInjector from "../CodeInjector";
 import NotebookUtilities from "../NotebookUtilities";
-import { ExportFormat, ImageUnit } from "../constants";
 import Utilities from "../Utilities";
+import { ExportFormat, ImageUnit } from "../types";
 
 interface IExportPlotModalProps {
   isOpen: boolean;

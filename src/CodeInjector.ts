@@ -9,9 +9,6 @@ import VariableTracker from "./VariableTracker";
 import {
   BASE_DATA_READER_NAME,
   CANVAS_CELL_KEY,
-  DisplayMode,
-  ExportFormat,
-  ImageUnit,
   IMPORT_CELL_KEY,
   MAX_SLABS,
   REQUIRED_MODULES,
@@ -21,12 +18,13 @@ import {
 
 import {
   CHECK_MODULES_CMD,
-  CHECK_SIDECAR_EXISTS,
+  CHECK_SIDECAR_EXISTS_CMD,
   getSidecarDisplayCommand
 } from "./PythonCommands";
 
 import NotebookUtilities from "./NotebookUtilities";
 import Utilities from "./Utilities";
+import { DisplayMode, ExportFormat, ImageUnit } from "./types";
 
 /**
  * A class that manages the code injection of vCDAT commands
@@ -519,7 +517,7 @@ canvas = vcs.init(display_target='off')`;
     let cmd: string = "";
     const sidecarReady: string = await NotebookUtilities.sendSimpleKernelRequest(
       this.notebookPanel,
-      CHECK_SIDECAR_EXISTS
+      CHECK_SIDECAR_EXISTS_CMD
     );
 
     // Change display target if neccessary

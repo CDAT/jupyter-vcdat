@@ -132,7 +132,7 @@ export default class LeftSideBarWidget extends Widget {
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
     this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
-    this.switchActiveSidecar = this.switchActiveSidecar.bind(this); // EXPERIMENTAL
+    this.switchActiveSidecar = this.switchActiveSidecar.bind(this);
     this.setPlotExists = this.setPlotExists.bind(this);
     this.vcsMenuRef = (React as any).createRef();
     this.loadingModalRef = (React as any).createRef();
@@ -213,7 +213,6 @@ export default class LeftSideBarWidget extends Widget {
     this._plotExists = plotExists;
     this._plotExistsChanged.emit(plotExists);
 
-    // EXPERIMENTAL
     if (plotExists) {
       this.switchActiveSidecar();
     }
@@ -662,7 +661,6 @@ export default class LeftSideBarWidget extends Widget {
     return newNotebookPanel;
   }
 
-  // EXPERIMENTAL
   public switchActiveSidecar(): void {
     const widgets = this.application.shell.widgets("right");
 
