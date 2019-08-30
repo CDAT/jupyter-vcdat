@@ -29,6 +29,5 @@ RUN /bin/bash -c "source ${workdir}/miniconda/etc/profile.d/conda.sh; \
 
 CMD ["/bin/bash"]
 
-# sudo docker build --build-arg workdir="/tmp/jp-vcdat" -t muryanto1/jupyter-vcdat.2.0.1 .
 # sudo docker build -t muryanto1/jupyter-vcdat.2.0.1 .
 # docker push muryanto1/jupyter-vcdat.2.0.1:latest
