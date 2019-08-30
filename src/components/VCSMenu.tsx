@@ -69,6 +69,8 @@ interface IVCSMenuState {
   selectedGM: string;
   selectedGMgroup: string;
   selectedTemplate: string;
+  selectedColormap: string;
+  colormapHasBeenChanged: boolean;
   notebookPanel: NotebookPanel;
   isModalOpen: boolean;
   savePlotAlert: boolean;
@@ -96,6 +98,8 @@ export default class VCSMenu extends React.Component<
       exportSuccessAlert: false,
       isModalOpen: false,
       notebookPanel: this.props.notebookPanel,
+      selectedColormap: "",
+      colormapHasBeenChanged: false,
       overlayMode: false,
       plotExists: this.props.plotExists,
       plotFormat: "",
@@ -329,10 +333,19 @@ export default class VCSMenu extends React.Component<
     await this.props.codeInjector.getGraphicMethod(group, name);
 
     // If successful, update the state
-    this.setState({
-      selectedGM: name,
-      selectedGMgroup: group
-    });
+    // If the colormap has previously been set by the user
+    //  for their last GM, then set it for this one too
+    this.setState(
+      {
+        selectedGM: name,
+        selectedGMgroup: group
+      },
+      () => {
+        if (this.state.colormapHasBeenChanged) {
+          this.updateColormap(this.state.selectedColormap);
+        }
+      }
+    );
     // Save selected graphics method to meta data
     await NotebookUtilities.setMetaData(
       this.state.notebookPanel,
@@ -341,11 +354,16 @@ export default class VCSMenu extends React.Component<
     );
   }
 
-  public async updateColormap(cm_name: string){
+  public async updateColormap(cm_name: string) {
+    this.setState({
+      selectedColormap: cm_name,
+      colormapHasBeenChanged: true
+    });
     await this.props.codeInjector.updateColormapName(
       this.state.selectedGM,
       this.state.selectedGMgroup,
-      cm_name);
+      cm_name
+    );
   }
 
   public async updateTemplateOptions(templateName: string): Promise<void> {
