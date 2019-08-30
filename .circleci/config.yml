@@ -14,6 +14,7 @@ aliases:
     command: |
        export CDAT_ANONYMOUS_LOG=False
        source activate jupyter-vcdat
+       conda install -c cdat/label/v82 -c cdat/label/nightly vcs
        conda list
        jupyter lab --ip='127.0.0.1'
     background: true
@@ -78,7 +79,7 @@ jobs:
   linux_jupyter_vcdat:
     docker:
       # - image: circleci/node:jessie-browsers
-      - image: muryanto1/jupyter-vcdat:latest
+      - image: muryanto1/jupyter-vcdat.2.0.1:latest
     environment:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
