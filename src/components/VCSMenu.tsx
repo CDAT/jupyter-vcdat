@@ -9,7 +9,6 @@ import {
   Card,
   CardBody,
   Col,
-  CustomInput,
   Row,
   Spinner
 } from "reactstrap";
@@ -393,6 +392,7 @@ export default class VCSMenu extends React.Component<
         );
       } else {
         // Inject the plot
+        debugger;
         await this.props.codeInjector.plot(
           this.state.selectedGM,
           this.state.selectedGMgroup,
@@ -415,6 +415,10 @@ export default class VCSMenu extends React.Component<
 
   public render(): JSX.Element {
     const graphicsMenuProps = {
+      toggleOverlayMode: this.toggleOverlayMode,
+      overlayMode: this.state.overlayMode,
+      toggleSidecar: this.toggleSidecar,
+      currentDisplayMode: this.state.currentDisplayMode,
       copyGraphicsMethod: this.copyGraphicsMethod,
       getGraphicsList: this.props.getGraphicsList,
       plotReady: this.state.plotReady,
@@ -504,36 +508,6 @@ export default class VCSMenu extends React.Component<
                   >
                     Clear
                   </Button>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <CustomInput
-                    type="switch"
-                    id={
-                      /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
-                    }
-                    name="overlayModeSwitch"
-                    label="Overlay Mode"
-                    disabled={!this.state.plotReady}
-                    checked={this.state.overlayMode}
-                    onChange={this.toggleOverlayMode}
-                  />
-                </Col>
-                <Col>
-                  <CustomInput
-                    type="switch"
-                    id={
-                      /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
-                    }
-                    name="sidecarSwitch"
-                    label="Plot to Sidecar"
-                    disabled={!this.state.plotReady}
-                    checked={
-                      this.state.currentDisplayMode === DISPLAY_MODE.Sidecar
-                    }
-                    onChange={this.toggleSidecar}
-                  />
                 </Col>
               </Row>
             </div>
