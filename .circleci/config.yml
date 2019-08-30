@@ -14,7 +14,7 @@ aliases:
     command: |
        export CDAT_ANONYMOUS_LOG=False
        source activate jupyter-vcdat
-       conda install -c cdat/label/v82 -c cdat/label/nightly vcs libnetcdf=4.6.2 testsrunner cdat_info
+       conda install -c cdat/label/v82 -c cdat/label/v81 -c cdat/label/nightly vcs libnetcdf=4.6.2 testsrunner cdat_info
        conda list
        jupyter lab --ip='127.0.0.1'
     background: true
