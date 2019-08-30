@@ -175,10 +175,16 @@ export enum NOTEBOOK_STATE {
   VCS_Ready // The notebook is ready for code injection
 }
 
-// Specifies valid plot export formats
-export type EXPORT_FORMATS = "png" | "pdf" | "svg" | "ps" | "";
-export type IMAGE_UNITS = "px" | "in" | "cm" | "mm" | "dot";
+// Specifies the display target modes (whether to plot in notebook or on sidecar)
+// export type DisplayMode = "notebook" | "sidecar" | "not_set";
 
+export enum DISPLAY_MODE {
+  Notebook,
+  Sidecar,
+  None
+}
+
+// Note: Using reactHtmlParser function, tutorial steps can be rendered as HTML
 export const GETTING_STARTED: Step[] = [
   {
     content: reactHtmlParser(`This tutorial will help you use the main features
@@ -253,6 +259,17 @@ export const GETTING_STARTED: Step[] = [
     target: `#left-sidebar > div > div.card > div > div
      > div:nth-child(2) > div > div`,
     title: "Overlay Mode"
+  },
+  {
+    content: `When the 'Plot to Sidecar' toggle is on, plots will be rendered to the right \
+    of the notebook within the 'Sidecar' view. The sidecar will remain on the right until \
+    the notebook is closed. If the toggle is left off, plots will be rendered within the notebook.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: `#left-sidebar > div > div.card > div > div
+     > div:nth-child(2) > div:nth-child(2) > div`,
+    title: "Plot to Sidecar"
   },
   {
     content: `When a plot has been made, click this button to open the export

@@ -131,7 +131,7 @@ export default class AboutVCDAT extends React.Component<
             <Col style={{ padding: 0 }}>
               <Button
                 className={
-                  /*@tag<about-modal-btn>*/ "float-right about-modal-btn-vcdat"
+                  /*@tag<float-right about-modal-btn>*/ "float-right about-modal-btn-vcdat"
                 }
                 outline={true}
                 color="primary"

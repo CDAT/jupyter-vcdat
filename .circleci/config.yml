@@ -14,6 +14,7 @@ aliases:
     command: |
        export CDAT_ANONYMOUS_LOG=False
        source activate jupyter-vcdat
+       conda list
        jupyter lab --ip='127.0.0.1'
     background: true
 
@@ -85,17 +86,17 @@ jobs:
       - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
-      - run: sleep 8
+      - run: sleep 15
+      - run: *run_tests_with_chrome
+      - store_artifacts:
+          path: tests_html
+          destination: tests_chrome_html
       - run: *run_tests_with_firefox
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html
-      - run: *run_tests_with_chrome
       - store_artifacts:
           path: jupyter-vcdat_logfile.txt
-      - store_artifacts:
-          path: tests_html
-          destination: tests_chrome_html
       - run: *conda_upload
 
 workflows:

@@ -1,13 +1,16 @@
 import {
+  DISPLAY_MODE,
   MAX_DIM_LENGTH,
   OUTPUT_RESULT_NAME,
   REQUIRED_MODULES
 } from "./constants";
 
+// Simple function to prevent variable names from overlapping with user-created names
 function safe(baseName: string) {
   return `${baseName}_F9FY9AE028RRF982`;
 }
 
+// PYTHON COMMAND CONSTANTS
 export const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
 
 export const CHECK_PLOT_EXIST_CMD: string = `import json\n\
@@ -15,7 +18,7 @@ try:\n\
 	${OUTPUT_RESULT_NAME} = json.dumps(canvas.listelements('display'))\n\
 except:\n\
 	del ${OUTPUT_RESULT_NAME}\n\
-	pass`;
+	pass\n`;
 
 export const CHECK_VCS_CMD: string = `import __main__\n\
 try:\n\
@@ -26,6 +29,12 @@ for nm, obj in __main__.__dict__.items():\n\
 except:\n\
 	${OUTPUT_RESULT_NAME}=False\n`;
 
+export const CHECK_SIDECAR_EXISTS_CMD: string = `try:\n\
+	sidecar\n\
+	${OUTPUT_RESULT_NAME}=True\n\
+except NameError:\n\
+	${OUTPUT_RESULT_NAME}=False\n`;
+
 export const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
 import json\n\
 def graphic_methods():\n\
@@ -33,11 +42,11 @@ def graphic_methods():\n\
 	for type in vcs.graphicsmethodlist():\n\
 		out[type] = vcs.listelements(type)\n\
 	return out\n\
-${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())`;
+${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())\n`;
 
 export const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
 import json\n\
-${OUTPUT_RESULT_NAME} = json.dumps(vcs.listelements('template'))`;
+${OUTPUT_RESULT_NAME} = json.dumps(vcs.listelements('template'))\n`;
 
 export const CHECK_MODULES_CMD: string = `import types\n\
 import json\n\
@@ -49,7 +58,7 @@ def imports():\n\
 ${safe("found")} = list(imports())\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(list(set(${safe("required")})-set(${safe(
   "found"
-)})))`;
+)})))\n`;
 
 export const LIST_CANVASES_CMD: string = `import __main__\n\
 import json\n\
@@ -59,11 +68,11 @@ def canvases():\n\
 		if isinstance(obj, vcs.Canvas.Canvas):\n\
 			out+=[nm]\n\
 	return out\n\
-${OUTPUT_RESULT_NAME} = json.dumps(canvases())`;
+${OUTPUT_RESULT_NAME} = json.dumps(canvases())\n`;
 
-const AXIS_INFO_CODE: string = `
-	${safe("first")} = float(${safe("axis")}[:].min())
-	${safe("last")} = float(${safe("axis")}[:].max())
+const AXIS_INFO_CODE: string = `\n\
+	${safe("first")} = float(${safe("axis")}[:].min())\n\
+	${safe("last")} = float(${safe("axis")}[:].max())\n\
 	if len(${safe("axis")}) < ${MAX_DIM_LENGTH}:\n\
 		${safe("axis_data")} = ${safe("axis")}[:].tolist()\n\
 	else:\n\
@@ -167,6 +176,8 @@ for ${safe("vname")} in ${safe("vars")}:\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(${safe("outVars")})\n\
 ${safe("var")} = None`;
 
+// FUNCTIONS THAT GENERATE PYTHON COMMANDS
+
 export function checkForExportedFileCommand(filename: string): string {
   return `import os\n\
 import time\n\
@@ -201,7 +212,7 @@ ${OUTPUT_RESULT_NAME} = json.dumps({\n\
 	'vars': ${safe("outVars")},\n\
 	'axes': ${safe("outAxes")}\n\
 })\n\
-${safe("var")} = None`;
+${safe("var")} = None\n`;
 }
 
 export function getAxisInfoFromFileCommand(relativePath: string): string {
@@ -214,7 +225,7 @@ for ${safe("aname")} in ${safe("reader")}.axes:\n\
 	${safe("axis")} = ${safe("reader")}.axes[${safe("aname")}]\n\
 	${AXIS_INFO_CODE}\
 ${safe("reader")}.close()\n\
-${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})`;
+${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})\n`;
 }
 
 export function getAxisInfoFromVariableCommand(varName: string): string {
@@ -227,5 +238,28 @@ for idx in ${varName}.getAxisListIndex():\n\
 	${safe("aname")} = ${safe("names")}[idx]\n\
 	${safe("axis")} = ${varName}.getAxis(idx)\n\
 	${AXIS_INFO_CODE}\
-${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})`;
+${OUTPUT_RESULT_NAME} = json.dumps(${safe("outAxes")})\n`;
+}
+
+export function getSidecarDisplayCommand(
+  displayMode: DISPLAY_MODE,
+  sidecarReady: boolean,
+  sidecarTitle: string
+): string {
+  if (displayMode === DISPLAY_MODE.Notebook) {
+    return `canvas._display_target = 'off'\n`;
+  }
+
+  if (sidecarReady) {
+    return `canvas._display_target = sidecar\n`;
+  }
+
+  return `try:\n\
+	#Set display to sidecar\n\
+	canvas._display_target = sidecar\n\
+except NameError:\n\
+	#Sidecar was undefined, create new sidecar for plot display\n\
+	from sidecar import Sidecar\n\
+	sidecar = Sidecar(title='${sidecarTitle}')\n\
+	canvas._display_target = sidecar\n`;
 }
