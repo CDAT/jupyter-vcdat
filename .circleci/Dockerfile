@@ -13,6 +13,17 @@ RUN id
 RUN conda create -y -n jupyter-vcdat ${cdat_channels} -c conda-forge nodejs "python>3" jupyterlab pip nb_conda nb_conda_kernels plumbum
 RUN conda install -n jupyter-vcdat ${cdat_channels} -c conda-forge jupyterhub
 
+RUN /bin/bash -c "source ${workdir}/miniconda/etc/profile.d/conda.sh; \
+                  conda activate jupyter-vcdat; \
+                  conda env list; \
+                  python -m pip install sidecar || pip install sidecar; \
+                  jupyter labextension install @jupyter-widgets/jupyterlab-manager; \
+                  jupyter labextension install @jupyter-widgets/jupyterlab-sidecar; \
+                  jupyter labextension install jupyterlab-tutorial-extension; \
+                  jupyter labextension install @jupyterlab/hub-extension; \
+   	          pip install selenium; \
+		  pip install pyvirtualdisplay"
+
 # Following line is causing permission denied 
 # RUN conda install -n jupyter-vcdat ${cdat_channels} -c conda-forge vcs
 
