@@ -61,6 +61,7 @@ interface IVCSMenuProps {
   getTemplatesList: () => string[]; // function that reads the widget's current template list
   updateNotebookPanel: () => Promise<void>; // Function passed to the var menu
   syncNotebook: () => boolean; // Function passed to the var menu
+  handleDisplayModeChange?: (displayMode: DISPLAY_MODE) => void;
   codeInjector: CodeInjector;
   varTracker: VariableTracker;
 }
@@ -186,6 +187,9 @@ export default class VCSMenu extends React.Component<
     this.state.currentDisplayMode === DISPLAY_MODE.Notebook
       ? this.setState({ currentDisplayMode: DISPLAY_MODE.Sidecar })
       : this.setState({ currentDisplayMode: DISPLAY_MODE.Notebook });
+    if (this.props.handleDisplayModeChange) {
+      this.props.handleDisplayModeChange(this.state.currentDisplayMode);
+    }
   }
 
   public saveNotebook() {
@@ -195,7 +199,7 @@ export default class VCSMenu extends React.Component<
   public async resetState(): Promise<void> {
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
-    this.setState({
+    await this.setState({
       currentDisplayMode: DISPLAY_MODE.Notebook,
       overlayMode: false,
       previousDisplayMode: DISPLAY_MODE.None,

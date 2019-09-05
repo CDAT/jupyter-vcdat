@@ -1,5 +1,5 @@
 // Dependencies
-import { JupyterFrontEnd } from "@jupyterlab/application";
+import { JupyterFrontEnd, LabShell, ILabShell } from "@jupyterlab/application";
 import {
   NotebookActions,
   NotebookPanel,
@@ -8,7 +8,7 @@ import {
 
 import { ISignal, Signal } from "@phosphor/signaling";
 import { CommandRegistry } from "@phosphor/commands";
-import { Widget } from "@phosphor/widgets";
+import { Widget, Title } from "@phosphor/widgets";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
@@ -28,7 +28,8 @@ import {
   NOTEBOOK_STATE,
   OLD_VCDAT_VERSION,
   VCDAT_VERSION,
-  VCDAT_VERSION_KEY
+  VCDAT_VERSION_KEY,
+  DISPLAY_MODE
 } from "./constants";
 import NotebookUtilities from "./NotebookUtilities";
 import Utilities from "./Utilities";
@@ -84,6 +85,7 @@ export default class LeftSideBarWidget extends Widget {
   public div: HTMLDivElement; // The div container for this widget
   public version: string; // The VCDAT version for tracking versions between notebooks
   private commands: CommandRegistry; // Jupyter app CommandRegistry
+  private labShell: LabShell; // Jupyter lab shell
   private notebookTracker: NotebookTracker; // This is to track current notebooks
   private application: JupyterFrontEnd; // The JupyterLab application object
   private vcsMenuRef: VCSMenu; // the LeftSidebar component
@@ -101,10 +103,15 @@ export default class LeftSideBarWidget extends Widget {
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
   private preparing: boolean; // Whether the notebook is currently being prepared
 
-  constructor(app: JupyterFrontEnd, tracker: NotebookTracker) {
+  constructor(
+    app: JupyterFrontEnd,
+    labShell: LabShell,
+    tracker: NotebookTracker
+  ) {
     super();
     this.version = OLD_VCDAT_VERSION;
     this.application = app;
+    this.labShell = labShell;
     this.notebookTracker = tracker;
     this.div = document.createElement("div");
     this.div.id = "left-sidebar";
@@ -125,6 +132,7 @@ export default class LeftSideBarWidget extends Widget {
     this.updateNotebookState = this.updateNotebookState.bind(this);
     this.handleNotebookChanged = this.handleNotebookChanged.bind(this);
     this.handleNotebookDisposed = this.handleNotebookDisposed.bind(this);
+    this.handleNotebookRenamed = this.handleNotebookRenamed.bind(this);
     this.handleNotebookCellRun = this.handleNotebookCellRun.bind(this);
     this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
     this.checkVCS = this.checkVCS.bind(this);
@@ -132,7 +140,10 @@ export default class LeftSideBarWidget extends Widget {
     this.getNotebookPanel = this.getNotebookPanel.bind(this);
     this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
     this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
-    this.switchActiveSidecar = this.switchActiveSidecar.bind(this);
+    this.updateActiveSidecar = this.updateActiveSidecar.bind(this);
+    this.getLeftSidecars = this.getLeftSidecars.bind(this);
+    this.getRightSidecars = this.getRightSidecars.bind(this);
+    this.toggleSidecarPanel = this.toggleSidecarPanel.bind(this);
     this.setPlotExists = this.setPlotExists.bind(this);
     this.vcsMenuRef = (React as any).createRef();
     this.loadingModalRef = (React as any).createRef();
@@ -156,6 +167,7 @@ export default class LeftSideBarWidget extends Widget {
           refreshGraphicsList={this.refreshGraphicsList}
           notebookPanel={this._notebookPanel}
           updateNotebookPanel={this.recognizeNotebookPanel}
+          handleDisplayModeChange={this.toggleSidecarPanel}
         />
         <PopUpModal
           title="Notice"
@@ -214,7 +226,7 @@ export default class LeftSideBarWidget extends Widget {
     this._plotExistsChanged.emit(plotExists);
 
     if (plotExists) {
-      this.switchActiveSidecar();
+      this.updateActiveSidecar();
     }
   }
 
@@ -297,7 +309,12 @@ export default class LeftSideBarWidget extends Widget {
         const plotExists = await this.checkPlotExists();
         this.setPlotExists(plotExists);
 
+        // Connect signals for the notebook
         this.notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
+        this.notebookPanel.title.changed.connect(
+          this.handleNotebookRenamed,
+          this
+        );
       } else {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
         await this.varTracker.refreshVariables();
@@ -661,29 +678,108 @@ export default class LeftSideBarWidget extends Widget {
     return newNotebookPanel;
   }
 
-  public switchActiveSidecar(): void {
-    const widgets = this.application.shell.widgets("right");
+  public toggleSidecarPanel(currentMode: DISPLAY_MODE) {
+    if (currentMode === DISPLAY_MODE.Notebook) {
+      if (this.getRightSidecars().length > 0) {
+        this.labShell.expandRight();
+      }
+    } else {
+      this.labShell.collapseRight();
+    }
+    this.updateActiveSidecar();
+  }
 
-    for (let w = widgets.next(); w !== undefined; w = widgets.next()) {
-      if (w.hasClass("jupyterlab-sidecar")) {
-        w.title.closable = false;
-        if (
-          this.notebookPanel &&
-          w.title.label === this.notebookPanel.title.label
-        ) {
-          this.application.shell.activateById(w.id);
-        } else {
-          const notebookMatch = this.notebookTracker.find(
-            (openNotebook: NotebookPanel) => {
-              return openNotebook.title.label === w.title.label;
-            }
-          );
-          if (!notebookMatch) {
-            w.close();
-          }
+  public updateActiveSidecar(): void {
+    const widgets = this.getLeftSidecars();
+    widgets.concat(this.getRightSidecars());
+    if (widgets.length <= 0) {
+      return;
+    }
+
+    widgets.forEach((widget: Widget) => {
+      // Close the widget if it's notebook isn't open
+      if (this.closeUneededSidecar(widget)) {
+        return;
+      }
+      // Prevent users from closing sidecar manually
+      widget.title.closable = false;
+
+      if (
+        this.notebookPanel &&
+        this.vcsMenuRef.state.currentDisplayMode === DISPLAY_MODE.Sidecar &&
+        widget.title.label === this.notebookPanel.title.label
+      ) {
+        this.labShell.activateById(widget.id);
+      } else {
+        this.closeUneededSidecar(widget);
+      }
+    });
+  }
+
+  // Returns true if widget was closed
+  public closeUneededSidecar(widget: Widget): boolean {
+    // Check if widget has corresponding notebook
+    if (widget) {
+      // Look for notebook with matching title as sidecar
+      const notebookMatch = this.notebookTracker.find(
+        (openNotebook: NotebookPanel) => {
+          return openNotebook.title.label === widget.title.label;
         }
+      );
+      // Close sidecar if notebook not found
+      if (!notebookMatch) {
+        widget.close();
+        return true;
+      }
+      return false;
+    }
+  }
+
+  public getRightSidecars(): Array<Widget> {
+    const rightWidgets = this.labShell.widgets("right");
+    const sidecarWidgets = Array<Widget>();
+
+    // Get sidecar widgets from right side
+    for (
+      let w = rightWidgets.next();
+      w !== undefined;
+      w = rightWidgets.next()
+    ) {
+      if (w.hasClass("jupyterlab-sidecar")) {
+        sidecarWidgets.push(w);
       }
     }
+
+    return sidecarWidgets;
+  }
+
+  public getLeftSidecars(): Array<Widget> {
+    const leftWidgets = this.labShell.widgets("left");
+
+    const sidecarWidgets = Array<Widget>();
+
+    // Get sidecar widget from left side
+    for (let w = leftWidgets.next(); w !== undefined; w = leftWidgets.next()) {
+      if (w.hasClass("jupyterlab-sidecar")) {
+        sidecarWidgets.push(w);
+        console.log(w.parent.node);
+      }
+    }
+
+    return sidecarWidgets;
+  }
+
+  public removeSidecarCloseX(widgetTab: Element) {
+    const sidebarTabs = Array<Element>();
+    const widgetTabs = this.application.shell.node.getElementsByClassName(
+      "p-TabBar-tab"
+    );
+
+    /*console.log(
+      this.application.shell.node.getElementsByClassName("p-TabBar-tab")
+    );*/
+
+    console.log(widgetTabs);
   }
 
   // =======WIDGET SIGNAL HANDLERS=======
@@ -719,8 +815,10 @@ export default class LeftSideBarWidget extends Widget {
 
   private async handleNotebookDisposed(notebookPanel: NotebookPanel) {
     notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
-    this.switchActiveSidecar();
+    this.updateActiveSidecar();
   }
+
+  private handleNotebookRenamed(title: Title<Widget>): void {}
 
   private async handleNotebookCellRun(): Promise<void> {
     if (this.state !== NOTEBOOK_STATE.VCS_Ready) {
@@ -732,6 +830,9 @@ export default class LeftSideBarWidget extends Widget {
       await this.varTracker.refreshVariables();
       const plotExists = await this.checkPlotExists();
       this.setPlotExists(plotExists);
+
+      // Prevent sidebar from opening unless plot to sidecar is active
+      this.toggleSidecarPanel(this.vcsMenuRef.state.currentDisplayMode);
     } catch (error) {
       console.error(error);
     }
