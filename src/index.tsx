@@ -9,9 +9,9 @@ import {
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 import {
+  ILabShell,
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
-  ILabShell,
   LabShell
 } from "@jupyterlab/application";
 

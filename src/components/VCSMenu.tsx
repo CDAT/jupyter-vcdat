@@ -16,7 +16,12 @@ import {
 
 // Project Components
 import CodeInjector from "../CodeInjector";
-import { DISPLAY_MODE, GRAPHICS_METHOD_KEY, TEMPLATE_KEY } from "../constants";
+import {
+  DISPLAY_MODE,
+  GRAPHICS_METHOD_KEY,
+  PLOT_OPTIONS_KEY,
+  TEMPLATE_KEY
+} from "../constants";
 import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
 import NotebookUtilities from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
@@ -28,6 +33,7 @@ import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import { JupyterFrontEnd } from "@jupyterlab/application";
+import { ENGINE_METHOD_NONE } from "constants";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -61,7 +67,7 @@ interface IVCSMenuProps {
   getTemplatesList: () => string[]; // function that reads the widget's current template list
   updateNotebookPanel: () => Promise<void>; // Function passed to the var menu
   syncNotebook: () => boolean; // Function passed to the var menu
-  handleDisplayModeChange?: (displayMode: DISPLAY_MODE) => void;
+  openSidecarPanel?: (openSidecarPanel: boolean) => void;
   codeInjector: CodeInjector;
   varTracker: VariableTracker;
 }
@@ -116,6 +122,7 @@ export default class VCSMenu extends React.Component<
     this.resetState = this.resetState.bind(this);
     this.getCanvasDimensions = this.getCanvasDimensions.bind(this);
     this.copyGraphicsMethod = this.copyGraphicsMethod.bind(this);
+    this.getPlotOptions = this.getPlotOptions.bind(this);
     this.getGraphicsSelections = this.getGraphicsSelections.bind(this);
     this.getTemplateSelection = this.getTemplateSelection.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
@@ -134,6 +141,11 @@ export default class VCSMenu extends React.Component<
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
     this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
     this.handlePlotExistsChanged = this.handlePlotExistsChanged.bind(this);
+
+    // Close sidecar panel at startup
+    if (this.props.openSidecarPanel) {
+      this.props.openSidecarPanel(false);
+    }
   }
 
   public componentDidMount(): void {
@@ -179,21 +191,37 @@ export default class VCSMenu extends React.Component<
     this.setState({ isModalOpen: !this.state.isModalOpen });
   }
 
-  public toggleOverlayMode(): void {
-    this.setState({ overlayMode: !this.state.overlayMode });
+  public async toggleOverlayMode(): Promise<void> {
+    await this.setState({ overlayMode: !this.state.overlayMode });
+
+    // Save selection to meta data
+    NotebookUtilities.setMetaDataNow(
+      this.state.notebookPanel,
+      PLOT_OPTIONS_KEY,
+      [!this.state.overlayMode, this.state.currentDisplayMode]
+    );
   }
 
   public async toggleSidecar(): Promise<void> {
     this.state.currentDisplayMode === DISPLAY_MODE.Notebook
-      ? this.setState({ currentDisplayMode: DISPLAY_MODE.Sidecar })
-      : this.setState({ currentDisplayMode: DISPLAY_MODE.Notebook });
-    if (this.props.handleDisplayModeChange) {
-      this.props.handleDisplayModeChange(this.state.currentDisplayMode);
+      ? await this.setState({ currentDisplayMode: DISPLAY_MODE.Sidecar })
+      : await this.setState({ currentDisplayMode: DISPLAY_MODE.Notebook });
+    if (this.props.openSidecarPanel) {
+      this.props.openSidecarPanel(
+        this.state.currentDisplayMode === DISPLAY_MODE.Sidecar
+      );
     }
+
+    // Save selection to meta data
+    NotebookUtilities.setMetaDataNow(
+      this.state.notebookPanel,
+      PLOT_OPTIONS_KEY,
+      [this.state.overlayMode, this.state.currentDisplayMode]
+    );
   }
 
   public saveNotebook() {
-    NotebookUtilities.saveNotebook(this.props.notebookPanel);
+    NotebookUtilities.saveNotebook(this.state.notebookPanel);
   }
 
   public async resetState(): Promise<void> {
@@ -231,6 +259,34 @@ export default class VCSMenu extends React.Component<
       console.error(error);
       return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
     }
+  }
+
+  public getPlotOptions(): void {
+    // Load the selected plot options from meta data (if exists)
+    const plotOptions: [
+      boolean,
+      DISPLAY_MODE
+    ] = NotebookUtilities.getMetaDataNow(
+      this.state.notebookPanel,
+      PLOT_OPTIONS_KEY
+    );
+
+    if (!plotOptions) {
+      // No meta data means fresh notebook, reset options
+      this.setState({
+        currentDisplayMode: DISPLAY_MODE.Notebook,
+        overlayMode: false,
+        previousDisplayMode: DISPLAY_MODE.None
+      });
+      return;
+    }
+
+    // Set state based on meta data from notebook
+    this.setState({
+      currentDisplayMode: plotOptions[1],
+      overlayMode: plotOptions[0],
+      previousDisplayMode: this.state.currentDisplayMode
+    });
   }
 
   public getGraphicsSelections(): void {
