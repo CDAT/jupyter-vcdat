@@ -273,7 +273,7 @@ export const GETTING_STARTED: Step[] = [
     title: "Plot to Sidecar"
   },
   {
-    content: `Use this button to load variables from the data file. You can subset
+    content: `Use this button to load variables from a data file. You can subset
     the variables so not all of the data is loaded. For example, you can constrain
     the latitude and longitude so data from a specific area is loaded instead of
     the whole dataset.`,
@@ -328,6 +328,6 @@ export const REPLACEMENT_STEPS: Step[] = [
       div.p-Widget.p-TabBar.jp-SideBar.jp-mod-left.p-BoxPanel-child 
       > ul > li.p-TabBar-tab.p-mod-closable > 
       div.p-TabBar-tabIcon.jp-SideBar-tabIcon.jp-icon-vcdat`,
-    title: `VCDAT ${VCDAT_VERSION} Icon`
+    title: `VCDAT Icon`
   }
 ];
