@@ -148,6 +148,12 @@ Please examine the available classes and methods before adding test cases.
     export BROWSER_TYPE=firefox
 ```
 
+## Start Jupyter Lab before running test cases
+```bash
+    # cd to the jupyter-vcdat repo directory
+    jupyter lab
+```
+
 ## Run test cases
 ```bash
     # cd to the jupyter-vcdat repo directory

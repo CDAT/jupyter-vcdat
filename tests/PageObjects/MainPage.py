@@ -90,19 +90,19 @@ class MainPage(ActionsPage):
             raise e
 
     def locate_folder_tab(self):
-        return self.find_element_by_class("jp-FolderIcon", "Jupyter lab file tab")
+        return self.find_element_by_xpath("//*[@data-id='filebrowser']", "Jupyter lab file tab")
 
     def locate_running_tab(self):
-        return self.find_element_by_class("jp-RunningIcon", "Running terminals and kernels tab")
+        return self.find_element_by_xpath("//*[@data-id='jp-running-sessions']", "Running terminals and kernels tab")
 
     def locate_command_palette_tab(self):
-        return self.find_element_by_class("jp-PaletteIcon", "Jupyter lab command palette tab")
+        return self.find_element_by_xpath("//*[@data-id='command-palette']", "Jupyter lab command palette tab")
 
     def locate_vcdat_icon(self):
-        return self.find_element_by_class(VCDAT_ICON_CLASS, "VCDAT icon")
+        return self.find_element_by_xpath("//*[@data-id='{}']".format(VCDAT_LEFT_SIDEBAR_ID), "VCDAT icon")
 
     def locate_open_tabs_tab(self):
-        return self.find_element_by_class("jp-SideBar-tabIcon", "Jupyter lab open tabs sidebar tab")
+        return self.find_element_by_xpath("//*[@data-id='tab-manager']", "Jupyter lab open tabs sidebar tab")
 
     def locate_notebook_launcher_cards(self):
         try:
@@ -177,7 +177,7 @@ class MainPage(ActionsPage):
 
     def locate_home_icon(self):
         loc = ("// *[@id='filebrowser']/div[contains(@class, 'jp-FileBrowser-crumbs')]"
-               "/ span[contains(@class, 'jp-FolderIcon')]")
+               "/ span[contains(@class, 'jp-BreadCrumbs-home')]")
         return self.find_element_by_xpath(loc, "Folder Icon")
 
     def click_on_home_icon(self):

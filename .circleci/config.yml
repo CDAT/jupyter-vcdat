@@ -7,6 +7,14 @@ aliases:
     command: |
        source activate jupyter-vcdat
        ./install_script.sh -v
+       echo "xxx doing a conda install"
+       conda install -n jupyter-vcdat -c cdat/label/v82 -c cdat/label/v81 -c cdat/label/nightly -c conda-forge vcs libnetcdf=4.6.2 testsrunner cdat_info
+       conda list
+       npm install
+       jupyter lab build
+       jupyter-labextension install .
+       echo "XXX npm list"
+       npm list
        git status
 
   - &run_jupyter_vcdat
@@ -78,7 +86,7 @@ jobs:
   linux_jupyter_vcdat:
     docker:
       # - image: circleci/node:jessie-browsers
-      - image: muryanto1/jupyter-vcdat:latest
+      - image: muryanto1/jupyter-vcdat.2.0.1:latest
     environment:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
