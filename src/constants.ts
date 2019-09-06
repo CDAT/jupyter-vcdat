@@ -28,6 +28,7 @@ export const CANVAS_CELL_KEY: string = "vcdat_canvases";
 export const SELECTED_VARIABLES_KEY: string = "selected_variables";
 export const VARIABLE_INFO_KEY: string = "vcdat_variable_info";
 export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
+export const PLOT_OPTIONS_KEY: string = "vcdat_plot_options";
 export const TEMPLATE_KEY: string = "template_selected";
 export const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
 export const REQUIRED_MODULES: string = '["cdms2","vcs","numpy"]';
@@ -175,28 +176,33 @@ export enum NOTEBOOK_STATE {
   VCS_Ready // The notebook is ready for code injection
 }
 
-// Specifies valid plot export formats
-export type EXPORT_FORMATS = "png" | "pdf" | "svg" | "ps" | "";
-export type IMAGE_UNITS = "px" | "in" | "cm" | "mm" | "dot";
+// Specifies the display target modes (whether to plot in notebook or on sidecar)
+// export type DisplayMode = "notebook" | "sidecar" | "not_set";
 
+export enum DISPLAY_MODE {
+  Notebook,
+  Sidecar,
+  None
+}
+
+// Note: Using reactHtmlParser function, tutorial steps can be rendered as HTML
 export const GETTING_STARTED: Step[] = [
   {
     content: reactHtmlParser(`This tutorial will help you use the main features
-    of the <span style='color: #00426e'>VCDAT ${VCDAT_VERSION}</span>
-    JupyterLab extension.<br />
-    To quit this tutorial early, click the 'Skip' button. Let's get started!`),
+    of the VCDAT JupyterLab extension.<br />To quit this 
+    tutorial early, click <b>Skip</b>. Let's get started!`),
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "center",
     target: "#jp-main-dock-panel",
-    title: `VCDAT ${VCDAT_VERSION} Introduction`
+    title: `VCDAT Introduction`
   },
   {
     content: reactHtmlParser(
-      `This is the VCDAT ${VCDAT_VERSION} tab. Clicking on this tab will toggle 
-    the VCDAT panel open and closed. The panel is currently 
-    <span style='color: #3ede69'>open</span>.<br />
-    Click 'Next' to continue the tutorial...`
+      `The blue stylized "C" on the left is the VCDAT icon. 
+    Clicking on this icon will open and close the VCDAT panel.
+    The panel is currently <span style='color: green'>open</span>.<br />
+    Click <b>Next</b> to continue the tutorial.`
     ),
     disableCloseOnEsc: true,
     disableOverlay: true,
@@ -206,21 +212,20 @@ export const GETTING_STARTED: Step[] = [
     div.p-Widget.p-TabBar.jp-SideBar.jp-mod-left.p-BoxPanel-child 
     > ul > li.p-TabBar-tab.p-mod-closable > 
     div.p-TabBar-tabIcon.jp-SideBar-tabIcon.jp-icon-vcdat`,
-    title: `VCDAT ${VCDAT_VERSION} Icon`
+    title: `VCDAT Icon`
   },
   {
-    content: `This is the main VCDAT ${VCDAT_VERSION} panel. From here you can select
-    variables, graphics methods and layout templates. You can also choose to
-    load variables, plot variables, export plots etc. Let's quickly highlight
-    what each button does...`,
+    content: `This is the main VCDAT panel. From here you can load variables, 
+    choose graphic plotting methods and layout templates, create a plot and
+    export it. Let's quickly highlight what each button does...`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
     target: "#left-side-bar-vcdat",
-    title: `VCDAT ${VCDAT_VERSION} Main Panel`
+    title: `VCDAT Main Panel`
   },
   {
-    content: `When a variable is ready to plot, just click this button and a 
+    content: `When a variable is ready to plot, click this button and a 
     plot will be rendered.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
@@ -229,8 +234,8 @@ export const GETTING_STARTED: Step[] = [
     title: "Plot Button"
   },
   {
-    content: `When a plot has been made, click this button to open the export
-    options modal where you can export a plot with a specified name and format.`,
+    content: `Once a plot has been created, click this button to open the export
+    options window where you can export a plot with a specified name and format.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
@@ -246,7 +251,9 @@ export const GETTING_STARTED: Step[] = [
     title: "Clear"
   },
   {
-    content: `When the overlay mode is on, new plots will overlap previous plots.`,
+    content: `When the overlay mode is on, new plots will overlap previous plots.
+    This allows you to plot isolines on top of a map created using the isofill 
+    graphic method, for example.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
@@ -255,8 +262,21 @@ export const GETTING_STARTED: Step[] = [
     title: "Overlay Mode"
   },
   {
-    content: `When a plot has been made, click this button to open the export
-    options modal where you can export a plot with a specified name and format.`,
+    content: `When the 'Plot to Sidecar' toggle is on, plots will be rendered to the right \
+    of the notebook within the 'Sidecar' panel. The sidecar panel will remain on the right until \
+    the notebook is closed. If the toggle is left off, plots will be rendered within the notebook.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: `#left-sidebar > div > div.card > div > div
+     > div:nth-child(2) > div:nth-child(2) > div`,
+    title: "Plot to Sidecar"
+  },
+  {
+    content: `Use this button to load variables from a data file. You can subset
+    the variables so not all of the data is loaded. For example, you can constrain
+    the latitude and longitude so data from a specific area is loaded instead of
+    the whole dataset.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
@@ -264,7 +284,8 @@ export const GETTING_STARTED: Step[] = [
     title: "Load Variable"
   },
   {
-    content: `This is the graphics dropdown.`,
+    content: `Use this graphics dropdown to choose the type of plot you'd like,
+    for example, boxfill, isofill, isoline, etc.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
@@ -272,7 +293,9 @@ export const GETTING_STARTED: Step[] = [
     title: "Graphics Options"
   },
   {
-    content: `When you wish to clear the plot canvas, click this button.`,
+    content: `Use this button to change the way the plot looks on the "page".
+    For example, you can place up to 6 different plots on a page and that "page"
+    can be exported as a single image.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
@@ -292,9 +315,9 @@ export const REPLACEMENT_STEPS: Step[] = [
     title: "Tutorial Error"
   },
   {
-    content: reactHtmlParser(`This is the VCDAT ${VCDAT_VERSION} tab. Clicking on this tab will toggle 
-    the VCDAT ${VCDAT_VERSION} panel open and closed. The panel is currently 
-    <span style='color: #3ede69'>closed</span>.<br />
+    content: reactHtmlParser(`The blue stylized "C" on the left is the VCDAT icon. 
+    Clicking on this icon will open and close the VCDAT panel.
+    The panel is currently <span style='color: red'>closed</span>.<br />
     Open the panel to continue the tutorial...`),
     disableOverlay: true,
     hideCloseButton: true,
@@ -305,6 +328,6 @@ export const REPLACEMENT_STEPS: Step[] = [
       div.p-Widget.p-TabBar.jp-SideBar.jp-mod-left.p-BoxPanel-child 
       > ul > li.p-TabBar-tab.p-mod-closable > 
       div.p-TabBar-tabIcon.jp-SideBar-tabIcon.jp-icon-vcdat`,
-    title: `VCDAT ${VCDAT_VERSION} Icon`
+    title: `VCDAT Icon`
   }
 ];

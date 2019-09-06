@@ -37,6 +37,12 @@ const buttonsStyle: React.CSSProperties = {
 // Regex filter for unallowed variable names
 const forbidden: RegExp = /^[^a-z_]|[^a-z0-9_]+/i;
 
+type NameStatus =
+  | "Invalid!"
+  | "Name already loaded!"
+  | "Name already selected!"
+  | "Valid";
+
 interface IVarCardProps {
   variable: Variable;
   varSelectionChanged: ISignal<VarLoader, Variable[]>;
@@ -53,14 +59,8 @@ interface IVarCardState {
   showAxis: boolean;
   axisState: any;
   selected: boolean;
-  nameState: NAME_STATUS;
+  nameState: NameStatus;
 }
-
-export type NAME_STATUS =
-  | "Invalid!"
-  | "Name already loaded!"
-  | "Name already selected!"
-  | "Valid";
 
 export default class VarCard extends React.Component<
   IVarCardProps,
@@ -276,7 +276,7 @@ export default class VarCard extends React.Component<
 
   private async validateNameInput(nameEntry: string): Promise<void> {
     const invalid: boolean = forbidden.test(nameEntry);
-    let state: NAME_STATUS = "Valid";
+    let state: NameStatus = "Valid";
     if (nameEntry === "" || invalid) {
       state = "Invalid!";
     } else if (this.props.varAliasExists(nameEntry, true)) {

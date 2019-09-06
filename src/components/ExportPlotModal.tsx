@@ -19,8 +19,8 @@ import {
 import { checkForExportedFileCommand } from "../PythonCommands";
 import CodeInjector from "../CodeInjector";
 import NotebookUtilities from "../NotebookUtilities";
-import { EXPORT_FORMATS, IMAGE_UNITS } from "../constants";
 import Utilities from "../Utilities";
+import { ExportFormat, ImageUnit } from "../types";
 
 interface IExportPlotModalProps {
   isOpen: boolean;
@@ -38,7 +38,7 @@ interface IExportPlotModalProps {
 interface IExportPlotModalState {
   modal: boolean;
   plotName: string;
-  plotFileFormat: EXPORT_FORMATS;
+  plotFileFormat: ExportFormat;
   validateExportName: boolean;
   validateFileFormat: boolean;
   displayDimensions: boolean;
@@ -47,7 +47,7 @@ interface IExportPlotModalState {
   notebookPanel: NotebookPanel;
   width: string;
   height: string;
-  plotUnits: IMAGE_UNITS;
+  plotUnits: ImageUnit;
 }
 
 export default class ExportPlotModal extends React.Component<
@@ -194,7 +194,7 @@ export default class ExportPlotModal extends React.Component<
     this.setState({ height: event.target.value });
   }
 
-  public onFmtRadioBtnClick(rSelected: EXPORT_FORMATS) {
+  public onFmtRadioBtnClick(rSelected: ExportFormat) {
     this.setState({ plotFileFormat: rSelected });
     if (rSelected === "png") {
       this.setState({ disableProvenance: false });
@@ -203,11 +203,14 @@ export default class ExportPlotModal extends React.Component<
     }
   }
 
-  public onUnitRadioBtnClick(rSelected: IMAGE_UNITS) {
+  public onUnitRadioBtnClick(rSelected: ImageUnit) {
     this.setState({ plotUnits: rSelected });
   }
 
   public render(): JSX.Element {
+    if (!this.props.isOpen) {
+      return null;
+    }
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.toggleModal}>
         <ModalHeader toggle={this.toggleModal}>Export Plot</ModalHeader>
@@ -316,10 +319,10 @@ export default class ExportPlotModal extends React.Component<
 
   private renderFormatBtns(): JSX.Element {
     // List of choices that will have buttons
-    const formats: EXPORT_FORMATS[] = ["png", "pdf", "svg", "ps"];
+    const formats: ExportFormat[] = ["png", "pdf", "svg", "ps"];
     return (
       <ButtonGroup>
-        {formats.map((format: EXPORT_FORMATS) => {
+        {formats.map((format: ExportFormat) => {
           const clickHandler = () => {
             this.onFmtRadioBtnClick(format);
           };
@@ -341,11 +344,11 @@ export default class ExportPlotModal extends React.Component<
 
   private renderUnitBtns(): JSX.Element {
     // List of choices that will have buttons
-    const units: IMAGE_UNITS[] = ["cm", "dot", "in", "mm", "px"];
+    const units: ImageUnit[] = ["cm", "dot", "in", "mm", "px"];
 
     return (
       <ButtonGroup>
-        {units.map((unit: IMAGE_UNITS) => {
+        {units.map((unit: ImageUnit) => {
           const clickHandler = () => {
             this.onUnitRadioBtnClick(unit);
           };

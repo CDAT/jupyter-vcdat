@@ -9,8 +9,10 @@ import {
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 import {
+  ILabShell,
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
+  JupyterFrontEndPlugin,
+  LabShell
 } from "@jupyterlab/application";
 
 import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
@@ -49,7 +51,7 @@ const extension: JupyterFrontEndPlugin<void> = {
   activate,
   autoStart: true,
   id: "@cdat/jupyter-vcdat",
-  requires: [INotebookTracker, IMainMenu, ITutorialManager]
+  requires: [INotebookTracker, IMainMenu, ILabShell, ITutorialManager]
 };
 
 export default extension;
@@ -61,6 +63,7 @@ function activate(
   app: JupyterFrontEnd,
   tracker: NotebookTracker,
   menu: MainMenu,
+  labShell: LabShell,
   tutorialManager: ITutorialManager
 ): void {
   shell = app.shell;
@@ -87,7 +90,7 @@ function activate(
   // Creates the left side bar widget once the app has fully started
   app.started
     .then(() => {
-      sidebar = new LeftSideBarWidget(app, tracker);
+      sidebar = new LeftSideBarWidget(app, labShell, tracker);
       sidebar.id = /*@tag<left-side-bar>*/ "left-side-bar-vcdat";
       sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
       sidebar.title.closable = true;
@@ -130,7 +133,7 @@ function activate(
 
       const vcdatIntro: ITutorial = tutorialManager.createTutorial(
         "vcdat_intro",
-        `VCDAT ${VCDAT_VERSION} Tutorial: Introduction`,
+        `VCDAT Tutorial: Introduction`,
         true
       );
 
