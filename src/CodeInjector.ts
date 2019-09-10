@@ -486,6 +486,33 @@ canvas = vcs.init(display_target='off')`;
     );
   }
 
+  /**
+   * Updates the colormap thats to be used by the selected graphics method
+   * @param gmName: the name of the graphics method to update the color map for
+   * @param gmGroup: the name of the graphic method type
+   * @param cmName: the name of the color map
+   * @returns Promise<[number, string]> - A promise for when the cell code has executed containing
+   * the cell's index and output result
+   */
+  public async updateColormapName(
+    gmName: string,
+    gmGroup: string,
+    cmName: string
+  ): Promise<[number, string]> {
+    const cmd: string =
+      gmName.indexOf(gmGroup) < 0
+        ? `${gmName}_${gmGroup}.colormap = '${cmName}'`
+        : `${gmName}.colormap = '${cmName}'`;
+
+    return this.inject(
+      cmd,
+      undefined,
+      "Failed to update colormap.",
+      "updateColormapName",
+      arguments
+    );
+  }
+
   public async plot(
     selectedGM: string,
     selectedGMGroup: string,

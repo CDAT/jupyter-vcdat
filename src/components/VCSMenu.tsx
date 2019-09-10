@@ -3,16 +3,7 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 import { ISignal } from "@phosphor/signaling";
 import * as React from "react";
-import {
-  Alert,
-  Button,
-  Card,
-  CardBody,
-  Col,
-  CustomInput,
-  Row,
-  Spinner
-} from "reactstrap";
+import { Alert, Button, Card, CardBody, Col, Row, Spinner } from "reactstrap";
 
 // Project Components
 import CodeInjector from "../CodeInjector";
@@ -76,6 +67,8 @@ interface IVCSMenuState {
   selectedGM: string;
   selectedGMgroup: string;
   selectedTemplate: string;
+  selectedColormap: string;
+  colormapHasBeenChanged: boolean;
   notebookPanel: NotebookPanel;
   isModalOpen: boolean;
   savePlotAlert: boolean;
@@ -99,6 +92,7 @@ export default class VCSMenu extends React.Component<
   constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
+      colormapHasBeenChanged: false,
       currentDisplayMode: DISPLAY_MODE.Notebook,
       exportSuccessAlert: false,
       isModalOpen: false,
@@ -110,6 +104,7 @@ export default class VCSMenu extends React.Component<
       plotReady: this.props.plotReady,
       previousDisplayMode: DISPLAY_MODE.None,
       savePlotAlert: false,
+      selectedColormap: "",
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: "",
@@ -126,6 +121,7 @@ export default class VCSMenu extends React.Component<
     this.getGraphicsSelections = this.getGraphicsSelections.bind(this);
     this.getTemplateSelection = this.getTemplateSelection.bind(this);
     this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
+    this.updateColormap = this.updateColormap.bind(this);
     this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
@@ -227,7 +223,7 @@ export default class VCSMenu extends React.Component<
   public async resetState(): Promise<void> {
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
-    await this.setState({
+    this.setState({
       currentDisplayMode: DISPLAY_MODE.Notebook,
       overlayMode: false,
       previousDisplayMode: DISPLAY_MODE.None,
@@ -388,15 +384,36 @@ export default class VCSMenu extends React.Component<
     await this.props.codeInjector.getGraphicMethod(group, name);
 
     // If successful, update the state
-    this.setState({
-      selectedGM: name,
-      selectedGMgroup: group
-    });
+    // If the colormap has previously been set by the user
+    //  for their last GM, then set it for this one too
+    this.setState(
+      {
+        selectedGM: name,
+        selectedGMgroup: group
+      },
+      () => {
+        if (this.state.colormapHasBeenChanged) {
+          this.updateColormap(this.state.selectedColormap);
+        }
+      }
+    );
     // Save selected graphics method to meta data
     await NotebookUtilities.setMetaData(
       this.state.notebookPanel,
       GRAPHICS_METHOD_KEY,
       [this.state.selectedGMgroup, this.state.selectedGM]
+    );
+  }
+
+  public async updateColormap(colormapName: string) {
+    this.setState({
+      colormapHasBeenChanged: true,
+      selectedColormap: colormapName
+    });
+    await this.props.codeInjector.updateColormapName(
+      this.state.selectedGM,
+      this.state.selectedGMgroup,
+      colormapName
     );
   }
 
@@ -450,9 +467,14 @@ export default class VCSMenu extends React.Component<
   public render(): JSX.Element {
     const graphicsMenuProps = {
       copyGraphicsMethod: this.copyGraphicsMethod,
+      currentDisplayMode: this.state.currentDisplayMode,
       getGraphicsList: this.props.getGraphicsList,
+      overlayMode: this.state.overlayMode,
       plotReady: this.state.plotReady,
       plotReadyChanged: this.props.plotReadyChanged,
+      toggleOverlayMode: this.toggleOverlayMode,
+      toggleSidecar: this.toggleSidecar,
+      updateColormap: this.updateColormap,
       updateGraphicsOptions: this.updateGraphicsOptions,
       varInfo: new Variable()
     };
@@ -537,36 +559,6 @@ export default class VCSMenu extends React.Component<
                   >
                     Clear
                   </Button>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <CustomInput
-                    type="switch"
-                    id={
-                      /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
-                    }
-                    name="overlayModeSwitch"
-                    label="Overlay Mode"
-                    disabled={!this.state.plotReady}
-                    checked={this.state.overlayMode}
-                    onChange={this.toggleOverlayMode}
-                  />
-                </Col>
-                <Col>
-                  <CustomInput
-                    type="switch"
-                    id={
-                      /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
-                    }
-                    name="sidecarSwitch"
-                    label="Plot to Sidecar"
-                    disabled={!this.state.plotReady}
-                    checked={
-                      this.state.currentDisplayMode === DISPLAY_MODE.Sidecar
-                    }
-                    onChange={this.toggleSidecar}
-                  />
                 </Col>
               </Row>
             </div>
