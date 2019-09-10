@@ -3,15 +3,7 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@phosphor/commands";
 import { ISignal } from "@phosphor/signaling";
 import * as React from "react";
-import {
-  Alert,
-  Button,
-  Card,
-  CardBody,
-  Col,
-  Row,
-  Spinner
-} from "reactstrap";
+import { Alert, Button, Card, CardBody, Col, Row, Spinner } from "reactstrap";
 
 // Project Components
 import CodeInjector from "../CodeInjector";
@@ -100,12 +92,11 @@ export default class VCSMenu extends React.Component<
   constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
+      colormapHasBeenChanged: false,
       currentDisplayMode: DISPLAY_MODE.Notebook,
       exportSuccessAlert: false,
       isModalOpen: false,
       notebookPanel: this.props.notebookPanel,
-      selectedColormap: "",
-      colormapHasBeenChanged: false,
       overlayMode: false,
       plotExists: this.props.plotExists,
       plotFormat: "",
@@ -113,6 +104,7 @@ export default class VCSMenu extends React.Component<
       plotReady: this.props.plotReady,
       previousDisplayMode: DISPLAY_MODE.None,
       savePlotAlert: false,
+      selectedColormap: "",
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: "",
@@ -413,15 +405,15 @@ export default class VCSMenu extends React.Component<
     );
   }
 
-  public async updateColormap(cm_name: string) {
+  public async updateColormap(colormapName: string) {
     this.setState({
-      selectedColormap: cm_name,
-      colormapHasBeenChanged: true
+      colormapHasBeenChanged: true,
+      selectedColormap: colormapName
     });
     await this.props.codeInjector.updateColormapName(
       this.state.selectedGM,
       this.state.selectedGMgroup,
-      cm_name
+      colormapName
     );
   }
 
@@ -452,7 +444,6 @@ export default class VCSMenu extends React.Component<
         );
       } else {
         // Inject the plot
-        debugger;
         await this.props.codeInjector.plot(
           this.state.selectedGM,
           this.state.selectedGMgroup,
@@ -475,16 +466,16 @@ export default class VCSMenu extends React.Component<
 
   public render(): JSX.Element {
     const graphicsMenuProps = {
-      toggleOverlayMode: this.toggleOverlayMode,
-      overlayMode: this.state.overlayMode,
-      toggleSidecar: this.toggleSidecar,
-      currentDisplayMode: this.state.currentDisplayMode,
       copyGraphicsMethod: this.copyGraphicsMethod,
+      currentDisplayMode: this.state.currentDisplayMode,
       getGraphicsList: this.props.getGraphicsList,
+      overlayMode: this.state.overlayMode,
       plotReady: this.state.plotReady,
       plotReadyChanged: this.props.plotReadyChanged,
-      updateGraphicsOptions: this.updateGraphicsOptions,
+      toggleOverlayMode: this.toggleOverlayMode,
+      toggleSidecar: this.toggleSidecar,
       updateColormap: this.updateColormap,
+      updateGraphicsOptions: this.updateGraphicsOptions,
       varInfo: new Variable()
     };
     const varMenuProps = {

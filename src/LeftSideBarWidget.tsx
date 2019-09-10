@@ -8,7 +8,7 @@ import {
 
 import { ISignal, Signal } from "@phosphor/signaling";
 import { CommandRegistry } from "@phosphor/commands";
-import { Title, Widget } from "@phosphor/widgets";
+import { Widget } from "@phosphor/widgets";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 

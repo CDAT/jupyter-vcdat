@@ -8,6 +8,7 @@ import {
   CardSubtitle,
   CardTitle,
   Collapse,
+  CustomInput,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -16,8 +17,7 @@ import {
   InputGroup,
   InputGroupAddon,
   ListGroup,
-  ListGroupItem,
-  CustomInput,
+  ListGroupItem
 } from "reactstrap";
 
 // Project Components
@@ -168,7 +168,7 @@ export default class GraphicsMenu extends React.Component<
     );
   }
 
-  public openColormapEditor(): void {}
+  // To Add Later: public openColormapEditor(): void {}
 
   public render(): JSX.Element {
     // Set the dropdown title based on state
@@ -289,7 +289,7 @@ export default class GraphicsMenu extends React.Component<
                 className={
                   /*@tag<float-right graphics-copy-btn>*/ "float-left graphics-copy-btn-vcdat"
                 }
-                style={{marginLeft: "0.5em"}}
+                style={{ marginLeft: "0.5em" }}
                 hidden={
                   !this.state.plotReady ||
                   this.state.showMenu ||

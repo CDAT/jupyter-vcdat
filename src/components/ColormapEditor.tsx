@@ -1,64 +1,11 @@
 import * as React from "react";
 import {
-  Button,
-  Card,
-  CardBody,
-  CardSubtitle,
-  CardTitle,
-  Collapse,
   Dropdown,
   DropdownItem,
   DropdownMenu,
-  DropdownToggle,
-  Input,
-  InputGroup,
-  InputGroupAddon,
-  ListGroup,
-  ListGroupItem
+  DropdownToggle
 } from "reactstrap";
-
-const default_colormaps = ['AMIP',
-  'NCAR',
-  'bl_to_darkred',
-  'bl_to_drkorang',
-  'blends',
-  'blue2darkorange',
-  'blue2darkred',
-  'blue2green',
-  'blue2grey',
-  'blue2orange',
-  'blue2orange2red',
-  'blue_to_grey',
-  'blue_to_grn',
-  'blue_to_orange',
-  'blue_to_orgred',
-  'brown2blue',
-  'brown_to_blue',
-  'categorical',
-  'classic',
-  'default',
-  'green2magenta',
-  'grn_to_magenta',
-  'inferno',
-  'lightblue2darkblue',
-  'ltbl_to_drkbl',
-  'magma',
-  'plasma',
-  'rainbow',
-  'rainbow_no_grn',
-  'rainbownogreen',
-  'sequential',
-  'viridis',
-  'white2blue',
-  'white2green',
-  'white2magenta',
-  'white2red',
-  'white2yellow',
-  'white_to_blue',
-  'white_to_green',
-  'white_to_magenta',
-  'white_to_red',
-  'white_to_yellow'];
+import { BASE_COLORMAPS } from "../constants";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
@@ -68,27 +15,27 @@ const dropdownMenuStyle: React.CSSProperties = {
 };
 
 interface IColormapProps {
-  updateColormap: (name: string) => Promise<void>,
-  plotReady: boolean
-};
+  updateColormap: (name: string) => Promise<void>;
+  plotReady: boolean;
+}
 interface IColormapState {
-  selectedColormap: string,
-  showEdit: boolean,
-  showDropdown: boolean
-  colormapChanged: boolean
-};
+  selectedColormap: string;
+  showEdit: boolean;
+  showDropdown: boolean;
+  colormapChanged: boolean;
+}
 
 export default class ColormapEditor extends React.Component<
   IColormapProps,
   IColormapState
 > {
-  constructor(props: IColormapProps){
+  constructor(props: IColormapProps) {
     super(props);
     this.state = {
+      colormapChanged: false,
       selectedColormap: "viridis",
-      showEdit: false,
       showDropdown: false,
-      colormapChanged: false
+      showEdit: false
     };
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.selectColormap = this.selectColormap.bind(this);
@@ -102,8 +49,8 @@ export default class ColormapEditor extends React.Component<
 
   public selectColormap(name: string): void {
     this.setState({
-      selectedColormap: name,
-      colormapChanged: true
+      colormapChanged: true,
+      selectedColormap: name
     });
     this.props.updateColormap(name);
   }
@@ -121,22 +68,23 @@ export default class ColormapEditor extends React.Component<
             disabled={!this.props.plotReady}
             caret={true}
           >
-            {this.state.colormapChanged ? 
-              this.state.selectedColormap: "Select Colormap"}
+            {this.state.colormapChanged
+              ? this.state.selectedColormap
+              : "Select Colormap"}
           </DropdownToggle>
           <DropdownMenu style={dropdownMenuStyle}>
-            {Object.keys(default_colormaps).map((value:string, index:number) => {
-              let cm_name = default_colormaps[index];
+            {Object.keys(BASE_COLORMAPS).map((value: string, index: number) => {
+              const cmName = BASE_COLORMAPS[index];
               const selectCM = () => {
-                this.selectColormap(cm_name)
-              }
+                this.selectColormap(cmName);
+              };
               return (
                 <DropdownItem
                   className={"graphics-dropdown-item-vcdat"}
                   onClick={selectCM}
-                  key={cm_name}
+                  key={cmName}
                 >
-                  {cm_name}
+                  {cmName}
                 </DropdownItem>
               );
             })}
