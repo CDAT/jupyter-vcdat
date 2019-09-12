@@ -1,11 +1,11 @@
 Dockerfile.core -> everything conda/pip, based on miminal jupyterhub img
 Dockerfile.labextensions -> labextensions we desire to add
 
-Our extension needs to be built from npm repo or  container cannot be ran
+Our extension needs to be built from npm repo or container cannot be ran
 read-only here are the steps:
 
 npm login
-editpackage.json to set new version
+edit package.json to set new version
 npm install
 npm publish
 

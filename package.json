@@ -114,11 +114,7 @@
     "prettier": "^1.18.2",
     "prettier-tslint": "^0.4.2",
     "rimraf": "^2.7.1",
-<<<<<<< HEAD
-    "tslint": "^5.18.0",
-=======
     "tslint": "^5.19.0",
->>>>>>> 5b736b3f6b2e59fd4fd7010895eebc3d947b2f7c
     "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0",
