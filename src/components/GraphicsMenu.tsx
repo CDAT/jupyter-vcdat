@@ -8,6 +8,7 @@ import {
   CardSubtitle,
   CardTitle,
   Collapse,
+  CustomInput,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -22,6 +23,8 @@ import {
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
+import ColormapEditor from "./ColormapEditor";
+import { DISPLAY_MODE } from "../constants";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
@@ -40,6 +43,11 @@ interface IGraphicsMenuProps {
   getGraphicsList: () => any; // a method that gets the current list of graphics methods
   // a method to call when the user has selected their desired graphics method
   updateGraphicsOptions: (group: string, name: string) => Promise<void>;
+  updateColormap: (name: string) => Promise<void>;
+  overlayMode: boolean;
+  toggleOverlayMode: () => void;
+  toggleSidecar: () => {};
+  currentDisplayMode: DISPLAY_MODE;
   copyGraphicsMethod: (
     groupName: string,
     methodName: string,
@@ -160,6 +168,8 @@ export default class GraphicsMenu extends React.Component<
     );
   }
 
+  // To Add Later: public openColormapEditor(): void {}
+
   public render(): JSX.Element {
     // Set the dropdown title based on state
     let dropdownTitle = "Select Plot Type";
@@ -181,6 +191,29 @@ export default class GraphicsMenu extends React.Component<
           <CardBody className={/*@tag<graphics-menu>*/ "graphics-menu-vcdat"}>
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle className={"clearfix"}>
+              <CustomInput
+                type="switch"
+                id={
+                  /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
+                }
+                name="overlayModeSwitch"
+                label="Overlay Mode"
+                disabled={!this.state.plotReady}
+                checked={this.props.overlayMode}
+                onChange={this.props.toggleOverlayMode}
+              />
+
+              <CustomInput
+                type="switch"
+                id={
+                  /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
+                }
+                name="sidecarSwitch"
+                label="Plot to Sidecar"
+                disabled={!this.state.plotReady}
+                checked={this.props.currentDisplayMode === DISPLAY_MODE.Sidecar}
+                onChange={this.props.toggleSidecar}
+              />
               <Dropdown
                 className={"float-left"}
                 style={{ maxWidth: "calc(100% - 70px)" }}
@@ -254,8 +287,9 @@ export default class GraphicsMenu extends React.Component<
               </Button>
               <Button
                 className={
-                  /*@tag<float-right graphics-copy-btn>*/ "float-right graphics-copy-btn-vcdat"
+                  /*@tag<float-right graphics-copy-btn>*/ "float-left graphics-copy-btn-vcdat"
                 }
+                style={{ marginLeft: "0.5em" }}
                 hidden={
                   !this.state.plotReady ||
                   this.state.showMenu ||
@@ -279,6 +313,10 @@ export default class GraphicsMenu extends React.Component<
                 Cancel
               </Button>
             </CardSubtitle>
+            <ColormapEditor
+              updateColormap={this.props.updateColormap}
+              plotReady={this.state.selectedMethod ? true : false}
+            />
             <InputGroup
               hidden={!this.state.enterName}
               style={{ marginTop: "5px" }}

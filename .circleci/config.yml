@@ -7,6 +7,14 @@ aliases:
     command: |
        source activate jupyter-vcdat
        ./install_script.sh -v
+       echo "xxx doing a conda install"
+       conda install -n jupyter-vcdat -c cdat/label/v82 -c cdat/label/v81 -c cdat/label/nightly -c conda-forge vcs libnetcdf=4.6.2 testsrunner cdat_info
+       conda list
+       npm install
+       jupyter lab build
+       jupyter-labextension install .
+       echo "XXX npm list"
+       npm list
        git status
 
   - &run_jupyter_vcdat
@@ -14,6 +22,7 @@ aliases:
     command: |
        export CDAT_ANONYMOUS_LOG=False
        source activate jupyter-vcdat
+       conda list
        jupyter lab --ip='127.0.0.1'
     background: true
 
@@ -98,7 +107,7 @@ jobs:
   linux_jupyter_vcdat:
     docker:
       # - image: circleci/node:jessie-browsers
-      - image: muryanto1/jupyter-vcdat:latest
+      - image: muryanto1/jupyter-vcdat.2.0.1:latest
     environment:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
@@ -106,17 +115,17 @@ jobs:
       - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
-      - run: sleep 8
+      - run: sleep 15
+      - run: *run_tests_with_chrome
+      - store_artifacts:
+          path: tests_html
+          destination: tests_chrome_html
       - run: *run_tests_with_firefox
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html
-      - run: *run_tests_with_chrome
       - store_artifacts:
           path: jupyter-vcdat_logfile.txt
-      - store_artifacts:
-          path: tests_html
-          destination: tests_chrome_html
       - run: *conda_upload
 
 workflows:

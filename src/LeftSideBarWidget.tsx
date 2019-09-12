@@ -1,5 +1,5 @@
 // Dependencies
-import { JupyterFrontEnd } from "@jupyterlab/application";
+import { JupyterFrontEnd, LabShell } from "@jupyterlab/application";
 import {
   NotebookActions,
   NotebookPanel,
@@ -23,6 +23,7 @@ import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
   CANVAS_CELL_KEY,
+  DISPLAY_MODE,
   IMPORT_CELL_KEY,
   NO_VERSION,
   NOTEBOOK_STATE,
@@ -41,117 +42,12 @@ import {
 } from "./PythonCommands";
 import AboutVCDAT from "./components/AboutVCDAT";
 import { ICellModel } from "@jupyterlab/cells";
+import { IIterator } from "@phosphor/algorithm";
 
 /**
  * This is the main component for the vcdat extension.
  */
 export default class LeftSideBarWidget extends Widget {
-  public div: HTMLDivElement; // The div container for this widget
-  public version: string; // The VCDAT version for tracking versions between notebooks
-  private commands: CommandRegistry; // Jupyter app CommandRegistry
-  private notebookTracker: NotebookTracker; // This is to track current notebooks
-  private application: JupyterFrontEnd; // The JupyterLab application object
-  private vcsMenuRef: VCSMenu; // the LeftSidebar component
-  private loadingModalRef: PopUpModal;
-  private aboutRef: AboutVCDAT;
-  private graphicsMethods: any; // The current available graphics methods
-  private templatesList: string[]; // The list of current templates
-  private codeInjector: CodeInjector; // The code injector object which is responsible for injecting code into notebooks
-  private varTracker: VariableTracker; // The variable tracker
-  private _plotExists: boolean; // True if there exists a plot that can be exported, false if not.
-  private _plotExistsChanged: Signal<this, boolean>; // Signal if a plot exists
-  private _plotReadyChanged: Signal<this, boolean>;
-  private kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
-  private _notebookPanel: NotebookPanel; // The notebook this widget is interacting with
-  private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
-  private preparing: boolean; // Whether the notebook is currently being prepared
-
-  constructor(app: JupyterFrontEnd, tracker: NotebookTracker) {
-    super();
-    this.version = OLD_VCDAT_VERSION;
-    this.application = app;
-    this.notebookTracker = tracker;
-    this.div = document.createElement("div");
-    this.div.id = "left-sidebar";
-    this.node.appendChild(this.div);
-    this.commands = app.commands;
-    this._state = NOTEBOOK_STATE.Unknown;
-    this._plotReadyChanged = new Signal<this, boolean>(this);
-    this._plotExistsChanged = new Signal<this, boolean>(this);
-    this.varTracker = new VariableTracker();
-    this.codeInjector = new CodeInjector(this.varTracker);
-    this._notebookPanel = null;
-    this.graphicsMethods = BASE_GRAPHICS;
-    this.templatesList = BASE_TEMPLATES;
-    this.kernels = [];
-    this._plotExists = false;
-    this.initialize = this.initialize.bind(this);
-    this.setNotebookPanel = this.setNotebookPanel.bind(this);
-    this.updateNotebookState = this.updateNotebookState.bind(this);
-    this.handleNotebookChanged = this.handleNotebookChanged.bind(this);
-    this.handleNotebookDisposed = this.handleNotebookDisposed.bind(this);
-    this.handleNotebookCellRun = this.handleNotebookCellRun.bind(this);
-    this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
-    this.checkVCS = this.checkVCS.bind(this);
-    this.checkPlotExists = this.checkPlotExists.bind(this);
-    this.getNotebookPanel = this.getNotebookPanel.bind(this);
-    this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
-    this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
-    this.setPlotExists = this.setPlotExists.bind(this);
-    this.vcsMenuRef = (React as any).createRef();
-    this.loadingModalRef = (React as any).createRef();
-    this.aboutRef = (React as any).createRef();
-    ReactDOM.render(
-      <ErrorBoundary>
-        <VCSMenu
-          application={this.application}
-          ref={loader => (this.vcsMenuRef = loader)}
-          commands={this.commands}
-          codeInjector={this.codeInjector}
-          varTracker={this.varTracker}
-          plotReady={this.plotReady}
-          plotReadyChanged={this.plotReadyChanged}
-          plotExists={this.plotExists}
-          plotExistsChanged={this.plotExistsChanged}
-          setPlotExists={this.setPlotExists}
-          syncNotebook={this.syncNotebook}
-          getGraphicsList={this.getGraphics}
-          getTemplatesList={this.getTemplates}
-          refreshGraphicsList={this.refreshGraphicsList}
-          notebookPanel={this._notebookPanel}
-          updateNotebookPanel={this.recognizeNotebookPanel}
-        />
-        <PopUpModal
-          title="Notice"
-          message="Loading CDAT core modules. Please wait..."
-          btnText="OK"
-          ref={loader => (this.loadingModalRef = loader)}
-        />
-        <AboutVCDAT
-          version={VCDAT_VERSION}
-          ref={loader => (this.aboutRef = loader)}
-        />
-      </ErrorBoundary>,
-      this.div
-    );
-
-    // Add command to refresh the filebrowser
-    this.commands.addCommand("vcdat:refresh-browser", {
-      execute: args => {
-        this.commands.execute("filebrowser:navigate", { path: "." });
-      }
-    });
-
-    // Add command that displays the 'About' dialog
-    app.commands.addCommand("vcdat-show-about", {
-      caption: "See the VCDAT about page.",
-      execute: () => {
-        this.aboutRef.show();
-      },
-      label: "About VCDAT"
-    });
-  }
-
   // =======GETTERS AND SETTERS=======
   public get plotReady(): boolean {
     return (
@@ -187,6 +83,123 @@ export default class LeftSideBarWidget extends Widget {
   public get notebookPanel(): NotebookPanel {
     return this._notebookPanel;
   }
+  public div: HTMLDivElement; // The div container for this widget
+  public version: string; // The VCDAT version for tracking versions between notebooks
+  private commands: CommandRegistry; // Jupyter app CommandRegistry
+  private labShell: LabShell; // Jupyter lab shell
+  private notebookTracker: NotebookTracker; // This is to track current notebooks
+  private application: JupyterFrontEnd; // The JupyterLab application object
+  private vcsMenuRef: VCSMenu; // the LeftSidebar component
+  private loadingModalRef: PopUpModal;
+  private aboutRef: AboutVCDAT;
+  private graphicsMethods: any; // The current available graphics methods
+  private templatesList: string[]; // The list of current templates
+  private codeInjector: CodeInjector; // The code injector object which is responsible for injecting code into notebooks
+  private varTracker: VariableTracker; // The variable tracker
+  private _plotExists: boolean; // True if there exists a plot that can be exported, false if not.
+  private _plotExistsChanged: Signal<this, boolean>; // Signal if a plot exists
+  private _plotReadyChanged: Signal<this, boolean>;
+  private kernels: string[]; // A list containing kernel id's indicating the kernel is vcs_ready
+  private _notebookPanel: NotebookPanel; // The notebook this widget is interacting with
+  private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
+  private preparing: boolean; // Whether the notebook is currently being prepared
+  private activeSidecarOnRight: boolean;
+
+  constructor(
+    app: JupyterFrontEnd,
+    labShell: LabShell,
+    tracker: NotebookTracker
+  ) {
+    super();
+    this.version = OLD_VCDAT_VERSION;
+    this.application = app;
+    this.labShell = labShell;
+    this.notebookTracker = tracker;
+    this.div = document.createElement("div");
+    this.div.id = "left-sidebar";
+    this.node.appendChild(this.div);
+    this.commands = app.commands;
+    this._state = NOTEBOOK_STATE.Unknown;
+    this.activeSidecarOnRight = true;
+    this._plotReadyChanged = new Signal<this, boolean>(this);
+    this._plotExistsChanged = new Signal<this, boolean>(this);
+    this.varTracker = new VariableTracker();
+    this.codeInjector = new CodeInjector(this.varTracker);
+    this._notebookPanel = null;
+    this.graphicsMethods = BASE_GRAPHICS;
+    this.templatesList = BASE_TEMPLATES;
+    this.kernels = [];
+    this._plotExists = false;
+    this.initialize = this.initialize.bind(this);
+    this.setNotebookPanel = this.setNotebookPanel.bind(this);
+    this.updateNotebookState = this.updateNotebookState.bind(this);
+    this.handleNotebookChanged = this.handleNotebookChanged.bind(this);
+    this.handleNotebookDisposed = this.handleNotebookDisposed.bind(this);
+    this.handleNotebookCellRun = this.handleNotebookCellRun.bind(this);
+    this.refreshGraphicsList = this.refreshGraphicsList.bind(this);
+    this.checkVCS = this.checkVCS.bind(this);
+    this.checkPlotExists = this.checkPlotExists.bind(this);
+    this.getNotebookPanel = this.getNotebookPanel.bind(this);
+    this.prepareNotebookPanel = this.prepareNotebookPanel.bind(this);
+    this.recognizeNotebookPanel = this.recognizeNotebookPanel.bind(this);
+    this.updateActiveSidecar = this.updateActiveSidecar.bind(this);
+    this.getSidecars = this.getSidecars.bind(this);
+    this.setSidecarPanel = this.setSidecarPanel.bind(this);
+    this.setPlotExists = this.setPlotExists.bind(this);
+    this.vcsMenuRef = (React as any).createRef();
+    this.loadingModalRef = (React as any).createRef();
+    this.aboutRef = (React as any).createRef();
+    ReactDOM.render(
+      <ErrorBoundary>
+        <VCSMenu
+          application={this.application}
+          ref={loader => (this.vcsMenuRef = loader)}
+          commands={this.commands}
+          codeInjector={this.codeInjector}
+          varTracker={this.varTracker}
+          plotReady={this.plotReady}
+          plotReadyChanged={this.plotReadyChanged}
+          plotExists={this.plotExists}
+          plotExistsChanged={this.plotExistsChanged}
+          setPlotExists={this.setPlotExists}
+          syncNotebook={this.syncNotebook}
+          getGraphicsList={this.getGraphics}
+          getTemplatesList={this.getTemplates}
+          refreshGraphicsList={this.refreshGraphicsList}
+          notebookPanel={this._notebookPanel}
+          updateNotebookPanel={this.recognizeNotebookPanel}
+          openSidecarPanel={this.setSidecarPanel}
+        />
+        <PopUpModal
+          title="Notice"
+          message="Loading CDAT core modules. Please wait..."
+          btnText="OK"
+          ref={loader => (this.loadingModalRef = loader)}
+        />
+        <AboutVCDAT
+          version={VCDAT_VERSION}
+          ref={loader => (this.aboutRef = loader)}
+        />
+      </ErrorBoundary>,
+      this.div
+    );
+
+    // Add command to refresh the filebrowser
+    this.commands.addCommand("vcdat:refresh-browser", {
+      execute: args => {
+        this.commands.execute("filebrowser:go-to-path", { path: "." });
+      }
+    });
+
+    // Add command that displays the 'About' dialog
+    app.commands.addCommand("vcdat-show-about", {
+      caption: "See the VCDAT about page.",
+      execute: () => {
+        this.aboutRef.show();
+      },
+      label: "About VCDAT"
+    });
+  }
 
   // =======PROPS FUNCTIONS=======
   public async delay(ms: number): Promise<any> {
@@ -209,9 +222,13 @@ export default class LeftSideBarWidget extends Widget {
     return this.templatesList;
   };
 
-  public setPlotExists(value: boolean): void {
-    this._plotExists = value;
-    this._plotExistsChanged.emit(value);
+  public setPlotExists(plotExists: boolean): void {
+    this._plotExists = plotExists;
+    this._plotExistsChanged.emit(plotExists);
+
+    if (plotExists) {
+      this.updateActiveSidecar();
+    }
   }
 
   // =======ASYNC SETTER FUNCTIONS=======
@@ -286,6 +303,7 @@ export default class LeftSideBarWidget extends Widget {
         await this.refreshTemplatesList();
         await this.varTracker.refreshVariables();
 
+        this.vcsMenuRef.getPlotOptions();
         this.vcsMenuRef.getGraphicsSelections();
         this.vcsMenuRef.getTemplateSelection();
 
@@ -293,6 +311,7 @@ export default class LeftSideBarWidget extends Widget {
         const plotExists = await this.checkPlotExists();
         this.setPlotExists(plotExists);
 
+        // Connect signals for the notebook
         this.notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
       } else {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
@@ -335,6 +354,8 @@ export default class LeftSideBarWidget extends Widget {
     } else {
       await this.setNotebookPanel(null);
     }
+
+    this.updateActiveSidecar();
   }
 
   /**
@@ -657,6 +678,118 @@ export default class LeftSideBarWidget extends Widget {
     return newNotebookPanel;
   }
 
+  public setSidecarPanel(openSidecarPanel: boolean) {
+    if (this.activeSidecarOnRight) {
+      const panelClosed: boolean = this.labShell.rightCollapsed;
+      if (panelClosed) {
+        // Expand panel only if open and there are sidecars to show
+        if (
+          openSidecarPanel &&
+          this.getSidecars(this.labShell.widgets("right")).length > 0
+        ) {
+          this.labShell.expandRight();
+        }
+      } else {
+        if (!openSidecarPanel) {
+          this.labShell.collapseRight();
+        }
+      }
+    } else {
+      const panelClosed: boolean = this.labShell.leftCollapsed;
+      if (panelClosed) {
+        // Expand panel only if open and there are sidecars to show
+        if (
+          openSidecarPanel &&
+          this.getSidecars(this.labShell.widgets("left")).length > 0
+        ) {
+          this.labShell.expandLeft();
+        }
+      } else {
+        if (!openSidecarPanel) {
+          // Switches to the left sidebar in case a left-sidecar was opened
+          this.labShell.activateById("left-side-bar-vcdat");
+        }
+      }
+    }
+  }
+
+  public updateActiveSidecar(): void {
+    const rwidgets: Widget[] = this.getSidecars(this.labShell.widgets("right"));
+    const lwidgets: Widget[] = this.getSidecars(this.labShell.widgets("left"));
+    const widgets: Widget[] = rwidgets.concat(lwidgets);
+
+    if (!this.notebookPanel || widgets.length <= 0) {
+      return;
+    }
+
+    // Close all sidecars that don't have their notebook open
+    // Set them to be unclosable
+    this.closeUneededSidecars(widgets);
+
+    // Handle right sidecar widgets
+    rwidgets.forEach((widget: Widget) => {
+      if (widget.title.label === this.notebookPanel.title.label) {
+        // Switches to the left sidebar in case a left-sidecar was opened
+        this.labShell.activateById("left-side-bar-vcdat");
+        // Select the approriate right-sidecar
+        this.labShell.activateById(widget.id);
+        // Update the active sidecar position
+        this.activeSidecarOnRight = true;
+      }
+    });
+
+    // Handle sidecar widgets that were moved to the left
+    lwidgets.forEach((widget: Widget) => {
+      if (widget.title.label === this.notebookPanel.title.label) {
+        // Close the right panel if case a right-sidecar was opened
+        this.labShell.collapseRight();
+        // Activate the appropriate left-sidecar
+        this.labShell.activateById(widget.id);
+        // Update the active sidecar position
+        this.activeSidecarOnRight = false;
+      }
+    });
+
+    // Open or close the sidecar panel based on the display mode and it
+    this.setSidecarPanel(
+      this.vcsMenuRef.state.currentDisplayMode === DISPLAY_MODE.Sidecar
+    );
+  }
+
+  // Closes an sidecars which have no notebook open,
+  // and prevents them from being closable
+  public closeUneededSidecars(widgets: Widget[]): void {
+    widgets.forEach((widget: Widget) => {
+      // Look for notebook with matching title as sidecar
+      const notebookMatch = this.notebookTracker.find(
+        (openNotebook: NotebookPanel) => {
+          return openNotebook.title.label === widget.title.label;
+        }
+      );
+
+      if (notebookMatch) {
+        // Prevent users from closing sidecar manually
+        widget.title.closable = false;
+      } else {
+        // Close sidecar if notebook not found
+        widget.close();
+      }
+    });
+  }
+
+  public getSidecars(widgets: IIterator<Widget>): Widget[] {
+    const sidecarWidgets = Array<Widget>();
+
+    // Get sidecar widgets from right side
+    for (let w = widgets.next(); w !== undefined; w = widgets.next()) {
+      if (w.hasClass("jupyterlab-sidecar")) {
+        sidecarWidgets.push(w);
+      }
+    }
+
+    return sidecarWidgets;
+  }
+
   // =======WIDGET SIGNAL HANDLERS=======
 
   /**
@@ -686,10 +819,13 @@ export default class LeftSideBarWidget extends Widget {
         ? OLD_VCDAT_VERSION
         : NO_VERSION;
     }
+
+    this.updateActiveSidecar();
   }
 
   private async handleNotebookDisposed(notebookPanel: NotebookPanel) {
     notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
+    this.updateActiveSidecar();
   }
 
   private async handleNotebookCellRun(): Promise<void> {
@@ -702,6 +838,11 @@ export default class LeftSideBarWidget extends Widget {
       await this.varTracker.refreshVariables();
       const plotExists = await this.checkPlotExists();
       this.setPlotExists(plotExists);
+
+      // Prevent sidebar from opening unless plot to sidecar is active
+      this.setSidecarPanel(
+        this.vcsMenuRef.state.currentDisplayMode === DISPLAY_MODE.Sidecar
+      );
     } catch (error) {
       console.error(error);
     }

@@ -100,30 +100,32 @@ export default class TemplateMenu extends React.Component<
                 >
                   {dropDownTitle}
                 </DropdownToggle>
-                <DropdownMenu style={dropdownMenuStype}>
-                  {this.props.getTemplatesList().map((item: string) => {
-                    const handleClick = () => {
-                      this.props.updateTemplateOptions(item);
-                      this.setState({
-                        optionsChanged: false,
-                        selectedTemplate: item,
-                        showDropdown: false,
-                        showMenu: false
-                      });
-                    };
-                    return (
-                      <DropdownItem
-                        className={
-                          /*@tag<template-item>*/ "template-item-vcdat"
-                        }
-                        onClick={handleClick}
-                        key={item}
-                      >
-                        {item}
-                      </DropdownItem>
-                    );
-                  })}
-                </DropdownMenu>
+                {this.state.showDropdown && (
+                  <DropdownMenu style={dropdownMenuStype}>
+                    {this.props.getTemplatesList().map((item: string) => {
+                      const handleClick = () => {
+                        this.props.updateTemplateOptions(item);
+                        this.setState({
+                          optionsChanged: false,
+                          selectedTemplate: item,
+                          showDropdown: false,
+                          showMenu: false
+                        });
+                      };
+                      return (
+                        <DropdownItem
+                          className={
+                            /*@tag<template-item>*/ "template-item-vcdat"
+                          }
+                          onClick={handleClick}
+                          key={item}
+                        >
+                          {item}
+                        </DropdownItem>
+                      );
+                    })}
+                  </DropdownMenu>
+                )}
               </Dropdown>
             </CardSubtitle>
           </CardBody>
