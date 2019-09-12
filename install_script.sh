@@ -142,8 +142,14 @@ if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
   jupyter labextension install @jupyter-widgets/jupyterlab-manager
   jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
 
+  # Install tutorial extension
+  jupyter labextension install jupyterlab-tutorial-extension
+
   # Jupyterhub extension
   jupyter labextension install @jupyterlab/hub-extension
+
+  # Favorites extension from LBNL
+  jupyter labextension install jupyterlab-favorites
 fi
 
 # We need to allow pipe to break in case we are not in a git repo directory

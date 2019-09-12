@@ -7,6 +7,14 @@ aliases:
     command: |
        source activate jupyter-vcdat
        ./install_script.sh -v
+       echo "xxx doing a conda install"
+       conda install -n jupyter-vcdat -c cdat/label/v82 -c cdat/label/v81 -c cdat/label/nightly -c conda-forge vcs libnetcdf=4.6.2 testsrunner cdat_info
+       conda list
+       npm install
+       jupyter lab build
+       jupyter-labextension install .
+       echo "XXX npm list"
+       npm list
        git status
 
   - &run_jupyter_vcdat
@@ -14,6 +22,7 @@ aliases:
     command: |
        export CDAT_ANONYMOUS_LOG=False
        source activate jupyter-vcdat
+       conda list
        jupyter lab --ip='127.0.0.1'
     background: true
 
@@ -73,11 +82,32 @@ aliases:
        conda build $PKG_NAME $CHANNELS --python=3.6
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
+  - &npm_publish
+    name: npm_publish
+    command: |
+      npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+      npm publish --tag nightly
+
+  - &docker_publish
+    name: docker_publish
+    command: | 
+      docker build -f kube/Dockerfile.extension --no-cache --tag=cdoutrix/vcdat:nightly .
+      docker login -u cdoutrix -p $DOCKER_PASSWORD
+      docker push cdoutrix/vcdat:nightly
+
 jobs:
+  publish:
+    docker:
+      - image: jasonb87/nimbus-basic
+    steps:
+      - checkout
+      - run: *npm_publish
+      - run: *docker_publish
+
   linux_jupyter_vcdat:
     docker:
       # - image: circleci/node:jessie-browsers
-      - image: muryanto1/jupyter-vcdat:latest
+      - image: muryanto1/jupyter-vcdat.2.0.1:latest
     environment:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
@@ -85,24 +115,25 @@ jobs:
       - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
-      - run: sleep 8
+      - run: sleep 15
+      - run: *run_tests_with_chrome
+      - store_artifacts:
+          path: tests_html
+          destination: tests_chrome_html
       - run: *run_tests_with_firefox
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html
-      - run: *run_tests_with_chrome
       - store_artifacts:
           path: jupyter-vcdat_logfile.txt
-      - store_artifacts:
-          path: tests_html
-          destination: tests_chrome_html
       - run: *conda_upload
 
 workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_jupyter_vcdat
+      #- linux_jupyter_vcdat
+      - publish
 
 
 

@@ -138,8 +138,6 @@ export default class VarLoader extends React.Component<
 
     await this.props.loadSelectedVariables(varsToLoad);
 
-    this.setState({ show: false });
-
     // Save the notebook after variables have been added
     await this.props.varTracker.saveMetaData();
   }
@@ -338,6 +336,7 @@ export default class VarLoader extends React.Component<
   }
 
   private handleLoadClick(): void {
+    this.setState({ show: false });
     this.loadSelectedVariables(this.selections);
   }
 }

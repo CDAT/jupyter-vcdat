@@ -9,19 +9,32 @@ import {
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
 
 import {
+  ILabShell,
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
+  JupyterFrontEndPlugin,
+  LabShell
 } from "@jupyterlab/application";
 
 import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
+import {
+  ITutorial,
+  ITutorialManager,
+  TutorialDefault
+} from "jupyterlab-tutorial";
 
 // Project Components
 import "../style/css/index.css";
-import { EXTENSIONS } from "./constants";
+import {
+  EXTENSIONS,
+  GETTING_STARTED,
+  REPLACEMENT_STEPS,
+  VCDAT_VERSION
+} from "./constants";
 import NCViewerWidget from "./NCViewerWidget";
 import NotebookUtilities from "./NotebookUtilities";
 import LeftSideBarWidget from "./LeftSideBarWidget";
 import Utilities from "./Utilities";
+import { Step } from "react-joyride";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";
@@ -37,8 +50,8 @@ let mainMenu: MainMenu;
 const extension: JupyterFrontEndPlugin<void> = {
   activate,
   autoStart: true,
-  id: "jupyter-vcdat",
-  requires: [INotebookTracker, IMainMenu]
+  id: "@cdat/jupyter-vcdat",
+  requires: [INotebookTracker, IMainMenu, ILabShell, ITutorialManager]
 };
 
 export default extension;
@@ -49,7 +62,9 @@ export default extension;
 function activate(
   app: JupyterFrontEnd,
   tracker: NotebookTracker,
-  menu: MainMenu
+  menu: MainMenu,
+  labShell: LabShell,
+  tutorialManager: ITutorialManager
 ): void {
   shell = app.shell;
   mainMenu = menu;
@@ -75,7 +90,7 @@ function activate(
   // Creates the left side bar widget once the app has fully started
   app.started
     .then(() => {
-      sidebar = new LeftSideBarWidget(app, tracker);
+      sidebar = new LeftSideBarWidget(app, labShell, tracker);
       sidebar.id = /*@tag<left-side-bar>*/ "left-side-bar-vcdat";
       sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
       sidebar.title.closable = true;
@@ -94,21 +109,100 @@ function activate(
   // and all the widgets have been added to the notebooktracker
   app.restored
     .then(() => {
+      Utilities.addHelpMenuItem(mainMenu, {}, "vcdat-show-about");
       Utilities.addHelpReference(
         mainMenu,
-        "VCS Reference",
-        "https://cdat-vcs.readthedocs.io/en/latest/"
+        "VCS Basic Tutorial",
+        "https://cdat.llnl.gov/Jupyter-notebooks/vcs/VCS_Basics/VCS_Basics.html"
       );
       Utilities.addHelpReference(
         mainMenu,
         "CDMS Reference",
         "https://cdms.readthedocs.io/en/latest/"
       );
+
+      mainMenu.helpMenu.menu.addItem({ type: "separator" });
+
+      // Create a jupyterlab intro tutorial
+      const jupyterlabIntro: ITutorial = tutorialManager.createTutorial(
+        "jp_intro",
+        "Jupyterlab Tutorial: Intro",
+        true
+      );
+      jupyterlabIntro.steps = TutorialDefault.steps;
+
+      const vcdatIntro: ITutorial = tutorialManager.createTutorial(
+        "vcdat_intro",
+        `VCDAT Tutorial: Introduction`,
+        true
+      );
+
+      vcdatIntro.options.styles.backgroundColor = "#fcffff";
+      vcdatIntro.options.styles.primaryColor = "#084f44";
+      initializeTutorial(vcdatIntro, GETTING_STARTED, updateIntroTutorial);
+
       sidebar.initialize();
     })
     .catch(error => {
       console.error(error);
     });
+}
+
+function initializeTutorial(
+  tutorial: ITutorial,
+  steps: Step[],
+  handler: (tutorial: ITutorial) => void
+) {
+  tutorial.steps = Utilities.deepCopy(steps);
+
+  function clickListenerOn(t: ITutorial) {
+    shell.node.onclick = () => {
+      handler(t);
+    };
+  }
+  function clickListenerOff() {
+    shell.node.onclick = null;
+  }
+
+  function stepChangedHandler(t: ITutorial) {
+    handler(t);
+  }
+
+  tutorial.started.connect(clickListenerOn);
+  tutorial.finished.connect(clickListenerOff);
+  tutorial.skipped.connect(clickListenerOff);
+  tutorial.stepChanged.connect(stepChangedHandler);
+}
+
+// Function that returns true if a step needs to be replaced
+function shouldModifyStep(index: number): boolean {
+  if (index === 1) {
+    const element: Element = shell.node.querySelector("#left-side-bar-vcdat");
+    if (element.classList.contains("p-mod-hidden")) {
+      return true;
+    }
+    return false;
+  }
+
+  return false;
+}
+
+function getStepForIndex(index: number, alternate: boolean): Step {
+  const mapping = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  if (alternate) {
+    return Utilities.deepCopy(REPLACEMENT_STEPS[mapping[index]]);
+  }
+  return Utilities.deepCopy(GETTING_STARTED[index]);
+}
+
+function updateIntroTutorial(tutorial: ITutorial) {
+  if (tutorial.currentStepIndex >= 0) {
+    const newStep: Step = getStepForIndex(
+      tutorial.currentStepIndex,
+      shouldModifyStep(tutorial.currentStepIndex)
+    );
+    tutorial.replaceStep(tutorial.currentStepIndex, newStep);
+  }
 }
 
 /**
