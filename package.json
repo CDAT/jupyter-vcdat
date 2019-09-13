@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "clean": "rimraf lib",
+    "clean": "./node_modules/rimraf/bin.js",
     "watch": "tsc -w",
     "link": "jupyter labextension link . --nobuild",
     "prepare": "npm run clean && npm run build",
