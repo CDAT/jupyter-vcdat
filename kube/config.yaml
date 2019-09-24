@@ -7,7 +7,7 @@ singleuser:
     # Inspect the Dockerfile at:
     # https://github.com/jupyter/docker-stacks/tree/master/datascience-notebook/Dockerfile
     # tag: 177037d09156
-    name: cdoutrix/vcdat
+    name: cdat/vcdat
     tag: latest
     # name: jupyter/datascience-notebook
     # use jupyterlab
@@ -26,13 +26,13 @@ singleuser:
       - display_name: "latest"
         description: "The latest version of VCDAT (nightly)"
         kubespawner_override:
-            image: cdoutrix/vcdat:latest
+            image: cdat/vcdat:latest
             storage:
                 type: none
       - display_name: "core"
         description: "The core image before installing VCDAT extension"
         kubespawner_override:
-            image: cdoutrix/vcdat:core
+            image: cdat/vcdat:core
 
 
 hub:
