@@ -8,7 +8,7 @@ aliases:
        source activate jupyter-vcdat
        ./install_script.sh -v
        echo "xxx doing a conda install"
-       conda install -n jupyter-vcdat -c cdat/label/v82 -c cdat/label/v81 -c cdat/label/nightly -c conda-forge vcs libnetcdf=4.6.2 testsrunner cdat_info
+       conda install -n jupyter-vcdat -c cdat/label/v82 -c cdat/label/v82 -c cdat/label/nightly -c conda-forge vcs libnetcdf=4.6.2 testsrunner cdat_info
        conda list
        npm install
        jupyter lab build
@@ -71,7 +71,7 @@ aliases:
        cd conda-recipes
        export PKG_NAME=jupyter-vcdat
        export USER=cdat
-       export VERSION=2.0.0
+       export VERSION=2.1.0
        if [[ $CIRCLE_BRANCH == 'master' ]]; then
         export LABEL=nightly
        else
@@ -91,9 +91,9 @@ aliases:
   - &docker_publish
     name: docker_publish
     command: | 
-      docker build -f kube/Dockerfile.extension --no-cache --tag=cdoutrix/vcdat:nightly .
+      docker build -f kube/Dockerfile.extension --no-cache --tag=cdat/vcdat:nightly .
       docker login -u cdoutrix -p $DOCKER_PASSWORD
-      docker push cdoutrix/vcdat:nightly
+      docker push cdat/vcdat:nightly
 
 jobs:
   publish:
@@ -107,7 +107,7 @@ jobs:
   linux_jupyter_vcdat:
     docker:
       # - image: circleci/node:jessie-browsers
-      - image: muryanto1/jupyter-vcdat.2.0.1:latest
+      - image: cdat/vcdat:latest
     environment:
       WORKDIR: "/tmp/jp-vcdat"
     steps:

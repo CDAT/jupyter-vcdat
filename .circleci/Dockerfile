@@ -28,6 +28,3 @@ RUN /bin/bash -c "source ${workdir}/miniconda/etc/profile.d/conda.sh; \
 # RUN conda install -n jupyter-vcdat ${cdat_channels} -c conda-forge vcs
 
 CMD ["/bin/bash"]
-
-# sudo docker build -t muryanto1/jupyter-vcdat.2.0.1 .
-# docker push muryanto1/jupyter-vcdat.2.0.1:latest

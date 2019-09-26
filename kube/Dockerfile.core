@@ -1,5 +1,0 @@
-FROM jasonb87/nimbus-basic:latest
-# Get the latest image tag at:
-# https://hub.docker.com/r/jasonb87/nimbus-basic
-
-RUN conda config --set remote_read_timeout_secs 120 && conda install --force -y -c cdat/label/nightly -c cdat/label/v81 -c conda-forge -c pcmdi/label/nightly nodejs "python=3.7" vcs vcsaddons thermo wk eofs windspharm autopep8 scipy scikit-learn pip nb_conda nb_conda_kernels plumbum mesalib 'jupyterlab>1' jupyterhub cmor && conda clean -y --all && pip install lazy_import && pip install sidecar && rm -rf ~/.cache/pip

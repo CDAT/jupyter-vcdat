@@ -1,8 +1,0 @@
-FROM cdat/vcdat_labextensions:latest
-# Get the setup image
-ENV CDAT_ANONYMOUS_LOG false
-# extension
-# Our extension needs to be built from npm repo otherwise jupyter-lab
-# tries to write into image and shifter does not let us do this.
-# e.g.: sudo docker build -f kube/Dockerfile.extension .
-RUN jupyter labextension install jupyter-vcdat@2.1.0 && conda update -c cdat/label/nightly -c conda-forge vcs cdms2 cdutil genutil libcdms
