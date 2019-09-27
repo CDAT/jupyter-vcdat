@@ -92,7 +92,7 @@ aliases:
     name: docker_publish
     command: | 
       docker build -f kube/Dockerfile.extension --no-cache --tag=cdat/vcdat:nightly .
-      docker login -u cdoutrix -p $DOCKER_PASSWORD
+      docker login --username downie4 $DOCKER_TOKEN
       docker push cdat/vcdat:nightly
 
 jobs:
@@ -132,7 +132,7 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      #- linux_jupyter_vcdat
+      - linux_jupyter_vcdat
       - publish
 
 
