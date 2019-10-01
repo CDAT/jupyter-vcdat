@@ -84,7 +84,7 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
-      echo $(ls)
+      npm install
       export CDAT_ANONYMOUS_LOG=False
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       npm publish --tag nightly
