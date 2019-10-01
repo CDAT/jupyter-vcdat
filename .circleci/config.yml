@@ -133,8 +133,8 @@ workflows:
     jobs:
       - linux_jupyter_vcdat
       - publish:
-        requires:
-          - linux_jupyter_vcdat
+          requires:
+            - linux_jupyter_vcdat
 
 
 
