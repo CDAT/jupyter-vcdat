@@ -1,7 +1,6 @@
 version: 2
 
 aliases:
-
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
     command: |
@@ -85,7 +84,6 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
-      npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       npm publish --tag nightly
 
@@ -104,7 +102,7 @@ jobs:
       - checkout
       - run: *npm_publish
       - run: *docker_publish
-
+  
   linux_jupyter_vcdat:
     docker:
       # - image: circleci/node:jessie-browsers
@@ -134,7 +132,9 @@ workflows:
   jupyter_vcdat:
     jobs:
       - linux_jupyter_vcdat
-      - publish
+      - publish:
+        requires:
+          - linux_jupyter_vcdat
 
 
 
