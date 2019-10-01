@@ -21,8 +21,8 @@ RUN /bin/bash -c "source ${workdir}/miniconda/etc/profile.d/conda.sh; \
                   jupyter labextension install @jupyter-widgets/jupyterlab-sidecar; \
                   jupyter labextension install jupyterlab-tutorial-extension; \
                   jupyter labextension install @jupyterlab/hub-extension; \
-   	          pip install selenium; \
-		  pip install pyvirtualdisplay"
+   	              pip install selenium; \
+		          pip install pyvirtualdisplay"
 
 # Following line is causing permission denied 
 # RUN conda install -n jupyter-vcdat ${cdat_channels} -c conda-forge vcs

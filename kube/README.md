@@ -28,7 +28,7 @@ npm publish
 
 - Build docker image:
 ```bash
-cd kube
+#Do this within the kube directory
 docker build -t cdat/vcdat:<new version> .
 ```
 

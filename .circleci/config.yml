@@ -85,14 +85,13 @@ aliases:
     name: npm_publish
     command: |
       export CDAT_ANONYMOUS_LOG=False
-      source activate jupyter-vcdat
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       npm publish --tag nightly
 
   - &docker_publish
     name: docker_publish
     command: | 
-      docker build -f kube/Dockerfile.extension --no-cache --tag=cdat/vcdat:nightly .
+      docker build --no-cache --tag=cdat/vcdat:nightly .
       docker login --username downie4 $DOCKER_TOKEN
       docker push cdat/vcdat:nightly
 
@@ -107,7 +106,6 @@ jobs:
   
   linux_jupyter_vcdat:
     docker:
-      # - image: circleci/node:jessie-browsers
       - image: muryanto1/jupyter-vcdat.2.0.1:latest
     environment:
       WORKDIR: "/tmp/jp-vcdat"
