@@ -39,7 +39,7 @@ aliases:
        python run_tests.py -H -v 2 tests/test_plot_locators.py
        python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
        RESULT=$?
-       echo "*** $PY_VER test result: "${RESULT} 
+       echo "*** $PY_VER test result: ${RESULT}"
        exit $RESULT
 
   - &run_tests_with_firefox
@@ -56,7 +56,7 @@ aliases:
        python run_tests.py -H -v 2 tests/test_plot_locators.py
        python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
        RESULT=$?
-       echo "*** $PY_VER test result: "${RESULT} 
+       echo "*** $PY_VER test result: ${RESULT}"
        exit $RESULT
 
   - &conda_upload
@@ -85,6 +85,7 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
+      npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       npm publish --tag nightly
 
@@ -107,7 +108,7 @@ jobs:
   linux_jupyter_vcdat:
     docker:
       # - image: circleci/node:jessie-browsers
-      - image: cdat/vcdat:latest
+      - image: cdat/vcdat:nightly
     environment:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
