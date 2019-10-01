@@ -84,6 +84,7 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
+      echo $(ls)
       export CDAT_ANONYMOUS_LOG=False
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       npm publish --tag nightly
@@ -133,8 +134,8 @@ workflows:
     jobs:
       - linux_jupyter_vcdat
       - publish:
-          requires:
-            - linux_jupyter_vcdat
+          #requires:
+          #  - linux_jupyter_vcdat
 
 
 
