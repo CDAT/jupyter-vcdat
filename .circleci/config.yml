@@ -133,7 +133,7 @@ workflows:
   jupyter_vcdat:
     jobs:
       - linux_jupyter_vcdat
-      - publish
+      - publish:
           filters:
             branches:
               only: master
