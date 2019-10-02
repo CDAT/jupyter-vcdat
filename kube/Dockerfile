@@ -1,6 +1,10 @@
+# This dockerfile will create a docker image for an official release
 FROM jasonb87/nimbus-basic:latest
 # Get the latest image tag at:
 # https://hub.docker.com/r/jasonb87/nimbus-basic
+
+#Specify the npm version to install:
+ARG INSTALL_VERSION="2.1.0"
 
 RUN conda config --set remote_read_timeout_secs 120 && conda install --force -y -c cdat/label/nightly -c cdat/label/v82 -c conda-forge -c pcmdi/label/nightly nodejs "python=3.7" vcs vcsaddons thermo wk eofs windspharm autopep8 scipy scikit-learn pip nb_conda nb_conda_kernels plumbum mesalib 'jupyterlab>1' jupyterhub cmor && conda clean -y --all && pip install lazy_import && pip install sidecar && rm -rf ~/.cache/pip
 
@@ -12,4 +16,4 @@ ENV CDAT_ANONYMOUS_LOG false
 # Our extension needs to be built from npm repo otherwise jupyter-lab
 # tries to write into image and shifter does not let us do this.
 # e.g.: sudo docker build -f kube/Dockerfile.extension .
-RUN jupyter labextension install jupyter-vcdat@2.1.0 && conda update -c cdat/label/nightly -c conda-forge vcs cdms2 cdutil genutil libcdms
+RUN jupyter labextension install jupyter-vcdat@${INSTALL_VERSION} && conda update -c cdat/label/nightly -c conda-forge vcs cdms2 cdutil genutil libcdms

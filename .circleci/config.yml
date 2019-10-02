@@ -111,17 +111,12 @@ aliases:
 jobs:
   publish:
     docker:
-      - image: jasonb87/nimbus-basic
+      - image: circleci/buildpack-deps:stretch
     steps:
       - checkout
       - run: *npm_publish
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run: *install_docker
-      - run: |
-          docker build --no-cache --tag=cdat/vcdat:nightly .
-          docker login --username downie4 $DOCKER_TOKEN
-          docker push cdat/vcdat:nightly
+      - setup_remote_docker
+      - run: *docker_publish
   
   linux_jupyter_vcdat:
     docker:
@@ -150,5 +145,10 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      #- linux_jupyter_vcdat
-      - publish
+      - linux_jupyter_vcdat
+      - publish:
+          requires:
+            - linux_jupyter_vcdat
+          filters:
+            branches:
+              only: master
