@@ -145,10 +145,5 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_jupyter_vcdat
-      - publish:
-          requires:
-            - linux_jupyter_vcdat
-          filters:
-            branches:
-              only: master
+      #- linux_jupyter_vcdat
+      - publish
