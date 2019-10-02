@@ -84,9 +84,6 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
-      if [[ $CIRCLE_BRANCH != 'master' ]]; then
-        exit 0
-      fi
       export CDAT_ANONYMOUS_LOG=False
       npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
@@ -95,9 +92,6 @@ aliases:
   - &docker_publish
     name: docker_publish
     command: |   
-      if [[ $CIRCLE_BRANCH == 'master' ]]; then
-        exit 0
-      fi
       docker build --no-cache --tag=cdat/vcdat:nightly .
       docker login --username downie4 $DOCKER_TOKEN
       docker push cdat/vcdat:nightly
@@ -140,5 +134,6 @@ workflows:
     jobs:
       - linux_jupyter_vcdat
       - publish
-          requires:
-            - linux_jupyter_vcdat
+          filters:
+            branches:
+              only: master
