@@ -84,6 +84,9 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
+      if [[ $CIRCLE_BRANCH != 'master' ]]; then
+        exit 0
+      fi
       export CDAT_ANONYMOUS_LOG=False
       npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
@@ -133,7 +136,4 @@ workflows:
   jupyter_vcdat:
     jobs:
       - linux_jupyter_vcdat
-      - publish:
-          filters:
-            branches:
-              only: master
+      - publish
