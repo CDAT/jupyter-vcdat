@@ -104,9 +104,10 @@ aliases:
   - &docker_publish
     name: docker_publish
     command: |
-      docker build --no-cache --tag=cdat/vcdat:nightly .
-      docker login --username downie4 $DOCKER_TOKEN
-      docker push cdat/vcdat:nightly
+      echo pwd
+      #docker build --no-cache --tag=cdat/vcdat:nightly .
+      #docker login --username downie4 $DOCKER_TOKEN
+      #docker push cdat/vcdat:nightly
 
 jobs:
   publish:
