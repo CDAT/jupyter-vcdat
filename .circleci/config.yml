@@ -117,7 +117,10 @@ jobs:
       - run: *npm_publish
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: *docker_publish
+      - run: |
+          docker build --no-cache --tag=cdat/vcdat:nightly .
+          docker login --username downie4 $DOCKER_TOKEN
+          docker push cdat/vcdat:nightly
   
   linux_jupyter_vcdat:
     docker:
@@ -146,5 +149,5 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_jupyter_vcdat
+      #- linux_jupyter_vcdat
       - publish
