@@ -96,9 +96,10 @@ aliases:
     name: docker_publish
     command: |
       cd kube
-      docker login --username downie4 $DOCKER_TOKEN
+      echo "$DOCKER_TOKEN" | docker login --username downie4
       docker build --no-cache --tag=cdat/vcdat:nightly .
       docker push cdat/vcdat:nightly
+      docker logout
 
 jobs:
   publish:
