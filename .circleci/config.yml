@@ -81,15 +81,6 @@ aliases:
        conda build $PKG_NAME $CHANNELS --python=3.6
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
-  - &install_docker
-    name: Install Docker client
-    command: |
-      set -x
-      VER="17.03.0-ce"
-      curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-      tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-      mv /tmp/docker/* /usr/bin
-
   - &npm_publish
     name: npm_publish
     command: |
@@ -105,8 +96,8 @@ aliases:
     name: docker_publish
     command: |
       cd kube
-      docker build --no-cache --tag=cdat/vcdat:nightly .
       docker login --username downie4 $DOCKER_TOKEN
+      docker build --no-cache --tag=cdat/vcdat:nightly .
       docker push cdat/vcdat:nightly
 
 jobs:
