@@ -95,8 +95,6 @@ aliases:
       docker logout
 
 jobs:
-  environment:
-
   publish:
     docker:
       - image: cdat/vcdat_circleci:nightly
