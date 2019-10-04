@@ -117,7 +117,7 @@ Please examine the available classes and methods before adding test cases.
 ```bash
     cd <jupyter-vcdat repo directory>
     source jupyter-vcdat
-    conda install -c cdat/label/v81 testsrunner cdat_info
+    conda install -c cdat/label/v82 testsrunner cdat_info
     pip install selenium
     pip install pyvirtualdisplay
 ```

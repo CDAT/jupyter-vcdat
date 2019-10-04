@@ -14,7 +14,7 @@ REQUESTED_CONDA_ENV_NAME="jupyter-vcdat"
 
 
 # conda channels
-DEFAULT_CONDA_CHANNELS="-c cdat/label/v81 -c conda-forge"
+DEFAULT_CONDA_CHANNELS="-c cdat/label/v82 -c conda-forge"
 
 # extra conda channels
 CUSTOM_CONDA_CHANNELS=""
@@ -35,7 +35,7 @@ optional arguments:
                         extra conda channels to use (use an extra -c if more than one)
                         example:
                         -c "cdat/label/nightly"
-                        -c "cdat/label/nightly" -c "cdat/label/v81"
+                        -c "cdat/label/nightly" -c "cdat/label/v82"
 EOF
 exit 0
 }
