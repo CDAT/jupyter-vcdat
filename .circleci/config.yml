@@ -63,19 +63,19 @@ aliases:
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
-       conda install conda-build anaconda-client
-       conda config --set anaconda_upload no
-       export CONDA_BLD_PATH=`pwd`/conda_build
-       git clone git://github.com/cdat/conda-recipes
-       cd conda-recipes
-       export PKG_NAME=jupyter-vcdat
-       export USER=cdat
-       export VERSION=2.1.0
        if [[ $CIRCLE_BRANCH == 'master' ]]; then
         export LABEL=nightly
        else
         exit 0
        fi
+       export PKG_NAME=jupyter-vcdat
+       export USER=cdat
+       export VERSION=2.1.1
+       conda install conda-build anaconda-client
+       conda config --set anaconda_upload no
+       export CONDA_BLD_PATH=`pwd`/conda_build
+       git clone git://github.com/cdat/conda-recipes
+       cd conda-recipes
        ln -s ../recipe $PKG_NAME
        python ./prep_for_build.py -l $VERSION -b ${CIRCLE_BRANCH}
        conda build $PKG_NAME $CHANNELS --python=3.6
@@ -84,9 +84,6 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
-      if [[ $CIRCLE_BRANCH != 'master' ]]; then
-        exit 0
-      fi
       export CDAT_ANONYMOUS_LOG=False
       npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
@@ -138,5 +135,10 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      #- linux_jupyter_vcdat
-      - publish
+      - linux_jupyter_vcdat
+      - publish:
+          requires:
+            - linux_jupyter_vcdat
+          filters:
+            branches:
+              only: master
