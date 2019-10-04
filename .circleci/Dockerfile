@@ -24,7 +24,4 @@ RUN /bin/bash -c "source ${workdir}/miniconda/etc/profile.d/conda.sh; \
    	              pip install selenium; \
 		          pip install pyvirtualdisplay"
 
-# Following line is causing permission denied 
-# RUN conda install -n jupyter-vcdat ${cdat_channels} -c conda-forge vcs
-
 CMD ["/bin/bash"]
