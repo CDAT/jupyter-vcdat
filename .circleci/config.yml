@@ -101,7 +101,7 @@ aliases:
 jobs:
   publish:
     docker:
-      - image: circleci/buildpack-deps:stretch
+      - image: circleci/node:stretch-browsers
     steps:
       - checkout
       - run: *npm_publish

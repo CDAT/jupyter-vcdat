@@ -6,8 +6,15 @@ new version number. Check all documentation has been updated to reflect new
 release number and features. Go to https://github.com/CDAT/jupyter-vcdat/releases
 and make sure the release has been tagged with latest commit.
 Once everything has been done and all tests have passed, then jupyter-vcdat is
-ready to publish to npm and docker hub. Follow steps below to publish a new docker
-image and the npm package. 
+ready to publish to npm and docker hub. Follow the steps below to make official
+published versions.
+
+## NPM Release
+
+## Manual Publish steps:
+Note: The steps below are for manually publishing jupyter-vcdat to npm and docker hub, 
+however every commit to master will automaticaly publish as the nightly tag
+(after tests pass), so these steps are for stable/official releases only.
 
 ## NPM Publish steps:
 
@@ -19,6 +26,8 @@ git pull #Pull latest changes from master
 ```
 
 - Publish to npm:
+Note: Make sure the package.json contains the correct official version being published
+before running this step.
 ```bash
 npm login
 npm install
