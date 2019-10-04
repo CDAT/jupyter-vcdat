@@ -513,6 +513,49 @@ canvas = vcs.init(display_target='off')`;
     );
   }
 
+  public async animate(
+    selectedGM: string,
+    selectedGMGroup: string,
+    selectedTemplate: string,
+  ): Promise<[number, string]> {
+
+    let selectedVariable: string = this.varTracker.findVariableByID(this.varTracker.selectedVariables[0])[1].alias;
+    // Create graphics method code
+    let gmParam: string = selectedGM;
+    if (!selectedGM) {
+      gmParam = '"boxfill"';
+    } else if (selectedGM.indexOf(selectedGMGroup) < 0) {
+      gmParam += `_${selectedGMGroup}`;
+    }
+
+    // Create template code
+    let templateParam: string = selectedTemplate;
+    if (!selectedTemplate) {
+      templateParam = '"default"';
+    }
+
+    let cmd: string = "from tqdm import tqdm_notebook\nfrom glob import glob\n"
+    cmd += `pngpath = "vcdat_tmp"\n`;
+    cmd += `if not os.path.exists(pngpath):\n`;
+    cmd += `    os.makedirs(pngpath)\n`;
+    cmd += `else:\n`;
+    cmd += `    [os.remove(os.path.join(pngpath, x)) for x in os.listdir(pngpath)]\n`;
+    cmd += `for step in tqdm_notebook(range(${selectedVariable}.shape[0])):\n`;
+    cmd += `    canvas.clear()\n`;
+    cmd += `    canvas.plot(${selectedVariable}[step], ${templateParam}, ${gmParam})\n`;
+    cmd += "    canvas.png(os.path.join(pngpath,'{:06}'.format(step)))\n";
+    cmd += `canvas.ffmpeg("${selectedVariable}.mp4", sorted(glob(os.path.join(pngpath, "*png"))), rate=5)\n`
+    cmd += `\n`
+
+    return this.inject(
+      cmd,
+      undefined,
+      "Failed to make animation.",
+      "animate",
+      arguments
+    );
+  }
+
   public async plot(
     selectedGM: string,
     selectedGMGroup: string,

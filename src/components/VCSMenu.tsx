@@ -80,6 +80,7 @@ interface IVCSMenuState {
   plotExists: boolean;
   previousDisplayMode: DISPLAY_MODE;
   currentDisplayMode: DISPLAY_MODE;
+  shouldAnimate: boolean;
 }
 
 export default class VCSMenu extends React.Component<
@@ -108,7 +109,8 @@ export default class VCSMenu extends React.Component<
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: "",
-      variables: this.props.varTracker.variables
+      variables: this.props.varTracker.variables,
+      shouldAnimate: false
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
@@ -137,11 +139,17 @@ export default class VCSMenu extends React.Component<
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
     this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
     this.handlePlotExistsChanged = this.handlePlotExistsChanged.bind(this);
-
+    this.toggleAnimate = this.toggleAnimate.bind(this);
     // Close sidecar panel at startup
     if (this.props.openSidecarPanel) {
       this.props.openSidecarPanel(false);
     }
+  }
+
+  public toggleAnimate(): void {
+    this.setState({
+      shouldAnimate: !this.state.shouldAnimate
+    });
   }
 
   public componentDidMount(): void {
@@ -440,18 +448,24 @@ export default class VCSMenu extends React.Component<
       if (this.props.varTracker.selectedVariables.length === 0) {
         NotebookUtilities.showMessage(
           "Notice",
-          "Please select a variable from the left panel."
-        );
+          "Please select a variable from the left panel.");
       } else {
-        // Inject the plot
-        await this.props.codeInjector.plot(
-          this.state.selectedGM,
-          this.state.selectedGMgroup,
-          this.state.selectedTemplate,
-          this.state.overlayMode,
-          this.state.previousDisplayMode,
-          this.state.currentDisplayMode
-        );
+        if(this.state.shouldAnimate){
+          // Inject the animation code
+          await this.props.codeInjector.animate(
+            this.state.selectedGM,
+            this.state.selectedGMgroup,
+            this.state.selectedTemplate)
+        } else {
+          // Inject the plot
+          await this.props.codeInjector.plot(
+            this.state.selectedGM,
+            this.state.selectedGMgroup,
+            this.state.selectedTemplate,
+            this.state.overlayMode,
+            this.state.previousDisplayMode,
+            this.state.currentDisplayMode);
+        }
         this.setState({ previousDisplayMode: this.state.currentDisplayMode });
         this.props.setPlotExists(true);
       }
@@ -476,7 +490,8 @@ export default class VCSMenu extends React.Component<
       toggleSidecar: this.toggleSidecar,
       updateColormap: this.updateColormap,
       updateGraphicsOptions: this.updateGraphicsOptions,
-      varInfo: new Variable()
+      varInfo: new Variable(),
+      toggleAnimate: this.toggleAnimate
     };
     const varMenuProps = {
       codeInjector: this.props.codeInjector,

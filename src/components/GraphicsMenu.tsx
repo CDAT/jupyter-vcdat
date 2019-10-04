@@ -17,7 +17,8 @@ import {
   InputGroup,
   InputGroupAddon,
   ListGroup,
-  ListGroupItem
+  ListGroupItem,
+  Row
 } from "reactstrap";
 
 // Project Components
@@ -47,6 +48,7 @@ interface IGraphicsMenuProps {
   overlayMode: boolean;
   toggleOverlayMode: () => void;
   toggleSidecar: () => {};
+  toggleAnimate: () => void;
   currentDisplayMode: DISPLAY_MODE;
   copyGraphicsMethod: (
     groupName: string,
@@ -64,6 +66,7 @@ interface IGraphicsMenuState {
   nameValue: string;
   invalidName: boolean;
   plotReady: boolean;
+  shouldAnimate: boolean;
 }
 
 export default class GraphicsMenu extends React.Component<
@@ -81,7 +84,8 @@ export default class GraphicsMenu extends React.Component<
       selectedMethod: "",
       showDropdown: false,
       showMenu: false,
-      tempGroup: ""
+      tempGroup: "",
+      shouldAnimate: false
     };
     this.handleNameInput = this.handleNameInput.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);
@@ -94,8 +98,15 @@ export default class GraphicsMenu extends React.Component<
     this.graphicsOptions = this.graphicsOptions.bind(this);
     this.resetGraphicsState = this.resetGraphicsState.bind(this);
     this.selectItem = this.selectItem.bind(this);
-
+    this.toggleAnimate = this.toggleAnimate.bind(this);
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
+  }
+
+  public toggleAnimate(): void {
+    this.setState({
+      shouldAnimate: !this.state.shouldAnimate
+    });
+    this.props.toggleAnimate();
   }
 
   public toggleDropdown(): void {
@@ -214,6 +225,18 @@ export default class GraphicsMenu extends React.Component<
                 checked={this.props.currentDisplayMode === DISPLAY_MODE.Sidecar}
                 onChange={this.props.toggleSidecar}
               />
+
+              <CustomInput
+                type="switch"
+                id={
+                  /*@tag<vcsmenu-animate-switch>*/ "vcsmenu-animate-switch-vcdat"
+                }
+                name="animateSwitch"
+                label="Animate"
+                disabled={!this.state.plotReady}
+                onChange={this.toggleAnimate}
+                />
+                
               <Dropdown
                 className={"float-left"}
                 style={{ maxWidth: "calc(100% - 70px)" }}
