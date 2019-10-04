@@ -128,8 +128,7 @@ jobs:
           destination: tests_firefox_html
       - store_artifacts:
           path: jupyter-vcdat_logfile.txt
-      # Uncomment below if you want to upload a commit directly
-      # to conda without merging to master
+      # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload
 
 workflows:
