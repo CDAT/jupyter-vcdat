@@ -329,13 +329,22 @@ export const GETTING_STARTED: Step[] = [
     title: "Load Variable"
   },
   {
-    content: `Use this graphics dropdown to choose the type of plot you'd like,
-    for example, boxfill, isofill, isoline, etc.`,
+    content: `Use this dropdown to choose the type of plot you'd like,
+    for example: boxfill, isofill, isoline, etc.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
     target: ".graphics-dropdown-vcdat",
-    title: "Graphics Options"
+    title: "Plot Type Dropdown"
+  },
+  {
+    content: `Use the colormap dropdown to choose the colormap you'd like to use,
+    for example: blends, categorical, classic, etc.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".colormap-dropdown-vcdat",
+    title: "Colormap Dropdown"
   },
   {
     content: `Use this button to change the way the plot looks on the "page".

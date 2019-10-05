@@ -64,7 +64,7 @@ export default class ColormapEditor extends React.Component<
           toggle={this.toggleDropdown}
         >
           <DropdownToggle
-            className={"graphics-dropdown-vcdat"}
+            className={"colormap-dropdown-vcdat"}
             disabled={!this.props.plotReady}
             caret={true}
           >
@@ -80,7 +80,7 @@ export default class ColormapEditor extends React.Component<
               };
               return (
                 <DropdownItem
-                  className={"graphics-dropdown-item-vcdat"}
+                  className={"colormap-dropdown-item-vcdat"}
                   onClick={selectCM}
                   key={cmName}
                 >
