@@ -99,7 +99,7 @@ jobs:
     docker:
       - image: cdat/vcdat_circleci:nightly
     environment:
-      VCDAT_VERSION: "2.0.9"
+      VCDAT_VERSION: "2.1.1"
     steps:
       - checkout
       - run: *npm_publish
@@ -135,5 +135,10 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      #- linux_jupyter_vcdat
-      - publish
+      - linux_jupyter_vcdat
+      - publish:
+          requires:
+            - linux_jupyter_vcdat
+          filters:
+            branches:
+              only: master
