@@ -287,7 +287,7 @@ export default class GraphicsMenu extends React.Component<
               </Button>
               <Button
                 className={
-                  /*@tag<float-right graphics-copy-btn>*/ "float-left graphics-copy-btn-vcdat"
+                  /*@tag<float-right graphics-copy-btn>*/ "float-right graphics-copy-btn-vcdat"
                 }
                 style={{ marginLeft: "0.5em" }}
                 hidden={
