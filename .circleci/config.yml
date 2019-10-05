@@ -1,5 +1,4 @@
 version: 2
-
 aliases:
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -63,23 +62,18 @@ aliases:
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
-       if [[ $CIRCLE_BRANCH == 'master' ]]; then
-        export LABEL=nightly
-       else
-        exit 0
-       fi
        export PKG_NAME=jupyter-vcdat
+       export LABEL=nightly
        export USER=cdat
-       export VERSION=2.1.1
        conda install conda-build anaconda-client
        conda config --set anaconda_upload no
        export CONDA_BLD_PATH=`pwd`/conda_build
        git clone git://github.com/cdat/conda-recipes
        cd conda-recipes
        ln -s ../recipe $PKG_NAME
-       python ./prep_for_build.py -l $VERSION -b ${CIRCLE_BRANCH}
+       python ./prep_for_build.py -l $VCDAT_VERSION -b ${CIRCLE_BRANCH}
        conda build $PKG_NAME $CHANNELS --python=3.6
-       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force
 
   - &npm_publish
     name: npm_publish
@@ -95,18 +89,23 @@ aliases:
       cd kube
       echo "$DOCKER_TOKEN" | docker login --username downie4 --password-stdin
       docker build --no-cache --tag=cdat/vcdat:nightly .
+      docker image tag cdat/vcdat:nightly cdat/vcdat:$VCDAT_VERSION
+      docker push cdat/vcdat:$VCDAT_VERSION
       docker push cdat/vcdat:nightly
       docker logout
 
 jobs:
   publish:
     docker:
-      - image: circleci/buildpack-deps:stretch
+      - image: cdat/vcdat_circleci:nightly
+    environment:
+      VCDAT_VERSION: "2.1.1"
     steps:
       - checkout
       - run: *npm_publish
       - setup_remote_docker
       - run: *docker_publish
+      - run: *conda_upload
   
   linux_jupyter_vcdat:
     docker:
@@ -129,7 +128,8 @@ jobs:
           destination: tests_firefox_html
       - store_artifacts:
           path: jupyter-vcdat_logfile.txt
-      - run: *conda_upload
+      # Uncomment below to upload directly to conda without merging to master
+      #- run: *conda_upload
 
 workflows:
   version: 2

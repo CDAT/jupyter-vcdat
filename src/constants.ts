@@ -296,28 +296,6 @@ export const GETTING_STARTED: Step[] = [
     title: "Clear"
   },
   {
-    content: `When the overlay mode is on, new plots will overlap previous plots.
-    This allows you to plot isolines on top of a map created using the isofill 
-    graphic method, for example.`,
-    disableCloseOnEsc: true,
-    hideCloseButton: true,
-    placement: "right",
-    target: `#left-sidebar > div > div.card > div > div
-     > div:nth-child(2) > div > div`,
-    title: "Overlay Mode"
-  },
-  {
-    content: `When the 'Plot to Sidecar' toggle is on, plots will be rendered to the right \
-    of the notebook within the 'Sidecar' panel. The sidecar panel will remain on the right until \
-    the notebook is closed. If the toggle is left off, plots will be rendered within the notebook.`,
-    disableCloseOnEsc: true,
-    hideCloseButton: true,
-    placement: "right",
-    target: `#left-sidebar > div > div.card > div > div
-     > div:nth-child(2) > div:nth-child(2) > div`,
-    title: "Plot to Sidecar"
-  },
-  {
     content: `Use this button to load variables from a data file. You can subset
     the variables so not all of the data is loaded. For example, you can constrain
     the latitude and longitude so data from a specific area is loaded instead of
@@ -329,13 +307,44 @@ export const GETTING_STARTED: Step[] = [
     title: "Load Variable"
   },
   {
-    content: `Use this graphics dropdown to choose the type of plot you'd like,
-    for example, boxfill, isofill, isoline, etc.`,
+    content: `When the overlay mode is on, new plots will overlap previous plots.
+    This allows you to plot isolines on top of a map created using the isofill 
+    graphic method, for example.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: `#left-sidebar > div > div:nth-child(3) > div > div > 
+    div.clearfix.card-subtitle > div:nth-child(1)`,
+    title: "Overlay Mode"
+  },
+  {
+    content: `When the 'Plot to Sidecar' toggle is on, plots will be rendered to the right \
+    of the notebook within the 'Sidecar' panel. The sidecar panel will remain on the right until \
+    the notebook is closed. If the toggle is left off, plots will be rendered within the notebook.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: `#left-sidebar > div > div:nth-child(3) > div > div > 
+    div.clearfix.card-subtitle > div:nth-child(2)`,
+    title: "Plot to Sidecar"
+  },
+  {
+    content: `Use this dropdown to choose the type of plot you'd like,
+    for example: boxfill, isofill, isoline, etc.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
     target: ".graphics-dropdown-vcdat",
-    title: "Graphics Options"
+    title: "Plot Type Dropdown"
+  },
+  {
+    content: `Use the colormap dropdown to choose the colormap you'd like to use,
+    for example: blends, categorical, classic, etc.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".colormap-dropdown-vcdat",
+    title: "Colormap Dropdown"
   },
   {
     content: `Use this button to change the way the plot looks on the "page".

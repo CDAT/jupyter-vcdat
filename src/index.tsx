@@ -24,12 +24,7 @@ import {
 
 // Project Components
 import "../style/css/index.css";
-import {
-  EXTENSIONS,
-  GETTING_STARTED,
-  REPLACEMENT_STEPS,
-  VCDAT_VERSION
-} from "./constants";
+import { EXTENSIONS, GETTING_STARTED, REPLACEMENT_STEPS } from "./constants";
 import NCViewerWidget from "./NCViewerWidget";
 import NotebookUtilities from "./NotebookUtilities";
 import LeftSideBarWidget from "./LeftSideBarWidget";
