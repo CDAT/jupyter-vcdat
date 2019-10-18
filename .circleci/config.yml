@@ -72,7 +72,7 @@ aliases:
        cd conda-recipes
        ln -s ../recipe $PKG_NAME
        python ./prep_for_build.py -l $VCDAT_VERSION -b ${CIRCLE_BRANCH}
-       conda build $PKG_NAME $CHANNELS --python=3.6
+       conda build $PKG_NAME $CHANNELS recipe
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force
 
   - &npm_publish
