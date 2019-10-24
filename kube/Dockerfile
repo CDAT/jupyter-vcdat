@@ -1,5 +1,5 @@
 # This dockerfile will create a docker image for an official release
-FROM jasonb87/nimbus-basic:latest
+FROM aims2.llnl.gov/nimbus-basic:latest
 # Get the latest image tag at:
 # https://hub.docker.com/r/jasonb87/nimbus-basic
 

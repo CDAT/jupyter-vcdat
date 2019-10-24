@@ -4,7 +4,7 @@ package:
 
 source:
     git_rev: @UVCDAT_BRANCH@
-    git_url: git://github.com/cdat/jupyter-vcdat.git
+    git_url: https://github.com/cdat/jupyter-vcdat.git
 
 build:
     number: @BUILD_NUMBER@
@@ -26,5 +26,5 @@ requirements:
     - nb_conda_kernels
 
 about:
-    home:  http://github.com/cdat/jupyter-vcdat
+    home:  https://github.com/cdat/jupyter-vcdat
 
