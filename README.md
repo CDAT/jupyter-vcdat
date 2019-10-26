@@ -6,16 +6,20 @@ A Jupyter Lab extension that integrates vCDAT features directly in a notebook.
 
 ## Prerequisites
 
-- Installation of conda via Anaconda or Miniconda conda >=4.6.11 (the script
+### For installing locally with conda you'll need:
+- Installation of conda via Anaconda or Miniconda conda >=4.7.12 (the script
   will try to update your base installation anyway)
 
-If you didn't let Anaconda or Miniconda prepend the Anaconda<2 or 3> install location to PATH, make sure conda is in your PATH (for more information see the [Anaconda Documentation](https://docs.anaconda.com/anaconda/user-guide/faq/#installing-anaconda)). Assuming Ananconda is installed in ${HOME}/anaconda:
+If you didn't let Anaconda or Miniconda prepend the Anaconda(2 or 3) install location to PATH, make sure conda is in your PATH (for more information see the [Anaconda Documentation](https://docs.anaconda.com/anaconda/user-guide/faq/#installing-anaconda)). Assuming Ananconda is installed in ${HOME}/anaconda:
 * export PATH=${HOME}/anaconda/bin:${PATH} # for bash
 * setenv PATH ${HOME}/anaconda/bin:${PATH} # for tcsh
 
+### For running docker container, you'll need docker installed:
+- Installing Docker: https://docs.docker.com/v17.09/engine/installation/
+
 ## User Installation
 
-You can run jupyter-vcdat via local installation, via anaconda environment or by dcker container.
+You can run jupyter-vcdat via a local installation, an anaconda environment or through a docker container.
 
 ### New conda environment
 
@@ -83,11 +87,8 @@ cdat_info.download_sample_data_files(path,"sample_data")
 
 ## Local installation (for developers)
 
-If you didn't let Anaconda or Miniconda prepend the Anaconda<2 or 3> install location to PATH, make sure conda is in your PATH (for more information see the [Anaconda Documentation](https://docs.anaconda.com/anaconda/user-guide/faq/#installing-anaconda)). Assuming Ananconda is installed in ${HOME}/anaconda:
-* export PATH=${HOME}/anaconda/bin:${PATH} # for bash
-* setenv PATH ${HOME}/anaconda/bin:${PATH} # for tcsh
-
-Next, clone the jupyter-vcdat github repo:
+Make sure you have met all pre-requisits noted at the top.
+Clone the jupyter-vcdat github repo:
 
 ```bash
 git clone https://github.com/CDAT/jupyter-vcdat.git
@@ -108,7 +109,7 @@ Change into the directory containing the repo and type in the following commands
       apm install linter-tslint
 
     # For all users, activate the jupyter-vcdat environment and launch the JupyterLab interface
-    Activate jupyter-vcdat
+    conda activate jupyter-vcdat
     jupyter lab
 
 ```
@@ -119,3 +120,5 @@ To rebuild the package and the JupyterLab app:
 npm run build
 jupyter lab build
 ```
+
+* For more information on getting started with Jupyter-VCDAT checkout the [Getting Started Page](https://github.com/CDAT/jupyter-vcdat/wiki/Getting-Started).
