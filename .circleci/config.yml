@@ -91,7 +91,7 @@ aliases:
     command: |
       cd kube
       echo "$DOCKER_TOKEN" | docker login --username downie4 --password-stdin
-      echo "$DOCKER_AIMS2_TOKEN" | docker login --username downie4 --password-stdin aims2.llnl.gov
+      echo "$DOCKER_TOKEN2" | docker login --username downie4 --password-stdin $DOCKER_IMAGE_SOURCE
       docker build --no-cache --tag=cdat/vcdat:nightly .
       docker image tag cdat/vcdat:nightly cdat/vcdat:$VCDAT_VERSION
       docker push cdat/vcdat:$VCDAT_VERSION
