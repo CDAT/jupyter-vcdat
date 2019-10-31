@@ -84,7 +84,7 @@ aliases:
       export CDAT_ANONYMOUS_LOG=False
       npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-      npm version patch -m "Auto-increment version to $s."
+      npm version patch -m "Auto-incremented to version $s"
       npm publish --tag nightly
 
   - &docker_publish
