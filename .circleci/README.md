@@ -19,6 +19,6 @@ docker push cdat/vcdat_circleci:<new version>
 
 - Retag latest version as nightly and push
 ```bash
-docker image tag cdat/vcdat_circleci:nightly cdat/vcdat_circleci:<new version>
+docker image tag cdat/vcdat_circleci:<new version> cdat/vcdat_circleci:nightly
 docker push cdat/vcdat_circleci:nightly
 ```
