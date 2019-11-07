@@ -86,6 +86,7 @@ aliases:
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       git config user.name $CIRCLE_USERNAME
       npm version patch -m "Auto-incremented to version $s"
+      npm pack
       #npm publish --tag nightly
 
   - &docker_publish
