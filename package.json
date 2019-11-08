@@ -1,6 +1,6 @@
 {
   "name": "jupyter-vcdat",
-  "version": "2.1.4",
+  "version": "2.1.6",
   "description": "A vCDAT extension for JupyterLab.",
   "keywords": [
     "jupyter",
@@ -57,14 +57,14 @@
   "dependencies": {
     "@jupyterlab/application": "^1.2.0",
     "@jupyterlab/apputils": "^1.2.0",
-    "@jupyterlab/cells": "^1.2.0",
-    "@jupyterlab/console": "^1.2.0",
+    "@jupyterlab/cells": "^1.2.1",
+    "@jupyterlab/console": "^1.2.1",
     "@jupyterlab/coreutils": "^3.2.0",
     "@jupyterlab/docregistry": "^1.2.0",
     "@jupyterlab/filebrowser": "^1.2.0",
     "@jupyterlab/mainmenu": "^1.2.0",
-    "@jupyterlab/notebook": "^1.2.0",
-    "@jupyterlab/outputarea": "^1.2.0",
+    "@jupyterlab/notebook": "^1.2.1",
+    "@jupyterlab/outputarea": "^1.2.1",
     "@jupyterlab/services": "^4.2.0",
     "@phosphor/algorithm": "^1.2.0",
     "@phosphor/commands": "^1.7.2",
@@ -75,13 +75,13 @@
     "@phosphor/widgets": "^1.9.3",
     "@types/bootstrap-slider": "^9.9.0",
     "@types/jquery": "^3.3.31",
-    "@types/lodash": "^4.14.144",
+    "@types/lodash": "^4.14.145",
     "@types/rc-slider": "^8.6.5",
     "@types/react": "~16.8.4",
     "@types/react-bootstrap": "^0.32.20",
     "@types/react-dom": "~16.8.4",
     "@types/react-html-parser": "^2.0.1",
-    "@types/react-joyride": "^2.0.2",
+    "@types/react-joyride": "^2.0.5",
     "@types/react-list": "^0.8.4",
     "@types/reactstrap": "^8.0.6",
     "autobind-decorator": "^2.4.0",
@@ -113,11 +113,11 @@
     "prettier": "^1.18.2",
     "prettier-tslint": "^0.4.2",
     "rimraf": "^2.7.1",
-    "tslint": "^5.20.0",
+    "tslint": "^5.20.1",
     "tslint-config-airbnb": "^5.11.2",
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.1.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.7.2"
   },
   "jupyterlab": {
     "extension": true
