@@ -72,8 +72,9 @@ aliases:
        git clone https://github.com/cdat/conda-recipes
        cd conda-recipes
        export CONDA_RECIPES_REPO=`pwd`
-       ln -s $REPO_DIR $PKG_NAME
+       ln -s $REPO_DIR .
        cd $REPO_DIR
+       echo $REPO_DIR, $CONDA_RECIPES_REPO, $CONDA_BUILD_PATH, ${CIRCLE_BRANCH}
        python $CONDA_RECIPES_REPO/prep_for_build.py -l $VCDAT_VERSION -b ${CIRCLE_BRANCH}
        conda build $CHANNELS recipe
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force

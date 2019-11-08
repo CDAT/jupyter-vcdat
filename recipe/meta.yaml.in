@@ -4,7 +4,7 @@ package:
 
 source:
     git_rev: @UVCDAT_BRANCH@
-    git_url: https://github.com/cdat/jupyter-vcdat.git
+    git_url: git://github.com/cdat/jupyter-vcdat.git
 
 build:
     number: @BUILD_NUMBER@
