@@ -66,14 +66,13 @@ aliases:
        export PKG_NAME=jupyter-vcdat
        export LABEL=nightly
        export USER=cdat
-       export VERSION=$VCDAT_VERSION
        conda install conda-build anaconda-client
        conda config --set anaconda_upload no
        export CONDA_BLD_PATH=`pwd`/conda_build
        git clone https://github.com/cdat/conda-recipes
        cd conda-recipes
        export CONDA_RECIPES_REPO=`pwd`
-       ln -s $REPO_DIR .
+       ln -s $REPO_DIR $PKG_NAME
        cd $REPO_DIR
        python $CONDA_RECIPES_REPO/prep_for_build.py -l $VCDAT_VERSION -b ${CIRCLE_BRANCH}
        conda build $CHANNELS recipe
@@ -111,8 +110,8 @@ jobs:
     steps:
       - checkout
       - run: *npm_publish
-      - setup_remote_docker
-      - run: *docker_publish
+      #- setup_remote_docker
+      #- run: *docker_publish
       - run: *conda_upload
   
   linux_jupyter_vcdat:
