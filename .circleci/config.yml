@@ -77,16 +77,27 @@ aliases:
       conda build $CHANNELS recipe
       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force
 
+  - &check_npm_version
+    name: check_npm_version
+    command: |
+      function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+      LOCAL_VERSION=`node -pe "require('./package.json').version"`
+      NPM_VERSION=`npm view jupyter-vcdat@nightly version`
+      if version_gt $NPM_VERSION $LOCAL_VERSION; then
+        echo "$NPM_VERSION is greater than $LOCAL_VERSION!"
+        echo "You should update 'version' in package.json to version greater than $NPM_VERSION"
+        exit 1
+      fi
+
   - &npm_publish
     name: npm_publish
     command: |
-      echo `ls CIRCLE_WORKING_DIRECTORY`
+      echo `ls $CIRCLE_WORKING_DIRECTORY`
       export CDAT_ANONYMOUS_LOG=False
       npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-      git config user.name $CIRCLE_USERNAME
-      npm version patch --verbose -m "Auto-incremented to version $s"
-      git push
+      #git config user.name $CIRCLE_USERNAME
+      #npm version patch --verbose -m "Auto-incremented to version $s"
       npm publish --dry-run --tag nightly
 
   - &docker_publish
@@ -110,9 +121,9 @@ jobs:
     steps:
       - checkout
       - run: *npm_publish
-      #- setup_remote_docker
-      #- run: *docker_publish
-      #- run: *conda_upload
+      - setup_remote_docker
+      - run: *docker_publish
+      - run: *conda_upload
 
   linux_jupyter_vcdat:
     docker:
@@ -123,6 +134,7 @@ jobs:
       - checkout
       - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
       - run: *setup_jupyter_vcdat
+      - run: *check_npm_version
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_chrome
@@ -142,5 +154,10 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      #- linux_jupyter_vcdat
-      - publish
+      - linux_jupyter_vcdat
+      - publish:
+          requires:
+            - linux_jupyter_vcdat
+          filters:
+            branches:
+              only: master
