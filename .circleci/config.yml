@@ -74,7 +74,6 @@ aliases:
       export CONDA_RECIPES_REPO=`pwd`
       ln -s $REPO_DIR .
       cd $REPO_DIR
-      echo $REPO_DIR, $CONDA_RECIPES_REPO, $CONDA_BUILD_PATH, ${CIRCLE_BRANCH}
       python $CONDA_RECIPES_REPO/prep_for_build.py -l $VCDAT_VERSION -b ${CIRCLE_BRANCH}
       conda build $CHANNELS recipe
       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force
@@ -82,12 +81,15 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
+      echo `ls $CONDA_WORKING_DIRECTORY`
+      echo `ls $HOME`
       export CDAT_ANONYMOUS_LOG=False
       npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       git config user.name $CIRCLE_USERNAME
-      npm version patch -m "Auto-incremented to version $s"
-      npm publish --tag nightly
+      npm version patch --verbose -m "Auto-incremented to version $s"
+      npm pack
+      #npm publish --tag nightly
 
   - &docker_publish
     name: docker_publish
@@ -109,9 +111,9 @@ jobs:
       VCDAT_VERSION: "2.1.7"
     steps:
       - checkout
-      - setup_remote_docker
-      - run: *docker_publish
-      - run: *conda_upload
+      #- setup_remote_docker
+      #- run: *docker_publish
+      #- run: *conda_upload
       - run: *npm_publish
 
   linux_jupyter_vcdat:
@@ -142,10 +144,5 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_jupyter_vcdat
-      - publish:
-          requires:
-            - linux_jupyter_vcdat
-          filters:
-            branches:
-              only: master
+      #- linux_jupyter_vcdat
+      - publish
