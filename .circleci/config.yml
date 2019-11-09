@@ -14,18 +14,18 @@ aliases:
       echo "XXX npm list"
       npm list
       git status
-
-  - &check_npm_version
+  
+  - &check_vcdat_versions
     name: check_npm_version
     command: |
+      export LOCAL_VCDAT_VERSION=`node -pe "require('./package.json').version"`
+      export NPM_VCDAT_VERSION=`npm view jupyter-vcdat@nightly version`
       function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
-      LOCAL_VERSION=`node -pe "require('./package.json').version"`
-      NPM_VERSION=`npm view jupyter-vcdat@nightly version`
-      if version_gt $LOCAL_VERSION $NPM_VERSION; then
-        echo "Version of $LOCAL_VERSION in the package.json looks good! NPM publish should work!"
+      if version_gt $LOCAL_VCDAT_VERSION $NPM_VCDAT_VERSION; then
+        echo "Version of $LOCAL_VCDAT_VERSION in the package.json looks good!"
       else
-        echo "Version $LOCAL_VERSION in package.json is not newer than npm version of $NPM_VERSION and will cause NPM publish to fail."
-        echo "You should update version $LOCAL_VERSION in package.json to a version greater than $NPM_VERSION"
+        echo "Version $LOCAL_VCDAT_VERSION in package.json is not newer than npm version of $NPM_VCDAT_VERSION and will cause Publish job to fail."
+        echo "You should update version $LOCAL_VCDAT_VERSION in package.json to a version greater than $NPM_VCDAT_VERSION"
         exit 1
       fi
 
@@ -88,9 +88,9 @@ aliases:
       export CONDA_RECIPES_REPO=`pwd`
       ln -s $REPO_DIR .
       cd $REPO_DIR
-      python $CONDA_RECIPES_REPO/prep_for_build.py -l $VCDAT_VERSION -b ${CIRCLE_BRANCH}
+      python $CONDA_RECIPES_REPO/prep_for_build.py -l $LOCAL_VCDAT_VERSION -b ${CIRCLE_BRANCH}
       conda build $CHANNELS recipe
-      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force
+      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force
 
   - &npm_publish
     name: npm_publish
@@ -107,8 +107,8 @@ aliases:
       echo "$DOCKER_TOKEN" | docker login --username downie4 --password-stdin
       echo "$DOCKER_TOKEN2" | docker login --username downie4 --password-stdin $DOCKER_IMAGE_SOURCE
       docker build --no-cache --tag=cdat/vcdat:nightly .
-      docker image tag cdat/vcdat:nightly cdat/vcdat:$VCDAT_VERSION
-      docker push cdat/vcdat:$VCDAT_VERSION
+      docker image tag cdat/vcdat:nightly cdat/vcdat:$LOCAL_VCDAT_VERSION
+      docker push cdat/vcdat:$LOCAL_VCDAT_VERSION
       docker push cdat/vcdat:nightly
       docker logout
 
@@ -116,10 +116,9 @@ jobs:
   publish:
     docker:
       - image: cdat/vcdat_circleci:nightly
-    environment:
-      VCDAT_VERSION: "2.1.7"
     steps:
       - checkout
+      - run: *check_vcdat_versions
       - run: *npm_publish
       - setup_remote_docker
       - run: *docker_publish
@@ -132,7 +131,7 @@ jobs:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
       - checkout
-      - run: *check_npm_version
+      - run: *check_vcdat_versions
       - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
@@ -154,5 +153,10 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      #- linux_jupyter_vcdat
-      - publish
+      - linux_jupyter_vcdat
+      - publish:
+          requires:
+            - linux_jupyter_vcdat
+          filters:
+            branches:
+              only: master
