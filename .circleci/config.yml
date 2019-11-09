@@ -15,17 +15,17 @@ aliases:
       npm list
       git status
 
-    - &check_npm_version
-    name: check_npm_version
-    command: |
-      function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
-      LOCAL_VERSION=`node -pe "require('./package.json').version"`
-      NPM_VERSION=`npm view jupyter-vcdat@nightly version`
-      if version_gt $NPM_VERSION $LOCAL_VERSION; then
-        echo "$NPM_VERSION is greater than $LOCAL_VERSION!"
-        echo "You should update 'version' in package.json to version greater than $NPM_VERSION"
-        exit 1
-      fi
+  - &check_npm_version
+  name: check_npm_version
+  command: |
+    function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+    LOCAL_VERSION=`node -pe "require('./package.json').version"`
+    NPM_VERSION=`npm view jupyter-vcdat@nightly version`
+    if version_gt $NPM_VERSION $LOCAL_VERSION; then
+      echo "Current package.json version is $LOCAL_VERSION but npm has newer version of $NPM_VERSION!"
+      echo `You should update version "$LOCAL_VERSION" in package.json to a version greater than $NPM_VERSION`
+      exit 1
+    fi
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
