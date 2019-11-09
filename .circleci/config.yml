@@ -76,6 +76,7 @@ aliases:
     environment:
       CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
+      export REPO_DIR=`pwd`
       export PKG_NAME=jupyter-vcdat
       export LABEL=nightly
       export USER=cdat
@@ -85,8 +86,8 @@ aliases:
       git clone https://github.com/cdat/conda-recipes
       cd conda-recipes
       export CONDA_RECIPES_REPO=`pwd`
-      ln -s $CIRCLE_WORKING_DIRECTORY .
-      cd $CIRCLE_WORKING_DIRECTORY
+      ln -s $REPO_DIR .
+      cd $REPO_DIR
       python $CONDA_RECIPES_REPO/prep_for_build.py -l $VCDAT_VERSION -b ${CIRCLE_BRANCH}
       conda build $CHANNELS recipe
       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force
@@ -94,7 +95,6 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
-      echo `ls $CIRCLE_WORKING_DIRECTORY`
       export CDAT_ANONYMOUS_LOG=False
       npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
@@ -154,10 +154,5 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_jupyter_vcdat
-      - publish:
-          requires:
-            - linux_jupyter_vcdat
-          filters:
-            branches:
-              only: master
+      #- linux_jupyter_vcdat
+      - publish
