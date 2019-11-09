@@ -11,23 +11,21 @@ aliases:
       npm install
       jupyter lab build
       jupyter-labextension install .
-      echo "Installed jupyter-vdat version $LOCAL_VCDAT_VERSION"
-      echo "XXX npm list"
-      npm list
-      git status
-  
+      echo "Installed jupyter-vcdat version $LOCAL_VCDAT_VERSION successfully."
+
   - &check_vcdat_versions
     name: check_npm_version
     command: |
-      export LOCAL_VCDAT_VERSION=`node -pe "require('./package.json').version"`
-      export NPM_VCDAT_VERSION=`npm view jupyter-vcdat@nightly version`
+      LOCAL_VCDAT_VERSION=`node -pe "require('./package.json').version"`
+      NPM_VCDAT_VERSION=`npm view jupyter-vcdat@nightly version`
+      echo "export LOCAL_VCDAT_VERSION=$LOCAL_VCDAT_VERSION" >> $BASH_ENV
+      echo "export NPM_VCDAT_VERSION=$NPM_VCDAT_VERSION" >> $BASH_ENV
       function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
       if version_gt $LOCAL_VCDAT_VERSION $NPM_VCDAT_VERSION; then
-        echo "Version of $LOCAL_VCDAT_VERSION in the package.json looks good!"
+        echo "Version of $LOCAL_VCDAT_VERSION in the package.json looks good."
       else
         echo "Version $LOCAL_VCDAT_VERSION in package.json is not newer than npm version of $NPM_VCDAT_VERSION and will cause Publish job to fail."
         echo "You should update version $LOCAL_VCDAT_VERSION in package.json to a version greater than $NPM_VCDAT_VERSION"
-        exit 1
       fi
 
   - &run_jupyter_vcdat
@@ -132,8 +130,8 @@ jobs:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
       - checkout
-      - run: *check_vcdat_versions
       - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
+      - run: *check_vcdat_versions
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 15
