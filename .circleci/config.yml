@@ -11,7 +11,7 @@ aliases:
       npm install
       jupyter lab build
       jupyter-labextension install .
-      echo "Installed jupyter-vcdat version $LOCAL_VCDAT_VERSION successfully."
+      echo -e "\nInstalled jupyter-vcdat version $LOCAL_VCDAT_VERSION successfully."
 
   - &check_vcdat_versions
     name: check_npm_version
