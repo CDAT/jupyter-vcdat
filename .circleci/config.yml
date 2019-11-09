@@ -16,16 +16,18 @@ aliases:
       git status
 
   - &check_npm_version
-  name: check_npm_version
-  command: |
-    function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
-    LOCAL_VERSION=`node -pe "require('./package.json').version"`
-    NPM_VERSION=`npm view jupyter-vcdat@nightly version`
-    if version_gt $NPM_VERSION $LOCAL_VERSION; then
-      echo "Current package.json version is $LOCAL_VERSION but npm has newer version of $NPM_VERSION!"
-      echo `You should update version "$LOCAL_VERSION" in package.json to a version greater than $NPM_VERSION`
-      exit 1
-    fi
+    name: check_npm_version
+    command: |
+      function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+      LOCAL_VERSION=`node -pe "require('./package.json').version"`
+      NPM_VERSION=`npm view jupyter-vcdat@nightly version`
+      if version_gt $LOCAL_VERSION $NPM_VERSION; then
+        echo "Version of $LOCAL_VERSION in the package.json looks good! NPM publish should work!"
+      else
+        echo "Version $LOCAL_VERSION in package.json is older than npm version of $NPM_VERSION"
+        echo `You should update version "$LOCAL_VERSION" in package.json to a version greater than $NPM_VERSION`
+        exit 1
+      fi
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
