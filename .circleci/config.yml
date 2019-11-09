@@ -25,7 +25,7 @@ aliases:
         echo "Version of $LOCAL_VERSION in the package.json looks good! NPM publish should work!"
       else
         echo "Version $LOCAL_VERSION in package.json is older than npm version of $NPM_VERSION"
-        echo `You should update version "$LOCAL_VERSION" in package.json to a version greater than $NPM_VERSION`
+        echo "You should update version $LOCAL_VERSION in package.json to a version greater than $NPM_VERSION"
         exit 1
       fi
 
