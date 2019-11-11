@@ -1,6 +1,6 @@
 {
   "name": "jupyter-vcdat",
-  "version": "2.1.6",
+  "version": "2.1.9",
   "description": "A vCDAT extension for JupyterLab.",
   "keywords": [
     "jupyter",
@@ -51,7 +51,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "./precommit_checks.sh && lint-staged"
     }
   },
   "dependencies": {
