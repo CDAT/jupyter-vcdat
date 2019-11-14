@@ -192,7 +192,7 @@ export default class GraphicsMenu extends React.Component<
           <CardBody className={/*@tag<graphics-menu>*/ "graphics-menu-vcdat"}>
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle style={{ marginBottom: "10px" }}>
-              <InputGroup className="clearfix">
+              <InputGroup>
                 <div style={{ marginRight: "15px" }}>
                   <CustomInput
                     type="switch"
