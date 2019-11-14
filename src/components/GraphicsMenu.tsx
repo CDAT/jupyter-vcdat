@@ -5,8 +5,8 @@ import {
   Button,
   Card,
   CardBody,
+  CardGroup,
   CardSubtitle,
-  CardSubtitle as CardGroup,
   CardTitle,
   Collapse,
   CustomInput,
@@ -191,7 +191,7 @@ export default class GraphicsMenu extends React.Component<
         <Card>
           <CardBody className={/*@tag<graphics-menu>*/ "graphics-menu-vcdat"}>
             <CardTitle>Graphics Options</CardTitle>
-            <CardSubtitle style={{ marginBottom: "10px" }}>
+            <CardSubtitle>
               <InputGroup>
                 <div style={{ marginRight: "15px" }}>
                   <CustomInput
