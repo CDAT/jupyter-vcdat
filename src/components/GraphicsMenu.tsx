@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardBody,
+  CardGroup,
   CardSubtitle,
   CardTitle,
   Collapse,
@@ -190,30 +191,39 @@ export default class GraphicsMenu extends React.Component<
         <Card>
           <CardBody className={/*@tag<graphics-menu>*/ "graphics-menu-vcdat"}>
             <CardTitle>Graphics Options</CardTitle>
-            <CardSubtitle className={"clearfix"}>
-              <CustomInput
-                type="switch"
-                id={
-                  /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
-                }
-                name="overlayModeSwitch"
-                label="Overlay Mode"
-                disabled={!this.state.plotReady}
-                checked={this.props.overlayMode}
-                onChange={this.props.toggleOverlayMode}
-              />
-
-              <CustomInput
-                type="switch"
-                id={
-                  /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
-                }
-                name="sidecarSwitch"
-                label="Plot to Sidecar"
-                disabled={!this.state.plotReady}
-                checked={this.props.currentDisplayMode === DISPLAY_MODE.Sidecar}
-                onChange={this.props.toggleSidecar}
-              />
+            <CardSubtitle>
+              <InputGroup>
+                <div style={{ marginRight: "15px" }}>
+                  <CustomInput
+                    id="vcsmenu-overlay-switch-vcdat"
+                    type="switch"
+                    className={
+                      /*@tag<vcsmenu-overlay-switch>*/ "vcsmenu-overlay-switch-vcdat"
+                    }
+                    name="overlayModeSwitch"
+                    label="Overlay Mode"
+                    disabled={!this.state.plotReady}
+                    checked={this.props.overlayMode}
+                    onChange={this.props.toggleOverlayMode}
+                  />
+                </div>
+                <CustomInput
+                  id="vcsmenu-sidecar-switch-vcdat"
+                  type="switch"
+                  className={
+                    /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
+                  }
+                  name="sidecarSwitch"
+                  label="Plot to Sidecar"
+                  disabled={!this.state.plotReady}
+                  checked={
+                    this.props.currentDisplayMode === DISPLAY_MODE.Sidecar
+                  }
+                  onChange={this.props.toggleSidecar}
+                />
+              </InputGroup>
+            </CardSubtitle>
+            <CardGroup className={"clearfix"}>
               <Dropdown
                 className={"float-left"}
                 style={{ maxWidth: "calc(100% - 70px)" }}
@@ -312,11 +322,7 @@ export default class GraphicsMenu extends React.Component<
               >
                 Cancel
               </Button>
-            </CardSubtitle>
-            <ColormapEditor
-              updateColormap={this.props.updateColormap}
-              plotReady={this.state.selectedMethod ? true : false}
-            />
+            </CardGroup>
             <InputGroup
               hidden={!this.state.enterName}
               style={{ marginTop: "5px" }}
@@ -362,6 +368,10 @@ export default class GraphicsMenu extends React.Component<
                   this.graphicsOptions(this.state.tempGroup)}
               </Collapse>
             </Card>
+            <ColormapEditor
+              updateColormap={this.props.updateColormap}
+              plotReady={this.state.selectedMethod ? true : false}
+            />
           </CardBody>
         </Card>
       </div>

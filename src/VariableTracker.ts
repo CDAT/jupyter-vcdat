@@ -59,7 +59,6 @@ export default class VariableTracker {
     this.loadMetaData = this.loadMetaData.bind(this);
     this.refreshVariables = this.refreshVariables.bind(this);
     this.setNotebook = this.setNotebook.bind(this);
-    this.tryFilePath = this.tryFilePath.bind(this);
     this.updateAxesInfoGroup = this.updateAxesInfoGroup.bind(this);
     this.saveMetaData = this.saveMetaData.bind(this);
     this.copyVariable = this.copyVariable.bind(this);
@@ -422,20 +421,6 @@ export default class VariableTracker {
     this.selectedVariables = selection ? selection : Array<Variable>();
   }
 
-  // Will try to open a file path in cdms2. Returns true if successful.
-  public async tryFilePath(filePath: string) {
-    try {
-      await NotebookUtilities.sendSimpleKernelRequest(
-        this.notebookPanel,
-        `tryOpenFile = cdms2.open('${filePath}')\ntryOpenFile.close()`,
-        false
-      );
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
   /**
    * Opens a '.nc' file to read in it's variables via a kernel request.
    * @param filePath The file to open for variable reading
@@ -453,7 +438,15 @@ export default class VariableTracker {
       const relativePath: string = Utilities.getRelativePath(nbPath, filePath);
 
       this._isBusy = true;
-      const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+
+      // Try to open file in cdms, exit early if fails
+      if (!(await Utilities.tryFilePath(this.notebookPanel, relativePath))) {
+        this._isBusy = false;
+        return;
+      }
+
+      // File loaded successfully, pull variables from file
+      const result: string = await Utilities.sendSimpleKernelRequest(
         this.notebookPanel,
         getFileVarsCommand(relativePath)
       );
@@ -499,7 +492,7 @@ export default class VariableTracker {
     }
     this._isBusy = true;
     // Get the variables info
-    const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+    const result: string = await Utilities.sendSimpleKernelRequest(
       this.notebookPanel,
       REFRESH_VAR_CMD
     );
@@ -585,8 +578,15 @@ export default class VariableTracker {
     const relativePath: string = Utilities.getRelativePath(nbPath, sourceFile);
 
     this._isBusy = true;
+
+    // Try to open file in cdms, exit early if fails
+    if (!(await Utilities.tryFilePath(this.notebookPanel, relativePath))) {
+      this._isBusy = false;
+      return;
+    }
+
     // Get the variables info
-    const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+    const result: string = await Utilities.sendSimpleKernelRequest(
       this.notebookPanel,
       getAxisInfoFromFileCommand(relativePath)
     );
@@ -623,7 +623,7 @@ export default class VariableTracker {
     }
     this._isBusy = true;
     // Get the variables info
-    const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+    const result: string = await Utilities.sendSimpleKernelRequest(
       this.notebookPanel,
       getAxisInfoFromVariableCommand(variable.alias)
     );

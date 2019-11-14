@@ -20,11 +20,11 @@ import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import Variable from "./Variable";
 import VarMenu from "./VarMenu";
+import InputModal from "./InputModal";
 import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import { JupyterFrontEnd } from "@jupyterlab/application";
-import { ENGINE_METHOD_NONE } from "constants";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -36,7 +36,7 @@ const centered: React.CSSProperties = {
 const sidebarOverflow: React.CSSProperties = {
   height: "calc(100vh - 52px)",
   maxHeight: "100vh",
-  minWidth: "365px",
+  minWidth: "370px",
   overflow: "auto"
 };
 
@@ -59,6 +59,7 @@ interface IVCSMenuProps {
   updateNotebookPanel: () => Promise<void>; // Function passed to the var menu
   syncNotebook: () => boolean; // Function passed to the var menu
   openSidecarPanel?: (openSidecarPanel: boolean) => void;
+  prepareNotebookFromPath: (filepath: string) => Promise<void>;
   codeInjector: CodeInjector;
   varTracker: VariableTracker;
 }
@@ -89,6 +90,7 @@ export default class VCSMenu extends React.Component<
   public varMenuRef: VarMenu;
   public graphicsMenuRef: GraphicsMenu;
   public templateMenuRef: TemplateMenu;
+  public filePathInputRef: InputModal;
   constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
@@ -112,6 +114,8 @@ export default class VCSMenu extends React.Component<
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
+    this.templateMenuRef = (React as any).createRef();
+    this.filePathInputRef = (React as any).createRef();
     this.plot = this.plot.bind(this);
     this.clear = this.clear.bind(this);
     this.resetState = this.resetState.bind(this);
@@ -134,6 +138,7 @@ export default class VCSMenu extends React.Component<
     this.showExportSuccessAlert = this.showExportSuccessAlert.bind(this);
     this.setPlotInfo = this.setPlotInfo.bind(this);
     this.saveNotebook = this.saveNotebook.bind(this);
+    this.showInputModal = this.showInputModal.bind(this);
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
     this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
     this.handlePlotExistsChanged = this.handlePlotExistsChanged.bind(this);
@@ -177,6 +182,10 @@ export default class VCSMenu extends React.Component<
         this.setState({ exportSuccessAlert: false });
       }, 5000);
     });
+  }
+
+  public showInputModal(): void {
+    this.filePathInputRef.show();
   }
 
   public exportPlotAlerts(): void {
@@ -240,7 +249,7 @@ export default class VCSMenu extends React.Component<
     try {
       if (this.state.plotReady) {
         // Check the dimensions of the current canvas object
-        const output: string = await NotebookUtilities.sendSimpleKernelRequest(
+        const output: string = await Utilities.sendSimpleKernelRequest(
           this.state.notebookPanel,
           CANVAS_DIMENSIONS_CMD
         );
@@ -487,6 +496,7 @@ export default class VCSMenu extends React.Component<
       saveNotebook: this.saveNotebook,
       setPlotInfo: this.setPlotInfo,
       showExportSuccessAlert: this.showExportSuccessAlert,
+      showInputModal: this.showInputModal,
       syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel,
       varTracker: this.props.varTracker
@@ -507,6 +517,15 @@ export default class VCSMenu extends React.Component<
       setPlotInfo: this.setPlotInfo,
       showExportSuccessAlert: this.showExportSuccessAlert,
       toggle: this.toggleModal
+    };
+
+    const inputModalProps = {
+      acceptText: "Open File",
+      cancelText: "Cancel",
+      message: "Enter the path and name of the file you wish to open.",
+      onModalClose: this.props.prepareNotebookFromPath,
+      placeHolder: "path_to_file/file",
+      title: "Load Variables from Path"
     };
 
     return (
@@ -574,6 +593,10 @@ export default class VCSMenu extends React.Component<
           ref={loader => (this.templateMenuRef = loader)}
         />
         <ExportPlotModal {...exportPlotModalProps} />
+        <InputModal
+          {...inputModalProps}
+          ref={loader => (this.filePathInputRef = loader)}
+        />
         <div>
           <Alert
             color="info"

@@ -177,6 +177,16 @@ ${OUTPUT_RESULT_NAME} = json.dumps(${safe("outVars")})\n\
 ${safe("var")} = None`;
 
 // FUNCTIONS THAT GENERATE PYTHON COMMANDS
+export function checkCDMS2FileOpens(filename: string): string {
+  const command: string = `import cdms2\n\
+try:\n\
+	file=cdms2.open("${filename}")\n\
+	file.close()\n\
+	${OUTPUT_RESULT_NAME} = True\n\
+except:\n\
+	${OUTPUT_RESULT_NAME} = False`;
+  return command;
+}
 
 export function checkForExportedFileCommand(filename: string): string {
   return `import os\n\

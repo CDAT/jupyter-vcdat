@@ -166,7 +166,7 @@ export default class ExportPlotModal extends React.Component<
     );
     const plotFileName = `${plotName}.${fileFormat}`;
     try {
-      const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+      const result: string = await Utilities.sendSimpleKernelRequest(
         this.props.notebookPanel,
         checkForExportedFileCommand(plotFileName)
       );

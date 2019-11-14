@@ -103,8 +103,8 @@ aliases:
     name: docker_publish
     command: |
       cd kube
-      echo "$DOCKER_TOKEN" | docker login --username downie4 --password-stdin
-      echo "$DOCKER_TOKEN2" | docker login --username downie4 --password-stdin $DOCKER_IMAGE_SOURCE
+      echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
+      echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
       docker build --no-cache --tag=cdat/vcdat:nightly .
       docker image tag cdat/vcdat:nightly cdat/vcdat:$LOCAL_VCDAT_VERSION
       docker push cdat/vcdat:$LOCAL_VCDAT_VERSION

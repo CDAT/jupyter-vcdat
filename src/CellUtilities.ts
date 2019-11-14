@@ -4,7 +4,7 @@ import { nbformat } from "@jupyterlab/coreutils";
 import { Notebook, NotebookActions, NotebookPanel } from "@jupyterlab/notebook";
 
 // Project Components
-import NotebookUtilities from "./NotebookUtilities";
+import Utilities from "./Utilities";
 
 /** Contains some utility functions for handling notebook cells */
 export default class CellUtilities {
@@ -317,7 +317,7 @@ export default class CellUtilities {
         index,
         code
       );
-      const output: string = await NotebookUtilities.sendSimpleKernelRequest(
+      const output: string = await Utilities.sendSimpleKernelRequest(
         notebookPanel,
         code,
         false

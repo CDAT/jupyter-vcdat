@@ -1,6 +1,6 @@
 {
   "name": "jupyter-vcdat",
-  "version": "2.1.9",
+  "version": "2.2.0",
   "description": "A vCDAT extension for JupyterLab.",
   "keywords": [
     "jupyter",
@@ -32,16 +32,16 @@
     "scss-watch": "node-sass --watch style/scss -o style/css",
     "scss": "node-sass style/scss -o style/css",
     "tslint-check": "npx tslint-config-prettier-check ./tslint.json",
-    "lint": "npx tslint 'src/**/*.{ts,tsx}'",
-    "lint-file": "npx tslint ",
-    "lint-fix-file": "npx tslint --fix ",
+    "lint": "npx tslint 'src/**/*.{ts,tsx}' --project tsconfig.json",
+    "lint-file": "npx tslint --project tsconfig.json",
+    "lint-fix-file": "npx tslint --fix --project tsconfig.json",
     "format": "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
     "update-tags": "python update_tags.py --source src/**/*.tsx --suffix vcdat",
     "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
-      "npx tslint --fix 'src/**/*.{ts,tsx}'",
+      "npx tslint --project tsconfig.json --fix 'src/**/*.{ts,tsx}'",
       "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
       "git add"
     ],

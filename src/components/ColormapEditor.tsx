@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  CardGroup,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -57,7 +58,7 @@ export default class ColormapEditor extends React.Component<
 
   public render(): JSX.Element {
     return (
-      <div>
+      <CardGroup>
         <Dropdown
           style={{ maxWidth: "calc(100% - 70px)", marginTop: "1em" }}
           isOpen={this.state.showDropdown}
@@ -92,7 +93,7 @@ export default class ColormapEditor extends React.Component<
             })}
           </DropdownMenu>
         </Dropdown>
-      </div>
+      </CardGroup>
     );
   }
 }

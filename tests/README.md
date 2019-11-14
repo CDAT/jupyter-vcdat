@@ -56,14 +56,20 @@ Please examine the available classes and methods before adding test cases.
    locate_plot()
    locate_export_plot()
    locate_clear()
-   locate_load_variables()
+   locate_load_variables_by_file()
+   locate_load_variables_by_path()
+   locate_sync_notebook_button()
    locate_select_plot_type()
+   locate_select_colormap()
    locate_select_a_template()
    click_on_plot()
    click_on_export_plot()   
    click_on_clear()
-   click_on_load_variables()
+   click_on_load_variables_by_file()
+   click_on_load_variables_by_path()
+   click_on_sync_notebook()
    click_on_select_plot_type()
+   click_on_select_colormap()
    click_on_select_a_template()
    select_a_plot_type(plot_type)
    select_a_template(template)
@@ -117,7 +123,7 @@ Please examine the available classes and methods before adding test cases.
 ```bash
     cd <jupyter-vcdat repo directory>
     source jupyter-vcdat
-    conda install -c cdat/label/v82 testsrunner cdat_info
+    conda install -c cdat/label/v81 testsrunner cdat_info
     pip install selenium
     pip install pyvirtualdisplay
 ```

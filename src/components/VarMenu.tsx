@@ -3,6 +3,7 @@ import * as React from "react";
 import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Button,
+  ButtonGroup,
   Card,
   CardBody,
   CardSubtitle,
@@ -40,6 +41,7 @@ interface IVarMenuProps {
   exportAlerts: () => void;
   dismissSavePlotSpinnerAlert: () => void;
   showExportSuccessAlert: () => void;
+  showInputModal: () => void;
   notebookPanel: NotebookPanel;
 }
 
@@ -63,6 +65,7 @@ export default class VarMenu extends React.Component<
     };
     this.varLoaderRef = (React as any).createRef();
     this.launchFilebrowser = this.launchFilebrowser.bind(this);
+    this.launchFilepathModal = this.launchFilepathModal.bind(this);
     this.launchVarLoader = this.launchVarLoader.bind(this);
     this.isSelected = this.isSelected.bind(this);
     this.reloadVariable = this.reloadVariable.bind(this);
@@ -92,6 +95,13 @@ export default class VarMenu extends React.Component<
 
   public isSelected(varID: string): boolean {
     return this.state.selectedVariables.indexOf(varID) >= 0;
+  }
+
+  /**
+   * @description launches the notebooks filebrowser so the user can select a data file
+   */
+  public async launchFilepathModal(): Promise<void> {
+    this.props.showInputModal();
   }
 
   /**
@@ -152,27 +162,40 @@ export default class VarMenu extends React.Component<
       <div>
         <Card>
           <CardBody className={/*@tag<varmenu-main>*/ "varmenu-main-vcdat"}>
-            <CardTitle>Variable Options</CardTitle>
+            <CardTitle>Load Variable Options</CardTitle>
             <CardSubtitle>
               <Row>
                 <Col>
-                  <Button
-                    className={
-                      /*@tag<varmenu-load-variables-btn>*/ "varmenu-load-variables-btn-vcdat"
-                    }
-                    color="info"
-                    onClick={this.launchFilebrowser}
-                    style={varButtonStyle}
-                    title="Load variables from a data file."
-                  >
-                    Load Variable(s)
-                  </Button>
+                  <ButtonGroup style={{ minWidth: "155px" }}>
+                    <Button
+                      className={
+                        /*@tag<varmenu-load-variables-file-btn>*/ "varmenu-load-variables-file-btn-vcdat"
+                      }
+                      color="info"
+                      onClick={this.launchFilebrowser}
+                      style={varButtonStyle}
+                      title="Load variables from a file in the file browser."
+                    >
+                      File
+                    </Button>
+                    <Button
+                      className={
+                        /*@tag<varmenu-load-variables-path-btn>*/ "varmenu-load-variables-path-btn-vcdat"
+                      }
+                      color="info"
+                      onClick={this.launchFilepathModal}
+                      style={varButtonStyle}
+                      title="Load variables using from a file specified by path."
+                    >
+                      Path
+                    </Button>
+                  </ButtonGroup>
                 </Col>
                 {this.props.syncNotebook() && (
                   <Col>
                     <Button
                       className={
-                        /*@tag<varmenu-sync-btn>*/ "varmenu-sync-btn-vcdat"
+                        /*@tag<varmenu-sync-btn>*/ "float-right varmenu-sync-btn-vcdat"
                       }
                       color="info"
                       onClick={this.props.updateNotebook}
