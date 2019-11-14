@@ -661,15 +661,13 @@ canvas = vcs.init(display_target='off')`;
     );
 
     // Check that file can open before adding it as code
-    const valid: boolean = await Utilities.tryFilePath(
-      this.notebookPanel,
-      relativePath
-    );
-    if (valid) {
+    if (await Utilities.tryFilePath(this.notebookPanel, relativePath)) {
+      // Add code to notebook
       let newCode: string = `${BASE_DATA_READER_NAME} = cdms2.open('${relativePath}')\n`;
       newCode += `${code}\n${BASE_DATA_READER_NAME}.close()`;
       return newCode;
     }
+
     return "";
   }
 }

@@ -164,7 +164,7 @@ export default class VarMenu extends React.Component<
           <CardBody className={/*@tag<varmenu-main>*/ "varmenu-main-vcdat"}>
             <CardTitle>Load Variable Options</CardTitle>
             <CardSubtitle>
-              <Row class={"clearfix"}>
+              <Row>
                 <Col>
                   <ButtonGroup style={{ minWidth: "155px" }}>
                     <Button

@@ -439,8 +439,13 @@ export default class VariableTracker {
 
       this._isBusy = true;
 
-      // Try to open file in cdms
+      // Try to open file in cdms, exit early if fails
+      if (!(await Utilities.tryFilePath(this.notebookPanel, relativePath))) {
+        this._isBusy = false;
+        return;
+      }
 
+      // File loaded successfully, pull variables from file
       const result: string = await Utilities.sendSimpleKernelRequest(
         this.notebookPanel,
         getFileVarsCommand(relativePath)
@@ -573,6 +578,13 @@ export default class VariableTracker {
     const relativePath: string = Utilities.getRelativePath(nbPath, sourceFile);
 
     this._isBusy = true;
+
+    // Try to open file in cdms, exit early if fails
+    if (!(await Utilities.tryFilePath(this.notebookPanel, relativePath))) {
+      this._isBusy = false;
+      return;
+    }
+
     // Get the variables info
     const result: string = await Utilities.sendSimpleKernelRequest(
       this.notebookPanel,

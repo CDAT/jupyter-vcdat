@@ -195,6 +195,7 @@ export default class GraphicsMenu extends React.Component<
               <InputGroup>
                 <div style={{ marginRight: "15px" }}>
                   <CustomInput
+                    id="vcsmenu-overlay-switch-vcdat"
                     type="switch"
                     className={
                       /*@tag<vcsmenu-overlay-switch>*/ "vcsmenu-overlay-switch-vcdat"
@@ -207,6 +208,7 @@ export default class GraphicsMenu extends React.Component<
                   />
                 </div>
                 <CustomInput
+                  id="vcsmenu-sidecar-switch-vcdat"
                   type="switch"
                   className={
                     /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
