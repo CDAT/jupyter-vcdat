@@ -28,6 +28,7 @@ import {
   NO_VERSION,
   NOTEBOOK_STATE,
   OLD_VCDAT_VERSION,
+  OUTPUT_RESULT_NAME,
   VCDAT_VERSION,
   VCDAT_VERSION_KEY
 } from "./constants";
@@ -37,6 +38,7 @@ import VariableTracker from "./VariableTracker";
 import {
   CHECK_PLOT_EXIST_CMD,
   CHECK_VCS_CMD,
+  checkCDMS2FileOpens,
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD
 } from "./PythonCommands";
@@ -169,6 +171,7 @@ export default class LeftSideBarWidget extends Widget {
           notebookPanel={this._notebookPanel}
           updateNotebookPanel={this.recognizeNotebookPanel}
           openSidecarPanel={this.setSidecarPanel}
+          prepareNotebookFromPath={this.prepareNotebookPanel}
         />
         <PopUpModal
           title="Notice"
@@ -448,7 +451,7 @@ export default class LeftSideBarWidget extends Widget {
     }
 
     // Try to initialize a vcs instant, if error then it's not vcs ready
-    const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+    const result: string = await Utilities.sendSimpleKernelRequest(
       this.notebookPanel,
       CHECK_VCS_CMD
     );
@@ -461,7 +464,7 @@ export default class LeftSideBarWidget extends Widget {
   public async checkCanvasExists(): Promise<boolean> {
     try {
       // Get the list of display elements in the canvas
-      const output: string = await NotebookUtilities.sendSimpleKernelRequest(
+      const output: string = await Utilities.sendSimpleKernelRequest(
         this.notebookPanel,
         CHECK_PLOT_EXIST_CMD
       );
@@ -475,7 +478,7 @@ export default class LeftSideBarWidget extends Widget {
     try {
       if (this.state === NOTEBOOK_STATE.VCS_Ready) {
         // Get the list of display elements in the canvas
-        const output: string = await NotebookUtilities.sendSimpleKernelRequest(
+        const output: string = await Utilities.sendSimpleKernelRequest(
           this.notebookPanel,
           CHECK_PLOT_EXIST_CMD
         );
@@ -493,7 +496,7 @@ export default class LeftSideBarWidget extends Widget {
   public async refreshGraphicsList(): Promise<void> {
     if (this.state === NOTEBOOK_STATE.VCS_Ready) {
       // Refresh the graphic methods
-      const output: string = await NotebookUtilities.sendSimpleKernelRequest(
+      const output: string = await Utilities.sendSimpleKernelRequest(
         this.notebookPanel,
         REFRESH_GRAPHICS_CMD
       );
@@ -519,7 +522,7 @@ export default class LeftSideBarWidget extends Widget {
     try {
       if (this.state === NOTEBOOK_STATE.VCS_Ready) {
         // Refresh the graphic methods
-        const output: string = await NotebookUtilities.sendSimpleKernelRequest(
+        const output: string = await Utilities.sendSimpleKernelRequest(
           this.notebookPanel,
           REFRESH_TEMPLATES_CMD
         );
@@ -591,9 +594,15 @@ export default class LeftSideBarWidget extends Widget {
    */
   public async prepareNotebookPanel(currentFile: string): Promise<void> {
     if (!currentFile) {
-      this.state = NOTEBOOK_STATE.Unknown;
-      // Reject initilization if no file has been selected
-      throw new Error("No file has been set for obtaining variables.");
+      return;
+    }
+
+    if (!(await Utilities.tryFilePath(this.application, currentFile))) {
+      NotebookUtilities.showMessage(
+        "Notice",
+        "The file could not be opened. Check the path is correct."
+      );
+      return;
     }
 
     this.preparing = true;

@@ -277,7 +277,7 @@ export default class VarMini extends React.Component<
     this.props.exportAlerts();
 
     try {
-      const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+      const result: string = await Utilities.sendSimpleKernelRequest(
         this.props.notebookPanel,
         checkForExportedFileCommand(this.state.filename)
       );
