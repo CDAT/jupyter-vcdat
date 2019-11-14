@@ -164,9 +164,9 @@ export default class VarMenu extends React.Component<
           <CardBody className={/*@tag<varmenu-main>*/ "varmenu-main-vcdat"}>
             <CardTitle>Load Variable Options</CardTitle>
             <CardSubtitle>
-              <Row>
+              <Row class={"clearfix"}>
                 <Col>
-                  <ButtonGroup style={{ minWidth: "160px" }}>
+                  <ButtonGroup style={{ minWidth: "155px" }}>
                     <Button
                       className={
                         /*@tag<varmenu-load-variables-file-btn>*/ "varmenu-load-variables-file-btn-vcdat"
@@ -174,7 +174,7 @@ export default class VarMenu extends React.Component<
                       color="info"
                       onClick={this.launchFilebrowser}
                       style={varButtonStyle}
-                      title="Load variables from a data file."
+                      title="Load variables from a file in the file browser."
                     >
                       File
                     </Button>
@@ -185,7 +185,7 @@ export default class VarMenu extends React.Component<
                       color="info"
                       onClick={this.launchFilepathModal}
                       style={varButtonStyle}
-                      title="Load variables from a data file."
+                      title="Load variables using from a file specified by path."
                     >
                       Path
                     </Button>
@@ -195,7 +195,7 @@ export default class VarMenu extends React.Component<
                   <Col>
                     <Button
                       className={
-                        /*@tag<varmenu-sync-btn>*/ "varmenu-sync-btn-vcdat"
+                        /*@tag<varmenu-sync-btn>*/ "float-right varmenu-sync-btn-vcdat"
                       }
                       color="info"
                       onClick={this.props.updateNotebook}

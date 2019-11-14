@@ -296,14 +296,26 @@ export const GETTING_STARTED: Step[] = [
     title: "Clear"
   },
   {
-    content: `Use this button to load variables from a data file. You can subset
+    content: `Use this button to load variables from a data file. When clicked,
+    the left side panel will switch to the filebrowser where you can double-click 
+    on the data file you want to open. Once the file is opened, you can subset
     the variables so not all of the data is loaded. For example, you can constrain
     the latitude and longitude so data from a specific area is loaded instead of
     the whole dataset.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
-    target: ".varmenu-load-variables-btn-vcdat",
+    target: ".varmenu-load-variables-file-btn-vcdat",
+    title: "Load Variable"
+  },
+  {
+    content: `Use this button to open an input dialog where you can enter a specific
+    path to a file you want to open. Once the file is opened, as before, you can subset
+    the variables so not all of the data is loaded.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".varmenu-load-variables-path-btn-vcdat",
     title: "Load Variable"
   },
   {
@@ -313,8 +325,7 @@ export const GETTING_STARTED: Step[] = [
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
-    target: `#left-sidebar > div > div:nth-child(3) > div > div > 
-    div.clearfix.card-subtitle > div:nth-child(1)`,
+    target: `.vcsmenu-overlay-switch-vcdat`,
     title: "Overlay Mode"
   },
   {
@@ -324,8 +335,7 @@ export const GETTING_STARTED: Step[] = [
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
-    target: `#left-sidebar > div > div:nth-child(3) > div > div > 
-    div.clearfix.card-subtitle > div:nth-child(2)`,
+    target: `.vcsmenu-sidecar-switch-vcdat`,
     title: "Plot to Sidecar"
   },
   {

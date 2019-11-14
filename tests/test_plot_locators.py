@@ -1,3 +1,5 @@
+from BaseTestCaseWithNoteBook import BaseTestCaseWithNoteBook
+from VcdatPanel import VcdatPanel
 import os
 import sys
 import time
@@ -6,15 +8,13 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
-from VcdatPanel import VcdatPanel
-from BaseTestCaseWithNoteBook import BaseTestCaseWithNoteBook
-
 
 class TestPlot(BaseTestCaseWithNoteBook):
     """
     This class has methods to test locators related to the plotting
     functionalities.
     """
+
     def test_plot(self):
         '''
         load 'clt.nc' file, and load 'v' variable, and plot
@@ -22,7 +22,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         test_file = "clt.nc"
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables()
+        file_browser = vcdat_panel.click_on_load_variables_by_file()
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
@@ -33,7 +33,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         test_file = "clt.nc"
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables()
+        file_browser = vcdat_panel.click_on_load_variables_by_file()
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
@@ -45,7 +45,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         test_file = "clt.nc"
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables()
+        file_browser = vcdat_panel.click_on_load_variables_by_file()
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
@@ -65,7 +65,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         test_file = "clt.nc"
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables()
+        file_browser = vcdat_panel.click_on_load_variables_by_file()
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
@@ -94,7 +94,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         test_file = "clt.nc"
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables()
+        file_browser = vcdat_panel.click_on_load_variables_by_file()
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
@@ -122,7 +122,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         test_file = "clt.nc"
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables()
+        file_browser = vcdat_panel.click_on_load_variables_by_file()
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
@@ -145,7 +145,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         test_file = "clt.nc"
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables()
+        file_browser = vcdat_panel.click_on_load_variables_by_file()
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('u')
@@ -161,7 +161,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         test_file = "clt.nc"
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables()
+        file_browser = vcdat_panel.click_on_load_variables_by_file()
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('clt')

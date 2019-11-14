@@ -36,7 +36,7 @@ const centered: React.CSSProperties = {
 const sidebarOverflow: React.CSSProperties = {
   height: "calc(100vh - 52px)",
   maxHeight: "100vh",
-  minWidth: "365px",
+  minWidth: "370px",
   overflow: "auto"
 };
 
@@ -524,7 +524,7 @@ export default class VCSMenu extends React.Component<
       cancelText: "Cancel",
       message: "Enter the path and name of the file you wish to open.",
       onModalClose: this.props.prepareNotebookFromPath,
-      placeHolder: "Enter file path here.",
+      placeHolder: "path_to_file/file",
       title: "Load Variables from Path"
     };
 

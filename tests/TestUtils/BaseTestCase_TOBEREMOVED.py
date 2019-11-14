@@ -1,26 +1,25 @@
+from pyvirtualdisplay import Display
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+from selenium.webdriver import DesiredCapabilities
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+import tempfile
+import unittest
+import time
+from NoteBookPage import NoteBookPage
+from MainPage import MainPage
+from FileBrowser import FileBrowser
+from VcdatLeftSideBar import VcdatLeftSideBar
+from JupyterUtils import JupyterUtils
 import os
 import sys
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, '..', 'PageObjects'))
 
-from JupyterUtils import JupyterUtils
-from VcdatLeftSideBar import VcdatLeftSideBar
-from FileBrowser import FileBrowser
-from MainPage import MainPage
-from NoteBookPage import NoteBookPage
 
-import time
-import unittest
-import tempfile
-
-from selenium.common.exceptions import NoSuchElementException
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
 # from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-from pyvirtualdisplay import Display
 
 
 class BaseTestCase(unittest.TestCase):
@@ -90,8 +89,10 @@ class BaseTestCase(unittest.TestCase):
         firefox_capabilities['marionette'] = True
         firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
 
-        firefox_binary = FirefoxBinary(os.getenv("BROWSER_BINARY", "/usr/bin/firefox"))
-        geckodriver_loc = os.getenv("BROWSER_DRIVER", "/usr/local/bin/geckodriver")
+        firefox_binary = FirefoxBinary(
+            os.getenv("BROWSER_BINARY", "/usr/bin/firefox"))
+        geckodriver_loc = os.getenv(
+            "BROWSER_DRIVER", "/usr/local/bin/geckodriver")
         self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
                                         firefox_binary=firefox_binary,
                                         executable_path=geckodriver_loc,
@@ -121,7 +122,7 @@ class BaseTestCase(unittest.TestCase):
         # left_side_bar = VcdatLeftSideBar(self.driver, None)
         self.left_side_bar.click_on_jp_vcdat_icon()
         time.sleep(self._delay)
-        self.left_side_bar.click_on_load_variables()
+        self.left_side_bar.click_on_load_variables_by_file()
 
         # file_browser = FileBrowser(self.driver, None)
         self.file_browser.double_click_on_a_file(filename)
@@ -131,7 +132,7 @@ class BaseTestCase(unittest.TestCase):
         # left_side_bar = VcdatLeftSideBar(self.driver, None)
         self.left_side_bar.click_on_jp_vcdat_icon()
         time.sleep(self._delay)
-        self.left_side_bar.click_on_load_variables()
+        self.left_side_bar.click_on_load_variables_by_file()
 
         # file_browser = FileBrowser(self.driver, None)
         self.click_on_file_browser_home()
