@@ -28,7 +28,6 @@ import {
   NO_VERSION,
   NOTEBOOK_STATE,
   OLD_VCDAT_VERSION,
-  OUTPUT_RESULT_NAME,
   VCDAT_VERSION,
   VCDAT_VERSION_KEY
 } from "./constants";
@@ -38,7 +37,6 @@ import VariableTracker from "./VariableTracker";
 import {
   CHECK_PLOT_EXIST_CMD,
   CHECK_VCS_CMD,
-  checkCDMS2FileOpens,
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD
 } from "./PythonCommands";
