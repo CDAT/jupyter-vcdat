@@ -6,12 +6,12 @@ import {
   Alert,
   Badge,
   Button,
+  ButtonGroup,
   Card,
   CardBody,
   Collapse,
   CustomInput,
   Input,
-  InputGroup,
   InputGroupAddon,
   Label,
   Modal,
@@ -326,47 +326,49 @@ export default class VarMini extends React.Component<
           >
             {this.state.variable.alias}
           </Button>
-          <Button
-            className={/*@tag<varmini-edit-btn>*/ "varmini-edit-btn-vcdat"}
-            outline={true}
-            style={axisStyle}
-            title={
-              this.state.variable.sourceName === ""
-                ? "Note: This variable was not loaded from a file."
-                : ""
-            }
-            color={"info"}
-            onClick={this.handleEditClick}
-          >
-            edit
-          </Button>
-          <Button
-            outline={true}
-            color={"secondary"}
-            style={axisStyle}
-            onClick={this.handleSaveClick}
-          >
-            save
-          </Button>
-          <Button
-            outline={true}
-            color={"danger"}
-            style={axisStyle}
-            onClick={this.handleDeleteClick}
-          >
-            delete
-          </Button>
-          {this.props.isSelected(this.state.variable.varID) && (
-            <Badge
-              className={"float-right"}
-              style={{
-                ...badgeStyle,
-                ...{ backgroundColor: this.props.buttonColor }
-              }}
+          <ButtonGroup className="float-right" size="sm" style={axisStyle}>
+            {this.props.isSelected(this.state.variable.varID) && (
+              <Button
+                disabled={true}
+                style={{
+                  ...badgeStyle,
+                  ...{ backgroundColor: this.props.buttonColor }
+                }}
+              >
+                {Utilities.numToOrdStr(this.props.selectOrder)}
+              </Button>
+            )}
+            <Button
+              className={/*@tag<varmini-edit-btn>*/ "varmini-edit-btn-vcdat"}
+              outline={true}
+              // style={axisStyle}
+              title={
+                this.state.variable.sourceName === ""
+                  ? "Note: This variable was not loaded from a file."
+                  : ""
+              }
+              color={"info"}
+              onClick={this.handleEditClick}
             >
-              {Utilities.numToOrdStr(this.props.selectOrder)} Variable
-            </Badge>
-          )}
+              edit
+            </Button>
+            <Button
+              outline={true}
+              color={"secondary"}
+              // style={axisStyle}
+              onClick={this.handleSaveClick}
+            >
+              save
+            </Button>
+            <Button
+              outline={true}
+              color={"danger"}
+              // style={axisStyle}
+              onClick={this.handleDeleteClick}
+            >
+              delete
+            </Button>
+          </ButtonGroup>
         </div>
         <Modal
           className={"var-loader-modal"}
@@ -382,7 +384,7 @@ export default class VarMini extends React.Component<
           >
             <Card>
               <CardBody>
-                <InputGroup style={{ marginTop: "5px" }}>
+                <ButtonGroup style={{ marginTop: "5px" }}>
                   <InputGroupAddon addonType="prepend">
                     Rename Variable:
                   </InputGroupAddon>
@@ -396,7 +398,7 @@ export default class VarMini extends React.Component<
                       {this.state.nameState}
                     </Button>
                   </InputGroupAddon>
-                </InputGroup>
+                </ButtonGroup>
               </CardBody>
             </Card>
             {this.state.showAxis &&

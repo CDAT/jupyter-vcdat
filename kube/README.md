@@ -18,7 +18,6 @@ remove the nightly tag from the latest packages in conda, npm and docker.
 - Get the version of the latest nightly npm package (the one to make official)
 ```bash
 npm view jupyter-vcdat dist-tags #Get the latest nightly version number
-npm dist-tag rm jupyter-vcdat@<nightly-version> nightly #Removes nightly tag
 npm dist-tag add jupyter-vcdat@<nightly-version> latest
 ```
 
