@@ -131,7 +131,7 @@ Please examine the available classes and methods before adding test cases.
 - To run tests with **chrome**, open a terminal window, and do:
 ```bash
     # Download 'chromedriver' from the site listed at
-    # https://selenium-python.readthedocs.io/installation.html
+    # https://sites.google.com/a/chromium.org/chromedriver/downloads
     # Note down the location of 'chromedriver' and set the value of
     # BROWSER_DRIVER accordingly.
 
@@ -144,7 +144,7 @@ Please examine the available classes and methods before adding test cases.
 - To run tests with **firefox**, open a terminal window, and do:
 ```bash
     # Download 'geckodriver' from the site listed at
-    # https://selenium-python.readthedocs.io/installation.html
+    # https://github.com/mozilla/geckodriver/releases
     # Note down the location of 'geckodriver'
 
     # set the following environment variables:
