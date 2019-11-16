@@ -595,17 +595,18 @@ export default class LeftSideBarWidget extends Widget {
       return;
     }
 
-    if (!(await Utilities.tryFilePath(this.application, currentFile))) {
-      NotebookUtilities.showMessage(
-        "Notice",
-        "The file could not be opened. Check the path is correct."
-      );
-      return;
-    }
-
     this.preparing = true;
 
     try {
+      // Check the file can be opened with cdms2
+      if (!(await Utilities.tryFilePath(this.application, currentFile))) {
+        NotebookUtilities.showMessage(
+          "Notice",
+          "The file could not be opened. Check the path is correct."
+        );
+        return;
+      }
+
       // Set the current file
       this.varTracker.currentFile = currentFile;
 
@@ -633,7 +634,12 @@ export default class LeftSideBarWidget extends Widget {
       if (fileVars.length > 0) {
         await this.vcsMenuRef.varMenuRef.launchVarLoader(fileVars);
       } else {
+        NotebookUtilities.showMessage(
+          "Notice",
+          "No variables could be loaded from the file."
+        );
         this.varTracker.currentFile = "";
+        return;
       }
 
       // Inject canvas(es)

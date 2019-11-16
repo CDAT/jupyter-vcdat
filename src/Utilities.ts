@@ -62,13 +62,19 @@ export default class Utilities {
   }
 
   /**
-   * Return the relative file path from source to target.
+   * Return the relative file path from source to target (if needed). If an absolute path
+   * starting with '/' is passed, then it will be returned directly.
    * Assumes source is a path (with or without a file name) and target has the filename
    * @param source The directory path to start from for traversal, Ex: "dir1/dir2/file"
    * @param target The directory path and filename to seek from source Ex: "dir3/dir1/file2"
-   * @return string - Relative path (e.g. "../../style.css") from the source to target
+   * @return string - Relative path (e.g. "../../style.css") from the source to target, or absolute path
    */
-  public static getRelativePath(source: string, target: string) {
+  public static getUpdatedPath(source: string, target: string) {
+    // Check if it is an absolute path
+    if (target[0] === "/") {
+      return target; // Leave absolute path alone
+    }
+
     const sourceArr: string[] = Utilities.removeFilename(source).split("/");
     const targetArr: string[] = target.split("/");
     const file: string = targetArr.pop();

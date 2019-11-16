@@ -433,28 +433,28 @@ export default class VariableTracker {
     }
 
     try {
-      // Get relative path for the file
+      // Get valid path for the file
       const nbPath: string = `${this.notebookPanel.session.path}`;
-      const relativePath: string = Utilities.getRelativePath(nbPath, filePath);
+      const path: string = Utilities.getUpdatedPath(nbPath, filePath);
 
       this._isBusy = true;
 
       // Try to open file in cdms, exit early if fails
-      if (!(await Utilities.tryFilePath(this.notebookPanel, relativePath))) {
+      if (!(await Utilities.tryFilePath(this.notebookPanel, path))) {
         this._isBusy = false;
-        return;
+        return Array<Variable>();
       }
 
       // File loaded successfully, pull variables from file
       const result: string = await Utilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        getFileVarsCommand(relativePath)
+        getFileVarsCommand(path)
       );
       this._isBusy = false;
 
       // Exit if result is blank
       if (!result) {
-        return;
+        return Array<Variable>();
       }
 
       // Parse the resulting output into an object
@@ -474,7 +474,7 @@ export default class VariableTracker {
           });
         }
         v.units = fileVariables.vars[varName].units;
-        v.sourceName = filePath;
+        v.sourceName = path;
         newVars.push(v);
       });
       return newVars;
@@ -575,12 +575,12 @@ export default class VariableTracker {
 
     // Get relative path for the file
     const nbPath: string = `${this.notebookPanel.session.path}`;
-    const relativePath: string = Utilities.getRelativePath(nbPath, sourceFile);
+    const path: string = Utilities.getUpdatedPath(nbPath, sourceFile);
 
     this._isBusy = true;
 
     // Try to open file in cdms, exit early if fails
-    if (!(await Utilities.tryFilePath(this.notebookPanel, relativePath))) {
+    if (!(await Utilities.tryFilePath(this.notebookPanel, path))) {
       this._isBusy = false;
       return;
     }
@@ -588,7 +588,7 @@ export default class VariableTracker {
     // Get the variables info
     const result: string = await Utilities.sendSimpleKernelRequest(
       this.notebookPanel,
-      getAxisInfoFromFileCommand(relativePath)
+      getAxisInfoFromFileCommand(path)
     );
     this._isBusy = false;
 
