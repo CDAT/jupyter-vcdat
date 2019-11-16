@@ -9,4 +9,4 @@ ENV CDAT_ANONYMOUS_LOG false
 
 # Our extension needs to be built from npm repo otherwise jupyter-lab
 # tries to write into image and shifter does not let us do this.
-RUN jupyter labextension install jupyter-vcdat@nightly && conda update -c cdat/label/nightly -c conda-forge vcs cdms2 cdutil genutil libcdms "libnetcdf=4.6.2"
+RUN jupyter labextension install jupyter-vcdat@nightly && conda update -c cdat/label/nightly -c conda-forge vcs cdms2 cdutil genutil libcdms

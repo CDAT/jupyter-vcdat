@@ -111,11 +111,16 @@ export default class Utilities {
   }
 
   /**
-   * Converts a string to an array of strings using JSON parse
+   * Converts a python JSON object to an array using JSON parse
    * @param inStr String to convert
    */
   public static strToArray(inStr: string): any[] {
-    return JSON.parse(inStr.replace(/^'|'$/g, ""));
+    try {
+      const arr: any = JSON.parse(inStr.replace(/^'|'$/g, ""));
+      return Array.isArray(arr) ? arr : [];
+    } catch (error) {
+      return [];
+    }
   }
 
   // Adds a reference link to the help menu in JupyterLab
