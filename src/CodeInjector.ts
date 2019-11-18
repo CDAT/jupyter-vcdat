@@ -433,12 +433,13 @@ canvas = vcs.init(display_target='off')`;
       return;
     }
 
-    if (!variables[0].sourceName) {
+    const fileName: string = variables[0].sourceName;
+
+    if (!fileName) {
       throw Error("Could not determine what file the variables are from.");
     }
 
     let cmd: string = ``;
-    const fileName: string = variables[0].sourceName;
     const newSelection = Array<string>();
     variables.forEach((variable: Variable) => {
       // Create code to load the variable into the notebook
@@ -460,6 +461,11 @@ canvas = vcs.init(display_target='off')`;
     cmd = cmd.slice(0, cmd.length - 1);
 
     cmd = await this.openCloseFileCmd(fileName, cmd);
+    if (!cmd) {
+      console.error(
+        "openCloseFileCmd result was empty. Could be the path was not correct."
+      );
+    }
 
     // Inject the code into the notebook cell
     await this.inject(

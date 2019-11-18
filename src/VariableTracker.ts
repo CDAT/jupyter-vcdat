@@ -474,7 +474,7 @@ export default class VariableTracker {
           });
         }
         v.units = fileVariables.vars[varName].units;
-        v.sourceName = path;
+        v.sourceName = filePath;
         newVars.push(v);
       });
       return newVars;
