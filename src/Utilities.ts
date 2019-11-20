@@ -70,13 +70,19 @@ export default class Utilities {
    * @return string - Relative path (e.g. "../../style.css") from the source to target, or absolute path
    */
   public static getUpdatedPath(source: string, target: string) {
+    // Trim any whitespace that may exist in path
+    const cleanSource: string = source.trim();
+    const cleanTarget: string = target.trim();
+
     // Check if it is an absolute path
     if (target[0] === "/") {
       return target; // Leave absolute path alone
     }
 
-    const sourceArr: string[] = Utilities.removeFilename(source).split("/");
-    const targetArr: string[] = target.split("/");
+    const sourceArr: string[] = Utilities.removeFilename(cleanSource).split(
+      "/"
+    );
+    const targetArr: string[] = cleanTarget.split("/");
     const file: string = targetArr.pop();
     const depth1: number = sourceArr.length;
     const depth2: number = targetArr.length;

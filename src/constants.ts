@@ -3,7 +3,7 @@ import reactHtmlParser from "react-html-parser";
 
 export const NO_VERSION: string = "N/A";
 export const OLD_VCDAT_VERSION: string = "<=2.0";
-export const VCDAT_VERSION: string = "2.1";
+export const VCDAT_VERSION: string = "2.2";
 export const VCDAT_VERSION_KEY = "vcdat_version";
 export const MAX_SLABS: number = 2;
 export const MAX_DIM_LENGTH: number = 1000;

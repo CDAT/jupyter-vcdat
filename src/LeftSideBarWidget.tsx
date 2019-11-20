@@ -43,6 +43,7 @@ import {
 import AboutVCDAT from "./components/AboutVCDAT";
 import { ICellModel } from "@jupyterlab/cells";
 import { IIterator } from "@phosphor/algorithm";
+import { AppSettings } from "./AppSettings";
 
 /**
  * This is the main component for the vcdat extension.
@@ -85,6 +86,7 @@ export default class LeftSideBarWidget extends Widget {
   }
   public div: HTMLDivElement; // The div container for this widget
   public version: string; // The VCDAT version for tracking versions between notebooks
+  public appSettings: AppSettings;
   private commands: CommandRegistry; // Jupyter app CommandRegistry
   private labShell: LabShell; // Jupyter lab shell
   private notebookTracker: NotebookTracker; // This is to track current notebooks
@@ -108,11 +110,13 @@ export default class LeftSideBarWidget extends Widget {
   constructor(
     app: JupyterFrontEnd,
     labShell: LabShell,
-    tracker: NotebookTracker
+    tracker: NotebookTracker,
+    settings: AppSettings
   ) {
     super();
     this.version = OLD_VCDAT_VERSION;
     this.application = app;
+    this.appSettings = settings;
     this.labShell = labShell;
     this.notebookTracker = tracker;
     this.div = document.createElement("div");
@@ -152,6 +156,7 @@ export default class LeftSideBarWidget extends Widget {
     ReactDOM.render(
       <ErrorBoundary>
         <VCSMenu
+          appSettings={this.appSettings}
           application={this.application}
           ref={loader => (this.vcsMenuRef = loader)}
           commands={this.commands}
@@ -602,7 +607,7 @@ export default class LeftSideBarWidget extends Widget {
       if (!(await Utilities.tryFilePath(this.application, currentFile))) {
         NotebookUtilities.showMessage(
           "Notice",
-          "The file could not be opened. Check the path is correct."
+          "The file could not be opened. Check the path is valid."
         );
         return;
       }

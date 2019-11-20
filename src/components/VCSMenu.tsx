@@ -25,6 +25,9 @@ import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import { JupyterFrontEnd } from "@jupyterlab/application";
+import { ReadonlyJSONValue } from "@phosphor/coreutils";
+import { ISettingRegistry } from "@jupyterlab/coreutils";
+import { AppSettings } from "../AppSettings";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -62,6 +65,7 @@ interface IVCSMenuProps {
   prepareNotebookFromPath: (filepath: string) => Promise<void>;
   codeInjector: CodeInjector;
   varTracker: VariableTracker;
+  appSettings: AppSettings;
 }
 interface IVCSMenuState {
   variables: Variable[]; // All the variables, loaded from files and derived by users
@@ -142,6 +146,7 @@ export default class VCSMenu extends React.Component<
     this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
     this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
     this.handlePlotExistsChanged = this.handlePlotExistsChanged.bind(this);
+    this.handleOptionsChanged = this.handleOptionsChanged.bind(this);
 
     // Close sidecar panel at startup
     if (this.props.openSidecarPanel) {
@@ -153,6 +158,9 @@ export default class VCSMenu extends React.Component<
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
     this.props.plotExistsChanged.connect(this.handlePlotExistsChanged);
     this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
+    this.filePathInputRef.savedOptionsChanged.connect(
+      this.handleOptionsChanged
+    );
   }
 
   public componentWillUnmount(): void {
@@ -522,9 +530,17 @@ export default class VCSMenu extends React.Component<
     const inputModalProps = {
       acceptText: "Open File",
       cancelText: "Cancel",
+      inputListHeader: "Saved File Paths",
+      inputOptions: this.props.appSettings.getSavedPaths(),
+      isValid: (input: string): boolean => {
+        return input.length > 0;
+      },
       message: "Enter the path and name of the file you wish to open.",
       onModalClose: this.props.prepareNotebookFromPath,
-      placeHolder: "path_to_file/file",
+      placeHolder: "file_path/file",
+      sanitizer: (input: string): string => {
+        return input.replace("\\", "");
+      },
       title: "Load Variables from Path"
     };
 
@@ -631,5 +647,12 @@ export default class VCSMenu extends React.Component<
     variables: Variable[]
   ) {
     this.setState({ variables });
+  }
+
+  private async handleOptionsChanged(
+    modal: InputModal,
+    options: string[]
+  ): Promise<void> {
+    await this.props.appSettings.setSavedPaths(options);
   }
 }
