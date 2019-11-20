@@ -169,6 +169,7 @@ Please examine the available classes and methods before adding test cases.
     python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
     python run_tests.py -H -v 2 tests/test_plot_locators.py
     python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
+    python run_tests.py -H -v 2 tests/test_file_browser_locators.py
 ```
 
 - Examples on how to run individual test cases

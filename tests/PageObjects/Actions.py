@@ -128,7 +128,7 @@ class Actions(object):
     def wait_click(self, method, locator):
         try:
             print("...wait_click..., locator: {}".format(locator))
-            wait = WebDriverWait(self.driver, 20)
+            wait = WebDriverWait(self.driver, 10)
             m = wait.until(EC.element_to_be_clickable((method,
                                                        locator)))
             m.click()
@@ -163,7 +163,7 @@ class Actions(object):
 
     def wait_till_element_is_visible(self, method, locator, descr):
         try:
-            wait = WebDriverWait(self.driver, 30)
+            wait = WebDriverWait(self.driver, 20)
             element = wait.until(EC.visibility_of_element_located((method,
                                                                    locator)))
             print("'{}' is now visible".format(descr))
@@ -174,7 +174,7 @@ class Actions(object):
 
     def wait_till_element_is_clickable(self, method, locator, descr):
         try:
-            wait = WebDriverWait(self.driver, 30)
+            wait = WebDriverWait(self.driver, 20)
             element = wait.until(EC.element_to_be_clickable((method,
                                                              locator)))
             print("'{}' is now clickable".format(descr))

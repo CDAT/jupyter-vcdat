@@ -1,5 +1,6 @@
 FROM circleci/node:stretch-browsers
-ARG cdat_channels="-c cdat/label/v82 -c cdat/label/nightly"
+ARG cdat_channels="-c conda-forge -c cdat/label/v82"
+ARG conda_packages="vcs nodejs 'python=3.7' jupyterlab jupyterhub pip nb_conda nb_conda_kernels plumbum"
 ARG workdir="/tmp/jp-vcdat"
 RUN mkdir -p ${workdir}
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ${workdir}/miniconda3.sh
@@ -10,8 +11,8 @@ RUN conda update --all -y -n base
 RUN conda --version
 RUN ls -al /
 RUN id
-RUN conda create -y -n jupyter-vcdat ${cdat_channels} -c conda-forge nodejs "python>3" jupyterlab pip nb_conda nb_conda_kernels plumbum
-RUN conda install -n jupyter-vcdat ${cdat_channels} -c conda-forge jupyterhub
+RUN conda config --set channel_priority strict
+RUN conda create -y -n jupyter-vcdat ${cdat_channels} ${conda_packages}
 
 RUN /bin/bash -c "source ${workdir}/miniconda/etc/profile.d/conda.sh; \
                   conda activate jupyter-vcdat; \

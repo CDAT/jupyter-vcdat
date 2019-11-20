@@ -2,11 +2,8 @@
 import * as React from "react";
 import {
   Button,
-  ButtonGroup,
   Input,
   InputGroup,
-  InputGroupAddon,
-  Label,
   ListGroup,
   ListGroupItem,
   Modal,
@@ -21,6 +18,9 @@ const INVALID_INPUT_MSG_DEFAULT: string =
   "The text entered is not valid. Please try again or cancel.";
 
 const OPTIONS_HEADER_DEFAULT: string = "Recently Used:";
+
+const START_COLOR: string = "#ff0000";
+const END_COLOR: string = "#702030";
 
 const listGroupStyle: React.CSSProperties = {
   margin: "10px",
@@ -103,8 +103,8 @@ export default class InputModal extends React.Component<
   public render(): JSX.Element {
     const colors: string[] = ColorFunctions.createGradient(
       this.state.savedInput.length,
-      "#e30008",
-      "#7000ad"
+      START_COLOR,
+      END_COLOR
     );
     return (
       <Modal

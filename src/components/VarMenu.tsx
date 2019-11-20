@@ -195,7 +195,7 @@ export default class VarMenu extends React.Component<
                   <Col>
                     <Button
                       className={
-                        /*@tag<varmenu-sync-btn>*/ "float-right varmenu-sync-btn-vcdat"
+                        /*@tag<varmenu-sync-btn>*/ "varmenu-sync-btn-vcdat"
                       }
                       color="info"
                       onClick={this.props.updateNotebook}
