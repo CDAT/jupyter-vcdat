@@ -183,7 +183,7 @@ export default class LeftSideBarWidget extends Widget {
           ref={loader => (this.loadingModalRef = loader)}
         />
         <AboutVCDAT
-          version={VCDAT_VERSION}
+          version={this.appSettings.version}
           ref={loader => (this.aboutRef = loader)}
         />
       </ErrorBoundary>,
