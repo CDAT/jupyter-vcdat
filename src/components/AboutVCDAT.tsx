@@ -85,7 +85,7 @@ export default class AboutVCDAT extends React.Component<
             <Col>
               <div style={{ ...iconStyling }} />
             </Col>
-            <Col>
+            <Col xs="auto">
               <Row>
                 <Col>
                   <h1 className="text-primary">VCDAT</h1>

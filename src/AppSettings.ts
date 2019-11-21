@@ -11,7 +11,7 @@ export class AppSettings {
   }
 
   get version(): string {
-    return this.version;
+    return this.settings.version;
   }
 
   public getSavedPaths(): string[] {
