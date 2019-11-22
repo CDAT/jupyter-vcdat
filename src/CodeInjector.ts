@@ -676,6 +676,7 @@ canvas = vcs.init(display_target='off')`;
       newCode += `${code}\n${BASE_DATA_READER_NAME}.close()`;
       return newCode;
     }
+    console.error(`Opening file failed. Path: ${path}`);
 
     return "";
   }

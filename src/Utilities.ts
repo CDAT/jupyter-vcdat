@@ -75,8 +75,8 @@ export default class Utilities {
     const cleanTarget: string = target.trim();
 
     // Check if it is an absolute path
-    if (target[0] === "/") {
-      return target; // Leave absolute path alone
+    if (cleanTarget[0] === "/" || cleanTarget.indexOf("http") >= 0) {
+      return cleanTarget; // Leave absolute path alone
     }
 
     const sourceArr: string[] = Utilities.removeFilename(cleanSource).split(

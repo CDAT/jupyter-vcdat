@@ -433,6 +433,7 @@ export default class VariableTracker {
       // Try to open file in cdms, exit early if fails
       if (!(await Utilities.tryFilePath(this.notebookPanel, path))) {
         this._isBusy = false;
+        console.error(`Opening file failed. Path: ${path}`);
         return Array<Variable>();
       }
 
@@ -445,6 +446,7 @@ export default class VariableTracker {
 
       // Exit if result is blank
       if (!result) {
+        console.error(`File had no variables. Path: ${path}`);
         return Array<Variable>();
       }
 
@@ -575,6 +577,7 @@ export default class VariableTracker {
     // Try to open file in cdms, exit early if fails
     if (!(await Utilities.tryFilePath(this.notebookPanel, path))) {
       this._isBusy = false;
+      console.error(`File had no variables: ${path}`);
       return;
     }
 

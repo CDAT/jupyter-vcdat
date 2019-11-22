@@ -606,6 +606,7 @@ export default class LeftSideBarWidget extends Widget {
           "Notice",
           "The file could not be opened. Check the path is valid."
         );
+        console.error(`File could not be opened: ${currentFile}`);
         return;
       }
 
