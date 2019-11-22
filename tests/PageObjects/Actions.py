@@ -12,7 +12,7 @@ from selenium.webdriver.common.keys import Keys
 
 class Actions(object):
 
-    _delay = 5
+    _delay = 1
     _a_bit_delay = 0.5
 
     def __init__(self, driver, server=None):
@@ -128,7 +128,7 @@ class Actions(object):
     def wait_click(self, method, locator):
         try:
             print("...wait_click..., locator: {}".format(locator))
-            wait = WebDriverWait(self.driver, 10)
+            wait = WebDriverWait(self.driver, 15)
             m = wait.until(EC.element_to_be_clickable((method,
                                                        locator)))
             m.click()
