@@ -13,6 +13,7 @@ import {
 } from "reactstrap";
 import { ISignal, Signal } from "@phosphor/signaling";
 import ColorFunctions from "../ColorFunctions";
+import { boundMethod } from "autobind-decorator";
 
 const INVALID_INPUT_MSG_DEFAULT: string =
   "The text entered is not valid. Please try again or cancel.";
@@ -70,29 +71,24 @@ export default class InputModal extends React.Component<
         : Array<string>(),
       showSaved: this.props.inputOptions ? true : false
     };
-    this.show = this.show.bind(this);
     this._savedChanged = new Signal<this, string[]>(this);
-    this.saveInput = this.saveInput.bind(this);
-    this.deleteInput = this.deleteInput.bind(this);
-    this.hide = this.hide.bind(this);
-    this.toggle = this.toggle.bind(this);
-    this.reset = this.reset.bind(this);
-    this.onInputUpdate = this.onInputUpdate.bind(this);
-    this.clickSavedInput = this.clickSavedInput.bind(this);
   }
 
   get savedOptionsChanged(): ISignal<this, string[]> {
     return this._savedChanged;
   }
 
+  @boundMethod
   public async show(): Promise<void> {
     await this.setState({ modalOpen: true });
   }
 
+  @boundMethod
   public async toggle(): Promise<void> {
     await this.setState({ modalOpen: !this.state.modalOpen });
   }
 
+  @boundMethod
   public async reset(): Promise<void> {
     await this.setState({
       input: "",
@@ -201,6 +197,7 @@ export default class InputModal extends React.Component<
     );
   }
 
+  @boundMethod
   private async saveInput(): Promise<void> {
     const newList: string[] = this.state.savedInput;
     newList.push(this.state.input);
@@ -208,6 +205,7 @@ export default class InputModal extends React.Component<
     this._savedChanged.emit(this.state.savedInput); // Publish that saved options changed
   }
 
+  @boundMethod
   private async deleteInput(index: number): Promise<void> {
     const newList: string[] = this.state.savedInput;
     newList.splice(index, 1);
@@ -215,10 +213,12 @@ export default class InputModal extends React.Component<
     this._savedChanged.emit(this.state.savedInput); // Publish that saved options changed
   }
 
+  @boundMethod
   private async clickSavedInput(savedInput: string): Promise<void> {
     this.validate(savedInput.concat(this.state.input));
   }
 
+  @boundMethod
   private async hide(): Promise<void> {
     // If the input was not valid, cancel hide operation with message
     if (this.state.isValid) {
@@ -228,6 +228,7 @@ export default class InputModal extends React.Component<
     await this.setState({ modalOpen: false, input: "" });
   }
 
+  @boundMethod
   private async validate(input: string): Promise<void> {
     let newInput: string = input;
     // Clean input if necessary
@@ -246,6 +247,7 @@ export default class InputModal extends React.Component<
     await this.setState({ input: newInput });
   }
 
+  @boundMethod
   private async onInputUpdate(
     event: React.ChangeEvent<HTMLInputElement>
   ): Promise<void> {

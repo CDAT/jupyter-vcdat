@@ -4,7 +4,6 @@ import { ISignal } from "@phosphor/signaling";
 import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Alert,
-  Badge,
   Button,
   ButtonGroup,
   Card,
@@ -29,6 +28,7 @@ import Variable from "./Variable";
 import NotebookUtilities from "../NotebookUtilities";
 import { checkForExportedFileCommand } from "../PythonCommands";
 import VariableTracker from "../VariableTracker";
+import { boundMethod } from "autobind-decorator";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em"
@@ -110,26 +110,6 @@ export default class VarMini extends React.Component<
       validateFileName: false,
       variable: this.props.variable
     };
-    this.openMenu = this.openMenu.bind(this);
-    this.toggleModal = this.toggleModal.bind(this);
-    this.handleEditClick = this.handleEditClick.bind(this);
-    this.handleDeleteClick = this.handleDeleteClick.bind(this);
-    this.handleUpdateClick = this.handleUpdateClick.bind(this);
-    this.handleCopyClick = this.handleCopyClick.bind(this);
-    this.handleSaveClick = this.handleSaveClick.bind(this);
-    this.toggleSaveModal = this.toggleSaveModal.bind(this);
-    this.toggleShuffle = this.toggleShuffle.bind(this);
-    this.toggleDeflate = this.toggleDeflate.bind(this);
-    this.toggleAppend = this.toggleAppend.bind(this);
-    this.onFilenameChange = this.onFilenameChange.bind(this);
-    this.updateDeflateValue = this.updateDeflateValue.bind(this);
-    this.updateNewVariableName = this.updateNewVariableName.bind(this);
-    this.save = this.save.bind(this);
-    this.dismissFilenameValidation = this.dismissFilenameValidation.bind(this);
-    this.updateSelections = this.updateSelections.bind(this);
-    this.handleNameInput = this.handleNameInput.bind(this);
-    this.validateNameInput = this.validateNameInput.bind(this);
-    this.updateDimensionInfo = this.updateDimensionInfo.bind(this);
   }
 
   public componentDidMount(): void {
@@ -140,6 +120,7 @@ export default class VarMini extends React.Component<
     this.props.varSelectionChanged.disconnect(this.updateSelections);
   }
 
+  @boundMethod
   public reset(): void {
     this.setState({
       activateAppend: false,
@@ -158,6 +139,7 @@ export default class VarMini extends React.Component<
     });
   }
 
+  @boundMethod
   public updateSelections(): void {
     this.setState({
       selected: this.props.isSelected(this.state.variable.varID)
@@ -167,6 +149,7 @@ export default class VarMini extends React.Component<
   /**
    * @description open the menu if its closed
    */
+  @boundMethod
   public openMenu(): void {
     if (!this.state.showAxis) {
       this.setState({
@@ -178,6 +161,7 @@ export default class VarMini extends React.Component<
   /**
    * @description Toggles the variable loader modal
    */
+  @boundMethod
   public toggleModal(): void {
     this.props.modalOpen(!this.state.showAxis);
     this.setState({
@@ -188,6 +172,7 @@ export default class VarMini extends React.Component<
   /**
    * @description Toggles the save variable modal
    */
+  @boundMethod
   public toggleSaveModal(): void {
     if (this.state.showSaveModal) {
       this.props.modalOpen(false);
@@ -206,6 +191,7 @@ export default class VarMini extends React.Component<
   /**
    * @description Toggles the shuffle switch
    */
+  @boundMethod
   public toggleShuffle(): void {
     this.setState({
       activateShuffle: !this.state.activateShuffle
@@ -215,6 +201,7 @@ export default class VarMini extends React.Component<
   /**
    * @description Toggles the deflate switch
    */
+  @boundMethod
   public toggleDeflate(): void {
     this.setState(
       {
@@ -233,28 +220,34 @@ export default class VarMini extends React.Component<
   /**
    * @description Toggles the deflate switch
    */
+  @boundMethod
   public toggleAppend(): void {
     this.setState({
       activateAppend: !this.state.activateAppend
     });
   }
 
+  @boundMethod
   public onFilenameChange(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ filename: event.target.value });
   }
 
+  @boundMethod
   public updateDeflateValue(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ deflateValue: parseInt(event.target.value, 10) });
   }
 
+  @boundMethod
   public updateNewVariableName(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ newVariableSaveName: event.target.value });
   }
 
+  @boundMethod
   public dismissFilenameValidation() {
     this.setState({ validateFileName: false });
   }
 
+  @boundMethod
   public async save() {
     const splitFileName = this.state.filename.split(".");
 
@@ -290,6 +283,7 @@ export default class VarMini extends React.Component<
     }
   }
 
+  @boundMethod
   public updateDimensionInfo(newInfo: any): void {
     const updatedVar: Variable = this.state.variable;
     updatedVar.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
@@ -457,15 +451,6 @@ export default class VarMini extends React.Component<
             >
               The file name can not be blank
             </Alert>
-            {/*<CustomInput
-              type="switch"
-              id="appendSwitch"
-              name="appendSwitch"
-              label="Append to existing file"
-              checked={this.state.activateAppend}
-              onChange={this.toggleAppend}
-            />
-            <br />*/}
             <Label>Variable Name in File:</Label>
             <Input
               type="text"
@@ -528,6 +513,7 @@ export default class VarMini extends React.Component<
     );
   }
 
+  @boundMethod
   private async handleCopyClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> {
@@ -540,6 +526,7 @@ export default class VarMini extends React.Component<
     await this.props.codeInjector.loadVariable(copy);
   }
 
+  @boundMethod
   private async handleDeleteClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> {
@@ -555,6 +542,7 @@ export default class VarMini extends React.Component<
     }
   }
 
+  @boundMethod
   private async handleEditClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> {
@@ -568,6 +556,7 @@ export default class VarMini extends React.Component<
     }
   }
 
+  @boundMethod
   private handleSaveClick(
     clickEvent: React.MouseEvent<HTMLButtonElement>
   ): void {
@@ -575,6 +564,7 @@ export default class VarMini extends React.Component<
     clickEvent.stopPropagation();
   }
 
+  @boundMethod
   private validateNameInput(nameEntry: string): void {
     if (nameEntry === this.state.variable.alias) {
       this.setState({ nameState: "Valid" });
@@ -592,12 +582,14 @@ export default class VarMini extends React.Component<
     this.setState({ nameState: state });
   }
 
+  @boundMethod
   private handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
     const nameEntry: string = event.target.value;
     this.setState({ nameValue: nameEntry });
     this.validateNameInput(nameEntry);
   }
 
+  @boundMethod
   private async handleUpdateClick(): Promise<void> {
     if (this.state.nameState === "Variable Already Exists!") {
       const proceed: boolean = await NotebookUtilities.showYesNoDialog(

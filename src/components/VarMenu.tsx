@@ -21,6 +21,7 @@ import Variable from "./Variable";
 import VarLoader from "./VarLoader";
 import VarMini from "./VarMini";
 import VariableTracker from "../VariableTracker";
+import { boundMethod } from "autobind-decorator";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em"
@@ -64,17 +65,6 @@ export default class VarMenu extends React.Component<
       variables: this.props.varTracker.variables
     };
     this.varLoaderRef = (React as any).createRef();
-    this.launchFilebrowser = this.launchFilebrowser.bind(this);
-    this.launchFilepathModal = this.launchFilepathModal.bind(this);
-    this.launchVarLoader = this.launchVarLoader.bind(this);
-    this.isSelected = this.isSelected.bind(this);
-    this.reloadVariable = this.reloadVariable.bind(this);
-    this.getOrder = this.getOrder.bind(this);
-    this.setModalState = this.setModalState.bind(this);
-    this.varAliasExists = this.varAliasExists.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
-    this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
-    this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
   }
 
   public componentDidMount(): void {
@@ -93,6 +83,7 @@ export default class VarMenu extends React.Component<
     );
   }
 
+  @boundMethod
   public isSelected(varID: string): boolean {
     return this.state.selectedVariables.indexOf(varID) >= 0;
   }
@@ -100,6 +91,7 @@ export default class VarMenu extends React.Component<
   /**
    * @description launches the notebooks filebrowser so the user can select a data file
    */
+  @boundMethod
   public async launchFilepathModal(): Promise<void> {
     this.props.showInputModal();
   }
@@ -107,6 +99,7 @@ export default class VarMenu extends React.Component<
   /**
    * @description launches the notebooks filebrowser so the user can select a data file
    */
+  @boundMethod
   public async launchFilebrowser(): Promise<void> {
     await this.props.commands.execute("filebrowser:activate");
   }
@@ -114,6 +107,7 @@ export default class VarMenu extends React.Component<
   /**
    * @description toggles the varLoaders menu
    */
+  @boundMethod
   public async launchVarLoader(fileVariables: Variable[]): Promise<void> {
     // Reset the varloader
     await this.varLoaderRef.reset();
@@ -124,6 +118,7 @@ export default class VarMenu extends React.Component<
     this.varLoaderRef.updateFileVars(fileVariables);
   }
 
+  @boundMethod
   public async reloadVariable(
     variable: Variable,
     newAlias?: string
@@ -136,10 +131,12 @@ export default class VarMenu extends React.Component<
     await this.props.varTracker.saveMetaData();
   }
 
+  @boundMethod
   public varAliasExists(alias: string): boolean {
     return this.props.varTracker.findVariableByAlias(alias)[0] >= 0;
   }
 
+  @boundMethod
   public getOrder(varID: string): number {
     if (this.state.selectedVariables.length === 0) {
       return -1;
@@ -147,6 +144,7 @@ export default class VarMenu extends React.Component<
     return this.state.selectedVariables.indexOf(varID) + 1;
   }
 
+  @boundMethod
   public setModalState(newState: boolean): void {
     this.setState({ modalOpen: newState });
   }
@@ -272,6 +270,7 @@ export default class VarMenu extends React.Component<
     );
   }
 
+  @boundMethod
   private handleSelectionChanged(
     varTracker: VariableTracker,
     newSelection: string[]
@@ -279,6 +278,7 @@ export default class VarMenu extends React.Component<
     this.setState({ selectedVariables: newSelection });
   }
 
+  @boundMethod
   private handleVariablesChanged(
     varTracker: VariableTracker,
     variables: Variable[]

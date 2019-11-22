@@ -9,6 +9,7 @@ import {
   ModalHeader,
   Row
 } from "reactstrap";
+import { boundMethod } from "autobind-decorator";
 
 interface IAboutProps {
   version: string;
@@ -55,19 +56,19 @@ export default class AboutVCDAT extends React.Component<
     this.state = {
       modalOpen: false
     };
-    this.show = this.show.bind(this);
-    this.hide = this.hide.bind(this);
-    this.toggle = this.toggle.bind(this);
   }
 
+  @boundMethod
   public async show(): Promise<void> {
     await this.setState({ modalOpen: true });
   }
 
+  @boundMethod
   public async hide(): Promise<void> {
     await this.setState({ modalOpen: false });
   }
 
+  @boundMethod
   public async toggle(): Promise<void> {
     await this.setState({ modalOpen: !this.state.modalOpen });
   }

@@ -13,6 +13,7 @@ import VarCard from "./VarCard";
 import Variable from "./Variable";
 import VariableTracker from "../VariableTracker";
 import NotebookUtilities from "../NotebookUtilities";
+import { boundMethod } from "autobind-decorator";
 
 const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
@@ -48,18 +49,6 @@ export default class VarLoader extends React.Component<
       variablesToShow: Array<Variable>()
     };
     this._selectionChanged = new Signal<this, Variable[]>(this);
-
-    this.toggle = this.toggle.bind(this);
-    this.reset = this.reset.bind(this);
-    this.isSelected = this.isSelected.bind(this);
-    this.loadSelectedVariables = this.loadSelectedVariables.bind(this);
-    this.selectVariableForLoad = this.selectVariableForLoad.bind(this);
-    this.deselectVariableForLoad = this.deselectVariableForLoad.bind(this);
-    this.updateDimInfo = this.updateDimInfo.bind(this);
-    this.handleLoadClick = this.handleLoadClick.bind(this);
-    this.handleSearchChange = this.handleSearchChange.bind(this);
-    this.updateFileVars = this.updateFileVars.bind(this);
-    this.varAliasExists = this.varAliasExists.bind(this);
   }
 
   get selections(): Variable[] {
@@ -75,6 +64,7 @@ export default class VarLoader extends React.Component<
     return this._selectionChanged;
   }
 
+  @boundMethod
   public async reset(): Promise<void> {
     this.selections = Array<Variable>();
     await this.setState({
@@ -86,6 +76,7 @@ export default class VarLoader extends React.Component<
   /**
    * @description Toggles the variable loader modal
    */
+  @boundMethod
   public async toggle(): Promise<void> {
     // Reset the state of the var loader when done
     await this.reset();
@@ -94,6 +85,7 @@ export default class VarLoader extends React.Component<
     });
   }
 
+  @boundMethod
   public isSelected(varID: string): boolean {
     return (
       this.props.varTracker.findVariableByID(varID, this.selections)[0] >= 0
@@ -101,6 +93,7 @@ export default class VarLoader extends React.Component<
   }
 
   // Loads all the selected variables into the notebook, returns the number loaded
+  @boundMethod
   public async loadSelectedVariables(varsToLoad: Variable[]): Promise<void> {
     // Exit early if no variable selected for loading
     if (this.selections.length === 0) {
@@ -146,6 +139,7 @@ export default class VarLoader extends React.Component<
    *
    * @param variable The Variable the user has selected to get loaded
    */
+  @boundMethod
   public selectVariableForLoad(variable: Variable): void {
     const newSelection: Variable[] = this.selections
       ? this.selections
@@ -159,6 +153,7 @@ export default class VarLoader extends React.Component<
    *
    * @param variable Remove a variable from the list to be loaded
    */
+  @boundMethod
   public deselectVariableForLoad(variable: Variable): void {
     const idx: number = this.props.varTracker.findVariableByAlias(
       variable.alias,
@@ -176,6 +171,7 @@ export default class VarLoader extends React.Component<
    * @param newInfo new dimension info for the variables axis
    * @param varID the name of the variable to update
    */
+  @boundMethod
   public updateDimInfo(newInfo: any, varID: string): void {
     this.state.fileVariables.forEach(
       (fileVariable: Variable, varIndex: number) => {
@@ -209,6 +205,7 @@ export default class VarLoader extends React.Component<
     return comp;
   }
 
+  @boundMethod
   public updateFileVars(vars: Variable[]) {
     this.setState({
       fileVariables: vars,
@@ -216,12 +213,14 @@ export default class VarLoader extends React.Component<
     });
   }
 
+  @boundMethod
   public resetSearch() {
     this.setState({
       variablesToShow: this.state.fileVariables
     });
   }
 
+  @boundMethod
   public handleSearchChange(e: any) {
     const value = e.target.value;
 
@@ -253,6 +252,7 @@ export default class VarLoader extends React.Component<
     });
   }
 
+  @boundMethod
   public varAliasExists(alias: string, varLoaderSelection: boolean): boolean {
     let array: Variable[] = this.props.varTracker.variables;
     if (varLoaderSelection) {
@@ -335,6 +335,7 @@ export default class VarLoader extends React.Component<
     );
   }
 
+  @boundMethod
   private handleLoadClick(): void {
     this.setState({ show: false });
     this.loadSelectedVariables(this.selections);

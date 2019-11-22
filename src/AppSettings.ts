@@ -1,4 +1,5 @@
 import { ISettingRegistry } from "@jupyterlab/coreutils";
+import { boundMethod } from "autobind-decorator";
 
 export class AppSettings {
   private settings: ISettingRegistry.ISettings;
@@ -6,14 +7,17 @@ export class AppSettings {
     this.settings = appSettings;
   }
 
-  get id(): string {
+  @boundMethod
+  public getId(): string {
     return this.settings.id;
   }
 
-  get version(): string {
+  @boundMethod
+  public getVersion(): string {
     return this.settings.version;
   }
 
+  @boundMethod
   public getSavedPaths(): string[] {
     try {
       return this.settings.get("savedPaths").composite as string[];
@@ -23,6 +27,7 @@ export class AppSettings {
     }
   }
 
+  @boundMethod
   public async setSavedPaths(options: string[]): Promise<void> {
     try {
       await this.settings.set("savedPaths", options);

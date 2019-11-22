@@ -26,6 +26,7 @@ import NotebookUtilities from "../NotebookUtilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import ColormapEditor from "./ColormapEditor";
 import { DISPLAY_MODE } from "../constants";
+import { boundMethod } from "autobind-decorator";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
@@ -84,21 +85,11 @@ export default class GraphicsMenu extends React.Component<
       showMenu: false,
       tempGroup: ""
     };
-    this.handleNameInput = this.handleNameInput.bind(this);
-    this.handleCloseClick = this.handleCloseClick.bind(this);
-    this.handleCopyClick = this.handleCopyClick.bind(this);
-    this.handleCancelClick = this.handleCancelClick.bind(this);
-    this.handleEnterClick = this.handleEnterClick.bind(this);
-    this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
-
-    this.toggleDropdown = this.toggleDropdown.bind(this);
-    this.graphicsOptions = this.graphicsOptions.bind(this);
-    this.resetGraphicsState = this.resetGraphicsState.bind(this);
-    this.selectItem = this.selectItem.bind(this);
 
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
   }
 
+  @boundMethod
   public toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
@@ -111,6 +102,7 @@ export default class GraphicsMenu extends React.Component<
   }
 
   // Resets the graphics menu to initial, (for when a new notebook is selected)
+  @boundMethod
   public async resetGraphicsState(): Promise<void> {
     this.setState({
       enterName: false,
@@ -124,6 +116,7 @@ export default class GraphicsMenu extends React.Component<
     });
   }
 
+  @boundMethod
   public async selectItem(item: string): Promise<void> {
     if (
       this.state.tempGroup !== this.state.selectedGroup ||
@@ -140,6 +133,7 @@ export default class GraphicsMenu extends React.Component<
     }
   }
 
+  @boundMethod
   public graphicsOptions(group: string): JSX.Element {
     return (
       <ListGroup flush={true}>
@@ -379,10 +373,12 @@ export default class GraphicsMenu extends React.Component<
   }
 
   // ======= REACT COMPONENT HANDLERS =======
+  @boundMethod
   private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
     this.setState({ plotReady: value });
   }
 
+  @boundMethod
   private handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
     // Regex filter for unallowed name characters
     const forbidden: RegExp = /^[^_a-z]|[^_a-z0-9]+/i;
@@ -390,6 +386,7 @@ export default class GraphicsMenu extends React.Component<
     this.setState({ nameValue: event.target.value, invalidName: invalid });
   }
 
+  @boundMethod
   private handleCloseClick(): void {
     this.setState({
       showDropdown: false,
@@ -398,10 +395,12 @@ export default class GraphicsMenu extends React.Component<
     });
   }
 
+  @boundMethod
   private handleCopyClick(): void {
     this.setState({ enterName: true });
   }
 
+  @boundMethod
   private handleCancelClick(): void {
     this.setState({
       enterName: false,
@@ -410,6 +409,7 @@ export default class GraphicsMenu extends React.Component<
     });
   }
 
+  @boundMethod
   private async handleEnterClick(): Promise<void> {
     if (this.state.nameValue && !this.state.invalidName) {
       try {

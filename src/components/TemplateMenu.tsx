@@ -13,6 +13,7 @@ import {
 import { ISignal } from "@phosphor/signaling";
 
 import LeftSideBarWidget from "../LeftSideBarWidget";
+import { boundMethod } from "autobind-decorator";
 
 const dropdownMenuStype: React.CSSProperties = {
   maxHeight: "250px",
@@ -46,15 +47,12 @@ export default class TemplateMenu extends React.Component<
       showDropdown: false,
       showMenu: false
     };
-    this.toggleMenu = this.toggleMenu.bind(this);
-    this.toggleDropdown = this.toggleDropdown.bind(this);
-    this.resetTemplateMenuState = this.resetTemplateMenuState.bind(this);
-    this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
 
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
   }
 
   // Resets the graphics menu to initial, (for when a new notebook is selected)
+  @boundMethod
   public resetTemplateMenuState(): void {
     this.setState({
       optionsChanged: false,
@@ -64,12 +62,14 @@ export default class TemplateMenu extends React.Component<
     });
   }
 
+  @boundMethod
   public toggleMenu(): void {
     this.setState({
       showMenu: !this.state.showMenu
     });
   }
 
+  @boundMethod
   public toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
@@ -134,6 +134,7 @@ export default class TemplateMenu extends React.Component<
     );
   }
 
+  @boundMethod
   private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
     this.setState({ plotReady: value });
   }
