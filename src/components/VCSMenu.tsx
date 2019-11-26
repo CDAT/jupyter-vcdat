@@ -9,6 +9,7 @@ import { Alert, Button, Card, CardBody, Col, Row, Spinner } from "reactstrap";
 import CodeInjector from "../CodeInjector";
 import {
   DISPLAY_MODE,
+  EXTENSIONS,
   GRAPHICS_METHOD_KEY,
   PLOT_OPTIONS_KEY,
   TEMPLATE_KEY
@@ -525,15 +526,15 @@ export default class VCSMenu extends React.Component<
       cancelText: "Cancel",
       inputListHeader: "Saved File Paths",
       inputOptions: this.props.appSettings.getSavedPaths(),
+      invalidInputMessage:
+        "The path entered is not valid. Make sure it contains an appropriate filename.",
       isValid: (input: string): boolean => {
-        return input.length > 0;
+        const ext: string = Utilities.getExtension(input);
+        return input.length > 0 && EXTENSIONS.indexOf(`.${ext}`) >= 0;
       },
       message: "Enter the path and name of the file you wish to open.",
       onModalClose: this.props.prepareNotebookFromPath,
-      placeHolder: "file_path/file",
-      sanitizer: (input: string): string => {
-        return input.replace("\\", "");
-      },
+      placeHolder: "file_path/file.ext",
       title: "Load Variables from Path"
     };
 

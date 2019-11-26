@@ -112,7 +112,7 @@ export default class InputModal extends React.Component<
         <ModalHeader>{this.props.title}</ModalHeader>
         <ModalBody
           className={
-            /*@tag<text-muted popup-input-modal>*/ "text-muted popup-input-modal-vcdat"
+            /*@tag<text-muted input-modal>*/ "text-muted input-modal-vcdat"
           }
         >
           {this.state.input === ""
@@ -125,13 +125,14 @@ export default class InputModal extends React.Component<
           <InputGroup>
             <Input
               id={/*@tag<input-modal-input>*/ "input-modal-input-vcdat"}
-              onChange={this.onInputUpdate}
+              onChange={this.handleUpdate}
               placeholder={this.props.placeHolder}
               value={this.state.input}
+              onKeyPress={this.enterPressed}
             />
             {this.state.showSaved && (
               <Button
-                disabled={!this.state.isValid}
+                disabled={this.state.input === ""}
                 color="success"
                 onClick={this.saveInput}
               >
@@ -143,7 +144,7 @@ export default class InputModal extends React.Component<
             <ListGroup
               style={listGroupStyle}
               className={
-                /*@tag<popup-input-options-list>*/ "popup-input-options-list-vcdat"
+                /*@tag<input-modal-options-list>*/ "input-modal-options-list-vcdat"
               }
             >
               {this.props.inputListHeader
@@ -151,7 +152,7 @@ export default class InputModal extends React.Component<
                 : OPTIONS_HEADER_DEFAULT}
               {this.state.savedInput.map((item: string, idx: number) => {
                 const clickSavedInput = () => {
-                  this.clickSavedInput(item);
+                  this.handleClickSavedInput(item);
                 };
                 const deleteInput = (
                   event: React.MouseEvent<any, MouseEvent>
@@ -183,9 +184,7 @@ export default class InputModal extends React.Component<
         </ModalBody>
         <ModalFooter>
           <Button
-            className={
-              /*@tag<popup-input-modal-btn>*/ "popup-input-modal-btn-vcdat"
-            }
+            className={/*@tag<input-modal-btn>*/ "input-modal-btn-vcdat"}
             outline={!this.state.input}
             color={this.state.isValid ? "info" : "danger"}
             onClick={this.hide}
@@ -200,8 +199,9 @@ export default class InputModal extends React.Component<
   @boundMethod
   private async saveInput(): Promise<void> {
     const newList: string[] = this.state.savedInput;
-    newList.push(this.state.input);
-    await this.setState({ savedInput: newList });
+    // newList.push(this.state.input);
+    // [this.state.input].concat(newList);
+    await this.setState({ savedInput: [this.state.input].concat(newList) });
     this._savedChanged.emit(this.state.savedInput); // Publish that saved options changed
   }
 
@@ -214,8 +214,8 @@ export default class InputModal extends React.Component<
   }
 
   @boundMethod
-  private async clickSavedInput(savedInput: string): Promise<void> {
-    this.validate(savedInput.concat(this.state.input));
+  private async handleClickSavedInput(savedInput: string): Promise<void> {
+    this.validate(savedInput);
   }
 
   @boundMethod
@@ -226,6 +226,18 @@ export default class InputModal extends React.Component<
     }
 
     await this.setState({ modalOpen: false, input: "" });
+  }
+
+  @boundMethod
+  private async enterPressed(
+    event: React.KeyboardEvent<HTMLInputElement>
+  ): Promise<void> {
+    const code = event.keyCode || event.which;
+    if (code === 13) {
+      if (this.state.isValid) {
+        this.props.onModalClose(this.state.input, this.state.savedInput);
+      }
+    }
   }
 
   @boundMethod
@@ -248,9 +260,13 @@ export default class InputModal extends React.Component<
   }
 
   @boundMethod
-  private async onInputUpdate(
+  private async handleUpdate(
     event: React.ChangeEvent<HTMLInputElement>
   ): Promise<void> {
-    this.validate(event.target.value);
+    event.persist();
+    const start: number = event.target.selectionStart;
+    const end: number = event.target.selectionEnd;
+    await this.validate(event.target.value);
+    event.target.setSelectionRange(start, end, "forward");
   }
 }
