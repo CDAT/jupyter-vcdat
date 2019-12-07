@@ -99,7 +99,7 @@ Change into the directory containing the repo and type in the following commands
 ```bash
 
     #Create the environment
-    ./install_script.sh #Note: You can use -h to get help and options for installation script.
+    ./scripts/install_script.sh #Note: You can use -h to get help and options for installation script.
 
     # The following two lines of code install tslint if developers want to use it (optional):
       # For VSCode:

@@ -31,7 +31,6 @@ aliases:
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
     command: |
-      export CDAT_ANONYMOUS_LOG=False
       source activate jupyter-vcdat
       conda list
       jupyter lab --ip='127.0.0.1'
@@ -94,7 +93,6 @@ aliases:
   - &npm_publish
     name: npm_publish
     command: |
-      export CDAT_ANONYMOUS_LOG=False
       npm install
       npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       npm publish --tag nightly
@@ -102,7 +100,7 @@ aliases:
   - &docker_publish
     name: docker_publish
     command: |
-      cd kube
+      cd deploy
       echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
       echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
       docker pull aims2.llnl.gov/nimbus-basic:latest

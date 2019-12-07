@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
     "declaration": true,
-    "lib": ["es2015", "dom"],
+    "lib": ["es2015", "es2018", "es2019", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
     "experimentalDecorators": true,

@@ -60,7 +60,7 @@ npm publish
 
 - Build docker image:
 ```bash
-#Do this within the kube directory
+#Do this within the deploy directory
 docker build -t cdat/vcdat:<new version> .
 ```
 
@@ -75,5 +75,30 @@ Note: Within browser, go to: localhost:9000, and enter the jupyterlab token from
 ```bash
 docker push cdat/vcdat:<new version>
 docker image tag cdat/vcdat:<new version> cdat/vcdat:latest
+docker push cdat/vcdat:latest
+```
+
+# Docker Image Build for local testing:
+
+- Build docker image from local branch:
+```bash
+
+#Do this within the deploy directory
+./local_package.sh #build a local docker package
+```
+
+- Test the docker image runs properly:
+```bash
+docker run -p 9000:9000 -v /<Path to directory to use in testing>/:\
+/home/jovyan/testing/ -it cdat/vcdat:local-branch jupyter-lab --port=9000
+```
+Note: Within browser, go to: localhost:9000, and enter the jupyterlab token from the console into the token field. Then you should see jupyter-vcdat in browser
+
+- After test is successful and image is running properly, you can publish to docker hub this way:
+```bash
+docker image tag cdat/vcdat:local-branch cdat/vcdat:<new version>
+docker push cdat/vcdat:<new version>
+# (Optional) To set image as official latest once it was pushed:
+docker image tag cdat/vcdat:<new-version> cdat/vcdat:latest
 docker push cdat/vcdat:latest
 ```
