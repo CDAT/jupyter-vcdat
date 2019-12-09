@@ -87,7 +87,6 @@
     "autobind-decorator": "^2.4.0",
     "bootstrap": "^4.4.1",
     "bootstrap-slider": "^10.6.2",
-    "compare-versions": "^3.5.1",
     "jquery": "^3.4.1",
     "jupyterlab-tutorial": "^1.0.4",
     "lodash": "^4.17.15",
@@ -108,6 +107,7 @@
     "ts-dedent": "^1.1.0"
   },
   "devDependencies": {
+    "compare-versions": "^3.5.1",
     "husky": "^3.1.0",
     "lint-staged": "^9.4.3",
     "node-sass": "^4.13.0",
