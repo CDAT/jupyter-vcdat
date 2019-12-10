@@ -1,4 +1,5 @@
 import time
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from ActionsPage import ActionsPage
 from LoadVariablesPopUp import LoadVariablesPopUp
@@ -25,9 +26,16 @@ class FileBrowser(ActionsPage):
         if expect_file_load_error:
             print("...click on the File Load Error OK button")
             print("...doing WebDriverWait...till the element is clickable")
-            file_load_error_ok_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
-            self.wait_click(By.XPATH, file_load_error_ok_locator)
+            file_popup_modal_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
+            self.wait_click(By.XPATH, file_popup_modal_locator)
 
         time.sleep(self._delay)
+
+        # Select Kernel Popup if it exists
+        try:
+            self.wait_click(By.XPATH, file_popup_modal_locator)
+        except NoSuchElementException:
+            pass
+
         load_variables_pop_up = LoadVariablesPopUp(self.driver, None)
         return load_variables_pop_up
