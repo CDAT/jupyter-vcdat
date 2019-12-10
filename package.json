@@ -34,9 +34,9 @@
     "scss-watch": "node-sass --watch style/scss -o style/css",
     "scss": "node-sass style/scss -o style/css",
     "tslint-check": "npx tslint-config-prettier-check ./tslint.json"
-    },
+  },
   "lint-staged": {
-    "src/**/*.{ts,tsx}": [
+    "**/*.{ts,tsx}": [
       "npx tslint --project tsconfig.json --fix .",
       "npx prettier-tslint fix .",
       "git add"
