@@ -34,11 +34,11 @@
     "scss-watch": "node-sass --watch style/scss -o style/css",
     "scss": "node-sass style/scss -o style/css",
     "tslint-check": "npx tslint-config-prettier-check ./tslint.json"
-  },
+    },
   "lint-staged": {
-    "**/*.{ts,tsx}": [
-      "npx tslint --project tsconfig.json --fix .",
-      "npx prettier-tslint fix .",
+    "src/**/*.{ts,tsx}": [
+      "npx tslint --project tsconfig.json --fix 'src/**/*.{ts,tsx}'",
+      "npx prettier-tslint fix 'src/**/*.{ts,tsx}'",
       "git add"
     ],
     "*.py": [
