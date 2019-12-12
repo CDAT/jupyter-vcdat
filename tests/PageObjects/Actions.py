@@ -13,7 +13,7 @@ from selenium.webdriver.common.keys import Keys
 class Actions(object):
 
     _delay = 1.5
-    _a_bit_delay = 0.5
+    _a_bit_delay = 1
 
     def __init__(self, driver, server=None):
         self.driver = driver
