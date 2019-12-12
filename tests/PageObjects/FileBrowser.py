@@ -18,7 +18,7 @@ class FileBrowser(ActionsPage):
     def double_click_on_a_file(self, fname, expect_file_load_error=True):
         file_locator = "//li[@title='{f}']".format(f=fname)
 
-        time.sleep(3)
+        time.sleep(5)
         file_element = self.find_element_by_xpath(file_locator, "'{}' file".format(fname))
 
         self.move_to_double_click(file_element)
