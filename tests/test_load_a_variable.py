@@ -16,7 +16,9 @@ class TestLoadVariable(BaseTestCaseWithNoteBook):
         load 'clt.nc' file, and load 'v' variable, and plot
         '''
         test_file = "clt.nc"
+        self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
+
         vcdat_panel = VcdatPanel(self.driver, None)
         file_browser = vcdat_panel.click_on_load_variables_by_file()
 

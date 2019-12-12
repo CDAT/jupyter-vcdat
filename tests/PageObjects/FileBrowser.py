@@ -17,8 +17,7 @@ class FileBrowser(ActionsPage):
 
     def double_click_on_a_file(self, fname, expect_file_load_error=True):
         file_locator = "//li[@title='{f}']".format(f=fname)
-        file_element = self.find_element_by_xpath(file_locator,
-                                                  "'{}' file".format(fname))
+        file_element = self.find_element_by_xpath(file_locator, "'{}' file".format(fname))
 
         self.move_to_double_click(file_element)
         time.sleep(self._delay)
@@ -33,7 +32,8 @@ class FileBrowser(ActionsPage):
 
         # Select Kernel Popup if it exists
         try:
-            self.wait_click(By.XPATH, file_popup_modal_locator)
+            accept_button = self.find_element_by_xpath(file_popup_modal_locator, "Kernel Select Accept Button")
+            self.move_to_click(accept_button)
         except NoSuchElementException:
             pass
 
