@@ -61,6 +61,7 @@ function getOptionsValue(value: any, ...options: any[]): any {
  */
 async function run(code: string, silent: boolean = true): Promise<string> {
   const output: string = await sh(code, { async: true, silent });
+
   return output.trimRight();
 }
 
@@ -87,6 +88,34 @@ async function getLocalPackageVersion(): Promise<string> {
  */
 async function getPublishedVersion(tag?: string): Promise<string> {
   return run(`npm view jupyter-vcdat${tag ? `@${tag}` : ""} version`);
+}
+
+async function checkFileExists(fileName: string): Promise<boolean> {
+  try {
+    await run(`test -f ${fileName} && echo "TRUE"`);
+  } catch (error) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Prompts user for input and returns the result as a string.
+ * @param prompt The message to show user for input.
+ */
+async function getUserInput(
+  prompt: string,
+  charLimit?: number
+): Promise<string> {
+  console.log(prompt);
+  if (charLimit) {
+    const response: string = await run(
+      `read -e -n ${charLimit} _user_response && echo $_user_response`
+    );
+    console.log("");
+    return response;
+  }
+  return run(`read -e _user_response && echo $_user_response`);
 }
 
 // Task: checkVersion
@@ -236,4 +265,90 @@ help(lint, `Performs linting operations on source files.`, {
   `
 });
 
-cli({ checkVersion, updateTags, format, lint });
+async function testFirefox(driverPath: string): Promise<void> {
+  if (await checkFileExists(driverPath)) {
+    console.log("Driver found!");
+  } else {
+    console.error("Driver path was not valid! Exiting.");
+    return;
+  }
+
+  console.log("Preparing for tests in Firefox");
+}
+
+// Task: test
+async function test(options: ICLIOptions): Promise<void> {
+  if (options.f || options.firefox) {
+    console.log("Performing firefox tests: ");
+  }
+}
+
+async function installTestTools(options: ICLIOptions): Promise<void> {
+  const condaEnv: string = await run(`echo $CONDA_DEFAULT_ENV`);
+  if (condaEnv) {
+    const input: string = await getUserInput(
+      `Do you want to install test tools in '${condaEnv}' conda environment (y/n)? `,
+      1
+    );
+
+    if (input.toLowerCase().includes("y")) {
+      let chromePath: string = await getUserInput(
+        "Please enter the path to your Chrome driver: "
+      );
+      if (chromePath.toLowerCase() === "q") {
+        console.log("Installation cancelled.");
+        return;
+      }
+      let valid: boolean = await checkFileExists(chromePath);
+      while (!valid) {
+        chromePath = await getUserInput(
+          "That path was not valid. Please enter the path to your Chrome driver (or 'q' to quit): "
+        );
+        if (chromePath.toLowerCase() === "q") {
+          console.log("Installation cancelled.");
+          return;
+        }
+        valid = await checkFileExists(chromePath);
+      }
+      let firefoxPath: string = await getUserInput(
+        "Now enter the path to your Firefox driver: "
+      );
+      if (firefoxPath.toLowerCase() === "q") {
+        console.log("Installation cancelled.");
+        return;
+      }
+      valid = await checkFileExists(firefoxPath);
+      while (!valid) {
+        firefoxPath = await getUserInput(
+          "That path was not valid. Please enter the path to your Firefox driver (or 'q' to quit): "
+        );
+        if (firefoxPath.toLowerCase() === "q") {
+          console.log("Installation cancelled.");
+          return;
+        }
+        valid = await checkFileExists(firefoxPath);
+      }
+      console.log("Saving entries...");
+      run(
+        `echo ${chromePath} > .taskData && echo ${firefoxPath} >> .taskData`
+      );
+
+      console.log("Installing...");
+      await shell(
+        "conda install -c cdat/label/v81 testsrunner cdat_info <<< 'yes' && \
+      pip install selenium && pip install pyvirtualdisplay"
+      );
+    } else {
+      console.log("Installation cancelled.");
+      return;
+    }
+  } else {
+    console.error(
+      "No conda environment active. \
+      Activate conda environment containing the jupyter-vcdat installation to test."
+    );
+    return;
+  }
+}
+
+cli({ checkVersion, updateTags, format, lint, installTestTools, test });

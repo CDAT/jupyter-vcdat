@@ -122,7 +122,7 @@ Please examine the available classes and methods before adding test cases.
 - Do the following steps to install packages needed to run python selenium test cases:
 ```bash
     cd <jupyter-vcdat repo directory>
-    source jupyter-vcdat
+    source activate jupyter-vcdat
     conda install -c cdat/label/v81 testsrunner cdat_info
     pip install selenium
     pip install pyvirtualdisplay
