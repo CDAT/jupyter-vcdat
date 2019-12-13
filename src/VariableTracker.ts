@@ -19,6 +19,7 @@ import Utilities from "./Utilities";
 import NotebookUtilities from "./NotebookUtilities";
 import Variable from "./components/Variable";
 import AxisInfo from "./components/AxisInfo";
+import { boundMethod } from "autobind-decorator";
 
 export default class VariableTracker {
   private _isBusy: boolean;
@@ -52,21 +53,6 @@ export default class VariableTracker {
     this._selectedVariablesChanged = new Signal<this, string[]>(this);
     this._variables = Array<Variable>();
     this._variablesChanged = new Signal<this, Variable[]>(this);
-
-    this.addVariable = this.addVariable.bind(this);
-    this.deleteVariable = this.deleteVariable.bind(this);
-    this.getFileVariables = this.getFileVariables.bind(this);
-    this.loadMetaData = this.loadMetaData.bind(this);
-    this.refreshVariables = this.refreshVariables.bind(this);
-    this.setNotebook = this.setNotebook.bind(this);
-    this.updateAxesInfoGroup = this.updateAxesInfoGroup.bind(this);
-    this.saveMetaData = this.saveMetaData.bind(this);
-    this.copyVariable = this.copyVariable.bind(this);
-    this.findVariableByID = this.findVariableByID.bind(this);
-    this.findVariableByAlias = this.findVariableByAlias.bind(this);
-    this.resetVarTracker = this.resetVarTracker.bind(this);
-    this.selectVariable = this.selectVariable.bind(this);
-    this.deselectVariable = this.deselectVariable.bind(this);
   }
 
   get isBusy(): boolean {
@@ -152,6 +138,7 @@ export default class VariableTracker {
     this._notebookPanel = null;
   }
 
+  @boundMethod
   public async setNotebook(notebookPanel: NotebookPanel) {
     if (this._notebookPanel) {
       // Save meta data in current notebook before switching
@@ -177,6 +164,7 @@ export default class VariableTracker {
    * @param varID The variable's ID
    * @param varArray If set, function will search within the specified group of variables (instead of all variables)
    */
+  @boundMethod
   public findVariableByID(
     varID: string,
     varArray?: Variable[]
@@ -197,6 +185,7 @@ export default class VariableTracker {
    * @param alias The variable's name/alias
    * @param varArray If set, function will search within the specified group of variables (instead of all variables)
    */
+  @boundMethod
   public findVariableByAlias(
     alias: string,
     varArray?: Variable[]
@@ -215,6 +204,7 @@ export default class VariableTracker {
    * Adds the variable to the varTracker, and replaces any existing variable
    * @param variable The variable to load into the notebook
    */
+  @boundMethod
   public addVariable(variable: Variable): void {
     // Save the variable information
     this.variableInfo[variable.alias] = {
@@ -249,6 +239,7 @@ export default class VariableTracker {
    * @param addVar - boolean: Whether the copy should be added to the varTracker
    * @returns - Variable: The newly created variable
    */
+  @boundMethod
   public copyVariable(
     variable: Variable,
     newName: string,
@@ -286,6 +277,7 @@ export default class VariableTracker {
    *
    * @param variable The variable to load into the notebook
    */
+  @boundMethod
   public deleteVariable(variable: Variable): void {
     // Deselect variable
     this.deselectVariable(variable.varID);
@@ -315,10 +307,8 @@ export default class VariableTracker {
    * @description adds a variable to the selectedVariables list
    * @param variable the variable to add to the selected list
    */
-  public async selectVariable(
-    varID: string,
-    array?: Variable[]
-  ): Promise<void> {
+  @boundMethod
+  public async selectVariable(varID: string): Promise<void> {
     if (varID) {
       // Make sure variable isn't already selected
       if (this.selectedVariables.indexOf(varID) < 0) {
@@ -333,10 +323,8 @@ export default class VariableTracker {
    * @description removes a variable from the selectedVariables list
    * @param variable the variable to remove from the selected list
    */
-  public async deselectVariable(
-    varID: string,
-    array?: Variable[]
-  ): Promise<void> {
+  @boundMethod
+  public async deselectVariable(varID: string): Promise<void> {
     const idx: number = this.selectedVariables.indexOf(varID);
     if (idx >= 0) {
       const newSelection = this.selectedVariables;
@@ -345,6 +333,7 @@ export default class VariableTracker {
     }
   }
 
+  @boundMethod
   public async saveMetaData() {
     await this.notebookPanel.session.ready;
 
@@ -383,6 +372,7 @@ export default class VariableTracker {
     await NotebookUtilities.saveNotebook(this.notebookPanel);
   }
 
+  @boundMethod
   public async loadMetaData() {
     await this.notebookPanel.session.ready;
 
@@ -427,34 +417,37 @@ export default class VariableTracker {
    * @returns Promise<Array<Variable>> -- A promise contianing an array of variables
    * that were found in the file.
    */
+  @boundMethod
   public async getFileVariables(filePath: string): Promise<Variable[]> {
     if (!filePath) {
       return Array<Variable>();
     }
 
     try {
-      // Get relative path for the file
+      // Get valid path for the file
       const nbPath: string = `${this.notebookPanel.session.path}`;
-      const relativePath: string = Utilities.getRelativePath(nbPath, filePath);
+      const path: string = Utilities.getUpdatedPath(nbPath, filePath);
 
       this._isBusy = true;
 
       // Try to open file in cdms, exit early if fails
-      if (!(await Utilities.tryFilePath(this.notebookPanel, relativePath))) {
+      if (!(await Utilities.tryFilePath(this.notebookPanel, path))) {
         this._isBusy = false;
-        return;
+        console.error(`Opening file failed. Path: ${path}`);
+        return Array<Variable>();
       }
 
       // File loaded successfully, pull variables from file
       const result: string = await Utilities.sendSimpleKernelRequest(
         this.notebookPanel,
-        getFileVarsCommand(relativePath)
+        getFileVarsCommand(path)
       );
       this._isBusy = false;
 
       // Exit if result is blank
       if (!result) {
-        return;
+        console.error(`File had no variables. Path: ${path}`);
+        return Array<Variable>();
       }
 
       // Parse the resulting output into an object
@@ -486,6 +479,7 @@ export default class VariableTracker {
   /**
    * This updates the current variable list by sending a command to the kernel directly.
    */
+  @boundMethod
   public async refreshVariables(): Promise<void> {
     if (!this.notebookPanel) {
       return;
@@ -564,6 +558,7 @@ export default class VariableTracker {
   }
 
   // Updates the axes information for each variable based on what source it came from
+  @boundMethod
   public async updateAxesInfoGroup(varGroup: Variable[]): Promise<void> {
     // Get the filepath from the data readerlist
     const sourceFile: string = varGroup[0].sourceName;
@@ -575,20 +570,21 @@ export default class VariableTracker {
 
     // Get relative path for the file
     const nbPath: string = `${this.notebookPanel.session.path}`;
-    const relativePath: string = Utilities.getRelativePath(nbPath, sourceFile);
+    const path: string = Utilities.getUpdatedPath(nbPath, sourceFile);
 
     this._isBusy = true;
 
     // Try to open file in cdms, exit early if fails
-    if (!(await Utilities.tryFilePath(this.notebookPanel, relativePath))) {
+    if (!(await Utilities.tryFilePath(this.notebookPanel, path))) {
       this._isBusy = false;
+      console.error(`File had no variables: ${path}`);
       return;
     }
 
     // Get the variables info
     const result: string = await Utilities.sendSimpleKernelRequest(
       this.notebookPanel,
-      getAxisInfoFromFileCommand(relativePath)
+      getAxisInfoFromFileCommand(path)
     );
     this._isBusy = false;
 
@@ -616,6 +612,7 @@ export default class VariableTracker {
   }
 
   // Add the axes information for each variable if it has no info
+  @boundMethod
   public async updateAxesInfoVariable(variable: Variable): Promise<void> {
     // Exit early if axis info is present already
     if (variable.axisInfo.length > 0) {

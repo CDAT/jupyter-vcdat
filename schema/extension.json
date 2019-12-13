@@ -1,0 +1,16 @@
+{
+  "title": "Jupyter VCDAT",
+  "description": "Settings for Jupyter VCDAT.",
+  "jupyter.lab.setting-icon-class": "jp-icon-vcdat",
+  "jupyter.lab.setting-icon-label": "Jupyter VCDAT",
+  "properties": {
+    "savedPaths": {
+      "type": "array",
+      "title": "Saved Paths",
+      "description": "Adding a path here will save it as a default option for the file path dialog.",
+      "default": []
+    }
+  },
+  "additionalProperties": false,
+  "type": "object"
+}

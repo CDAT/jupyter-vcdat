@@ -8,7 +8,7 @@ export default class Variable {
   public axisInfo: AxisInfo[]; // an object with maps from axis names, to axis info
   public units: string; // the units this data is measured in
   public pythonID: number; // the id of the variable from the file
-  public sourceName: string; // the name of the data variable that holds this variables' data
+  public sourceName: string; // the name of the file that holds this variables' data
   get varID(): string {
     return `${this.name}${this.alias}`;
   }

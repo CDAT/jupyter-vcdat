@@ -4,6 +4,7 @@
     "lib": ["es2015", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
+    "experimentalDecorators": true,
     "noEmitOnError": true,
     "noUnusedLocals": false,
     "outDir": "./lib",

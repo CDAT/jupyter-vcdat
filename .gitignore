@@ -1,3 +1,5 @@
+build
+dist
 *.bundle.*
 lib/
 node_modules/
@@ -6,7 +8,10 @@ node_modules/
 sample_data/
 frontend/
 .DS_Store
-.vscode/
-
-build
-dist
+.vscode
+tests/**/__pycache__
+tests/*/*.pyc
+tests/.last_failure
+tests_html
+tests_workdir
+*.ipynb

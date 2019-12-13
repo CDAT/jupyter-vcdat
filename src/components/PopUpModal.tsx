@@ -1,6 +1,7 @@
 // Dependencies
 import * as React from "react";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import { boundMethod } from "autobind-decorator";
 
 interface IPopUpProps {
   message: string;
@@ -21,19 +22,19 @@ export default class PopUpModal extends React.Component<
     this.state = {
       modalOpen: false
     };
-    this.show = this.show.bind(this);
-    this.hide = this.hide.bind(this);
-    this.toggle = this.toggle.bind(this);
   }
 
+  @boundMethod
   public async show(): Promise<void> {
     await this.setState({ modalOpen: true });
   }
 
+  @boundMethod
   public async hide(): Promise<void> {
     await this.setState({ modalOpen: false });
   }
 
+  @boundMethod
   public async toggle(): Promise<void> {
     await this.setState({ modalOpen: !this.state.modalOpen });
   }

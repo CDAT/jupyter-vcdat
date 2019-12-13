@@ -62,15 +62,27 @@ export default class Utilities {
   }
 
   /**
-   * Return the relative file path from source to target.
+   * Return the relative file path from source to target (if needed). If an absolute path
+   * starting with '/' is passed, then it will be returned directly.
    * Assumes source is a path (with or without a file name) and target has the filename
    * @param source The directory path to start from for traversal, Ex: "dir1/dir2/file"
    * @param target The directory path and filename to seek from source Ex: "dir3/dir1/file2"
-   * @return string - Relative path (e.g. "../../style.css") from the source to target
+   * @return string - Relative path (e.g. "../../style.css") from the source to target, or absolute path
    */
-  public static getRelativePath(source: string, target: string) {
-    const sourceArr: string[] = Utilities.removeFilename(source).split("/");
-    const targetArr: string[] = target.split("/");
+  public static getUpdatedPath(source: string, target: string) {
+    // Trim any whitespace that may exist in path
+    const cleanSource: string = source.trim();
+    const cleanTarget: string = target.trim();
+
+    // Check if it is an absolute path
+    if (cleanTarget[0] === "/" || cleanTarget.indexOf("http") >= 0) {
+      return cleanTarget; // Leave absolute path alone
+    }
+
+    const sourceArr: string[] = Utilities.removeFilename(cleanSource).split(
+      "/"
+    );
+    const targetArr: string[] = cleanTarget.split("/");
     const file: string = targetArr.pop();
     const depth1: number = sourceArr.length;
     const depth2: number = targetArr.length;
@@ -111,11 +123,16 @@ export default class Utilities {
   }
 
   /**
-   * Converts a string to an array of strings using JSON parse
+   * Converts a python JSON object to an array using JSON parse
    * @param inStr String to convert
    */
   public static strToArray(inStr: string): any[] {
-    return JSON.parse(inStr.replace(/^'|'$/g, ""));
+    try {
+      const arr: any = JSON.parse(inStr.replace(/^'|'$/g, ""));
+      return Array.isArray(arr) ? arr : [];
+    } catch (error) {
+      return [];
+    }
   }
 
   // Adds a reference link to the help menu in JupyterLab

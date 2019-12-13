@@ -21,6 +21,7 @@ import AxisInfo from "./AxisInfo";
 import DimensionSlider from "./DimensionSlider";
 import Variable from "./Variable";
 import VarLoader from "./VarLoader";
+import { boundMethod } from "autobind-decorator";
 
 const cardStyle: React.CSSProperties = {
   margin: ".5em"
@@ -76,14 +77,6 @@ export default class VarCard extends React.Component<
       showAxis: false,
       variable: this.props.variable
     };
-    this.openMenu = this.openMenu.bind(this);
-    this.clickVariable = this.clickVariable.bind(this);
-    this.handleAxesClick = this.handleAxesClick.bind(this);
-    this.handleWarningsClick = this.handleWarningsClick.bind(this);
-    this.handleNameInput = this.handleNameInput.bind(this);
-    this.updateSelections = this.updateSelections.bind(this);
-    this.validateNameInput = this.validateNameInput.bind(this);
-    this.updateDimensionInfo = this.updateDimensionInfo.bind(this);
   }
 
   public componentDidMount(): void {
@@ -94,6 +87,7 @@ export default class VarCard extends React.Component<
     this.props.varSelectionChanged.disconnect(this.updateSelections);
   }
 
+  @boundMethod
   public updateSelections() {
     this.setState({
       selected: this.props.isSelected(this.state.variable.varID),
@@ -104,6 +98,7 @@ export default class VarCard extends React.Component<
   /**
    * @description sets the isSelected attribute, and propagates up the selection action to the parent
    */
+  @boundMethod
   public clickVariable(): void {
     const isSelected: boolean = this.props.isSelected(
       this.state.variable.varID
@@ -123,6 +118,7 @@ export default class VarCard extends React.Component<
   /**
    * @description open the menu if its closed
    */
+  @boundMethod
   public openMenu(): void {
     if (!this.state.showAxis && this.state.selected) {
       this.setState({
@@ -131,6 +127,7 @@ export default class VarCard extends React.Component<
     }
   }
 
+  @boundMethod
   public updateDimensionInfo(newInfo: any): void {
     const updatedVar: Variable = this.state.variable;
     updatedVar.axisInfo.forEach((axis: AxisInfo, axisIndex: number) => {
@@ -274,6 +271,7 @@ export default class VarCard extends React.Component<
     );
   }
 
+  @boundMethod
   private async validateNameInput(nameEntry: string): Promise<void> {
     const invalid: boolean = forbidden.test(nameEntry);
     let state: NameStatus = "Valid";
@@ -287,6 +285,7 @@ export default class VarCard extends React.Component<
     await this.setState({ nameState: state });
   }
 
+  @boundMethod
   private async handleNameInput(
     event: React.ChangeEvent<HTMLInputElement>
   ): Promise<void> {
@@ -304,10 +303,12 @@ export default class VarCard extends React.Component<
     this.setState({ nameValue: nameEntry });
   }
 
+  @boundMethod
   private handleAxesClick(): void {
     this.setState({ showAxis: !this.state.showAxis });
   }
 
+  @boundMethod
   private handleWarningsClick(): void {
     NotebookUtilities.showMessage(
       "Warning",

@@ -7,6 +7,7 @@ import {
   DropdownToggle
 } from "reactstrap";
 import { BASE_COLORMAPS } from "../constants";
+import { boundMethod } from "autobind-decorator";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
@@ -38,16 +39,16 @@ export default class ColormapEditor extends React.Component<
       showDropdown: false,
       showEdit: false
     };
-    this.toggleDropdown = this.toggleDropdown.bind(this);
-    this.selectColormap = this.selectColormap.bind(this);
   }
 
+  @boundMethod
   public toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
   }
 
+  @boundMethod
   public selectColormap(name: string): void {
     this.setState({
       colormapChanged: true,

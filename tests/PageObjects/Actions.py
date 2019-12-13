@@ -12,8 +12,8 @@ from selenium.webdriver.common.keys import Keys
 
 class Actions(object):
 
-    _delay = 0.5
-    _a_bit_delay = 0.5
+    _delay = 1.5
+    _a_bit_delay = 1
 
     def __init__(self, driver, server=None):
         self.driver = driver
@@ -163,7 +163,7 @@ class Actions(object):
 
     def wait_till_element_is_visible(self, method, locator, descr):
         try:
-            wait = WebDriverWait(self.driver, 20)
+            wait = WebDriverWait(self.driver, 15)
             element = wait.until(EC.visibility_of_element_located((method,
                                                                    locator)))
             print("'{}' is now visible".format(descr))
@@ -174,7 +174,7 @@ class Actions(object):
 
     def wait_till_element_is_clickable(self, method, locator, descr):
         try:
-            wait = WebDriverWait(self.driver, 20)
+            wait = WebDriverWait(self.driver, 15)
             element = wait.until(EC.element_to_be_clickable((method,
                                                              locator)))
             print("'{}' is now clickable".format(descr))

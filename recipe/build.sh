@@ -6,6 +6,6 @@ jupyter labextension install @jupyter-widgets/jupyterlab-sidecar --no-build
 jupyter labextension install @jupyterlab/hub-extension --no-build
 jupyter labextension install jupyterlab-favorites --no-build
 jupyter labextension install jupyterlab-tutorial-extension --no-build
-jupyter labextension install jupyter-vcdat@latest
+jupyter labextension install jupyter-vcdat@nightly
 npm install
 jupyter lab build
