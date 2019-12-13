@@ -28,7 +28,7 @@ class BaseTestCase(unittest.TestCase):
     If running with firefox on Linux, should also set:
        BROWSER_BINARY: full path to your firefox binary
     '''
-    _delay = 0.1
+    _delay = 0.5
     _wait_timeout = 10
 
     def setUp(self):
@@ -58,7 +58,7 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self):
         print("...BaseTestCase.tearDown()...")
-        # self.main_page.shutdown_kernel()
+        self.main_page.shutdown_kernel()
         self.driver.quit()
 
     def setup_for_chrome(self, mode):

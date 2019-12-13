@@ -12,9 +12,8 @@ from BaseTestCase import BaseTestCase
 class TestFileBrowserLocators(BaseTestCase):
     def test_double_click_on_a_file(self):
         print("\n\n...test_load_a_file...")
-        main_page = self.main_page
-        main_page.click_on_folder_tab()
-        main_page.click_on_home_icon()
+        self.main_page.click_on_folder_tab()
+        self.main_page.click_on_home_icon()
 
         file_browser = FileBrowser(self.driver, None)
         file_browser.double_click_on_a_file("clt.nc")

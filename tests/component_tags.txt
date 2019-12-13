@@ -7,8 +7,8 @@ Tag in: src/components/ColormapEditor.tsx
 Tag in: src/components/DimensionSlider.tsx
     Line 199, Col 23: "dimension-slider" --> "dimension-slider-vcdat"
     Line 225, Col 32: "slider-handles" --> "slider-handles-vcdat"
-    Line 240, Col 35: "slider-tracks" --> "slider-tracks-vcdat"
-    Line 254, Col 35: "slider-ticks" --> "slider-ticks-vcdat"
+    Line 241, Col 32: "slider-tracks" --> "slider-tracks-vcdat"
+    Line 256, Col 35: "slider-ticks" --> "slider-ticks-vcdat"
 No tags found in: src/components/ErrorBoundary.tsx
 Tag in: src/components/ExportPlotModal.tsx
     Line 216, Col 31: "export-modal" --> "export-modal-vcdat"
@@ -75,4 +75,4 @@ Tag in: src/components/VarMini.tsx
     Line 316, Col 24: "varmini-name-btn" --> "varmini-name-btn-vcdat"
     Line 336, Col 26: "varmini-edit-btn" --> "varmini-edit-btn-vcdat"
     Line 377, Col 24: "varmini-edit-modal" --> "varmini-edit-modal-vcdat"
-    Line 421, Col 26: "varmini-update-btn" --> "varmini-update-btn-vcdat"
+    Line 422, Col 17: "varmini-update-btn" --> "varmini-update-btn-vcdat"
