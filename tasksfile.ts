@@ -20,6 +20,15 @@ const MESSAGE = {
   }
 };
 
+const TASK_DATA_PATH: string = ".taskData";
+
+enum TaskData {
+  chromeDriver,
+  geckoDriver,
+  firefoxBinary,
+  LENGTH // Length must be last element in enum
+}
+
 /**
  * Returns the parameter value, providing a default value if parameter was
  * undefined or if the parameter was boolean (no value assigned to it).
@@ -60,9 +69,14 @@ function getOptionsValue(value: any, ...options: any[]): any {
  * @param silent Whether the shell output should be silent. Default true.
  */
 async function run(code: string, silent: boolean = true): Promise<string> {
-  const output: string = await sh(code, { async: true, silent });
+  let output: string = "";
+  try {
+    output = await sh(code, { async: true, silent });
+  } catch (error) {
+    throw error;
+  }
 
-  return output.trimRight();
+  return output ? output.trimRight() : "";
 }
 
 /**
@@ -72,6 +86,33 @@ async function run(code: string, silent: boolean = true): Promise<string> {
  */
 async function shell(code: string, silent: boolean = false): Promise<void> {
   await sh(code, { async: true, nopipe: true, silent });
+}
+
+/**
+ * Will set the specified task data equal to a value.
+ * @param taskData The data to set
+ * @param value The value to set for the data
+ */
+async function setTaskData(taskData: TaskData, value: string): Promise<void> {
+  const idx: number = taskData + 1;
+
+  if (!(await checkFileExists(TASK_DATA_PATH))) {
+    await run(`seq 1 ${TaskData.LENGTH} > ${TASK_DATA_PATH}`);
+  }
+  await run(`sed -i '' -e '${idx}s#.*#${value}#' ${TASK_DATA_PATH}`);
+}
+
+/**
+ * Will get the specified task data value
+ * @param taskData The data to get
+ */
+async function getTaskData(taskData: TaskData): Promise<string> {
+  const idx: number = taskData + 1;
+  try {
+    return await run(`sed "${idx}q;d" ${TASK_DATA_PATH}`);
+  } catch (error) {
+    return "";
+  }
 }
 
 /**
@@ -90,6 +131,10 @@ async function getPublishedVersion(tag?: string): Promise<string> {
   return run(`npm view jupyter-vcdat${tag ? `@${tag}` : ""} version`);
 }
 
+/**
+ * Returns true if the file exists
+ * @param fileName The file name to check
+ */
 async function checkFileExists(fileName: string): Promise<boolean> {
   try {
     await run(`test -f ${fileName} && echo "TRUE"`);
@@ -109,13 +154,33 @@ async function getUserInput(
 ): Promise<string> {
   console.log(prompt);
   if (charLimit) {
-    const response: string = await run(
-      `read -e -n ${charLimit} _user_response && echo $_user_response`
+    return run(
+      `read -e -n ${charLimit} _user_response && echo $_user_response`,
+      false
     );
-    console.log("");
-    return response;
   }
-  return run(`read -e _user_response && echo $_user_response`);
+  return run(`read -e _user_response && echo $_user_response`, false);
+}
+
+async function getValidPath(prompt: string, quitMsg: string): Promise<string> {
+  let path: string = await getUserInput(`${prompt} ('q' to quit): `);
+  if (path.toLowerCase() === "q") {
+    console.log(quitMsg);
+    return;
+  }
+  let valid: boolean = await checkFileExists(path);
+  while (!valid) {
+    path = await getUserInput(
+      `The path was not valid. ${prompt}\n('q' to quit): `
+    );
+    if (path.toLowerCase() === "q") {
+      console.log(quitMsg);
+      return;
+    }
+    valid = await checkFileExists(path);
+  }
+
+  return path;
 }
 
 // Task: checkVersion
@@ -226,17 +291,22 @@ async function lint(options: ICLIOptions): Promise<void> {
     );
     const pyFile: string = getOptionsValue("*.py", options.p, options.pyfile);
 
+    await checkVersion();
     if (tsFile && pyFile) {
+      console.log(`Linting Typescript files and Python files...`);
       command = `npx tslint ${tsOpts} ${tsFile}\nflake8 ${pyOpts} ${pyFile}`;
     } else if (tsFile) {
+      console.log("Linting Typescript files...");
       command = `npx tslint ${tsOpts} ${tsFile}`;
     } else if (pyFile) {
+      console.log("Linting Python files...");
       command = `flake8 ${pyOpts} ${pyFile}`;
     } else {
+      console.log("Linting all Typescript and Python source files...");
       command = `npx tslint ${tsOpts} 'src/**/*.{ts,tsx}'\nflake8 ${pyOpts} *.py`;
     }
-
     await shell(`${command}`);
+    console.log("Done!");
   } catch (error) {
     console.error(error);
   }
@@ -265,73 +335,26 @@ help(lint, `Performs linting operations on source files.`, {
   `
 });
 
-async function testFirefox(driverPath: string): Promise<void> {
-  if (await checkFileExists(driverPath)) {
-    console.log("Driver found!");
-  } else {
-    console.error("Driver path was not valid! Exiting.");
-    return;
-  }
-
-  console.log("Preparing for tests in Firefox");
-}
-
-// Task: test
-async function test(options: ICLIOptions): Promise<void> {
-  if (options.f || options.firefox) {
-    console.log("Performing firefox tests: ");
-  }
-}
-
 async function installTestTools(options: ICLIOptions): Promise<void> {
-  const condaEnv: string = await run(`echo $CONDA_DEFAULT_ENV`);
-  if (condaEnv) {
+  const CONDA_ENV: string = await run(`echo $CONDA_DEFAULT_ENV`);
+  const CANCEL_PROMPT: string = "Installation cancelled.";
+  const CHROME_DRIVER: string = "Please enter path to Chrome selenium driver";
+  const GECKO_DRIVER: string = "Please enter path to Firefox selenium driver";
+  const GECKO_EXE: string = "Please enter path to the Firefox executable";
+  if (CONDA_ENV) {
     const input: string = await getUserInput(
-      `Do you want to install test tools in '${condaEnv}' conda environment (y/n)? `,
-      1
+      `Do you want to install test tools in '${CONDA_ENV}' conda environment (y/n)? `
     );
 
     if (input.toLowerCase().includes("y")) {
-      let chromePath: string = await getUserInput(
-        "Please enter the path to your Chrome driver: "
-      );
-      if (chromePath.toLowerCase() === "q") {
-        console.log("Installation cancelled.");
-        return;
-      }
-      let valid: boolean = await checkFileExists(chromePath);
-      while (!valid) {
-        chromePath = await getUserInput(
-          "That path was not valid. Please enter the path to your Chrome driver (or 'q' to quit): "
-        );
-        if (chromePath.toLowerCase() === "q") {
-          console.log("Installation cancelled.");
-          return;
-        }
-        valid = await checkFileExists(chromePath);
-      }
-      let firefoxPath: string = await getUserInput(
-        "Now enter the path to your Firefox driver: "
-      );
-      if (firefoxPath.toLowerCase() === "q") {
-        console.log("Installation cancelled.");
-        return;
-      }
-      valid = await checkFileExists(firefoxPath);
-      while (!valid) {
-        firefoxPath = await getUserInput(
-          "That path was not valid. Please enter the path to your Firefox driver (or 'q' to quit): "
-        );
-        if (firefoxPath.toLowerCase() === "q") {
-          console.log("Installation cancelled.");
-          return;
-        }
-        valid = await checkFileExists(firefoxPath);
-      }
-      console.log("Saving entries...");
-      run(
-        `echo ${chromePath} > .taskData && echo ${firefoxPath} >> .taskData`
-      );
+      const chrmPath: string = await getValidPath(CHROME_DRIVER, CANCEL_PROMPT);
+      await setTaskData(TaskData.chromeDriver, chrmPath);
+
+      const geckoPath: string = await getValidPath(GECKO_DRIVER, CANCEL_PROMPT);
+      await setTaskData(TaskData.geckoDriver, geckoPath);
+
+      const firefoxBin: string = await getValidPath(GECKO_EXE, CANCEL_PROMPT);
+      await setTaskData(TaskData.firefoxBinary, firefoxBin);
 
       console.log("Installing...");
       await shell(
@@ -339,7 +362,7 @@ async function installTestTools(options: ICLIOptions): Promise<void> {
       pip install selenium && pip install pyvirtualdisplay"
       );
     } else {
-      console.log("Installation cancelled.");
+      console.log(CANCEL_PROMPT);
       return;
     }
   } else {
@@ -351,4 +374,53 @@ async function installTestTools(options: ICLIOptions): Promise<void> {
   }
 }
 
-cli({ checkVersion, updateTags, format, lint, installTestTools, test });
+async function testFirefox(): Promise<void> {
+  const input: string = await getUserInput(
+    `Have you started JupyterLab for testing (y/n)? `
+  );
+  if (input !== "y") {
+    console.log("Start JupyterLab in a separate console, then run the tests.");
+    return;
+  }
+
+  const driver: string = await getTaskData(TaskData.geckoDriver);
+  const binary: string = await getTaskData(TaskData.firefoxBinary);
+  if (!driver) {
+    console.error(
+      "Missing driver path. To set path, run: \
+    npx task installTestTools"
+    );
+    return;
+  }
+  console.log(`Driver at: ${driver}\nBinary at: ${binary}`);
+  console.log("Preparing for tests in Firefox...");
+
+  await run(`export BROWSER_DRIVER=${driver}`);
+  await run(`export BROWSER_BINARY=${binary}`);
+  console.log("=============TEST BEGIN=============");
+  await run("python run_tests.py -H -v 2 tests/test_locators.py");
+  await run("python run_tests.py -H -v 2 tests/test_load_a_variable.py");
+  await run(
+    "python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py"
+  );
+  await run("python run_tests.py -H -v 2 tests/test_plot_locators.py");
+  await run("python run_tests.py -H -v 2 tests/test_edit_axis_locators.py");
+  await run("python run_tests.py -H -v 2 tests/test_file_browser_locators.py");
+}
+
+// Task: test
+async function test(options: ICLIOptions): Promise<void> {
+  if (options.f || options.firefox) {
+    console.log("Performing firefox tests: ");
+  }
+}
+
+cli({
+  checkVersion,
+  updateTags,
+  format,
+  lint,
+  installTestTools,
+  test,
+  testFirefox
+});

@@ -9,6 +9,7 @@ sample_data/
 frontend/
 .DS_Store
 .vscode
+.taskData
 tests/**/__pycache__
 tests/*/*.pyc
 tests/.last_failure
