@@ -28,8 +28,8 @@ class BaseTestCase(unittest.TestCase):
     If running with firefox on Linux, should also set:
        BROWSER_BINARY: full path to your firefox binary
     '''
-    _delay = 0.5
-    _wait_timeout = 10
+    _delay = 1
+    _wait_timeout = 15
 
     def setUp(self):
         print("\n\n#########...{}...".format(self._testMethodName))

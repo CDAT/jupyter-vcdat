@@ -93,7 +93,10 @@ class Actions(object):
     def move_to_click(self, element):
         time.sleep(self._a_bit_delay)
         print("...move_to_click...")
-        ActionChains(self.driver).move_to_element(element).click().perform()
+        ac = ActionChains(self.driver)
+        ac.move_to_element(element)
+        ac.click()
+        ac.perform()
 
     def move_to_double_click(self, element):
         print("...move_to_double_click...")

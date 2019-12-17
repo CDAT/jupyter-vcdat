@@ -20,6 +20,16 @@ const MESSAGE = {
   }
 };
 
+// Which selenium tests there are to run
+const TESTS: string[] = [
+  "test_locators",
+  "test_load_a_variable",
+  "test_load_variables_popup_locators",
+  "test_plot_locators",
+  "test_edit_axis_locators",
+  "test_file_browser_locators"
+];
+
 const TASK_DATA_PATH: string = ".taskData";
 
 enum TaskData {
@@ -162,6 +172,13 @@ async function getUserInput(
   return run(`read -e _user_response && echo $_user_response`, false);
 }
 
+/**
+ * Prompts user for a file path, and will continue until user
+ * provides a valid path or the user quits.
+ * @param prompt The prompt to show when requesting path.
+ * @param quitMsg The message to show if user quits.
+ * @returns A valid file path, or if user quit, undefined.
+ */
 async function getValidPath(prompt: string, quitMsg: string): Promise<string> {
   let path: string = await getUserInput(`${prompt} ('q' to quit): `);
   if (path.toLowerCase() === "q") {
@@ -182,6 +199,82 @@ async function getValidPath(prompt: string, quitMsg: string): Promise<string> {
 
   return path;
 }
+
+
+/**
+ * Runs the specified selenium tests using the chrome browser and driver
+ * @param testsToRun An array with the names of the tests to run.
+ */
+async function testChrome(testsToRun: string[]): Promise<void> {
+  const driver: string = await getTaskData(TaskData.chromeDriver);
+  if (!driver) {
+    console.error(
+      "Missing driver path. To set path, run: \
+    npx task installTestTools"
+    );
+    return;
+  }
+  console.log(`Driver at: ${driver}\n`);
+  console.log("Preparing for tests in Chrome...");
+
+  const envSetup: string = dedent`
+    BROWSER_TYPE=chrome
+    BROWSER_MODE='--foreground'
+    BROWSER_DRIVER=${driver}
+  `;
+  const testCmds: string = "".concat(
+    ...testsToRun.map((test: string) => {
+      return ` && python run_tests.py -H -v 2 tests/${test}.py`;
+    })
+  );
+
+  console.log("===============CHROME TESTS BEGIN===============");
+
+  await shell(`${envSetup}${testCmds}`);
+}
+
+
+/**
+ * Runs the specified selenium tests using the firefox browser and drivers
+ * @param testsToRun An array with the names of the tests to run.
+ */
+async function testFirefox(testsToRun: string[]): Promise<void> {
+  const driver: string = await getTaskData(TaskData.geckoDriver);
+  const binary: string = await getTaskData(TaskData.firefoxBinary);
+  if (!driver) {
+    console.error(
+      "Missing driver path. To set path, run: \
+    npx task installTestTools"
+    );
+    return;
+  }
+  if (!binary) {
+    console.error(
+      "Missing binary path. To set path, run: \
+    npx task installTestTools"
+    );
+    return;
+  }
+  console.log(`Driver at: ${driver}\nBinary at: ${binary}`);
+  console.log("Preparing for tests in Firefox...");
+
+  const envSetup: string = dedent`
+    BROWSER_TYPE=firefox
+    BROWSER_MODE='--foreground'
+    BROWSER_BINARY=${binary}
+    BROWSER_DRIVER=${driver}
+  `;
+  const testCmds: string = "".concat(
+    ...testsToRun.map((test: string) => {
+      return ` && python run_tests.py -H -v 2 tests/${test}.py`;
+    })
+  );
+
+  console.log("=============FIREFOX TESTS BEGIN=============");
+
+  await shell(`${envSetup}${testCmds}`);
+}
+
 
 // Task: checkVersion
 async function checkVersion(): Promise<void> {
@@ -335,7 +428,8 @@ help(lint, `Performs linting operations on source files.`, {
   `
 });
 
-async function installTestTools(options: ICLIOptions): Promise<void> {
+// Task : installTestTools
+async function installTestTools(): Promise<void> {
   const CONDA_ENV: string = await run(`echo $CONDA_DEFAULT_ENV`);
   const CANCEL_PROMPT: string = "Installation cancelled.";
   const CHROME_DRIVER: string = "Please enter path to Chrome selenium driver";
@@ -374,44 +468,17 @@ async function installTestTools(options: ICLIOptions): Promise<void> {
   }
 }
 
-async function testFirefox(): Promise<void> {
-  const input: string = await getUserInput(
-    `Have you started JupyterLab for testing (y/n)? `
-  );
-  if (input !== "y") {
-    console.log("Start JupyterLab in a separate console, then run the tests.");
-    return;
-  }
-
-  const driver: string = await getTaskData(TaskData.geckoDriver);
-  const binary: string = await getTaskData(TaskData.firefoxBinary);
-  if (!driver) {
-    console.error(
-      "Missing driver path. To set path, run: \
-    npx task installTestTools"
-    );
-    return;
-  }
-  console.log(`Driver at: ${driver}\nBinary at: ${binary}`);
-  console.log("Preparing for tests in Firefox...");
-
-  await run(`export BROWSER_DRIVER=${driver}`);
-  await run(`export BROWSER_BINARY=${binary}`);
-  console.log("=============TEST BEGIN=============");
-  await run("python run_tests.py -H -v 2 tests/test_locators.py");
-  await run("python run_tests.py -H -v 2 tests/test_load_a_variable.py");
-  await run(
-    "python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py"
-  );
-  await run("python run_tests.py -H -v 2 tests/test_plot_locators.py");
-  await run("python run_tests.py -H -v 2 tests/test_edit_axis_locators.py");
-  await run("python run_tests.py -H -v 2 tests/test_file_browser_locators.py");
-}
-
 // Task: test
 async function test(options: ICLIOptions): Promise<void> {
   if (options.f || options.firefox) {
-    console.log("Performing firefox tests: ");
+    let tests: string[] = [];
+    if(options.f){
+      
+    }
+    await testFirefox(TESTS);
+  }
+  if (options.c || options.chrome) {
+    await testChrome(TESTS);
   }
 }
 
@@ -421,6 +488,5 @@ cli({
   format,
   lint,
   installTestTools,
-  test,
-  testFirefox
+  test
 });

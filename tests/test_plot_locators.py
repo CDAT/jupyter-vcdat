@@ -21,6 +21,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
         load 'clt.nc' file, and load 'v' variable, and plot
         '''
         test_file = "clt.nc"
+        self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
         file_browser = vcdat_panel.click_on_load_variables_by_file()
@@ -32,6 +33,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
 
     def test_select_plot_type(self):
         test_file = "clt.nc"
+        self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
         file_browser = vcdat_panel.click_on_load_variables_by_file()
@@ -44,6 +46,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
 
     def test_select_a_template(self):
         test_file = "clt.nc"
+        self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
         file_browser = vcdat_panel.click_on_load_variables_by_file()
@@ -64,6 +67,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
 
     def test_export_plot(self):
         test_file = "clt.nc"
+        self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
         file_browser = vcdat_panel.click_on_load_variables_by_file()
@@ -93,6 +97,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
 
     def test_export_plot_adjust_unit(self):
         test_file = "clt.nc"
+        self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
         file_browser = vcdat_panel.click_on_load_variables_by_file()
@@ -121,6 +126,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
 
     def test_capture_provenance(self):
         test_file = "clt.nc"
+        self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
         file_browser = vcdat_panel.click_on_load_variables_by_file()
@@ -144,6 +150,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
 
     def test_select_deselect_variable(self):
         test_file = "clt.nc"
+        self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
         file_browser = vcdat_panel.click_on_load_variables_by_file()
@@ -160,6 +167,7 @@ class TestPlot(BaseTestCaseWithNoteBook):
 
     def test_edit_variable(self):
         test_file = "clt.nc"
+        self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
         vcdat_panel = VcdatPanel(self.driver, None)
         file_browser = vcdat_panel.click_on_load_variables_by_file()
