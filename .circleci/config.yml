@@ -134,17 +134,17 @@ jobs:
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 15
+      - run: *run_tests_with_firefox
+      - store_artifacts:
+          path: tests_html
+          destination: tests_firefox_html
+      - run: sleep 5
       - run: *run_tests_with_chrome
       - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
       - store_artifacts:
           path: jupyter-vcdat_logfile.txt
-      #- run: *run_tests_with_firefox (Still working to fix these)
-      #- store_artifacts:
-      #    path: tests_html
-      #    destination: tests_firefox_html
-      #- run: sleep 5
       
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload

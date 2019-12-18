@@ -22,12 +22,12 @@ const MESSAGE = {
 
 // Which selenium tests there are to run
 const TESTS: string[] = [
-  "test_locators",
-  "test_load_a_variable",
-  "test_load_variables_popup_locators",
-  "test_plot_locators",
-  "test_edit_axis_locators",
-  "test_file_browser_locators"
+  "locators",
+  "load_a_variable",
+  "load_variables_popup_locators",
+  "plot_locators",
+  "edit_axis_locators",
+  "file_browser_locators"
 ];
 
 const TASK_DATA_PATH: string = ".taskData";
@@ -37,6 +37,16 @@ enum TaskData {
   geckoDriver,
   firefoxBinary,
   LENGTH // Length must be last element in enum
+}
+
+// Template function to convert string array to format with line breaks
+function printArray(strings: any, array: string[]): string {
+  let result: string = ``;
+  array.forEach((element: any) => {
+    result += `\n${element}`;
+  });
+
+  return result.trimLeft();
 }
 
 /**
@@ -54,7 +64,8 @@ function getOptionValue(value: any, option: any): any {
 
 /**
  * Given a list of options, if all options are undefined, returns undefined
- * If ANY option is not undefined, it will return that option's value or a default.
+ * If ANY option is not undefined, it will return that option's value,
+ * or a default value if the value of the option is a boolean value.
  * @param value The default value to pass if option without value was found.
  * @param options The options passed to the shell function.
  */
@@ -200,12 +211,12 @@ async function getValidPath(prompt: string, quitMsg: string): Promise<string> {
   return path;
 }
 
-
 /**
  * Runs the specified selenium tests using the chrome browser and driver
  * @param testsToRun An array with the names of the tests to run.
  */
 async function testChrome(testsToRun: string[]): Promise<void> {
+  console.log("===============CHROME TESTS BEGIN===============");
   const driver: string = await getTaskData(TaskData.chromeDriver);
   if (!driver) {
     console.error(
@@ -214,9 +225,6 @@ async function testChrome(testsToRun: string[]): Promise<void> {
     );
     return;
   }
-  console.log(`Driver at: ${driver}\n`);
-  console.log("Preparing for tests in Chrome...");
-
   const envSetup: string = dedent`
     BROWSER_TYPE=chrome
     BROWSER_MODE='--foreground'
@@ -224,21 +232,18 @@ async function testChrome(testsToRun: string[]): Promise<void> {
   `;
   const testCmds: string = "".concat(
     ...testsToRun.map((test: string) => {
-      return ` && python run_tests.py -H -v 2 tests/${test}.py`;
+      return ` && python run_tests.py -H -v 2 tests/test_${test}.py`;
     })
   );
-
-  console.log("===============CHROME TESTS BEGIN===============");
-
   await shell(`${envSetup}${testCmds}`);
 }
-
 
 /**
  * Runs the specified selenium tests using the firefox browser and drivers
  * @param testsToRun An array with the names of the tests to run.
  */
 async function testFirefox(testsToRun: string[]): Promise<void> {
+  console.log("=============FIREFOX TESTS BEGIN=============");
   const driver: string = await getTaskData(TaskData.geckoDriver);
   const binary: string = await getTaskData(TaskData.firefoxBinary);
   if (!driver) {
@@ -255,9 +260,6 @@ async function testFirefox(testsToRun: string[]): Promise<void> {
     );
     return;
   }
-  console.log(`Driver at: ${driver}\nBinary at: ${binary}`);
-  console.log("Preparing for tests in Firefox...");
-
   const envSetup: string = dedent`
     BROWSER_TYPE=firefox
     BROWSER_MODE='--foreground'
@@ -266,15 +268,11 @@ async function testFirefox(testsToRun: string[]): Promise<void> {
   `;
   const testCmds: string = "".concat(
     ...testsToRun.map((test: string) => {
-      return ` && python run_tests.py -H -v 2 tests/${test}.py`;
+      return ` && python run_tests.py -H -v 2 tests/test_${test}.py`;
     })
   );
-
-  console.log("=============FIREFOX TESTS BEGIN=============");
-
   await shell(`${envSetup}${testCmds}`);
 }
-
 
 // Task: checkVersion
 async function checkVersion(): Promise<void> {
@@ -468,19 +466,85 @@ async function installTestTools(): Promise<void> {
   }
 }
 
-// Task: test
-async function test(options: ICLIOptions): Promise<void> {
-  if (options.f || options.firefox) {
-    let tests: string[] = [];
-    if(options.f){
-      
-    }
-    await testFirefox(TESTS);
+help(
+  installTestTools,
+  `Installs dependencies for running Selenium tests locally.`,
+  {
+    params: []
   }
-  if (options.c || options.chrome) {
-    await testChrome(TESTS);
+);
+
+// Task: test
+async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
+  const firefox: string = getOptionsValue(true, options.f, options.firefox);
+  const chrome: string = getOptionsValue(true, options.c, options.chrome);
+  const testsToRun: string[] = tests.length > 0 ? tests : TESTS;
+
+  let badTestName: string = "";
+  if (
+    testsToRun.some((test: string) => {
+      badTestName = test;
+      return !TESTS.includes(test);
+    })
+  ) {
+    console.error(
+      `ARGUMENT ERROR: Unrecognized test: ${badTestName}\nAvailable tests:`
+    );
+    console.error(TESTS);
+    return;
+  }
+
+  if (chrome !== firefox) {
+    if (firefox) {
+      console.log("Running tests for Firefox...");
+      await testFirefox(testsToRun);
+      console.log("FIREFOX TESTS COMPLETE!!");
+    }
+    if (chrome) {
+      console.log("Running tests for Chrome...");
+      await testChrome(testsToRun);
+      console.log("CHROME TESTS COMPLETE!!");
+    }
+  } else {
+    console.log("Running tests for Chrome and Firefox...");
+    await testFirefox(testsToRun);
+    await testChrome(testsToRun);
+    console.log("FIREFOX AND CHROME TESTS COMPLETE!!");
   }
 }
+
+help(
+  test,
+  `Runs Selenium automated tests locally. \
+If no tests are specified, all available tests will be run. \
+If no browser options are specified, both browsers will be used. \
+NOTE: You need to have a JupyterLab instance running with no open notebooks \
+or running kernels before you start the tests. Otherwise tests may fail.`,
+  {
+    params: ["tests"],
+    "Available tests": printArray`${TESTS}`,
+    options: {
+      firefox: "<optional> Run tests using firefox browser.",
+      f: "<optional> Same as above.",
+      chrome: "<optional> Run tests using chrome browser.",
+      c: "<optional> Same as above."
+    },
+    examples: dedent`
+  This will run all tests in both chrome and firefox:
+    npx task test
+     --OR--
+    npx task test -f -c
+  This will run specific test(s) in chrome and firefox:
+    npx task test <test_name> <test_name2> ...
+    --OR--
+    npx task test -c -f <test_name> <test_name2> ...
+  This will run all tests in chrome only:
+    npx task test -c
+  To run specific test in firefox only:
+    npx task test -f <specific_test_name>
+  `
+  }
+);
 
 cli({
   checkVersion,
