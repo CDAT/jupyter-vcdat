@@ -21,14 +21,42 @@ const MESSAGE = {
 };
 
 // Which selenium tests there are to run
-const TESTS: string[] = [
-  "locators",
-  "load_a_variable",
-  "load_variables_popup_locators",
-  "plot_locators",
-  "edit_axis_locators",
-  "file_browser_locators"
-];
+const TESTS: { [name: string]: string[] } = {
+  locators: [
+    "TestLocators",
+    "test_jupyter_top_menu_locators",
+    "test_jupyter_left_tab_locators",
+    "test_launcher_locators",
+    "test_open_widgets",
+    "test_jp_tool_bar",
+    "test_new_notebook",
+    "test_vcdat_panel_locators",
+    "test_file_browser_locators"
+  ],
+  load_a_variable: ["TestLoadVariable", "test_load_a_variable"],
+  load_variables_popup_locators: [
+    "TestLoadVariablesPopUpLocators",
+    "test_click_a_variable",
+    "test_click_a_variable_axes",
+    "test_adjust_a_variable_axes"
+  ],
+  plot_locators: [
+    "TestPlot",
+    "test_plot",
+    "test_select_plot_type",
+    "test_select_a_template",
+    "test_export_plot",
+    "test_export_plot_adjust_unit",
+    "test_capture_provenance",
+    "test_select_deselect_variable",
+    "test_edit_variable"
+  ],
+  edit_axis_locators: ["TestEditAxis", "test_edit_axis"],
+  file_browser_locators: [
+    "TestFileBrowserLocators",
+    "test_double_click_on_a_file"
+  ]
+};
 
 const TASK_DATA_PATH: string = ".taskData";
 
@@ -40,13 +68,14 @@ enum TaskData {
 }
 
 // Template function to convert string array to format with line breaks
-function printArray(strings: any, array: string[]): string {
+function printArrayVertically(strings: any, array: string[]): string {
   let result: string = ``;
+
   array.forEach((element: any) => {
-    result += `\n${element}`;
+    result += `\n${strings[0]}${element}${strings[1]}`;
   });
 
-  return result.trimLeft();
+  return result.slice(1);
 }
 
 /**
@@ -215,7 +244,9 @@ async function getValidPath(prompt: string, quitMsg: string): Promise<string> {
  * Runs the specified selenium tests using the chrome browser and driver
  * @param testsToRun An array with the names of the tests to run.
  */
-async function testChrome(testsToRun: string[]): Promise<void> {
+async function testChrome(tests: {
+  [groupName: string]: string[];
+}): Promise<void> {
   console.log("===============CHROME TESTS BEGIN===============");
   const driver: string = await getTaskData(TaskData.chromeDriver);
   if (!driver) {
@@ -230,8 +261,27 @@ async function testChrome(testsToRun: string[]): Promise<void> {
     BROWSER_MODE='--foreground'
     BROWSER_DRIVER=${driver}
   `;
-  const testCmds: string = "".concat(
-    ...testsToRun.map((test: string) => {
+  let testCmds: string = "";
+  let testClass: string = "";
+  let testNames: string[] = [];
+  const testGroups: string[] = [];
+  console.log(tests);
+  Object.keys(tests).forEach((testGroup: string) => {
+    if (tests[testGroup].length > 0) {
+      testClass = TESTS[testGroup][0];
+      testNames = tests[testGroup];
+      testCmds = testCmds.concat(
+        ...testNames.map((test: string) => {
+          return ` && nosetests -s tests/test_${testGroup}.py:${testClass}.${test}`;
+        })
+      );
+    } else {
+      testGroups.push(testGroup);
+    }
+  });
+
+  testCmds = testCmds.concat(
+    ...testGroups.map((test: string) => {
       return ` && python run_tests.py -H -v 2 tests/test_${test}.py`;
     })
   );
@@ -242,7 +292,9 @@ async function testChrome(testsToRun: string[]): Promise<void> {
  * Runs the specified selenium tests using the firefox browser and drivers
  * @param testsToRun An array with the names of the tests to run.
  */
-async function testFirefox(testsToRun: string[]): Promise<void> {
+async function testFirefox(tests: {
+  [groupName: string]: string[];
+}): Promise<void> {
   console.log("=============FIREFOX TESTS BEGIN=============");
   const driver: string = await getTaskData(TaskData.geckoDriver);
   const binary: string = await getTaskData(TaskData.firefoxBinary);
@@ -266,8 +318,27 @@ async function testFirefox(testsToRun: string[]): Promise<void> {
     BROWSER_BINARY=${binary}
     BROWSER_DRIVER=${driver}
   `;
-  const testCmds: string = "".concat(
-    ...testsToRun.map((test: string) => {
+  let testCmds: string = "";
+  let testClass: string = "";
+  let testNames: string[] = [];
+  const testGroups: string[] = [];
+  console.log(tests);
+  Object.keys(tests).forEach((testGroup: string) => {
+    if (tests[testGroup].length > 0) {
+      testClass = TESTS[testGroup][0];
+      testNames = tests[testGroup];
+      testCmds = testCmds.concat(
+        ...testNames.map((test: string) => {
+          return ` && nosetests -s tests/test_${testGroup}.py:${testClass}.${test}`;
+        })
+      );
+    } else {
+      testGroups.push(testGroup);
+    }
+  });
+
+  testCmds = testCmds.concat(
+    ...testGroups.map((test: string) => {
       return ` && python run_tests.py -H -v 2 tests/test_${test}.py`;
     })
   );
@@ -478,37 +549,80 @@ help(
 async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
   const firefox: string = getOptionsValue(true, options.f, options.firefox);
   const chrome: string = getOptionsValue(true, options.c, options.chrome);
-  const testsToRun: string[] = tests.length > 0 ? tests : TESTS;
 
-  let badTestName: string = "";
-  if (
-    testsToRun.some((test: string) => {
-      badTestName = test;
-      return !TESTS.includes(test);
-    })
-  ) {
-    console.error(
-      `ARGUMENT ERROR: Unrecognized test: ${badTestName}\nAvailable tests:`
-    );
-    console.error(TESTS);
+  const mainTests: string[] = Object.keys(TESTS);
+  const testsToRun: string[] = tests.length > 0 ? tests : mainTests;
+  let error: boolean = false;
+
+  // Print out list of tests if list option set
+  if (options.l || options.list) {
+    if (tests.length < 1) {
+      console.log(
+        `Available Tests:\n\n${printArrayVertically`  ${mainTests}`}\n`
+      );
+    } else {
+      testsToRun.forEach((test: string) => {
+        if (TESTS[test]) {
+          console.log(
+            `${TESTS[test][0]}:\n\n${printArrayVertically`  ${TESTS[test].slice(
+              1
+            )}`}\n`
+          );
+        } else {
+          console.error(`\nError: ${test} is not a test group.`);
+        }
+      });
+    }
+
+    return;
+  }
+
+  const testData: { [testGroup: string]: string[] } = {};
+  testsToRun.forEach((test: string) => {
+    if (TESTS[test]) {
+      // Test is a testGroup
+      testData[test] = [];
+    } else {
+      let testFound: boolean = false;
+      let tests: string[] = [];
+
+      Object.keys(TESTS).forEach((testGroup: string) => {
+        tests = TESTS[testGroup].slice(1);
+        if (tests.includes(test)) {
+          testFound = true;
+          if (testData[testGroup]) {
+            testData[testGroup].push(test);
+          } else {
+            testData[testGroup] = [test];
+          }
+        }
+      });
+      if (!testFound) {
+        // Return error if test not found
+        console.error(`ARGUMENT ERROR: Unrecognized test: ${test}.`);
+        error = true;
+      }
+    }
+  });
+  if (error) {
     return;
   }
 
   if (chrome !== firefox) {
     if (firefox) {
       console.log("Running tests for Firefox...");
-      await testFirefox(testsToRun);
+      await testFirefox(testData);
       console.log("FIREFOX TESTS COMPLETE!!");
     }
     if (chrome) {
       console.log("Running tests for Chrome...");
-      await testChrome(testsToRun);
+      await testChrome(testData);
       console.log("CHROME TESTS COMPLETE!!");
     }
   } else {
     console.log("Running tests for Chrome and Firefox...");
-    await testFirefox(testsToRun);
-    await testChrome(testsToRun);
+    await testFirefox(testData);
+    await testChrome(testData);
     console.log("FIREFOX AND CHROME TESTS COMPLETE!!");
   }
 }
@@ -522,26 +636,36 @@ NOTE: You need to have a JupyterLab instance running with no open notebooks \
 or running kernels before you start the tests. Otherwise tests may fail.`,
   {
     params: ["tests"],
-    "Available tests": printArray`${TESTS}`,
+    "Available tests": printArrayVertically`  ${Object.keys(TESTS)}`,
     options: {
       firefox: "<optional> Run tests using firefox browser.",
       f: "<optional> Same as above.",
       chrome: "<optional> Run tests using chrome browser.",
-      c: "<optional> Same as above."
+      c: "<optional> Same as above.",
+      list: "<optional> Prints list of available test groups or sub tests.",
+      l: "<optional> Same as above."
     },
     examples: dedent`
-  This will run all tests in both chrome and firefox:
+  This will print out all available test groups:
+    npx task test -l
+  This will print out available tests for 'locators' test group
+    npx task test -l locators
+  This will print out available tests for 'locators' and 'plot_locators' test groups
+    npx task test -l locators plot_locators
+  This will run all test groups in both chrome and firefox:
     npx task test
      --OR--
     npx task test -f -c
-  This will run specific test(s) in chrome and firefox:
-    npx task test <test_name> <test_name2> ...
+  This will run specific test group(s) in chrome and firefox:
+    npx task test <test_group> <test_group2> ...
     --OR--
-    npx task test -c -f <test_name> <test_name2> ...
-  This will run all tests in chrome only:
+    npx task test -c -f <test_group> <test_group2> ...
+  This will run all test groups in chrome only:
     npx task test -c
-  To run specific test in firefox only:
-    npx task test -f <specific_test_name>
+  This will run specific test group in firefox only:
+    npx task test -f <specific_test_group>
+  This will run specific test and test group in chrome only:
+    npx task test -c <specific_test> <specific_test_group>
   `
   }
 );

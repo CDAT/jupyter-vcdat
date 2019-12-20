@@ -17,6 +17,7 @@ class Actions(object):
 
     def __init__(self, driver, server=None):
         self.driver = driver
+        driver.implicitly_wait(10)
 
     def find_element_by_id(self, id, descr):
         try:
