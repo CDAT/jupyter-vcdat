@@ -22,7 +22,7 @@ const MESSAGE = {
 
 // Which selenium tests there are to run
 const TESTS: { [name: string]: string[] } = {
-  locators: [
+  test_locators: [
     "TestLocators",
     "test_jupyter_top_menu_locators",
     "test_jupyter_left_tab_locators",
@@ -33,14 +33,14 @@ const TESTS: { [name: string]: string[] } = {
     "test_vcdat_panel_locators",
     "test_file_browser_locators"
   ],
-  load_a_variable: ["TestLoadVariable", "test_load_a_variable"],
-  load_variables_popup_locators: [
+  test_load_a_variable: ["TestLoadVariable", "test_load_a_variable"],
+  test_load_variables_popup_locators: [
     "TestLoadVariablesPopUpLocators",
     "test_click_a_variable",
     "test_click_a_variable_axes",
     "test_adjust_a_variable_axes"
   ],
-  plot_locators: [
+  test_plot_locators: [
     "TestPlot",
     "test_plot",
     "test_select_plot_type",
@@ -51,8 +51,8 @@ const TESTS: { [name: string]: string[] } = {
     "test_select_deselect_variable",
     "test_edit_variable"
   ],
-  edit_axis_locators: ["TestEditAxis", "test_edit_axis"],
-  file_browser_locators: [
+  test_edit_axis_locators: ["TestEditAxis", "test_edit_axis"],
+  test_file_browser_locators: [
     "TestFileBrowserLocators",
     "test_double_click_on_a_file"
   ]
@@ -272,7 +272,7 @@ async function testChrome(tests: {
       testNames = tests[testGroup];
       testCmds = testCmds.concat(
         ...testNames.map((test: string) => {
-          return ` && nosetests -s tests/test_${testGroup}.py:${testClass}.${test}`;
+          return ` && nosetests -s tests/${testGroup}.py:${testClass}.${test}`;
         })
       );
     } else {
@@ -282,7 +282,7 @@ async function testChrome(tests: {
 
   testCmds = testCmds.concat(
     ...testGroups.map((test: string) => {
-      return ` && python run_tests.py -H -v 2 tests/test_${test}.py`;
+      return ` && python run_tests.py -H -v 2 tests/${test}.py`;
     })
   );
   await shell(`${envSetup}${testCmds}`);
@@ -329,7 +329,7 @@ async function testFirefox(tests: {
       testNames = tests[testGroup];
       testCmds = testCmds.concat(
         ...testNames.map((test: string) => {
-          return ` && nosetests -s tests/test_${testGroup}.py:${testClass}.${test}`;
+          return ` && nosetests -s tests/${testGroup}.py:${testClass}.${test}`;
         })
       );
     } else {
@@ -339,7 +339,7 @@ async function testFirefox(tests: {
 
   testCmds = testCmds.concat(
     ...testGroups.map((test: string) => {
-      return ` && python run_tests.py -H -v 2 tests/test_${test}.py`;
+      return ` && python run_tests.py -H -v 2 tests/${test}.py`;
     })
   );
   await shell(`${envSetup}${testCmds}`);
@@ -648,10 +648,10 @@ or running kernels before you start the tests. Otherwise tests may fail.`,
     examples: dedent`
   This will print out all available test groups:
     npx task test -l
-  This will print out available tests for 'locators' test group
-    npx task test -l locators
-  This will print out available tests for 'locators' and 'plot_locators' test groups
-    npx task test -l locators plot_locators
+  This will print out available tests for 'test_locators' test group
+    npx task test -l test_locators
+  This will print out available tests for 'test_locators' and 'test_plot_locators' test groups
+    npx task test -l test_locators test_plot_locators
   This will run all test groups in both chrome and firefox:
     npx task test
      --OR--
