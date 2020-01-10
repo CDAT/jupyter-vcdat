@@ -257,9 +257,9 @@ async function testChrome(tests: {
     return;
   }
   const envSetup: string = dedent`
-    BROWSER_TYPE=chrome
-    BROWSER_MODE='--foreground'
-    BROWSER_DRIVER=${driver}
+    export BROWSER_TYPE=chrome
+    export BROWSER_MODE='--foreground'
+    export BROWSER_DRIVER=${driver}
   `;
   let testCmds: string = "";
   let testClass: string = "";
@@ -313,10 +313,10 @@ async function testFirefox(tests: {
     return;
   }
   const envSetup: string = dedent`
-    BROWSER_TYPE=firefox
-    BROWSER_MODE='--foreground'
-    BROWSER_BINARY=${binary}
-    BROWSER_DRIVER=${driver}
+    export BROWSER_TYPE=firefox
+    export BROWSER_MODE='--foreground'
+    export BROWSER_BINARY=${binary}
+    export BROWSER_DRIVER=${driver}
   `;
   let testCmds: string = "";
   let testClass: string = "";

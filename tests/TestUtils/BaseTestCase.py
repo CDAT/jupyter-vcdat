@@ -69,6 +69,7 @@ class BaseTestCase(unittest.TestCase):
         self.driver = webdriver.Chrome(executable_path=os.getenv("BROWSER_DRIVER", "/usr/local/bin/chromedriver"),
                                        chrome_options=chrome_options,
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
+        self.driver.implicitly_wait(10)
 
     def setup_for_firefox(self, mode):
         firefox_profile = FirefoxProfile()
@@ -83,6 +84,7 @@ class BaseTestCase(unittest.TestCase):
                                         firefox_binary=firefox_binary,
                                         executable_path=geckodriver_loc,
                                         capabilities=firefox_capabilities)
+        self.driver.implicitly_wait(10)
 
     #
     # Test Util functions
