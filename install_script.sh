@@ -111,7 +111,7 @@ trap 'handle_error $LINENO ${BASH_LINENO[@]}' ERR
 
 CONDA_EXE="$(which conda)"
 if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
-    echo "Ok current conda does not match requested conda: ${CONDA_DEFAULT_ENV:-'NA'} vs ${REQUESTED_CONDA_ENV_NAME}"
+    echo "Current conda does not match requested conda: ${CONDA_DEFAULT_ENV:-'NA'} vs ${REQUESTED_CONDA_ENV_NAME}"
     envs=$(${CONDA_EXE} env list | cut -d ' ' -f1)
     found=0
     for a_env in $envs
@@ -124,7 +124,7 @@ if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
         echo "ACTIVATING existing env: ${REQUESTED_CONDA_ENV_NAME}"
         source activate ${REQUESTED_CONDA_ENV_NAME}
     else
-        echo "The requested env ${REQUESTED_CONDA_ENV_NAME} does not seem to exist we will create it"
+        echo "The requested env ${REQUESTED_CONDA_ENV_NAME} does not seem to exist we will create it."
     fi
 fi
 

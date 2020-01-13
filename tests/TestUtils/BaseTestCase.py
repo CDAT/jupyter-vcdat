@@ -28,8 +28,8 @@ class BaseTestCase(unittest.TestCase):
     If running with firefox on Linux, should also set:
        BROWSER_BINARY: full path to your firefox binary
     '''
-    _delay = 0.1
-    _wait_timeout = 10
+    _delay = 1
+    _wait_timeout = 15
 
     def setUp(self):
         print("\n\n#########...{}...".format(self._testMethodName))
@@ -58,7 +58,7 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self):
         print("...BaseTestCase.tearDown()...")
-        # self.main_page.shutdown_kernel()
+        self.main_page.shutdown_kernel()
         self.driver.quit()
 
     def setup_for_chrome(self, mode):
@@ -69,6 +69,7 @@ class BaseTestCase(unittest.TestCase):
         self.driver = webdriver.Chrome(executable_path=os.getenv("BROWSER_DRIVER", "/usr/local/bin/chromedriver"),
                                        chrome_options=chrome_options,
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
+        self.driver.implicitly_wait(10)
 
     def setup_for_firefox(self, mode):
         firefox_profile = FirefoxProfile()
@@ -83,6 +84,7 @@ class BaseTestCase(unittest.TestCase):
                                         firefox_binary=firefox_binary,
                                         executable_path=geckodriver_loc,
                                         capabilities=firefox_capabilities)
+        self.driver.implicitly_wait(10)
 
     #
     # Test Util functions

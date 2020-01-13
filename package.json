@@ -1,6 +1,6 @@
 {
   "name": "jupyter-vcdat",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "A vCDAT extension for JupyterLab.",
   "keywords": [
     "jupyter",
@@ -28,22 +28,17 @@
     "build": "tsc",
     "clean": "rimraf lib",
     "watch": "tsc -w",
+    "task": "ts-node ./tasksfile.ts",
     "link": "jupyter labextension link . --nobuild",
     "prepare": "npm run clean && npm run build",
     "scss-watch": "node-sass --watch style/scss -o style/css",
     "scss": "node-sass style/scss -o style/css",
-    "tslint-check": "npx tslint-config-prettier-check ./tslint.json",
-    "lint": "npx tslint 'src/**/*.{ts,tsx}' --project tsconfig.json",
-    "lint-file": "npx tslint --project tsconfig.json",
-    "lint-fix-file": "npx tslint --fix --project tsconfig.json",
-    "format": "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
-    "update-tags": "python update_tags.py --source src/**/*.tsx --suffix vcdat",
-    "py_lint": "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
+    "tslint-check": "npx tslint-config-prettier-check ./tslint.json"
   },
   "lint-staged": {
-    "**/*.{ts,tsx}": [
-      "npx tslint --project tsconfig.json --fix 'src/**/*.{ts,tsx}'",
-      "npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'",
+    "src/**/*.{ts,tsx}": [
+      "npx tslint --project tsconfig.json --fix",
+      "npx prettier-tslint fix",
       "git add"
     ],
     "*.py": [
@@ -52,7 +47,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "./precommit_checks.sh && lint-staged"
+      "pre-commit": "npx task checkVersion && lint-staged"
     }
   },
   "dependencies": {
@@ -84,36 +79,40 @@
     "@types/react-html-parser": "^2.0.1",
     "@types/react-joyride": "^2.0.5",
     "@types/react-list": "^0.8.4",
-    "@types/reactstrap": "^8.0.6",
+    "@types/reactstrap": "^8.2.0",
     "autobind-decorator": "^2.4.0",
-    "bootstrap": "^4.4.0",
+    "bootstrap": "^4.4.1",
     "bootstrap-slider": "^10.6.2",
     "jquery": "^3.4.1",
     "jupyterlab-tutorial": "^1.0.4",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "node": "^12.13.0",
     "query-string": "^6.9.0",
     "rc-slider": "^8.7.1",
     "react": "~16.8.4",
     "react-compound-slider": "^2.4.0",
     "react-dom": "~16.8.4",
     "react-html-parser": "^2.0.2",
-    "react-joyride": "^2.1.1",
+    "react-joyride": "^2.2.1",
     "react-list": "^0.8.13",
     "react-load-script": "0.0.6",
     "react-toastify": "^5.4.1",
-    "reactstrap": "^8.1.1",
-    "remove": "^0.1.5"
+    "reactstrap": "^8.2.0",
+    "remove": "^0.1.5",
+    "ts-dedent": "^1.1.0"
   },
   "devDependencies": {
+    "compare-versions": "^3.5.1",
     "husky": "^3.1.0",
-    "lint-staged": "^9.4.3",
+    "lint-staged": "^9.5.0",
+    "node": "^12.14.0",
     "node-sass": "^4.13.0",
     "nodemon": "^1.19.4",
     "prettier": "^1.19.1",
     "prettier-tslint": "^0.4.2",
     "rimraf": "^2.7.1",
+    "tasksfile": "^5.1.0",
+    "ts-node": "^8.5.4",
     "tslint": "^5.20.1",
     "tslint-config-airbnb": "^5.11.2",
     "tslint-config-prettier": "^1.18.0",

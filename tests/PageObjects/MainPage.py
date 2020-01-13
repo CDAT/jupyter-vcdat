@@ -254,10 +254,14 @@ class MainPage(ActionsPage):
 
     def shutdown_kernel(self):
         print("...shutdown kernel if need to...")
+
         self.click_on_top_menu_item('Kernel')
         data_command = "kernelmenu:shutdown"
-        self.click_on_submenu_with_data_command(data_command,
-                                                'Shut Down Kernel')
+        try:
+            self.click_on_submenu_with_data_command(
+                data_command, 'Shut Down Kernel')
+        except NoSuchElementException:
+            pass
 
     def shutdown_all_kernels(self):
         print("...shutdown all kernels...")

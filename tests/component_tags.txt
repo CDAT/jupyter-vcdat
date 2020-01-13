@@ -36,8 +36,8 @@ Tag in: src/components/GraphicsMenu.tsx
 Tag in: src/components/InputModal.tsx
     Line 115, Col 13: "text-muted input-modal" --> "text-muted input-modal-vcdat"
     Line 127, Col 19: "input-modal-input" --> "input-modal-input-vcdat"
-    Line 146, Col 17: "input-modal-options-list" --> "input-modal-options-list-vcdat"
-    Line 187, Col 15: "input-modal-btn" --> "input-modal-btn-vcdat"
+    Line 147, Col 17: "input-modal-options-list" --> "input-modal-options-list-vcdat"
+    Line 187, Col 24: "input-modal-btn" --> "input-modal-btn-vcdat"
 No tags found in: src/components/PlotMenu.tsx
 Tag in: src/components/PopUpModal.tsx
     Line 46, Col 31: "popup-modal" --> "popup-modal-vcdat"
@@ -48,10 +48,10 @@ Tag in: src/components/TemplateMenu.tsx
     Line 118, Col 29: "template-item" --> "template-item-vcdat"
 No tags found in: src/components/Tracks.tsx
 Tag in: src/components/VCSMenu.tsx
-    Line 543, Col 32: "vcsmenu-main" --> "vcsmenu-main-vcdat"
-    Line 549, Col 23: "vcsmenu-plot-btn" --> "vcsmenu-plot-btn-vcdat"
-    Line 564, Col 23: "vcsmenu-export-btn" --> "vcsmenu-export-btn-vcdat"
-    Line 579, Col 23: "vcsmenu-clear-btn" --> "vcsmenu-clear-btn-vcdat"
+    Line 544, Col 32: "vcsmenu-main" --> "vcsmenu-main-vcdat"
+    Line 550, Col 23: "vcsmenu-plot-btn" --> "vcsmenu-plot-btn-vcdat"
+    Line 565, Col 23: "vcsmenu-export-btn" --> "vcsmenu-export-btn-vcdat"
+    Line 580, Col 23: "vcsmenu-clear-btn" --> "vcsmenu-clear-btn-vcdat"
 Tag in: src/components/VarCard.tsx
     Line 161, Col 33: "varcard-main" --> "varcard-main-vcdat"
     Line 165, Col 25: "varcard-name-btn" --> "varcard-name-btn-vcdat"

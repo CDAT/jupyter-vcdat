@@ -199,8 +199,6 @@ export default class InputModal extends React.Component<
   @boundMethod
   private async saveInput(): Promise<void> {
     const newList: string[] = this.state.savedInput;
-    // newList.push(this.state.input);
-    // [this.state.input].concat(newList);
     await this.setState({ savedInput: [this.state.input].concat(newList) });
     this._savedChanged.emit(this.state.savedInput); // Publish that saved options changed
   }
@@ -236,6 +234,7 @@ export default class InputModal extends React.Component<
     if (code === 13) {
       if (this.state.isValid) {
         this.props.onModalClose(this.state.input, this.state.savedInput);
+        await this.setState({ modalOpen: false, input: "" });
       }
     }
   }

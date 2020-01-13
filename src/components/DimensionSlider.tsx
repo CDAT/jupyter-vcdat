@@ -1,6 +1,6 @@
 // Dependencies
 import * as _ from "lodash";
-import * as moment from "moment";
+import moment from "moment";
 import * as React from "react";
 import { Col, Row } from "reactstrap";
 
