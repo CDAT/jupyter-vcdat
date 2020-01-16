@@ -6,7 +6,7 @@ aliases:
       source activate jupyter-vcdat
       ./install_script.sh -v
       echo "xxx doing a conda install"
-      conda install -n jupyter-vcdat -c cdat/label/v82 -c cdat/label/nightly -c conda-forge vcs 'libnetcdf=4.6.2' testsrunner cdat_info
+      conda install -n jupyter-vcdat -c cdat/label/v82 -c cdat/label/nightly -c conda-forge vcs testsrunner cdat_info
       conda list
       npm install
       jupyter lab build
