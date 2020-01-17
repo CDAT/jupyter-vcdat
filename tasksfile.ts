@@ -55,6 +55,12 @@ const TESTS: { [name: string]: string[] } = {
   test_file_browser_locators: [
     "TestFileBrowserLocators",
     "test_double_click_on_a_file"
+  ],
+  test_export_html: [
+    "TestExportHTML",
+    "test_export_plot_html_via_button",
+    "test_export_plot_html_via_nbconvert",
+    "test_export_plot_html_via_nbconvert_execute"
   ]
 };
 
@@ -521,7 +527,7 @@ async function installTestTools(): Promise<void> {
 
       console.log("Installing...");
       await shell(
-        "conda install -c cdat/label/v81 testsrunner cdat_info <<< 'yes' && \
+        "conda install -c cdat/label/v82 testsrunner cdat_info <<< 'yes' && \
       pip install selenium && pip install pyvirtualdisplay"
       );
     } else {
