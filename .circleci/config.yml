@@ -33,6 +33,7 @@ aliases:
        pip install nbgitpuller
        jupyter serverextension enable --py nbgitpuller --sys-prefix
        jupyter labextension install @jupyterlab/hub-extension
+       RUN jupyter labextension install jupyter-vcdat@nightly
 
        npm install
        jupyter lab build
@@ -147,11 +148,11 @@ jobs:
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html
-      - run: sleep 5
-      - run: *run_tests_with_chrome
-      - store_artifacts:
-          path: tests_html
-          destination: tests_chrome_html
+      #- run: sleep 5
+      #- run: *run_tests_with_chrome
+      #- store_artifacts:
+      #    path: tests_html
+      #    destination: tests_chrome_html
       #- store_artifacts:
       #    path: jupyter-vcdat_logfile.txt
       
