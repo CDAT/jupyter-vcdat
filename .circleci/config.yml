@@ -170,15 +170,16 @@ jobs:
       WORKDIR: "linux_firefox"
     steps:
       - checkout
-      - run: *setup_miniconda
-      - run: *setup_jupyter_vcdat
-      - run: *run_jupyter_vcdat
-      - run: sleep 15
-      - run: *run_tests_with_firefox
-      - store_artifacts:
-          path: tests_html
-          destination: tests_firefox_html
-      - run: sleep 5
+      - run: which firefox
+      #- run: *setup_miniconda
+      #- run: *setup_jupyter_vcdat
+      #- run: *run_jupyter_vcdat
+      #- run: sleep 15
+      #- run: *run_tests_with_firefox
+      #- store_artifacts:
+      #    path: tests_html
+      #    destination: tests_firefox_html
+      #- run: sleep 5
       #- store_artifacts:
       #    path: jupyter-vcdat_logfile.txt
       
@@ -189,7 +190,7 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_chrome
+      #- linux_chrome
       - linux_firefox
       #- publish:
       #    requires:
