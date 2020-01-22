@@ -1,39 +1,48 @@
 version: 2
 aliases:
+  - &setup_miniconda
+    name: setup_miniconda
+    command: |
+       mkdir -p workspace
+       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+       # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
+       python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
+
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
+    environment:
+       CHANNELS: "-c cdat/label/nightly -c pcmdi/label/nightly -c conda-forge"
+       PKGS: "nodejs 'python=3.7' vcs pip nb_conda nb_conda_kernels plumbum mesalib jupyterlab jupyterhub vcsaddons wk eofs windspharm autopep8 scipy scikit-learn cmor"
     command: |
-      source activate jupyter-vcdat
-      ./install_script.sh -v
-      echo "xxx doing a conda install"
-      conda install -n jupyter-vcdat -c cdat/label/nightly -c conda-forge vcs testsrunner cdat_info
-      conda list
-      npm install
-      jupyter lab build
-      jupyter-labextension install .
-      echo -e "\nInstalled jupyter-vcdat version $LOCAL_VCDAT_VERSION successfully."
-
-  - &check_vcdat_versions
-    name: check_npm_version
-    command: |
-      LOCAL_VCDAT_VERSION=`node -pe "require('./package.json').version"`
-      NPM_VCDAT_VERSION=`npm view jupyter-vcdat@nightly version`
-      echo "export LOCAL_VCDAT_VERSION=$LOCAL_VCDAT_VERSION" >> $BASH_ENV
-      echo "export NPM_VCDAT_VERSION=$NPM_VCDAT_VERSION" >> $BASH_ENV
-      function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
-      if version_gt $LOCAL_VCDAT_VERSION $NPM_VCDAT_VERSION; then
-        echo "Version of $LOCAL_VCDAT_VERSION in the package.json looks good."
-      else
-        echo "Version $LOCAL_VCDAT_VERSION in package.json is not newer than npm version of $NPM_VCDAT_VERSION and will cause Publish job to fail."
-        echo "You should update version $LOCAL_VCDAT_VERSION in package.json to a version greater than $NPM_VCDAT_VERSION"
-      fi
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
+       conda config --add channels conda-forge --force
+       conda config --add channels pcmdi/label/nightly --force
+       conda config --add channels cdat/label/nightly --force
+       conda config --set channel_priority strict
+       conda create -y -n jupyter-vcdat $CHANNELS $PKGS
+       conda activate jupyter-vcdat
+       pip install lazy_import
+       pip install sidecar
+       jupyter labextension install @jupyter-widgets/jupyterlab-manager
+       jupyter labextension install jupyterlab-tutorial-extension
+       jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
+       jupyter labextension install @jupyterlab/github
+       pip install jupyterlab_github
+       jupyter serverextension enable --sys-prefix jupyterlab_github
+       pip install nbgitpuller
+       jupyter serverextension enable --py nbgitpuller --sys-prefix
+       jupyter labextension install @jupyterlab/hub-extension
+       rm -rf node_modules
+       rm -rf ~/.cache/pip
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
     command: |
-      source activate jupyter-vcdat
-      conda list
-      jupyter lab --ip='127.0.0.1'
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate jupyter-vcdat
+       conda list
+       jupyter lab --ip='127.0.0.1'
     background: true
 
   - &run_tests_with_chrome
@@ -42,15 +51,16 @@ aliases:
       BROWSER_TYPE: "chrome"
       BROWSER_DRIVER: "/usr/local/bin/chromedriver"
     command: |
-      source activate jupyter-vcdat
-      python run_tests.py -H -v 2 tests/test_locators.py
-      python run_tests.py -H -v 2 tests/test_load_a_variable.py
-      python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-      python run_tests.py -H -v 2 tests/test_plot_locators.py
-      python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
-      RESULT=$?
-      echo "*** $PY_VER test result: ${RESULT}"
-      exit $RESULT
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate jupyter-vcdat
+       python run_tests.py -H -v 2 tests/test_locators.py
+       python run_tests.py -H -v 2 tests/test_load_a_variable.py
+       python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
+       python run_tests.py -H -v 2 tests/test_plot_locators.py
+       python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
+       RESULT=$?
+       echo "*** $PY_VER test result: ${RESULT}"
+       exit $RESULT
 
   - &run_tests_with_firefox
     name: run_tests_with_firefox
@@ -59,15 +69,16 @@ aliases:
       BROWSER_BINARY: "/usr/local/bin/firefox"
       BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     command: |
-      source activate jupyter-vcdat
-      #python run_tests.py -H -v 2 tests/test_locators.py
-      python run_tests.py -H -v 2 tests/test_load_a_variable.py
-      #python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-      #python run_tests.py -H -v 2 tests/test_plot_locators.py
-      #python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
-      RESULT=$?
-      echo "*** $PY_VER test result: ${RESULT}"
-      exit $RESULT
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate jupyter-vcdat
+       #python run_tests.py -H -v 2 tests/test_locators.py
+       python run_tests.py -H -v 2 tests/test_load_a_variable.py
+       #python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
+       #python run_tests.py -H -v 2 tests/test_plot_locators.py
+       #python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
+       RESULT=$?
+       echo "*** $PY_VER test result: ${RESULT}"
+       exit $RESULT
 
   - &conda_upload
     name: conda_upload
@@ -113,7 +124,7 @@ aliases:
 jobs:
   publish:
     docker:
-      - image: cdat/vcdat_circleci:nightly
+      - image: 
     steps:
       - checkout
       - run: *check_vcdat_versions
@@ -124,13 +135,11 @@ jobs:
 
   linux_jupyter_vcdat:
     docker:
-      - image: cdat/vcdat_circleci:nightly
+      - image: circleci/node:stretch-browsers
     environment:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
       - checkout
-      - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
-      - run: *check_vcdat_versions
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 15
@@ -154,9 +163,9 @@ workflows:
   jupyter_vcdat:
     jobs:
       - linux_jupyter_vcdat
-      - publish:
-          requires:
-            - linux_jupyter_vcdat
-          filters:
-            branches:
-              only: master
+      #- publish:
+      #    requires:
+      #      - linux_jupyter_vcdat
+      #    filters:
+      #      branches:
+      #        only: master
