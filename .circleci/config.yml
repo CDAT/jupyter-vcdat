@@ -37,7 +37,7 @@ aliases:
        pip install nbgitpuller
        jupyter serverextension enable --py nbgitpuller --sys-prefix
        jupyter labextension install @jupyterlab/hub-extension
-       RUN jupyter labextension install jupyter-vcdat@nightly
+       jupyter labextension install jupyter-vcdat@nightly
 
        npm install
        jupyter lab build
@@ -163,11 +163,34 @@ jobs:
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload
 
+  linux_firefox:
+    docker:
+      - image: selenium/node-firefox
+    environment:
+      WORKDIR: "linux_firefox"
+    steps:
+      - checkout
+      - run: *setup_miniconda
+      - run: *setup_jupyter_vcdat
+      - run: *run_jupyter_vcdat
+      - run: sleep 15
+      - run: *run_tests_with_firefox
+      - store_artifacts:
+          path: tests_html
+          destination: tests_firefox_html
+      - run: sleep 5
+      #- store_artifacts:
+      #    path: jupyter-vcdat_logfile.txt
+      
+      # Uncomment below to upload directly to conda without merging to master
+      #- run: *conda_upload
+
 workflows:
   version: 2
   jupyter_vcdat:
     jobs:
       - linux_chrome
+      - linux_firefox
       #- publish:
       #    requires:
       #      - linux_jupyter_vcdat
