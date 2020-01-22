@@ -12,7 +12,7 @@ aliases:
     name: setup_jupyter_vcdat
     environment:
        CHANNELS: "-c cdat/label/nightly -c pcmdi/label/nightly -c conda-forge"
-       PKGS: "nodejs 'python=3.7' vcs pip nb_conda nb_conda_kernels plumbum mesalib jupyterlab jupyterhub vcsaddons wk eofs windspharm autopep8 scipy scikit-learn cmor"
+       PKGS: "nodejs 'python=3.7' vcs pip nb_conda nb_conda_kernels plumbum mesalib jupyterlab jupyterhub vcsaddons wk eofs windspharm autopep8 scipy scikit-learn cmor testsrunner cdat_info"
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
