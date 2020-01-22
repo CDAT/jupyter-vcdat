@@ -12,7 +12,7 @@ aliases:
     name: setup_jupyter_vcdat
     environment:
        CHANNELS: "-c cdat/label/nightly -c pcmdi/label/nightly -c conda-forge"
-       PKGS: "nodejs 'python=3.7' vcs pip nb_conda nb_conda_kernels plumbum mesalib jupyterlab jupyterhub vcsaddons wk eofs windspharm autopep8 scipy scikit-learn cmor testsrunner cdat_info"
+       PKGS: "nodejs 'python=3.7' vcs pip nb_conda nb_conda_kernels plumbum mesalib jupyterlab jupyterhub vcsaddons wk eofs windspharm autopep8 scipy scikit-learn cmor testsrunner cdat_info ipywidgets"
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
@@ -38,6 +38,8 @@ aliases:
        pip install pyvirtualdisplay
        rm -rf node_modules
        rm -rf ~/.cache/pip
+       conda list
+       conda list --verbose cdms2
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
