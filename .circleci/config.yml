@@ -130,6 +130,7 @@ jobs:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
       - checkout
+      - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 15
