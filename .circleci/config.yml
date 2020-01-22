@@ -63,7 +63,7 @@ aliases:
     name: run_tests_with_chrome
     environment:
       BROWSER_TYPE: "chrome"
-      BROWSER_DRIVER: "/usr/local/bin/chromedriver"
+      BROWSER_DRIVER: "/usr/bin/chromedriver"
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate jupyter-vcdat
@@ -81,7 +81,7 @@ aliases:
     environment:
       BROWSER_TYPE: "firefox"
       BROWSER_BINARY: "/usr/local/bin/firefox"
-      BROWSER_DRIVER: "/usr/local/bin/geckodriver"
+      BROWSER_DRIVER: "/usr/bin/geckodriver"
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate jupyter-vcdat
