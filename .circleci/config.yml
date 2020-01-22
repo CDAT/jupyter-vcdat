@@ -33,6 +33,9 @@ aliases:
        pip install nbgitpuller
        jupyter serverextension enable --py nbgitpuller --sys-prefix
        jupyter labextension install @jupyterlab/hub-extension
+
+       pip install selenium
+       pip install pyvirtualdisplay
        rm -rf node_modules
        rm -rf ~/.cache/pip
 
