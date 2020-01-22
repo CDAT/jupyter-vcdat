@@ -127,9 +127,9 @@ jobs:
       - image: 
     steps:
       - checkout
-      - run: *check_vcdat_versions
+      #- run: *check_vcdat_versions
       - run: *npm_publish
-      - setup_remote_docker
+      #- setup_remote_docker
       - run: *docker_publish
       - run: *conda_upload
 
