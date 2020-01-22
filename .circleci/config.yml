@@ -3,10 +3,14 @@ aliases:
   - &setup_miniconda
     name: setup_miniconda
     command: |
-       mkdir -p workspace
-       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+       ##mkdir -p workspace
+       ##git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
        # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
-       python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
+       ##python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
+       mkdir $WORKDIR
+       cd $WORKDIR
+       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O Miniconda3-latest-Linux-x86_64.sh
+       bash ./Miniconda3-latest-Linux-x86_64.sh -b -p miniconda
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
