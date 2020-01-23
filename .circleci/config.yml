@@ -15,19 +15,17 @@ aliases:
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
     environment:
-       CHANNELS: "-c cdat/label/nightly -c pcmdi/label/nightly -c conda-forge"
+       CHANNELS: "-c cdat/label/nightly -c conda-forge"
        #PKGS: "nodejs 'python=3.7' vcs pip nb_conda nb_conda_kernels plumbum mesalib jupyterlab jupyterhub vcsaddons wk eofs windspharm autopep8 scipy scikit-learn cmor testsrunner cdat_info ipywidgets"
        PKGS: "vcs nodejs 'python=3.7' jupyterlab pip jupyterhub testsrunner cdat_info"
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        conda config --add channels conda-forge --force
-       conda config --add channels pcmdi/label/nightly --force
        conda config --add channels cdat/label/nightly --force
        conda config --set channel_priority strict
        conda create -y -n jupyter-vcdat $CHANNELS $PKGS
        conda activate jupyter-vcdat
-       pip install lazy_import
        pip install sidecar
        jupyter labextension install @jupyter-widgets/jupyterlab-manager
        jupyter labextension install jupyterlab-tutorial-extension
