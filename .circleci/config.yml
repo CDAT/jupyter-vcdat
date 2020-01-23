@@ -44,8 +44,8 @@ aliases:
 
        pip install selenium
        pip install pyvirtualdisplay
-       rm -rf node_modules
-       rm -rf ~/.cache/pip
+       #rm -rf node_modules
+       #rm -rf ~/.cache/pip
        conda list
        conda list --verbose cdms2
 
