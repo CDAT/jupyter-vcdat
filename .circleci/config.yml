@@ -40,7 +40,7 @@ aliases:
 
        npm install
        jupyter lab build
-       jupyter-labextension install .
+       jupyter labextension install .
 
        pip install selenium
        pip install pyvirtualdisplay
