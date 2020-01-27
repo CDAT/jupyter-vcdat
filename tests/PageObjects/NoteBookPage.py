@@ -1,3 +1,4 @@
+import time
 from MainPage import MainPage
 from selenium.common.exceptions import NoSuchElementException
 
@@ -45,6 +46,7 @@ class NoteBookPage(MainPage):
             except NoSuchElementException:
                 print("Nothing to save in the notebook or did not find submenu")
             n_try = n_try + 1
+        time.sleep(self._delay * 5)
 
     def save_current_notebookORIG(self):
         print("...save_current_notebook...")
