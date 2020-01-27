@@ -101,7 +101,7 @@ class MainPage(ActionsPage):
             print("DEBUG DEBUG DEBUG...# of menu items: {i}".format(i=len(menu_items)))
             for m in menu_items:
                 data_command = m.get_attribute("data-command")
-                print("DEBUG DEBUG...data_command: {dc}".format(dc=data_command))
+                print("DEBUG DEBUG DEBUG...data_command: {dc}".format(dc=data_command))
                 if data_command == submenu_data_command:
                     the_menu_item = m
                     break
