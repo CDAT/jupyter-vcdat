@@ -58,7 +58,7 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self):
         print("...BaseTestCase.tearDown()...")
-        self.main_page.shutdown_kernel()
+        ##self.main_page.shutdown_kernel()
         self.driver.quit()
 
     def setup_for_chrome(self, mode):
