@@ -132,7 +132,7 @@ jobs:
 
   linux_chrome:
     docker:
-      - image: selenium/hub
+      #- image: selenium/hub
       - image: selenium/node-chrome
     environment:
       WORKDIR: "linux_chrome"
