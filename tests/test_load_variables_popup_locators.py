@@ -21,7 +21,7 @@ class TestLoadVariablesPopUpLocators(BaseTestCaseWithNoteBook):
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
 
-    def test_click_a_variable_axes(self):
+    def ABCtest_click_a_variable_axes(self):
         test_file = "clt.nc"
         self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
@@ -32,7 +32,7 @@ class TestLoadVariablesPopUpLocators(BaseTestCaseWithNoteBook):
         load_variable_popup.click_on_variable('v')
         load_variable_popup.click_on_variable_axes('v')
 
-    def test_adjust_a_variable_axes(self):
+    def ABCtest_adjust_a_variable_axes(self):
         test_file = "clt.nc"
         self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()

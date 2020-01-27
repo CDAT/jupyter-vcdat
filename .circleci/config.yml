@@ -30,13 +30,7 @@ aliases:
        jupyter labextension install @jupyter-widgets/jupyterlab-manager
        jupyter labextension install jupyterlab-tutorial-extension
        jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
-       #jupyter labextension install @jupyterlab/github
-       #pip install jupyterlab_github
-       #jupyter serverextension enable --sys-prefix jupyterlab_github
-       #pip install nbgitpuller
-       #jupyter serverextension enable --py nbgitpuller --sys-prefix
        jupyter labextension install @jupyterlab/hub-extension
-       #jupyter labextension install jupyter-vcdat@nightly
 
        npm install
        jupyter lab build
@@ -138,6 +132,7 @@ jobs:
 
   linux_chrome:
     docker:
+      - image: selenium/hub
       - image: selenium/node-chrome
     environment:
       WORKDIR: "linux_chrome"
@@ -189,7 +184,7 @@ workflows:
   jupyter_vcdat:
     jobs:
       - linux_chrome
-      - linux_firefox
+      #- linux_firefox
       #- publish:
       #    requires:
       #      - linux_jupyter_vcdat
