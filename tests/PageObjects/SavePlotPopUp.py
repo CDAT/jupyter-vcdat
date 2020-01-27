@@ -71,10 +71,11 @@ class SavePlotPopUp(ActionsPage):
             file_exists = os.path.isfile(filename)
             if file_exists is False:
                 time.sleep(0.5)
+                print("...wait till exported file is written...")
                 counter += 1
 
         assert file_exists
-        time.sleep(2)
+        time.sleep(10)
         print("Plot is exported to: {}".format(filename))
 
     def _click_on_custom_dimensions(self):
