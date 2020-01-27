@@ -42,9 +42,10 @@ class MainPage(ActionsPage):
         '''
         try:
             element = self.locate_top_menu_item(name)
-            time.sleep(self._a_bit_delay)
+            time.sleep(self._delay)
             ActionChains(self.driver).move_to_element(
                 element).click().perform()
+            time.sleep(self._delay)
             # self.move_to_click(element)
         except NoSuchElementException as e:
             print("...did not find tab for '{}'".format(name))
