@@ -132,8 +132,8 @@ jobs:
 
   linux_chrome:
     docker:
-      #- image: selenium/hub
-      - image: selenium/node-chrome
+      - image: selenium/hub
+      - image: selenium/standalone-chrome
     environment:
       WORKDIR: "linux_chrome"
     steps:
