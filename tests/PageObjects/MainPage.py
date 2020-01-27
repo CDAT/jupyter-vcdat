@@ -89,7 +89,7 @@ class MainPage(ActionsPage):
         except NoSuchElementException as e:
             raise e
 
-    def click_on_submenu_with_data_command(self, submenu_data_command, submenu_name):
+    def click_on_submenu_with_data_commandTEST(self, submenu_data_command, submenu_name):
         '''
         click on submenu item that has 'data-command' attribute
         '''
@@ -102,6 +102,32 @@ class MainPage(ActionsPage):
             if len(menu_items) == 0:
                 print("DEBUG DEBUG DEBUG...FOUND 0 items in submenu")
                 raise NoSuchElementException
+            for m in menu_items:
+                data_command = m.get_attribute("data-command")
+                print("DEBUG DEBUG DEBUG...data_command: {dc}".format(dc=data_command))
+                if data_command == submenu_data_command:
+                    the_menu_item = m
+                    break
+            if the_menu_item:
+                print("FOUND...{m}".format(m=submenu_name))
+                time.sleep(self._a_bit_delay * 2)
+                ActionChains(self.driver).move_to_element(the_menu_item).click().perform()
+                time.sleep(self._delay)
+
+        except NoSuchElementException as e:
+            raise e
+
+
+    def click_on_submenu_with_data_command(self, submenu_data_command, submenu_name):
+        '''
+        click on submenu item that has 'data-command' attribute
+        '''
+        print("DEBUG DEBUG DEBUG...click_on_submenu_with_data_command()...{m}".format(m=submenu_name))
+        try:
+            menu_items_locator = "//li[@class='p-Menu-item' and @data-type='command']"
+            menu_items = self.find_elements_by_xpath(menu_items_locator, 'menu items')
+            the_menu_item = None
+            print("DEBUG DEBUG DEBUG...# of menu items: {i}".format(i=len(menu_items)))
             for m in menu_items:
                 data_command = m.get_attribute("data-command")
                 print("DEBUG DEBUG DEBUG...data_command: {dc}".format(dc=data_command))

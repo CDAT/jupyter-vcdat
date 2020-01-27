@@ -32,7 +32,7 @@ class NoteBookPage(MainPage):
                                                 "Rename Notebook input area")
         self.enter_text(input_area, new_name)
 
-    def save_current_notebook(self):
+    def save_current_notebookTEST(self):
         print("...save_current_notebook...")
         found = False
         n_try = 0
@@ -48,7 +48,7 @@ class NoteBookPage(MainPage):
             n_try = n_try + 1
         time.sleep(self._delay * 5)
 
-    def save_current_notebookORIG(self):
+    def save_current_notebook(self):
         print("...save_current_notebook...")
         self.click_on_top_menu_item("File")
         data_command = "docmanager:save"
