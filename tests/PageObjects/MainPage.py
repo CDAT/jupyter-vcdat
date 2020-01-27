@@ -93,10 +93,12 @@ class MainPage(ActionsPage):
         '''
         click on submenu item that has 'data-command' attribute
         '''
+        print("DEBUG DEBUG DEBUG...click_on_submenu_with_data_command()...{m}".format(m=submenu_name)))
         try:
             menu_items_locator = "//li[@class='p-Menu-item' and @data-type='command']"
             menu_items = self.find_elements_by_xpath(menu_items_locator, 'menu items')
             the_menu_item = None
+            print("DEBUG DEBUG DEBUG...# of menu items: {i}".format(i=len(menu_items)))
             for m in menu_items:
                 data_command = m.get_attribute("data-command")
                 print("DEBUG DEBUG...data_command: {dc}".format(dc=data_command))
