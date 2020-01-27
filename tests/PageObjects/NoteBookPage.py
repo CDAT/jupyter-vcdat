@@ -35,7 +35,7 @@ class NoteBookPage(MainPage):
         print("...save_current_notebook...")
         found = False
         n_try = 0
-        while not found:
+        while not found and n_try <= 1:
             self.click_on_top_menu_item("File")
             data_command = "docmanager:save"
             try:
