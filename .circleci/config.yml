@@ -184,7 +184,7 @@ workflows:
   jupyter_vcdat:
     jobs:
       - linux_chrome
-      #- linux_firefox
+      - linux_firefox
       #- publish:
       #    requires:
       #      - linux_jupyter_vcdat
