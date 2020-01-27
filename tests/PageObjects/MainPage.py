@@ -43,8 +43,7 @@ class MainPage(ActionsPage):
         try:
             element = self.locate_top_menu_item(name)
             time.sleep(self._delay)
-            ActionChains(self.driver).move_to_element(
-                element).click().perform()
+            ActionChains(self.driver).move_to_element(element).click().perform()
             time.sleep(self._delay)
             # self.move_to_click(element)
         except NoSuchElementException as e:
@@ -100,6 +99,9 @@ class MainPage(ActionsPage):
             menu_items = self.find_elements_by_xpath(menu_items_locator, 'menu items')
             the_menu_item = None
             print("DEBUG DEBUG DEBUG...# of menu items: {i}".format(i=len(menu_items)))
+            if len(menu_items) == 0:
+                print("DEBUG DEBUG DEBUG...FOUND 0 items in submenu")
+                raise NoSuchElementException
             for m in menu_items:
                 data_command = m.get_attribute("data-command")
                 print("DEBUG DEBUG DEBUG...data_command: {dc}".format(dc=data_command))
