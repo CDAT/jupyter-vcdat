@@ -33,13 +33,18 @@ class NoteBookPage(MainPage):
 
     def save_current_notebook(self):
         print("...save_current_notebook...")
-        self.click_on_top_menu_item("File")
-        data_command = "docmanager:save"
-        try:
-            self.click_on_submenu_with_data_command(data_command,
-                                                    "Save Notebook")
-        except NoSuchElementException:
-            print("Nothing to save in the notebook")
+        found = False
+        n_try = 0
+        while not found:
+            self.click_on_top_menu_item("File")
+            data_command = "docmanager:save"
+            try:
+                self.click_on_submenu_with_data_command(data_command,
+                                                        "Save Notebook")
+                found = True
+            except NoSuchElementException:
+                print("Nothing to save in the notebook or did not find submenu")
+            n_try = n_try + 1
 
     def save_current_notebookORIG(self):
         print("...save_current_notebook...")
