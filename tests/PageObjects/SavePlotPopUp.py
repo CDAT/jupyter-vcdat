@@ -16,8 +16,10 @@ class SavePlotPopUp(ActionsPage):
         # title_locator = "//div[@class='modal-header']/h5[contains(text(), 'Save Plot')]"
         # self.find_element_by_xpath(title_locator, "'Save Plot' header")
         time.sleep(self._delay * 5)
-        title_class = "modal-header"
-        self.find_element_by_class(title_class, "'Save Plot' header")
+        ##title_class = "modal-header"
+        ##self.find_element_by_class(title_class, "'Save Plot' header")
+        export_plot_body_class = "export-modal-vcdat"
+        self.find_element_by_class(title_class, "'Export Plot' body")
 
     def input_plot_file_name(self, plot_name):
         input_plot_class = "export-name-input-vcdat"
