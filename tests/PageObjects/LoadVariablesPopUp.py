@@ -46,8 +46,8 @@ class LoadVariablesPopUp(ActionsPage):
             raise e
 
         # wait till the 'axes' button is visible
-        self.wait_till_element_is_visible(By.CLASS_NAME, self._var_axes_class,
-                                          "'axes' button for var '{}'".format(var))
+        #self.wait_till_element_is_visible(By.CLASS_NAME, self._var_axes_class,
+        #                                  "'axes' button for var '{}'".format(var))
 
     def _locate_all_variable_row_elements(self):
         '''
@@ -96,6 +96,35 @@ class LoadVariablesPopUp(ActionsPage):
         if i >= len(rows):
             # we should not hit this case -- REVISIT - raise an exception
             print("Could not find axes for var '{}'".format(var))
+
+    def click_on_edit_button(self, var):
+        loader_items_locator = "//div[@class='var-loader-items-vcdat']/div"
+        items = self.find_elements_by_xpath(loader_items_locator, "loader items")
+        print("FOUND {n} variables".format(n=len(items)))
+        for i in items:
+            var_row_locator = ".//div[@class='varcard-main-vcdat']"
+            try:
+                var_row = i.find_element_by_xpath(var_row_locator)
+                try:
+                    var_locator = ".//button[contains(@class, '{cl}') and contains(text(), '{var}')]".format(cl=self._var_button_class,
+                                                                                                             var=var)
+                    var = var_row.find_element_by_xpath(var_locator)
+                    print("FOUND...row for variable {v}".format(v=var))
+                except NoSuchElementException:
+                    print("This is not the row for the variable '{v}' we are looking for.".format(v=var))
+                    # we go to the next iteration
+                    continue
+            except NoSuchElementException as e:
+                print("This row does not have 'Edit' button, go to next row")
+                continue
+
+            edit_button_locator = ".//button[contains(text(), 'Edit')]"
+            try:
+                edit_button = var_row.find_element_by_xpath(edit_button_locator)
+                self.move_to_click(edit_button)
+            except NoSuchElementException as e:
+                print("FAIL...could not find 'Edit' button for variable '{v}'".format(v=var))
+                raise e
 
     def click_on_variable_axes(self, var):
         """

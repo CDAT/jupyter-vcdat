@@ -11,7 +11,7 @@ from VcdatPanel import VcdatPanel
 
 class TestLoadVariablesPopUpLocators(BaseTestCaseWithNoteBook):
 
-    def test_click_a_variable(self):
+    def test_1_click_a_variable(self):
         test_file = "clt.nc"
         self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
@@ -21,7 +21,7 @@ class TestLoadVariablesPopUpLocators(BaseTestCaseWithNoteBook):
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
 
-    def ABCtest_click_a_variable_axes(self):
+    def test_2_click_a_variable_axes(self):
         test_file = "clt.nc"
         self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
@@ -30,9 +30,10 @@ class TestLoadVariablesPopUpLocators(BaseTestCaseWithNoteBook):
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
+        load_variable_popup.click_on_edit_button('v')
         load_variable_popup.click_on_variable_axes('v')
 
-    def ABCtest_adjust_a_variable_axes(self):
+    def test_3_adjust_a_variable_axes(self):
         test_file = "clt.nc"
         self.main_page.click_on_folder_tab()
         self.main_page.click_on_vcdat_icon()
@@ -41,6 +42,7 @@ class TestLoadVariablesPopUpLocators(BaseTestCaseWithNoteBook):
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
+        load_variable_popup.click_on_edit_button('v')
         load_variable_popup.click_on_variable_axes('v')
         load_variable_popup.adjust_var_axes_slider('v', 'latitude2', 10, -10)
 

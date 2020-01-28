@@ -102,16 +102,6 @@ class TestLocators(BaseTestCase):
         main_page.click_on_folder_tab()
         main_page.click_on_home_icon()
 
-    def ABCtest_all_locators(self):
-        '''
-        Run test to check all locators are available.
-        '''
-        self.test_jupyter_top_menu_locators()
-        self.test_jupyter_left_tab_locators()
-        self.test_launcher_locators()
-        self.test_open_widgets()
-
-
 if __name__ == '__main__':
     unittest.main(verbosity=2)
 

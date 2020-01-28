@@ -24,6 +24,7 @@ class TestLoadVariable(BaseTestCaseWithNoteBook):
 
         load_variable_popup = file_browser.double_click_on_a_file(test_file)
         load_variable_popup.click_on_variable('v')
+        load_variable_popup.click_on_edit_button('v')
         load_variable_popup.click_on_variable_axes('v')
         load_variable_popup.click_on_load()
         vcdat_panel.click_on_plot()
