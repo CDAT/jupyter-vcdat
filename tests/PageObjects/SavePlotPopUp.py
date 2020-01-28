@@ -19,7 +19,7 @@ class SavePlotPopUp(ActionsPage):
         ##title_class = "modal-header"
         ##self.find_element_by_class(title_class, "'Save Plot' header")
         export_plot_body_class = "export-modal-vcdat"
-        self.find_element_by_class(title_class, "'Export Plot' body")
+        self.find_element_by_class(export_plot_body_class, "'Export Plot' body")
 
     def input_plot_file_name(self, plot_name):
         input_plot_class = "export-name-input-vcdat"
