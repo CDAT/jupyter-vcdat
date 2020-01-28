@@ -28,7 +28,7 @@ class FileBrowser(ActionsPage):
             file_popup_modal_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
             self.wait_click(By.XPATH, file_popup_modal_locator)
 
-        time.sleep(self._delay)
+        time.sleep(self._delay * 5)
 
         # Select Kernel Popup if it exists
         try:
