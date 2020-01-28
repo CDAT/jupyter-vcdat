@@ -23,14 +23,16 @@ class FileBrowser(ActionsPage):
         time.sleep(self._delay * 3)
 
         file_popup_modal_locator = "//button[@class='jp-Dialog-buttonLabel']"
-        if expect_file_load_error:
-            
-            print("...click on the File Load Error OK button")
-            print("...doing WebDriverWait...till the element is clickable")
-            #file_popup_modal_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
-            self.wait_click(By.XPATH, file_popup_modal_locator)
+        #### REVISIT
+        
+        #if expect_file_load_error:
+        #    
+        #    print("...click on the File Load Error OK button")
+        #    print("...doing WebDriverWait...till the element is clickable")
+        #    #file_popup_modal_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
+        #    self.wait_click(By.XPATH, file_popup_modal_locator)
 
-        time.sleep(self._delay * 5)
+        #time.sleep(self._delay * 5)
 
         # Select Kernel Popup if it exists
         try:
