@@ -22,7 +22,7 @@ class FileBrowser(ActionsPage):
         self.move_to_double_click(file_element)
         time.sleep(self._delay * 3)
 
-        file_popup_modal_locator = "//button[@class='jp-Dialog-button']"
+        file_popup_modal_locator = "//button[@class='jp-Dialog-buttonLabel']"
         if expect_file_load_error:
             
             print("...click on the File Load Error OK button")
