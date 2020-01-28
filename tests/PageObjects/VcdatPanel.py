@@ -75,6 +75,7 @@ class VcdatPanel(ActionsPage):
     def click_on_load_variables_by_file(self):
         element = self.locate_load_variables_by_file()
         self.move_to_click(element)
+        time.sleep(self._delay * 2)
         file_browser = FileBrowser(self.driver, None)
         return file_browser
 
