@@ -22,40 +22,31 @@ class VcdatPanel(ActionsPage):
             raise InvalidPageException
 
     def locate_plot(self):
-        return self.find_element_by_class("vcsmenu-plot-btn-vcdat",
-                                          "'Plot' button")
+        return self.find_element("vcsmenu-plot-btn-vcdat", "class")
 
     def locate_export_plot(self):
-        return self.find_element_by_class("vcsmenu-export-btn-vcdat",
-                                          "'Export Plot' button")
+        return self.find_element("vcsmenu-export-btn-vcdat", "class")
 
     def locate_clear(self):
-        return self.find_element_by_class("vcsmenu-clear-btn-vcdat",
-                                          "'Clear' button")
+        return self.find_element("vcsmenu-clear-btn-vcdat", "class")
 
     def locate_load_variables_by_file(self):
-        return self.find_element_by_class("varmenu-load-variables-file-btn-vcdat",
-                                          "'Load Variable(s)' file button")
+        return self.find_element("varmenu-load-variables-file-btn-vcdat", "class")
 
     def locate_load_variables_by_path(self):
-        return self.find_element_by_class("varmenu-load-variables-path-btn-vcdat",
-                                          "'Load Variable(s)' path button")
+        return self.find_element("varmenu-load-variables-path-btn-vcdat", "class")
 
     def locate_sync_notebook_button(self):
-        return self.find_element_by_class("varmenu-sync-btn-vcdat",
-                                          "'Sync Notebook' button")
+        return self.find_element("varmenu-sync-btn-vcdat", "class")
 
     def locate_select_plot_type(self):
-        return self.find_element_by_class("graphics-dropdown-vcdat",
-                                          "'Select Plot Type' button")
+        return self.find_element("graphics-dropdown-vcdat", "class")
 
     def locate_select_colormap(self):
-        return self.find_element_by_class("colormap-dropdown-vcdat",
-                                          "'Select Colormap' button")
+        return self.find_element("colormap-dropdown-vcdat", "class")
 
     def locate_select_a_template(self):
-        return self.find_element_by_class("template-dropdown-vcdat",
-                                          "'Select A Template' button")
+        return self.find_element("template-dropdown-vcdat", "class")
 
     def click_on_plot(self):
         element = self.locate_plot()
@@ -105,8 +96,8 @@ class VcdatPanel(ActionsPage):
     def _get_plot_type_elements(self):
         plot_type_elements_class = "graphics-dropdown-item-vcdat"
         try:
-            plot_type_elements = self.find_elements_by_class(plot_type_elements_class,
-                                                             "plot type elements")
+            plot_type_elements = self.find_elements(
+                plot_type_elements_class, "class")
             # for e in plot_type_elements:
             #    print("plot_type_element: '{}'".format(e.text))
             return plot_type_elements
@@ -117,8 +108,8 @@ class VcdatPanel(ActionsPage):
     def _get_template_elements(self):
         template_elements_class = "template-item-vcdat"
         try:
-            template_elements = self.find_elements_by_class(template_elements_class,
-                                                            "template elements")
+            template_elements = self.find_elements(
+                template_elements_class, "class")
             # for t in template_elements:
             #     print("template_element: '{}'".format(t.text))
             return template_elements
@@ -179,8 +170,7 @@ class VcdatPanel(ActionsPage):
     def _click_on_overlay_mode(self):
         overlay_mode_id = "vcsmenu-overlay-mode-switch-vcdat"
         try:
-            overlay_mode = self.find_element_by_id(overlay_mode_id,
-                                                   "Capture Provenance")
+            overlay_mode = self.find_element(overlay_mode_id, "id")
             print("FOUND 'Capture Provenance' selector")
             self.move_to_click(overlay_mode)
             # time.sleep(self._delay)
@@ -209,8 +199,7 @@ class VcdatPanel(ActionsPage):
     def _click_on_variable(self, var):
         var_class = "varmini-name-btn-vcdat"
         try:
-            var_element = self.find_element_by_class(var_class,
-                                                     "variable element")
+            var_element = self.find_element(var_class, "class")
             print("FOUND 'Capture Provenance' selector")
             state = var_element.get_attribute('class')
             print("xxx xxx xxx xxx DEBUG...state: '{}'".format(state))
@@ -239,12 +228,11 @@ class VcdatPanel(ActionsPage):
         var_button_locator = ".//button[contains(@class, 'varmini-name-btn-vcdat')]"
         edit_button_locator = ".//button[contains(@class, 'varmini-edit-btn-vcdat')]"
         try:
-            var_menu = self.find_element_by_class(var_menu_class,
-                                                  "variable menu")
-            var_rows = var_menu.find_elements_by_xpath(var_row_locator)
+            var_menu = self.find_element(var_menu_class, "class")
+            var_rows = var_menu.find_elements(var_row_locator, "class")
             i = 0
             for var_row in var_rows:
-                var_button = var_row.find_element_by_xpath(var_button_locator)
+                var_button = var_row.find_element(var_button_locator, "xpath")
                 print("DEBUG...var_button.text: '{}'".format(var_button.text))
                 if var_button.text == var:
                     print("FOUND the row for variable '{}'".format(var))
@@ -252,8 +240,8 @@ class VcdatPanel(ActionsPage):
                 else:
                     i += 0
             if i < len(var_rows):
-                edit_button = var_rows[i].find_element_by_xpath(
-                    edit_button_locator)
+                edit_button = var_rows[i].find_element(
+                    edit_button_locator, "xpath")
                 print("FOUND edit button for variable '{}'".format(var))
                 return edit_button
             else:

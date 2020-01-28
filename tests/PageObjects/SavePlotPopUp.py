@@ -16,13 +16,12 @@ class SavePlotPopUp(ActionsPage):
         # title_locator = "//div[@class='modal-header']/h5[contains(text(), 'Save Plot')]"
         # self.find_element_by_xpath(title_locator, "'Save Plot' header")
         title_class = "modal-header"
-        self.find_element_by_class(title_class, "'Save Plot' header")
+        self.find_element(title_class, "class")
 
     def input_plot_file_name(self, plot_name):
         input_plot_class = "export-name-input-vcdat"
         try:
-            input_area = self.find_element_by_class(input_plot_class,
-                                                    "Save Plot name input area")
+            input_area = self.find_element(input_plot_class, "class")
             self.enter_text(input_area, plot_name)
             self.exported_filename = plot_name
         except NoSuchElementException as e:
@@ -32,8 +31,7 @@ class SavePlotPopUp(ActionsPage):
     def select_export_format(self, export_format):
         export_format_class = "export-format-btn-vcdat"
         try:
-            export_formats = self.find_elements_by_class(export_format_class,
-                                                         "plot export format")
+            export_formats = self.find_elements(export_format_class, "class")
             i = 0
             for f in export_formats:
                 if f.text == export_format:
@@ -54,8 +52,7 @@ class SavePlotPopUp(ActionsPage):
         # self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         export_button_class = "export-button-vcdat"
         try:
-            export_button = self.find_element_by_class(export_button_class,
-                                                       "'Export' button")
+            export_button = self.find_element(export_button_class, "class")
             self.scroll_into_view(export_button)
             self.move_to_click(export_button)
         except NoSuchElementException as e:
@@ -80,8 +77,7 @@ class SavePlotPopUp(ActionsPage):
     def _click_on_custom_dimensions(self):
         custom_dimensions_id = "export-dimension-switch-vcdat"
         try:
-            custom_dimension = self.find_element_by_id(custom_dimensions_id,
-                                                       "Custom dimensions")
+            custom_dimension = self.find_element(custom_dimensions_id, "id")
             print("FOUND 'Custom dimensions' selector")
             self.move_to_click(custom_dimension)
             time.sleep(5)
@@ -107,8 +103,7 @@ class SavePlotPopUp(ActionsPage):
     def click_on_custom_dimensions_unit(self, unit):
         unit_class = "export-unit-btn-vcdat"
         try:
-            dimension_units = self.find_elements_by_class(unit_class,
-                                                          "export units")
+            dimension_units = self.find_elements(unit_class, "class")
             i = 0
             for u in dimension_units:
                 if u.text == unit:
@@ -132,8 +127,7 @@ class SavePlotPopUp(ActionsPage):
         mapping = {"width": "export-width-input-vcdat",
                    "height": "export-height-input-vcdat"}
         try:
-            input_area = self.find_element_by_class(mapping[dimension],
-                                                    "'{}' unit dimension input area".format(dimension))
+            input_area = self.find_element(mapping[dimension], "class")
             print("FOUND input area for '{}' dimension".format(dimension))
             print("...entering '{}' into the input area...".format(the_dimension))
             self.enter_text(input_area, the_dimension)
@@ -154,8 +148,7 @@ class SavePlotPopUp(ActionsPage):
     def _click_on_capture_provenance(self):
         capture_provenance_id = "export-capture-provenance-switch-vcdat"
         try:
-            capture_provenance = self.find_element_by_id(capture_provenance_id,
-                                                         "Capture Provenance")
+            capture_provenance = self.find_element(capture_provenance_id, "id")
             print("FOUND 'Capture Provenance' selector")
             self.move_to_click(capture_provenance)
             time.sleep(5)

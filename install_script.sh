@@ -131,7 +131,7 @@ fi
 if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
   echo "Creating conda env: ${REQUESTED_CONDA_ENV_NAME}"
   $CONDA_EXE update --all -y -n base
-  $CONDA_EXE create -y -n ${REQUESTED_CONDA_ENV_NAME} ${CUSTOM_CONDA_CHANNELS} ${DEFAULT_CONDA_CHANNELS} nodejs "python>3" vcs "jupyterlab>=1" pip nb_conda nb_conda_kernels plumbum jupyterhub "libnetcdf=4.6.2"
+  $CONDA_EXE create -y -n ${REQUESTED_CONDA_ENV_NAME} ${CUSTOM_CONDA_CHANNELS} ${DEFAULT_CONDA_CHANNELS} ipywidgets nodejs "python>3" vcs "jupyterlab>=1" pip nb_conda nb_conda_kernels plumbum jupyterhub
   CONDA_BASE=$(conda info --base)
   source $CONDA_BASE/etc/profile.d/conda.sh
   conda activate ${REQUESTED_CONDA_ENV_NAME}
@@ -175,4 +175,4 @@ fi
 
 npm install
 jupyter lab build
-jupyter-labextension install .
+jupyter labextension install .

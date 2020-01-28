@@ -27,13 +27,13 @@ const TESTS: { [name: string]: string[] } = {
     "test_jupyter_top_menu_locators",
     "test_jupyter_left_tab_locators",
     "test_launcher_locators",
-    "test_open_widgets",
-    "test_jp_tool_bar",
+    "test_file_browser_buttons",
     "test_new_notebook",
     "test_vcdat_panel_locators",
     "test_file_browser_locators"
   ],
-  test_load_a_variable: ["TestLoadVariable", "test_load_a_variable"],
+  test_load_a_variable: ["TestLoadVariable",
+  "test_load_a_variable"],
   test_load_variables_popup_locators: [
     "TestLoadVariablesPopUpLocators",
     "test_click_a_variable",
@@ -55,7 +55,8 @@ const TESTS: { [name: string]: string[] } = {
   test_file_browser_locators: [
     "TestFileBrowserLocators",
     "test_double_click_on_a_file"
-  ]
+  ],
+  test_mainpage_locators: ["TestMainPageLocators","test_top_menu_items"]
 };
 
 const TASK_DATA_PATH: string = ".taskData";
@@ -498,7 +499,9 @@ help(lint, `Performs linting operations on source files.`, {
 });
 
 // Task : installTestTools
-async function installTestTools(): Promise<void> {
+async function installTestTools(options: ICLIOptions): Promise<void> {
+  const firefox: string = getOptionsValue(true, options.f, options.firefox);
+  const chrome: string = getOptionsValue(true, options.c, options.chrome);
   const CONDA_ENV: string = await run(`echo $CONDA_DEFAULT_ENV`);
   const CANCEL_PROMPT: string = "Installation cancelled.";
   const CHROME_DRIVER: string = "Please enter path to Chrome selenium driver";
@@ -521,7 +524,7 @@ async function installTestTools(): Promise<void> {
 
       console.log("Installing...");
       await shell(
-        "conda install -c cdat/label/v81 testsrunner cdat_info <<< 'yes' && \
+        "conda install -c cdat/label/v82 testsrunner cdat_info <<< 'yes' && \
       pip install selenium && pip install pyvirtualdisplay"
       );
     } else {

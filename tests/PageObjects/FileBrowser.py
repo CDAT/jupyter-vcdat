@@ -1,6 +1,5 @@
 import time
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.by import By
 from ActionsPage import ActionsPage
 from LoadVariablesPopUp import LoadVariablesPopUp
 
@@ -12,28 +11,34 @@ class FileBrowser(ActionsPage):
 
     def _validate_page(self):
         print("...FileBrowser.validate_page()...")
-        file_name_header_locator = "//span[@class='jp-DirListing-headerItemText'][contains(text(), 'Name')]"
-        self.driver.find_element_by_xpath(file_name_header_locator)
+        file_name_header_locator = "#filebrowser div.jp-DirListing-headerItem"
+        file_name_header_locator += ".jp-id-name span.jp-DirListing-headerItemText"
+        self.find_element(file_name_header_locator, "css")
 
     def double_click_on_a_file(self, fname, expect_file_load_error=True):
-        file_locator = "//li[@title='{f}']".format(f=fname)
         time.sleep(3)
-        file_element = self.find_element_by_xpath(file_locator, "'{}' file".format(fname))
+        file_locator = "#filebrowser li.jp-DirListing-item[title~='{f}']".format(
+            f=fname)
+        file_element = self.find_element(file_locator, "css")
         self.move_to_double_click(file_element)
         time.sleep(self._delay)
 
         if expect_file_load_error:
             print("...click on the File Load Error OK button")
             print("...doing WebDriverWait...till the element is clickable")
-            file_popup_modal_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
-            self.wait_click(By.XPATH, file_popup_modal_locator)
+            file_popup_modal_locator = "div.p-Widget.jp-Dialog div.p-Widget.p-Panel "
+            file_popup_modal_locator = "div.jp-Dialog-footer button.jp-mod-accept"
+            dismiss_btn = self.find_element(file_popup_modal_locator, "css")
+            self.move_to_click(dismiss_btn)
 
         time.sleep(self._delay)
 
         # Select Kernel Popup if it exists
         try:
-            accept_button = self.find_element_by_xpath(file_popup_modal_locator, "Kernel Select Accept Button")
-            self.move_to_click(accept_button)
+            accept_button = self.find_element(file_popup_modal_locator, "css")
+            print("Click accept button")
+            if accept_button is not None:
+                self.move_to_click(accept_button)
         except NoSuchElementException:
             pass
 

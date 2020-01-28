@@ -16,7 +16,7 @@ class EditAxisPopUp(ActionsPage):
         edit_axis_locator = "//div[@class='modal-header']/h5[contains(text(), 'Edit')]"
         print("...EditAxisPopUp.validate_page()...")
         try:
-            self.find_element_by_xpath(edit_axis_locator, "'Edit' header")
+            self.find_element(edit_axis_locator, "xpath")
         except NoSuchElementException as e:
             print("Not finding 'Edit Axis' pop up")
             raise e
@@ -29,8 +29,7 @@ class EditAxisPopUp(ActionsPage):
         print("...click on 'Update' button on the 'Edit Axis' pop up")
         update_class = "varmini-update-btn-vcdat"
         try:
-            update_button = self.find_element_by_class(update_class,
-                                                       "'Update' button on 'Edit Axis' pop up")
+            update_button = self.find_element(update_class, "class")
             self.move_to_click(update_button)
             time.sleep(self._delay)
         except NoSuchElementException as e:

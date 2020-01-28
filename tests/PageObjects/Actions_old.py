@@ -17,47 +17,82 @@ class Actions(object):
 
     def __init__(self, driver, server=None):
         self.driver = driver
+        driver.implicitly_wait(10)
 
-    # Returns an element using the item's locator string
-    # Locator string type can be: id, class, css or xpath (default)
-    def find_element(self, locator, locator_type="xpath"):
-        valid = ["id", "class", "css", "xpath"]
-        if locator_type not in valid:
-            raise ValueError("Invalid locator type pass to function.")
-            return None
+    def find_element_by_id(self, id, descr):
         try:
-            if locator_type == "id":
-                element = self.driver.find_element_by_id(locator)
-            elif locator_type == "class":
-                element = self.driver.find_element_by_class_name(locator)
-            elif locator_type == "css":
-                element = self.driver.find_element_by_css_selector(locator)
-            elif locator_type == "xpath":
-                element = self.driver.find_element_by_xpath(locator)
-        except NoSuchElementException:
-            return None
+            element = self.driver.find_element_by_id(id)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding '{}'".format(descr))
+            raise e
         return element
 
-    # Returns multiple element that match the locator string
-    # Locator string type can be: id, class, css or xpath (default)
-    def find_elements(self, locator, locator_type="xpath"):
-        valid = ["id", "class", "css", "xpath"]
-        if locator_type not in valid:
-            raise ValueError("Invalid locator type pass to function.")
+    def find_elements_by_id(self, id, descr):
         try:
-            if locator_type == "id":
-                elements = self.driver.find_elements_by_id(locator)
-            elif locator_type == "class":
-                elements = self.driver.find_elements_by_class_name(locator)
-            elif locator_type == "css":
-                elements = self.driver.find_elements_by_css_selector(locator)
-            elif locator_type == "xpath":
-                elements = self.driver.find_elements_by_xpath(locator)
-        except NoSuchElementException:
-            return False
+            elements = self.driver.find_elements_by_id(id)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding '{}'".format(descr))
+            raise e
+        return elements
+
+    def find_element_by_class(self, class_name, descr):
+        try:
+            element = self.driver.find_element_by_class_name(class_name)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding '{}'".format(descr))
+            raise e
+        return element
+
+    def find_elements_by_class(self, class_name, descr):
+        try:
+            elements = self.driver.find_elements_by_class_name(class_name)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding '{}'".format(descr))
+            raise e
+        return elements
+
+    def find_element_by_xpath(self, xpath, descr):
+        try:
+            element = self.driver.find_element_by_xpath(xpath)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding {}".format(descr))
+            raise e
+        return element
+
+    def find_elements_by_xpath(self, xpath, descr):
+        try:
+            elements = self.driver.find_elements_by_xpath(xpath)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding {}".format(descr))
+            raise e
+        return elements
+
+    def find_element_by_css(self, css_selector, descr):
+        try:
+            element = self.driver.find_element_by_css_selector(css_selector)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding '{}'".format(descr))
+            raise e
+        return element
+
+    def find_elements_by_css(self, css_selector, descr):
+        try:
+            elements = self.driver.find_element_by_css_selector(css_selector)
+            print("FOUND {}".format(descr))
+        except NoSuchElementException as e:
+            print("NoSuchElementException...not finding '{}'".format(descr))
+            raise e
         return elements
 
     def move_to_click(self, element):
+        time.sleep(self._a_bit_delay)
         print("...move_to_click...")
         ac = ActionChains(self.driver)
         ac.move_to_element(element)

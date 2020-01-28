@@ -2,10 +2,8 @@ from ActionsPage import ActionsPage
 from ActionsPage import InvalidPageException
 from VcdatPanel import VcdatPanel
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.action_chains import ActionChains
+from Locator import Locator
 # from selenium.webdriver.common.by import By
-
-import time
 
 VCDAT_LEFT_SIDEBAR_ID = "left-side-bar-vcdat"
 VCDAT_ICON_CLASS = "jp-icon-vcdat"
@@ -21,93 +19,99 @@ class MainPage(ActionsPage):
         logo_locator = 'jp-MainLogo'
         self.driver.find_element_by_id(logo_locator)
 
-    def locate_top_menu_item(self, name):
-        '''
-        find the tab element ('File', 'Edit', 'View', 'Run'...) and
-        return the element
-        '''
-        item_locator = "//div[@class='p-MenuBar-itemLabel'][contains(text(), '{n}')]".format(
+    # ------------NEW FUNCTIONS BELOW------------
+
+    # TOP LEVEL LOCATORS (Always accessible on page)
+
+    # Provides the locator for top menu items.
+    # Items available: File, Edit, View, Run, Kernel, Tabs, Settings, Help
+    def top_menu_item(self, name):
+        loc = "//div[@class='p-MenuBar-itemLabel'][contains(text(),'{n}')]".format(
             n=name)
-        try:
-            item_element = self.find_element_by_xpath(item_locator,
-                                                      "top menu item {n}".format(n=name))
-            return item_element
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding '{n}'".format(n=name))
-            raise e
+        return Locator(self, None, loc, "xpath", "{} Menu".format(name))
 
-    def click_on_top_menu_item(self, name):
-        '''
-        click the tab element ('File', 'Edit', 'View', 'Run'...)
-        '''
-        try:
-            element = self.locate_top_menu_item(name)
-            time.sleep(self._a_bit_delay)
-            ActionChains(self.driver).move_to_element(
-                element).click().perform()
-            # self.move_to_click(element)
-        except NoSuchElementException as e:
-            print("...did not find tab for '{}'".format(name))
-            raise e
+    # Provides locator for tabs on the left of main page.
+    # Valid tabs: FileBrowser, Running, Commands, VCDAT, OpenTabs, ExtManager
+    def left_tab(self, tab):
+        Tabs = {
+            "FileBrowser": ["filebrowser", "File Browser Icon"],
+            "Running": ["jp-running-sessions", "Running Session Icon"],
+            "Commands": ["command-palette", "Command Palette Icon"],
+            "VCDAT": [VCDAT_LEFT_SIDEBAR_ID, "VCDAT Icon"],
+            "OpenTabs": ["tab-manager", "Open Tabs Icon"],
+            "ExtManager": ["extensionmanager.main-view", "Extension Manager Icon"]
+        }
+        tab_id = Tabs[tab][0]
+        tab_descr = Tabs[tab][1]
+        loc = "//div[@id='jp-main-content-panel']//li[@data-id='{f}']".format(
+            f=tab_id)
+        return Locator(self, None, loc, "xpath", tab_descr)
 
-    def click_on_submenu(self, submenu_name):
-        '''
-        click on submenu that shows up as a result of click_top_menu_item()
-        '''
-        try:
-            submenu_locator = "//div[@class='p-Menu-itemLabel'][contains(text(), '{}')]".format(
-                submenu_name)
-            # submenu = self.wait_till_element_is_visible(By.XPATH, submenu_locator,
-            #                                             "submenu '{}'".format(submenu_name))
-            submenu = self.find_element_by_xpath(submenu_locator,
-                                                 "submenu '{}'".format(submenu_name))
-            time.sleep(self._delay * 2)
-            ActionChains(self.driver).move_to_element(
-                submenu).click().perform()
-            time.sleep(self._delay)
-        except NoSuchElementException as e:
-            raise e
+    # Will make sure the selected tab panel is open
+    # Valid tabs: FileBrowser, Running, Commands, VCDAT, OpenTabs, ExtManager
+    def open_left_tab(self, tab):
+        tab_locator = self.left_tab(tab)
+        if tab == "VCDAT":
+            other_locator = self.left_tab("FileBrowser")
+        else:
+            other_locator = self.left_tab("VCDAT")
+        other_locator.click()
+        tab_locator.click()
 
-    def click_on_submenu_with_data_command(self, submenu_data_command, submenu_name):
-        '''
-        click on submenu item that has 'data-command' attribute
-        '''
-        try:
-            # data_command = "//li[@data-command='{dc}']".format(dc=submenu_data_command)
-            data_command = "//li[contains(@data-command, '{dc}')]".format(
-                dc=submenu_data_command)
-            text_label = "//div[@class='p-Menu-itemLabel']"
-            submenu_locator = "{dc}{text}".format(
-                dc=data_command, text=text_label)
-            submenu = self.find_element_by_xpath(submenu_locator,
-                                                 "sub menu item name: {}".format(submenu_name))
-            time.sleep(self._a_bit_delay * 2)
-            ActionChains(self.driver).move_to_element(
-                submenu).click().perform()
-            time.sleep(self._delay)
+    # SUB LEVEL LOCATORS
 
-        except NoSuchElementException as e:
-            raise e
+    # Provides locator for the 'folder' icon in the file browser
+    def home_icon(self):
+        loc = ("// *[@id='filebrowser']/div[contains(@class, 'jp-FileBrowser-crumbs')]"
+               "/ span[contains(@class, 'jp-BreadCrumbs-home')]")
+        self.open_left_tab("FileBrowser")
+        return Locator(self, None, loc, "xpath")
 
-    def locate_folder_tab(self):
-        return self.find_element_by_xpath("//*[@data-id='filebrowser']", "Jupyter lab file tab")
+    # Provides the locator for an item within a top menu. top_menu_item -> sub_menu_item
+    # Example: sub_menu_item("File","Export As") returns locator for 'Export As' submenu located in 'File' top menu.
+    def sub_menu_item(self, parent, name, descr=""):
+        parent_locator = self.top_menu_item(parent)
+        loc = "//ul[@class='p-Menu-content']/li[contains(@class,'p-Menu-item')]"
+        loc += "/div[@class='p-Menu-itemLabel'][contains(text(),'{n}')]".format(n=name)
+        return Locator(self, parent_locator, loc, "xpath", descr)
 
-    def locate_running_tab(self):
-        return self.find_element_by_xpath("//*[@data-id='jp-running-sessions']", "Running terminals and kernels tab")
+    # Example below starts the vcdat tutorial intro found in the 'Help' menu,
+    # function below should work whether the help menu is currently open or not.
+    def tutorial_start(self):
+        # Make sure VCDAT panel is open
+        self.open_left_tab("VCDAT")
 
-    def locate_command_palette_tab(self):
-        return self.find_element_by_xpath("//*[@data-id='command-palette']", "Jupyter lab command palette tab")
+        # Method 1, use generalized submenu function in MainPage to do the same as above
+        return self.sub_menu_item("Help", "VCDAT Tutorial: Introduction", "VCDAT Intro Tutorial Button")
 
-    def locate_vcdat_icon(self):
-        return self.find_element_by_xpath("//*[@data-id='{}']".format(VCDAT_LEFT_SIDEBAR_ID), "VCDAT icon")
+        # Method 2, get parent locator, get selector, create locator object
+        """
+        parent_loc = self.top_menu_item("Help")
+        loc = "//div[@class='p-Menu-itemLabel'][contains(text(),'VCDAT Tutorial: Introduction')]"
+        return Locator(self,parent_loc,loc,"xpath","VCDAT Intro Tutorial Button")
+        """
 
-    def locate_open_tabs_tab(self):
-        return self.find_element_by_xpath("//*[@data-id='tab-manager']", "Jupyter lab open tabs sidebar tab")
+    def tutorial_next(self):
+        parent_loc = self.tutorial_start()
+        loc = "//*[contains(@id,'react-joyride-step')]//button[contains(@aria-label,'Next')]"
+        return Locator(self, parent_loc, loc, "xpath", "Tutorial 'Next' Button")
+
+    def tutorial_skip(self):
+        parent_loc = self.tutorial_start()
+        loc = "//*[contains(@id,'react-joyride-step')]//button[contains(@aria-label,'Skip')]"
+        return Locator(self, parent_loc, loc, "xpath", "Tutorial 'Skip' Button")
+
+    # --------------END OF NEW FUNCTIONS-----------------
+
+    # Locators for the main dock panel (where notebooks and launcher are displayed)
+    def locate_launcher_tab(self):
+        return "//div[@id='jp-main-dock-panel']//li[contains(@data-id,'launcher')]"
 
     def locate_notebook_launcher_cards(self):
         try:
-            launchers = self.find_elements_by_class(
-                "jp-LauncherCard", "Jupyter lab launcher cards")
+            launchers = self.find_elements("jp-LauncherCard", "class")
+            if launchers is None:
+                self.locate_new_launcher_icon().click()  # Open launcher if none was found
             nb_launchers = []
             for launcher in launchers:
                 category = launcher.get_attribute("data-category")
@@ -125,7 +129,9 @@ class MainPage(ActionsPage):
                 if launcher.get_attribute("title") == title:
                     print("FOUND launcher titled {}".format(title))
                     return launcher
-            return "Did not find launcher with specified title {t}".format(t=title)
+            print(
+                "Did not find launcher with specified title {t}".format(t=title))
+            return None
         except NoSuchElementException as e:
             print(
                 "NoSuchElementException...did not find specified launcher {}".format(title))
@@ -135,102 +141,47 @@ class MainPage(ActionsPage):
         element = self.locate_notebook_launcher(title)
         self.move_to_click(element)
 
-    #
-    # click on icons on left side bar
-    #
     def click_on_folder_tab(self):
-        element = self.locate_folder_tab()
-        self.move_to_click(element)
+        self.open_left_tab("FileBrowser")
         # check that there is a 'New Launcher' icon
-        new_launcher_element = self.locate_new_launcher_icon()
-        if not new_launcher_element.is_displayed() or not new_launcher_element.is_enabled():
+        launcher_icon = self.new_launcher_icon()
+        if launcher_icon.element is None:
+            print(launcher_icon)
+            return
+        else:
+            element = launcher_icon.element
+        if not element.is_displayed() or not element.is_enabled():
             print("New Launcher element is not displayed nor enabled")
-            time.sleep(5)
-            print("clicking on the folder tab again")
-            self.move_to_click(element)
-            if new_launcher_element.is_displayed() and new_launcher_element.is_enabled():
+            if element.is_displayed() and element.is_enabled():
                 print("New Launcher element is displayed and enabled")
-        time.sleep(self._delay)
-
-    def click_on_running_tab(self):
-        element = self.locate_running_tab()
-        self.move_to_click(element)
-
-    def click_on_command_palette_tab(self):
-        element = self.locate_command_palette_tab()
-        self.move_to_click(element)
 
     def click_on_vcdat_icon(self):
-        element = self.locate_vcdat_icon()
-        self.move_to_click(element)
+        self.open_left_tab("VCDAT")
         try:
             vcdat_panel = VcdatPanel(self.driver, None)
             return vcdat_panel
         except InvalidPageException:
-            element = self.locate_vcdat_icon()
-            self.move_to_click(element)
-
-    def click_on_open_tabs_tab(self):
-        element = self.locate_open_tabs_tab()
-        time.sleep(self._delay)
-        self.move_to_click(element)
-
-    def locate_home_icon(self):
-        loc = ("// *[@id='filebrowser']/div[contains(@class, 'jp-FileBrowser-crumbs')]"
-               "/ span[contains(@class, 'jp-BreadCrumbs-home')]")
-        return self.find_element_by_xpath(loc, "Folder Icon")
-
-    def click_on_home_icon(self):
-        element = self.locate_home_icon()
-        self.move_to_click(element)
+            "Error occured when opening VCDAT panel"
 
     #
     # select jp tool bar icon
     #
-    def locate_jp_tool_bar_icon(self, icon_title):
+    def file_browser_button(self, icon_title):
         loc = "//*[@id='filebrowser']//button[@title='{}']".format(icon_title)
-        try:
-            element = self.find_element_by_xpath(loc, icon_title)
-        except NoSuchElementException as e:
-            print("Did not find jp tool bar '{}' icon".format(icon_title))
-            raise e
-        return element
+        self.open_left_tab("FileBrowser")
+        return Locator(self, None, loc, "xpath", icon_title)
 
-    def locate_new_launcher_icon(self):
-        return self.locate_jp_tool_bar_icon("New Launcher")
+    def new_launcher_icon(self):
+        return self.file_browser_button("New Launcher")
 
-    def locate_new_folder_icon(self):
-        return self.locate_jp_tool_bar_icon("New Folder")
+    def new_folder_icon(self):
+        return self.file_browser_button("New Folder")
 
-    def locate_upload_files_icon(self):
-        return self.locate_jp_tool_bar_icon("Upload Files")
+    def upload_files_icon(self):
+        return self.file_browser_button("Upload Files")
 
-    def locate_refresh_file_list_icon(self):
-        return self.locate_jp_tool_bar_icon("Refresh File List")
-
-    def click_on_jp_tool_bar_icon(self, icon_title):
-        element = self.locate_jp_tool_bar_icon(icon_title)
-        self.move_to_click(element)
-
-    def click_on_new_launcher_icon(self):
-        element = self.locate_new_launcher_icon()
-        self.move_to_click(element)
-
-    def click_on_new_folder_icon(self):
-        element = self.locate_new_folder_icon()
-        self.move_to_click(element)
-
-    def click_on_upload_files_icon(self):
-        element = self.locate_upload_files_icon()
-        self.move_to_click(element)
-
-    def click_on_refresh_file_list_icon(self):
-        element = self.locate_refresh_file_list_icon()
-        self.move_to_click(element)
-
-    #
-    #
-    #
+    def refresh_file_list_icon(self):
+        return self.file_browser_button("Refresh File List")
 
     def click_on_select_kernel(self):
         '''
@@ -241,10 +192,8 @@ class MainPage(ActionsPage):
 
         print("...click on 'SELECT' in the 'Select Kernel' pop up")
         try:
-            self.find_element_by_xpath(
-                select_kernel_popup_locator, "Select Kernel popup")
-            el = self.find_element_by_xpath(
-                kernel_select_button_locator, "Kernel Select button")
+            self.find_element(select_kernel_popup_locator, "xpath")
+            el = self.find_element(kernel_select_button_locator, "xpath")
             # time.sleep(self._a_bit_delay)
             self.move_to_click(el)
             # time.sleep(self._delay)
@@ -254,26 +203,57 @@ class MainPage(ActionsPage):
 
     def shutdown_kernel(self):
         print("...shutdown kernel if need to...")
-
-        self.click_on_top_menu_item('Kernel')
-        data_command = "kernelmenu:shutdown"
-        try:
-            self.click_on_submenu_with_data_command(
-                data_command, 'Shut Down Kernel')
-        except NoSuchElementException:
-            pass
+        self.sub_menu_item("Kernel", "Shutdown Kernel").click()
 
     def shutdown_all_kernels(self):
         print("...shutdown all kernels...")
-        self.click_on_top_menu_item('Kernel')
-        data_command = "kernelmenu:shutdownAll"
-        self.click_on_submenu_with_data_command(data_command,
-                                                'Shut Down All Kernels')
-        shutdown_locator = "//div[contains(@class,'jp-Dialog-buttonLabel')][contains(text(),'Shut Down All')]"
-        try:
-            shutdown = self.find_element_by_xpath(shutdown_locator,
-                                                  "'Shut Down All' button")
-            self.move_to_click(shutdown)
-        except NoSuchElementException as e:
-            print("Did not find 'Shut Down All' button in the 'Shut Down All?' popup")
-            raise e
+        self.sub_menu_item("Kernel", "Shut Down All Kernels").click()
+
+
+"""
+class TopMenuBar:
+
+    def __init__(self, main_page):
+        self.main_page = main_page
+        self.locator = ""
+        self.loc_type = ""
+        self.description = ""
+
+    def file_menu(self):
+        self.locator = self.main_page.locate_top_menu_item("File")
+        self.loc_type = "xpath"
+        self.description = "File menu"
+        return self
+
+    def edit_menu(self):
+        self.locator = self.main_page.top_menu_item("Edit")
+        self.loc_type = "xpath"
+        self.description = "Edit menu"
+        return self
+
+    def kernel_menu(self):
+        self.locator = self.main_page.top_menu_item("Kernel")
+        self.loc_type = "xpath"
+        self.description = "Kernel menu"
+        return self
+
+    def kernel_menu_shutdown(self):
+        self.locator = "//ul[@class='p-Menu-content']/li[@data-command='kernelmenu:shutdown']"
+        self.loc_type = "xpath"
+        self.description = "Kernel Shutdown"
+        return self
+
+    def export_notebook_as(self):
+        self.locator = "//ul[@class='p-Menu-content']/li[@data-type='submenu']"
+        self.locator += "/div[contains(text(),'Export Notebook As')]"
+        self.description = "Export file as"
+        self.click()
+        self.locator = "//ul[@class='p-Menu-content']/li[@data-type='command']"
+        self.locator += "/div[contains(text(),'Export Notebook to HTML')]"
+        return self
+
+    def click(self):
+        self.main_page.move_to_click(self.element())
+
+    def element(self):
+        return self.main_page.find_element(self.locator,self.description,self.loc_type) """

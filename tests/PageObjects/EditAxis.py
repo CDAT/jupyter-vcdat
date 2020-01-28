@@ -12,8 +12,7 @@ class EditAxis(Actions):
     def locate_all_axes_for_variable(self, var):
         axes_class = "dimension-slider-vcdat"
         try:
-            axes = self.find_elements_by_class(axes_class,
-                                               "axes for variable")
+            axes = self.find_elements(axes_class, "class")
             print("...number of axis for variable '{v}': {n}".format(v=var,
                                                                      n=len(axes)))
             return axes
@@ -29,8 +28,10 @@ class EditAxis(Actions):
         for axis in axes_for_var:
             axis_title_locator = ".//div[@class='row']//div[@class='col-auto']"
             try:
-                axis_titles_for_var = axis.find_elements_by_xpath(axis_title_locator)
-                print("number of axis_titles_for_var: {}".format(len(axis_titles_for_var)))
+                axis_titles_for_var = axis.find_elements(
+                    axis_title_locator, "xpath")
+                print("number of axis_titles_for_var: {}".format(
+                    len(axis_titles_for_var)))
                 print("...axis_title: {}".format(axis_titles_for_var[0].text))
                 for at in axis_titles_for_var:
                     print("axis title: '{}'".format(at.text))
@@ -53,7 +54,8 @@ class EditAxis(Actions):
     def _get_slider_width_for_axis(self, axis_element):
         slider_track_locator = ".//div[@class='slider-tracks-vcdat']/div"
         try:
-            slider_track = axis_element.find_element_by_xpath(slider_track_locator)
+            slider_track = axis_element.find_element(
+                slider_track_locator, "xpath")
             slider_width = slider_track.size['width']
             return slider_width
         except NoSuchElementException as e:
@@ -63,7 +65,8 @@ class EditAxis(Actions):
     def _get_slider_controls(self, axis_element):
         slider_controls_locator = ".//div[@class='slider-handles-vcdat']/div"
         try:
-            slider_controls = axis_element.find_elements_by_xpath(slider_controls_locator)
+            slider_controls = axis_element.find_elements(
+                slider_controls_locator, "xpath")
             return slider_controls
         except NoSuchElementException as e:
             print("Cannot get slider controls")
@@ -73,9 +76,11 @@ class EditAxis(Actions):
         print("...slider_width: {w}, offset_percent: {op}".format(w=slider_width,
                                                                   op=offset_percent))
         offset = (offset_percent / 100) * slider_width
-        self.driver.execute_script("return arguments[0].scrollIntoView(true);", slider_control_element)
+        self.driver.execute_script(
+            "return arguments[0].scrollIntoView(true);", slider_control_element)
         ac = ActionChains(self.driver)
-        ac.click_and_hold(slider_control_element).move_by_offset(offset, 0).release().perform()
+        ac.click_and_hold(slider_control_element).move_by_offset(
+            offset, 0).release().perform()
         time.sleep(self._delay)
 
     def adjust_var_axes_slider(self, var, axis_title, min_offset_percent, max_offset_percent):
@@ -86,8 +91,10 @@ class EditAxis(Actions):
             slider_width = self._get_slider_width_for_axis(axis_for_var)
 
             slider_controls = self._get_slider_controls(axis_for_var)
-            self._adjust_slider_control(slider_controls[0], slider_width, min_offset_percent)
-            self._adjust_slider_control(slider_controls[1], slider_width, max_offset_percent)
+            self._adjust_slider_control(
+                slider_controls[0], slider_width, min_offset_percent)
+            self._adjust_slider_control(
+                slider_controls[1], slider_width, max_offset_percent)
             time.sleep(self._delay * 2)
         except NoSuchElementException as e:
             print("FAIL...adjust_var_axes_slider")

@@ -22,7 +22,7 @@ class LoadVariablesPopUp(ActionsPage):
         load_variables_locator = "//div[@class='modal-header']/h5[contains(text(), 'Load Variable')]"
         print("...LoadVariablePopUp.validate_page()...")
         try:
-            self.find_element_by_xpath(load_variables_locator, "'Load Variable' header")
+            self.find_element(load_variables_locator, "xpath")
         except NoSuchElementException as e:
             print("Not finding 'Load Variable' pop up")
             raise e
@@ -31,7 +31,7 @@ class LoadVariablesPopUp(ActionsPage):
         locator = "//button[contains(@class, '{cl}') and contains(text(), '{var}')]".format(cl=self._var_button_class,
                                                                                             var=var)
         try:
-            element = self.find_element_by_xpath(locator, "'{}' button".format(var))
+            element = self.find_element(locator, "xpath")
             return element
         except NoSuchElementException as e:
             print("Did not find var: {}".format(var))
@@ -53,11 +53,13 @@ class LoadVariablesPopUp(ActionsPage):
         '''
         locates the rows for variables, and return the elements.
         '''
-        rows_locator = "//div[contains(@class, '{}')]/div".format(self._var_loader_items_class)
+        rows_locator = "//div[contains(@class, '{}')]/div".format(
+            self._var_loader_items_class)
         print("xxx xxx rows_locator: {}".format(rows_locator))
         try:
-            rows = self.find_elements_by_xpath(rows_locator, 'variable rows')
-            print("DEBUG DEBUG..._locate_all_variable_row_elements, num of rows: {}".format(len(rows)))
+            rows = self.find_elements(rows_locator, 'xpath')
+            print("DEBUG DEBUG..._locate_all_variable_row_elements, num of rows: {}".format(
+                len(rows)))
             return rows
         except NoSuchElementException as e:
             print("Did not find elements with {} locator".format(rows_locator))
@@ -75,15 +77,17 @@ class LoadVariablesPopUp(ActionsPage):
         print("XXX DEBUG...num of rows: {}".format(len(rows)))
 
         i = 0
-        var_locator = ".//button[contains(@class, '{}')]".format(self._var_button_class)
-        axes_locator = ".//button[contains(@class, '{}')]".format(self._var_axes_class)
+        var_locator = ".//button[contains(@class, '{}')]".format(
+            self._var_button_class)
+        axes_locator = ".//button[contains(@class, '{}')]".format(
+            self._var_axes_class)
         for r in rows:
             try:
-                var_button = r.find_element_by_xpath(var_locator)
+                var_button = r.find_element(By.XPATH, var_locator)
                 if var_button.text == var:
                     print("FOUND the '{}' var".format(var))
                     # find the axes button
-                    var_axes_button = r.find_element_by_xpath(axes_locator)
+                    var_axes_button = r.find_element(By.XPATH, axes_locator)
                     print("FOUND the axes button for '{}' var".format(var))
                     return r, var_axes_button
                     # break
@@ -119,9 +123,10 @@ class LoadVariablesPopUp(ActionsPage):
         click on 'Load' button
         """
         print("...click_on_load...")
-        locator = "//button[contains(@class, '{}')]".format(self._load_button_class)
+        locator = "//button[contains(@class, '{}')]".format(
+            self._load_button_class)
         try:
-            load_button = self.find_element_by_xpath(locator, "'Load' button")
+            load_button = self.find_element(locator, "xpath")
             self.scroll_click(load_button)
             # self.move_to_click(load_button)
             # REVISIT -- add checking instead of sleep
@@ -158,7 +163,7 @@ class LoadVariablesPopUp(ActionsPage):
         axes_locator = ".//div[contains(@class, '{}')]".format(axes_class)
         print("DEBUG...axis_locator: {}".format(axes_locator))
         try:
-            axes = row_for_var.find_elements_by_xpath(axes_locator)
+            axes = row_for_var.find_elements(By.XPATH, axes_locator)
             print("DEBUG xxx...number of axis for variable '{v}': {n}".format(v=var,
                                                                               n=len(axes)))
             return axes

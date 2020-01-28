@@ -1,17 +1,19 @@
 # Python Selenium test suite for jupyter-vcdat
 
-## Test suite structure 
+## Test suite structure
 
 The test suite is organized as follows:
-- tests/PageObjects/*py implement classes that encapsulate locators which are means to find the selenium elements in the html page.
-- tests/TestUtils/*py implement BaseTestCase and BaseTestCaseWithNoteBook classes. Test cases should inherit BaseTestCaseWithNoteBook class which will create a new note book and name it uniquely before starting test steps, and clean up after finishing test steps.
-- tests/*py implements the test cases.
+
+- tests/PageObjects/\*py implement classes that encapsulate locators which are means to find the selenium elements in the html page.
+- tests/TestUtils/\*py implement BaseTestCase and BaseTestCaseWithNoteBook classes. Test cases should inherit BaseTestCaseWithNoteBook class which will create a new note book and name it uniquely before starting test steps, and clean up after finishing test steps.
+- tests/\*py implements the test cases.
 
 ## Guidelines
 
 - Python Selenium locators (XPath, class names, id of selenium elements) should not be in any of the tests/test*py files. Locators should be encapsulated in a class in one of tests/PageObjects/*py.
 - Under tests/PageObjects, there are following classes:
-  - **Actions** class is a base class implementing actions like: find_element_by_id(), find_element_by_xpath() etc.
+
+  - **Actions** class is a base class implementing actions like: find_element(), and find_elements() etc.
   - **ActionsPage** class is a subclass of **Actions** class which should be the parent class of all 'page' classes.
   - **MainPage** class is a page class for the main page of jupyter-vcdat web app.
   - **NoteBookPage** class is a page class for the notebook page.
@@ -24,23 +26,18 @@ The test suite is organized as follows:
 - When implementing a method to click on an element, please implement a locate() method and a click() method. For example in **VcdatPanel** class, we have:
   - locate_export_plot() which implements how do find the 'Export Plot' button.
   - click_on_export_plot() which calls locate_export_plot() and click on the element returned.
-This ensures the locator for 'Export Plot' button is only defined in one place in the test suite.
+    This ensures the locator for 'Export Plot' button is only defined in one place in the test suite.
 
 All of the classes under tests/PageObjects implement action methods on the corresponding pages. Test cases may instantiate some of these classes and call methods to perform actions on the page.
 
 ## Common methods for test cases
 
 Please examine the available classes and methods before adding test cases.
+
 ```bash
    ## Actions class
-   find_element_by_id(id, descr)
-   find_elements_by_id(id, descr)
-   find_element_by_class(class_name, descr)
-   find_elements_by_class(class_name, descr)
-   find_element_by_xpath(xpath,descr)
-   find_elements_by_xpath(xpath, descr)
-   find_element_by_css(css, descr)
-   find_elements_by_css(css, descr)
+   find_element(locator_string, locator_type)
+   find_elements(locator_string, locator_type)
    move_to_click(element)
    move_to_double_click(element)
    scroll_into_view(element)
@@ -48,7 +45,6 @@ Please examine the available classes and methods before adding test cases.
    wait_click(method, locator)
    enter_text(input_area, text)
    open_file_browser()
-   open_vcdat_widget()
    wait_till_element_is_visible()
    wait_till_element_is_clickable()
 
@@ -63,7 +59,7 @@ Please examine the available classes and methods before adding test cases.
    locate_select_colormap()
    locate_select_a_template()
    click_on_plot()
-   click_on_export_plot()   
+   click_on_export_plot()
    click_on_clear()
    click_on_load_variables_by_file()
    click_on_load_variables_by_path()
@@ -73,7 +69,7 @@ Please examine the available classes and methods before adding test cases.
    click_on_select_a_template()
    select_a_plot_type(plot_type)
    select_a_template(template)
-   
+
    ## LoadVariablesPopUp class
    locate_variable(var)
    click_on_variable(var)
@@ -115,11 +111,12 @@ Please examine the available classes and methods before adding test cases.
    save_current_notebook()
    close_current_notebook()
 ```
-  
+
 ## Preparation to run test cases
 
 - Follow instructions to install jupyter-vcdat.
 - Do the following steps to install packages needed to run python selenium test cases:
+
 ```bash
     cd <jupyter-vcdat repo directory>
     source activate jupyter-vcdat
@@ -129,6 +126,7 @@ Please examine the available classes and methods before adding test cases.
 ```
 
 - To run tests with **chrome**, open a terminal window, and do:
+
 ```bash
     # Download 'chromedriver' from the site listed at
     # https://sites.google.com/a/chromium.org/chromedriver/downloads
@@ -142,6 +140,7 @@ Please examine the available classes and methods before adding test cases.
 ```
 
 - To run tests with **firefox**, open a terminal window, and do:
+
 ```bash
     # Download 'geckodriver' from the site listed at
     # https://github.com/mozilla/geckodriver/releases
@@ -155,12 +154,14 @@ Please examine the available classes and methods before adding test cases.
 ```
 
 ## Start Jupyter Lab before running test cases
+
 ```bash
     # cd to the jupyter-vcdat repo directory
     jupyter lab
 ```
 
 ## Run test cases
+
 ```bash
     # cd to the jupyter-vcdat repo directory
     source activate jupyter-vcdat
@@ -173,6 +174,7 @@ Please examine the available classes and methods before adding test cases.
 ```
 
 - Examples on how to run individual test cases
+
 ```bash
     nosetests -s tests/test_plot_locators.py:TestPlot.test_plot
     nosetests -s tests/test_plot_locators.py:TestPlot.test_select_plot_type
@@ -185,4 +187,3 @@ Please examine the available classes and methods before adding test cases.
 ## Run tests in Circle CI
 
 When adding a new test file, validate that the new test cases run fine locally with chrome and firefox, and then add the new test cases to .circleci/config.yml.
-
