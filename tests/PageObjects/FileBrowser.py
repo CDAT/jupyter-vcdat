@@ -20,12 +20,14 @@ class FileBrowser(ActionsPage):
         time.sleep(3)
         file_element = self.find_element_by_xpath(file_locator, "'{}' file".format(fname))
         self.move_to_double_click(file_element)
-        time.sleep(self._delay)
+        time.sleep(self._delay * 3)
 
+        file_popup_modal_locator = "//button[@class='jp-Dialog-button']"
         if expect_file_load_error:
+            
             print("...click on the File Load Error OK button")
             print("...doing WebDriverWait...till the element is clickable")
-            file_popup_modal_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
+            #file_popup_modal_locator = "//button[@class='jp-Dialog-button jp-mod-accept jp-mod-styled']"
             self.wait_click(By.XPATH, file_popup_modal_locator)
 
         time.sleep(self._delay * 5)
