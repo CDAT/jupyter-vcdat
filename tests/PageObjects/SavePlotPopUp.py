@@ -15,6 +15,7 @@ class SavePlotPopUp(ActionsPage):
         print("...SavePlotPopUp.validate_page()...")
         # title_locator = "//div[@class='modal-header']/h5[contains(text(), 'Save Plot')]"
         # self.find_element_by_xpath(title_locator, "'Save Plot' header")
+        time.sleep(self._delay * 5)
         title_class = "modal-header"
         self.find_element_by_class(title_class, "'Save Plot' header")
 
