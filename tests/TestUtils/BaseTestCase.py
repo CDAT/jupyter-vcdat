@@ -66,6 +66,15 @@ class BaseTestCase(unittest.TestCase):
         chrome_options.add_argument(mode)
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("window-size=1200x600")
+        # Set up download directory
+        # https://stackoverflow.com/questions/18437816/how-to-find-chrome-download-path-in-java
+        prefs = {
+            "download": {
+                "default_directory": os.getcwd()
+            }
+        }
+        # http://makeseleniumeasy.com/2018/08/25/how-to-change-default-download-directory-for-chrome-browser-in-selenium-webdriver/
+        chrome_options.add_experimental_option("prefs", prefs)
         self.driver = webdriver.Chrome(executable_path=os.getenv("BROWSER_DRIVER", "/usr/local/bin/chromedriver"),
                                        chrome_options=chrome_options,
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
