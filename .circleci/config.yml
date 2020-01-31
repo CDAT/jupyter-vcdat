@@ -26,6 +26,7 @@ aliases:
       else
         echo "Version $LOCAL_VCDAT_VERSION in package.json is not newer than npm version of $NPM_VCDAT_VERSION and will cause Publish job to fail."
         echo "You should update version $LOCAL_VCDAT_VERSION in package.json to a version greater than $NPM_VCDAT_VERSION"
+        exit 1
       fi
 
   - &run_jupyter_vcdat
