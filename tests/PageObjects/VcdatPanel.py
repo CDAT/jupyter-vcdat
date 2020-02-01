@@ -33,13 +33,25 @@ class VcdatPanel(ActionsPage):
         return self.find_element_by_class("vcsmenu-clear-btn-vcdat",
                                           "'Clear' button")
 
-    def locate_load_variables(self):
-        return self.find_element_by_class("varmenu-load-variables-btn-vcdat",
-                                          "'Load Variable(s)' button")
+    def locate_load_variables_by_file(self):
+        return self.find_element_by_class("varmenu-load-variables-file-btn-vcdat",
+                                          "'Load Variable(s)' file button")
+
+    def locate_load_variables_by_path(self):
+        return self.find_element_by_class("varmenu-load-variables-path-btn-vcdat",
+                                          "'Load Variable(s)' path button")
+
+    def locate_sync_notebook_button(self):
+        return self.find_element_by_class("varmenu-sync-btn-vcdat",
+                                          "'Sync Notebook' button")
 
     def locate_select_plot_type(self):
         return self.find_element_by_class("graphics-dropdown-vcdat",
                                           "'Select Plot Type' button")
+
+    def locate_select_colormap(self):
+        return self.find_element_by_class("colormap-dropdown-vcdat",
+                                          "'Select Colormap' button")
 
     def locate_select_a_template(self):
         return self.find_element_by_class("template-dropdown-vcdat",
@@ -60,14 +72,28 @@ class VcdatPanel(ActionsPage):
         element = self.locate_clear()
         self.move_to_click(element)
 
-    def click_on_load_variables(self):
-        element = self.locate_load_variables()
+    def click_on_load_variables_by_file(self):
+        element = self.locate_load_variables_by_file()
         self.move_to_click(element)
         file_browser = FileBrowser(self.driver, None)
         return file_browser
 
+    def click_on_load_variables_by_path(self):
+        element = self.locate_load_variables_by_path()
+        self.move_to_click(element)
+
+    def click_on_sync_notebook(self):
+        element = self.locate_sync_notebook_button()
+        # self.move_to_click(element)
+        self.move_to_click(element)
+
     def click_on_select_plot_type(self):
         element = self.locate_select_plot_type()
+        # self.move_to_click(element)
+        self.scroll_click(element)
+
+    def click_on_select_colormap(self):
+        element = self.locate_select_colormap()
         # self.move_to_click(element)
         self.scroll_click(element)
 
@@ -226,7 +252,8 @@ class VcdatPanel(ActionsPage):
                 else:
                     i += 0
             if i < len(var_rows):
-                edit_button = var_rows[i].find_element_by_xpath(edit_button_locator)
+                edit_button = var_rows[i].find_element_by_xpath(
+                    edit_button_locator)
                 print("FOUND edit button for variable '{}'".format(var))
                 return edit_button
             else:

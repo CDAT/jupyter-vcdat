@@ -121,7 +121,7 @@ class BaseTestCase(unittest.TestCase):
         # left_side_bar = VcdatLeftSideBar(self.driver, None)
         self.left_side_bar.click_on_jp_vcdat_icon()
         time.sleep(self._delay)
-        self.left_side_bar.click_on_load_variables()
+        self.left_side_bar.click_on_load_variables_by_file()
 
         # file_browser = FileBrowser(self.driver, None)
         self.file_browser.double_click_on_a_file(filename)
@@ -131,7 +131,7 @@ class BaseTestCase(unittest.TestCase):
         # left_side_bar = VcdatLeftSideBar(self.driver, None)
         self.left_side_bar.click_on_jp_vcdat_icon()
         time.sleep(self._delay)
-        self.left_side_bar.click_on_load_variables()
+        self.left_side_bar.click_on_load_variables_by_file()
 
         # file_browser = FileBrowser(self.driver, None)
         self.click_on_file_browser_home()

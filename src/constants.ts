@@ -3,7 +3,7 @@ import reactHtmlParser from "react-html-parser";
 
 export const NO_VERSION: string = "N/A";
 export const OLD_VCDAT_VERSION: string = "<=2.0";
-export const VCDAT_VERSION: string = "2.1";
+export const VCDAT_VERSION: string = "2.2";
 export const VCDAT_VERSION_KEY = "vcdat_version";
 export const MAX_SLABS: number = 2;
 export const MAX_DIM_LENGTH: number = 1000;
@@ -296,14 +296,36 @@ export const GETTING_STARTED: Step[] = [
     title: "Clear"
   },
   {
+    content: `Use this button to load variables from a data file. When clicked,
+    the left side panel will switch to the filebrowser where you can double-click 
+    on the data file you want to open. Once the file is opened, you can subset
+    the variables so not all of the data is loaded. For example, you can constrain
+    the latitude and longitude so data from a specific area is loaded instead of
+    the whole dataset.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".varmenu-load-variables-file-btn-vcdat",
+    title: "Load Variable"
+  },
+  {
+    content: `Use this button to open an input dialog where you can enter a specific
+    path to a file you want to open. Once the file is opened, as before, you can subset
+    the variables so not all of the data is loaded.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".varmenu-load-variables-path-btn-vcdat",
+    title: "Load Variable"
+  },
+  {
     content: `When the overlay mode is on, new plots will overlap previous plots.
     This allows you to plot isolines on top of a map created using the isofill 
     graphic method, for example.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
-    target: `#left-sidebar > div > div.card > div > div
-     > div:nth-child(2) > div > div`,
+    target: `.vcsmenu-overlay-switch-vcdat`,
     title: "Overlay Mode"
   },
   {
@@ -313,29 +335,26 @@ export const GETTING_STARTED: Step[] = [
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
-    target: `#left-sidebar > div > div.card > div > div
-     > div:nth-child(2) > div:nth-child(2) > div`,
+    target: `.vcsmenu-sidecar-switch-vcdat`,
     title: "Plot to Sidecar"
   },
   {
-    content: `Use this button to load variables from a data file. You can subset
-    the variables so not all of the data is loaded. For example, you can constrain
-    the latitude and longitude so data from a specific area is loaded instead of
-    the whole dataset.`,
-    disableCloseOnEsc: true,
-    hideCloseButton: true,
-    placement: "right",
-    target: ".varmenu-load-variables-btn-vcdat",
-    title: "Load Variable"
-  },
-  {
-    content: `Use this graphics dropdown to choose the type of plot you'd like,
-    for example, boxfill, isofill, isoline, etc.`,
+    content: `Use this dropdown to choose the type of plot you'd like,
+    for example: boxfill, isofill, isoline, etc.`,
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
     target: ".graphics-dropdown-vcdat",
-    title: "Graphics Options"
+    title: "Plot Type Dropdown"
+  },
+  {
+    content: `Use the colormap dropdown to choose the colormap you'd like to use,
+    for example: blends, categorical, classic, etc.`,
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: ".colormap-dropdown-vcdat",
+    title: "Colormap Dropdown"
   },
   {
     content: `Use this button to change the way the plot looks on the "page".

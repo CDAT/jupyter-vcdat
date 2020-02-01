@@ -1,4 +1,9 @@
 import { MainMenu } from "@jupyterlab/mainmenu";
+import { KernelMessage } from "@jupyterlab/services";
+import { NotebookPanel } from "@jupyterlab/notebook";
+import { JupyterFrontEnd } from "@jupyterlab/application";
+import { OUTPUT_RESULT_NAME } from "./constants";
+import { checkCDMS2FileOpens } from "./PythonCommands";
 
 export default class Utilities {
   /**
@@ -57,15 +62,27 @@ export default class Utilities {
   }
 
   /**
-   * Return the relative file path from source to target.
+   * Return the relative file path from source to target (if needed). If an absolute path
+   * starting with '/' is passed, then it will be returned directly.
    * Assumes source is a path (with or without a file name) and target has the filename
    * @param source The directory path to start from for traversal, Ex: "dir1/dir2/file"
    * @param target The directory path and filename to seek from source Ex: "dir3/dir1/file2"
-   * @return string - Relative path (e.g. "../../style.css") from the source to target
+   * @return string - Relative path (e.g. "../../style.css") from the source to target, or absolute path
    */
-  public static getRelativePath(source: string, target: string) {
-    const sourceArr: string[] = Utilities.removeFilename(source).split("/");
-    const targetArr: string[] = target.split("/");
+  public static getUpdatedPath(source: string, target: string) {
+    // Trim any whitespace that may exist in path
+    const cleanSource: string = source.trim();
+    const cleanTarget: string = target.trim();
+
+    // Check if it is an absolute path
+    if (cleanTarget[0] === "/" || cleanTarget.indexOf("http") >= 0) {
+      return cleanTarget; // Leave absolute path alone
+    }
+
+    const sourceArr: string[] = Utilities.removeFilename(cleanSource).split(
+      "/"
+    );
+    const targetArr: string[] = cleanTarget.split("/");
     const file: string = targetArr.pop();
     const depth1: number = sourceArr.length;
     const depth2: number = targetArr.length;
@@ -106,11 +123,16 @@ export default class Utilities {
   }
 
   /**
-   * Converts a string to an array of strings using JSON parse
+   * Converts a python JSON object to an array using JSON parse
    * @param inStr String to convert
    */
   public static strToArray(inStr: string): any[] {
-    return JSON.parse(inStr.replace(/^'|'$/g, ""));
+    try {
+      const arr: any = JSON.parse(inStr.replace(/^'|'$/g, ""));
+      return Array.isArray(arr) ? arr : [];
+    } catch (error) {
+      return [];
+    }
   }
 
   // Adds a reference link to the help menu in JupyterLab
@@ -173,5 +195,254 @@ export default class Utilities {
     }
 
     throw new Error("Unable to copy object! Its type isn't supported.");
+  }
+
+  // Will try to open a file path in cdms2. Returns true if successful.
+  public static async tryFilePath(
+    sessionSource: NotebookPanel | JupyterFrontEnd,
+    filePath: string
+  ): Promise<boolean> {
+    try {
+      if (sessionSource instanceof NotebookPanel) {
+        return (
+          (await Utilities.sendSimpleKernelRequest(
+            sessionSource,
+            checkCDMS2FileOpens(filePath),
+            false
+          )) === "True"
+        );
+      }
+      return (
+        (await Utilities.sendSimpleKernelRequest(
+          sessionSource,
+          checkCDMS2FileOpens(filePath),
+          false
+        )) === "True"
+      );
+    } catch (error) {
+      console.error(error);
+    }
+
+    return false;
+  }
+
+  /**
+   * @description This function runs code directly in the notebook's kernel and then evaluates the
+   * result and returns it as a promise.
+   * @param sessionSource The source used for the kernel session, can be a notebook or the jupyterlab application
+   * @param code The code to run in the kernel, this code needs to evaluate to a variable named 'output'
+   * Examples of valid code:
+   *  Single line: "output=123+456"
+   *  Multilines: "a = [1,2,3]\nb = [4,5,6]\nfor idx, val in enumerate(a):\n\tb[idx]+=val\noutput = b"
+   * @param storeHistory Default is false. If true, the code executed will be stored in the kernel's history
+   * and the counter which is shown in the cells will be incremented to reflect code was run.
+   * @returns Promise<string> - A promise containing the execution results of the code as a string.
+   * Or an empty string if there were no results.
+   */
+  public static async sendSimpleKernelRequest(
+    sessionSource: NotebookPanel | JupyterFrontEnd,
+    code: string,
+    storeHistory: boolean = false
+  ): Promise<string> {
+    let result: any;
+    if (sessionSource instanceof NotebookPanel) {
+      // Send request to kernel with pre-filled parameters
+      result = await Utilities.sendKernelRequest(
+        sessionSource,
+        code,
+        { result: OUTPUT_RESULT_NAME },
+        false,
+        storeHistory,
+        false,
+        false
+      );
+    } else {
+      // Send request to kernel with pre-filled parameters
+      result = await Utilities.sendAppKernelRequest(
+        sessionSource,
+        code,
+        { result: OUTPUT_RESULT_NAME },
+        false,
+        storeHistory,
+        false,
+        false
+      );
+    }
+
+    // Get results from the request for validation
+    const output: any = result.result;
+
+    if (!output || output.data === undefined) {
+      // Output was empty
+      return "";
+    }
+
+    // Output has data, return it
+    const execResult: string = output.data["text/plain"];
+    return execResult;
+  }
+
+  /**
+   * @description This function runs code directly in the notebook's kernel and then evaluates the
+   * result and returns it as a promise.
+   * @param notebookPanel The notebook to run the code in.
+   * @param runCode The code to run in the kernel.
+   * @param userExpressions The expressions used to capture the desired info from the executed code.
+   * @param runSilent Default is false. If true, kernel will execute as quietly as possible.
+   * store_history will be set to false, and no broadcast on IOPUB channel will be made.
+   * @param storeHistory Default is false. If true, the code executed will be stored in the kernel's history
+   * and the counter which is shown in the cells will be incremented to reflect code was run.
+   * @param allowStdIn Default is false. If true, code running in kernel can prompt user for input using
+   * an input_request message.
+   * @param stopOnError Default is false. If True, does not abort the execution queue, if an exception is encountered.
+   * This allows the queued execution of multiple execute_requests, even if they generate exceptions.
+   * @returns Promise<any> - A promise containing the execution results of the code as an object with
+   * keys based on the user_expressions.
+   * @example
+   * //The code
+   * const code = "a=123\nb=456\nsum=a+b";
+   * //The user expressions
+   * const expr = {sum: "sum",prod: "a*b",args:"[a,b,sum]"};
+   * //Async function call (returns a promise)
+   * sendKernelRequest(notebookPanel, code, expr,false);
+   * //Result when promise resolves:
+   * {
+   *  sum:{status:"ok",data:{"text/plain":"579"},metadata:{}},
+   *  prod:{status:"ok",data:{"text/plain":"56088"},metadata:{}},
+   *  args:{status:"ok",data:{"text/plain":"[123, 456, 579]"}}
+   * }
+   * @see For more information on JupyterLab messages:
+   * https://jupyter-client.readthedocs.io/en/latest/messaging.html#execution-results
+   */
+  public static async sendKernelRequest(
+    notebookPanel: NotebookPanel,
+    runCode: string,
+    userExpressions: any,
+    runSilent: boolean = false,
+    storeHistory: boolean = false,
+    allowStdIn: boolean = false,
+    stopOnError: boolean = false
+  ): Promise<any> {
+    // Check notebook panel is ready
+    if (notebookPanel === null) {
+      throw new Error("The notebook is null or undefined.");
+    }
+
+    // Wait for kernel to be ready before sending request
+    await notebookPanel.activated;
+    await notebookPanel.session.ready;
+    await notebookPanel.session.kernel.ready;
+
+    const message: KernelMessage.IShellMessage = await notebookPanel.session.kernel.requestExecute(
+      {
+        allow_stdin: allowStdIn,
+        code: runCode,
+        silent: runSilent,
+        stop_on_error: stopOnError,
+        store_history: storeHistory,
+        user_expressions: userExpressions
+      }
+    ).done;
+
+    const content: any = message.content;
+
+    if (content.status !== "ok") {
+      // If cdat is requesting user input, return nothing
+      if (
+        content.status === "error" &&
+        content.ename === "StdinNotImplementedError"
+      ) {
+        return "";
+      }
+
+      // If response is not 'ok', throw contents as error, log code
+      const msg: string = `Code caused an error:\n${runCode}`;
+      console.error(msg);
+      throw content;
+    }
+    // Return user_expressions of the content
+    return content.user_expressions;
+  }
+
+  /**
+   * @description This function starts a kernel in Jupyter lab and then evaluates the
+   * result and returns it as a promise.
+   * @param app The jupyter lab frontend object
+   * @param runCode The code to run in the kernel.
+   * @param userExpressions The expressions used to capture the desired info from the executed code.
+   * @param runSilent Default is false. If true, kernel will execute as quietly as possible.
+   * store_history will be set to false, and no broadcast on IOPUB channel will be made.
+   * @param storeHistory Default is false. If true, the code executed will be stored in the kernel's history
+   * and the counter which is shown in the cells will be incremented to reflect code was run.
+   * @param allowStdIn Default is false. If true, code running in kernel can prompt user for input using
+   * an input_request message.
+   * @param stopOnError Default is false. If True, does not abort the execution queue, if an exception is encountered.
+   * This allows the queued execution of multiple execute_requests, even if they generate exceptions.
+   * @returns Promise<any> - A promise containing the execution results of the code as an object with
+   * keys based on the user_expressions.
+   * @example
+   * //The code
+   * const code = "a=123\nb=456\nsum=a+b";
+   * //The user expressions
+   * const expr = {sum: "sum",prod: "a*b",args:"[a,b,sum]"};
+   * //Async function call (returns a promise)
+   * sendKernelRequest(notebookPanel, code, expr,false);
+   * //Result when promise resolves:
+   * {
+   *  sum:{status:"ok",data:{"text/plain":"579"},metadata:{}},
+   *  prod:{status:"ok",data:{"text/plain":"56088"},metadata:{}},
+   *  args:{status:"ok",data:{"text/plain":"[123, 456, 579]"}}
+   * }
+   * @see For more information on JupyterLab messages:
+   * https://jupyter-client.readthedocs.io/en/latest/messaging.html#execution-results
+   */
+  public static async sendAppKernelRequest(
+    app: JupyterFrontEnd,
+    runCode: string,
+    userExpressions: any,
+    runSilent: boolean = false,
+    storeHistory: boolean = false,
+    allowStdIn: boolean = false,
+    stopOnError: boolean = false
+  ): Promise<any> {
+    // Use service manager, wait for it to be ready
+    await app.serviceManager.sessions.ready;
+
+    // Start session and wait for it to be ready
+    const session = await app.serviceManager.sessions.startNew({ path: "" });
+    await session.kernel.ready;
+
+    // Send message to kernel
+    const message = await session.kernel.requestExecute({
+      allow_stdin: allowStdIn,
+      code: runCode,
+      silent: runSilent,
+      stop_on_error: stopOnError,
+      store_history: storeHistory,
+      user_expressions: userExpressions
+    }).done;
+
+    const content: any = message.content;
+
+    if (content.status !== "ok") {
+      // If cdat is requesting user input, return nothing
+      if (
+        content.status === "error" &&
+        content.ename === "StdinNotImplementedError"
+      ) {
+        return "";
+      }
+
+      // If response is not 'ok', throw contents as error, log code
+      const msg: string = `Code caused an error:\n${runCode}`;
+      console.error(msg);
+      throw content;
+    }
+
+    // Close the session once it's done
+    session.shutdown();
+
+    // Return user_expressions of the content
+    return content.user_expressions;
   }
 }

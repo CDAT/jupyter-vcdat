@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardBody,
+  CardGroup,
   CardSubtitle,
   CardTitle,
   Collapse,
@@ -18,14 +19,19 @@ import {
   InputGroupAddon,
   ListGroup,
   ListGroupItem,
-  Row
+  Row,
+  Col,
+  Label,
+  Container
 } from "reactstrap";
 
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import ColormapEditor from "./ColormapEditor";
+import VariableTracker from "../VariableTracker";
 import { DISPLAY_MODE } from "../constants";
+import { boundMethod } from "autobind-decorator";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
@@ -49,7 +55,11 @@ interface IGraphicsMenuProps {
   toggleOverlayMode: () => void;
   toggleSidecar: () => {};
   toggleAnimate: () => void;
+  toggleAnimateInverse: () => void;
+  updateAnimateAxis: (axisId: number) => void;
+  updateAnimateRate: (rate: number) => void;
   currentDisplayMode: DISPLAY_MODE;
+  varTracker: VariableTracker;
   copyGraphicsMethod: (
     groupName: string,
     methodName: string,
@@ -67,6 +77,8 @@ interface IGraphicsMenuState {
   invalidName: boolean;
   plotReady: boolean;
   shouldAnimate: boolean;
+  animateAxis: number;
+  animateRate: number;
 }
 
 export default class GraphicsMenu extends React.Component<
@@ -85,23 +97,16 @@ export default class GraphicsMenu extends React.Component<
       showDropdown: false,
       showMenu: false,
       tempGroup: "",
-      shouldAnimate: false
+      shouldAnimate: false,
+      animateAxis: 0,
+      animateRate: 5
     };
-    this.handleNameInput = this.handleNameInput.bind(this);
-    this.handleCloseClick = this.handleCloseClick.bind(this);
-    this.handleCopyClick = this.handleCopyClick.bind(this);
-    this.handleCancelClick = this.handleCancelClick.bind(this);
-    this.handleEnterClick = this.handleEnterClick.bind(this);
-    this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
 
-    this.toggleDropdown = this.toggleDropdown.bind(this);
-    this.graphicsOptions = this.graphicsOptions.bind(this);
-    this.resetGraphicsState = this.resetGraphicsState.bind(this);
-    this.selectItem = this.selectItem.bind(this);
-    this.toggleAnimate = this.toggleAnimate.bind(this);
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
   }
 
+
+  @boundMethod
   public toggleAnimate(): void {
     this.setState({
       shouldAnimate: !this.state.shouldAnimate
@@ -109,6 +114,7 @@ export default class GraphicsMenu extends React.Component<
     this.props.toggleAnimate();
   }
 
+  @boundMethod
   public toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
@@ -121,6 +127,7 @@ export default class GraphicsMenu extends React.Component<
   }
 
   // Resets the graphics menu to initial, (for when a new notebook is selected)
+  @boundMethod
   public async resetGraphicsState(): Promise<void> {
     this.setState({
       enterName: false,
@@ -134,6 +141,7 @@ export default class GraphicsMenu extends React.Component<
     });
   }
 
+  @boundMethod
   public async selectItem(item: string): Promise<void> {
     if (
       this.state.tempGroup !== this.state.selectedGroup ||
@@ -150,6 +158,7 @@ export default class GraphicsMenu extends React.Component<
     }
   }
 
+  @boundMethod
   public graphicsOptions(group: string): JSX.Element {
     return (
       <ListGroup flush={true}>
@@ -179,6 +188,22 @@ export default class GraphicsMenu extends React.Component<
     );
   }
 
+  @boundMethod
+  public changeAnimateAxis(e: any){
+    this.setState({
+      animateAxis: parseInt(e.target.value)
+    })
+    this.props.updateAnimateAxis(parseInt(e.target.value));
+  }
+
+  @boundMethod
+  public changeAnimateRate(e: any){
+    this.setState({
+      animateRate: parseInt(e.target.value)
+    });
+    this.props.updateAnimateRate(parseInt(e.target.value));
+  }
+
   // To Add Later: public openColormapEditor(): void {}
 
   public render(): JSX.Element {
@@ -196,47 +221,131 @@ export default class GraphicsMenu extends React.Component<
     if (this.state.invalidName) {
       validInputColor = "danger";
     }
+
+    let selectedVariableName = "";
+    let selectedVariable: any = undefined;
+    let axisNames = new Array<string>();
+    if(this.props.varTracker.selectedVariables.length > 0){
+      selectedVariableName = this.props.varTracker.selectedVariables[0].slice(0, this.props.varTracker.selectedVariables[0].length/2);
+      selectedVariable = this.props.varTracker.findVariableByAlias(selectedVariableName);
+      if(selectedVariable[0] != -1){
+        for(let i = 0; i < selectedVariable[1].axisList.length; i++){
+          if(selectedVariable[1].axisList[i] != 'lat' && selectedVariable[1].axisList[i] != 'lon'){
+            axisNames.push(selectedVariable[1].axisList[i]);
+          }
+        }
+      }
+    }
     return (
       <div>
         <Card>
           <CardBody className={/*@tag<graphics-menu>*/ "graphics-menu-vcdat"}>
             <CardTitle>Graphics Options</CardTitle>
-            <CardSubtitle className={"clearfix"}>
-              <CustomInput
-                type="switch"
-                id={
-                  /*@tag<vcsmenu-overlay-mode-switch>*/ "vcsmenu-overlay-mode-switch-vcdat"
-                }
-                name="overlayModeSwitch"
-                label="Overlay Mode"
-                disabled={!this.state.plotReady}
-                checked={this.props.overlayMode}
-                onChange={this.props.toggleOverlayMode}
-              />
-
-              <CustomInput
-                type="switch"
-                id={
-                  /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
-                }
-                name="sidecarSwitch"
-                label="Plot to Sidecar"
-                disabled={!this.state.plotReady}
-                checked={this.props.currentDisplayMode === DISPLAY_MODE.Sidecar}
-                onChange={this.props.toggleSidecar}
-              />
-
-              <CustomInput
-                type="switch"
-                id={
-                  /*@tag<vcsmenu-animate-switch>*/ "vcsmenu-animate-switch-vcdat"
-                }
-                name="animateSwitch"
-                label="Animate"
-                disabled={!this.state.plotReady}
-                onChange={this.toggleAnimate}
-                />
-                
+            <CardSubtitle>
+            <Container>
+              <Row>
+                <Col xs="auto">
+                  <CustomInput
+                    id="vcsmenu-overlay-switch-vcdat"
+                    type="switch"
+                    className={
+                      /*@tag<vcsmenu-overlay-switch>*/ "vcsmenu-overlay-switch-vcdat"
+                    }
+                    name="overlayModeSwitch"
+                    label="Overlay Mode"
+                    disabled={!this.state.plotReady}
+                    checked={this.props.overlayMode}
+                    onChange={this.props.toggleOverlayMode}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col xs="auto">
+                  <CustomInput
+                    id="vcsmenu-sidecar-switch-vcdat"
+                    type="switch"
+                    className={
+                      /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
+                    }
+                    name="sidecarSwitch"
+                    label="Plot to Sidecar"
+                    disabled={!this.state.plotReady}
+                    checked={
+                      this.props.currentDisplayMode === DISPLAY_MODE.Sidecar
+                    }
+                    onChange={this.props.toggleSidecar}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col xs="auto">
+                  <CustomInput
+                    type="switch"
+                    id={
+                      /*@tag<vcsmenu-animate-switch>*/ "vcsmenu-animate-switch-vcdat"
+                    }
+                    name="animateSwitch"
+                    label="Animate"
+                    disabled={!this.state.plotReady}
+                    onChange={this.toggleAnimate}
+                    />
+                </Col>
+              </Row>
+              {this.state.shouldAnimate && (
+                <div>
+                  <Row>
+                    <Col xs="2">
+                      <Label for="vcsmenu-animate-select-vcdat">Axis:</Label>
+                    </Col>
+                    <Col xs="6">
+                      <CustomInput
+                        type="select"
+                        id={
+                          /*@tag<vcsmenu-animate-select>*/ "vcsmenu-animate-select-vcdat"
+                        }
+                        name="animateSelectAxis"
+                        onClick={this.changeAnimateAxis}
+                        disabled={!this.state.shouldAnimate}>
+                          {axisNames.map((name: string, idx: number) => {
+                            return (<option value={idx}>{name}</option>)
+                          })}
+                      </CustomInput>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col xs="2">
+                      <Label for="animateInverse">
+                        <span>
+                          Invert: 
+                        </span>
+                      </Label>
+                    </Col>
+                    <Col xs="6">
+                      <CustomInput 
+                        type="checkbox" 
+                        id="animateInverse" 
+                        onClick={this.props.toggleAnimateInverse}/>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col xs="auto">
+                      <Label for="animationRangeSlider">
+                        Rate: {this.state.animateRate}
+                      </Label>  
+                      <Input 
+                        id="animationRangeSlider" 
+                        value={this.state.animateRate} 
+                        type="range" 
+                        min="1" 
+                        max="30" 
+                        onChange={this.changeAnimateRate} />
+                    </Col>
+                  </Row>
+                </div>
+              )}
+            </Container>
+            </CardSubtitle>
+            <CardGroup className={"clearfix"}>
               <Dropdown
                 className={"float-left"}
                 style={{ maxWidth: "calc(100% - 70px)" }}
@@ -310,7 +419,7 @@ export default class GraphicsMenu extends React.Component<
               </Button>
               <Button
                 className={
-                  /*@tag<float-right graphics-copy-btn>*/ "float-left graphics-copy-btn-vcdat"
+                  /*@tag<float-right graphics-copy-btn>*/ "float-right graphics-copy-btn-vcdat"
                 }
                 style={{ marginLeft: "0.5em" }}
                 hidden={
@@ -335,11 +444,7 @@ export default class GraphicsMenu extends React.Component<
               >
                 Cancel
               </Button>
-            </CardSubtitle>
-            <ColormapEditor
-              updateColormap={this.props.updateColormap}
-              plotReady={this.state.selectedMethod ? true : false}
-            />
+            </CardGroup>
             <InputGroup
               hidden={!this.state.enterName}
               style={{ marginTop: "5px" }}
@@ -385,6 +490,10 @@ export default class GraphicsMenu extends React.Component<
                   this.graphicsOptions(this.state.tempGroup)}
               </Collapse>
             </Card>
+            <ColormapEditor
+              updateColormap={this.props.updateColormap}
+              plotReady={this.state.selectedMethod ? true : false}
+            />
           </CardBody>
         </Card>
       </div>
@@ -392,10 +501,12 @@ export default class GraphicsMenu extends React.Component<
   }
 
   // ======= REACT COMPONENT HANDLERS =======
+  @boundMethod
   private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
     this.setState({ plotReady: value });
   }
 
+  @boundMethod
   private handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
     // Regex filter for unallowed name characters
     const forbidden: RegExp = /^[^_a-z]|[^_a-z0-9]+/i;
@@ -403,6 +514,7 @@ export default class GraphicsMenu extends React.Component<
     this.setState({ nameValue: event.target.value, invalidName: invalid });
   }
 
+  @boundMethod
   private handleCloseClick(): void {
     this.setState({
       showDropdown: false,
@@ -411,10 +523,12 @@ export default class GraphicsMenu extends React.Component<
     });
   }
 
+  @boundMethod
   private handleCopyClick(): void {
     this.setState({ enterName: true });
   }
 
+  @boundMethod
   private handleCancelClick(): void {
     this.setState({
       enterName: false,
@@ -423,6 +537,7 @@ export default class GraphicsMenu extends React.Component<
     });
   }
 
+  @boundMethod
   private async handleEnterClick(): Promise<void> {
     if (this.state.nameValue && !this.state.invalidName) {
       try {

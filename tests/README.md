@@ -56,14 +56,20 @@ Please examine the available classes and methods before adding test cases.
    locate_plot()
    locate_export_plot()
    locate_clear()
-   locate_load_variables()
+   locate_load_variables_by_file()
+   locate_load_variables_by_path()
+   locate_sync_notebook_button()
    locate_select_plot_type()
+   locate_select_colormap()
    locate_select_a_template()
    click_on_plot()
    click_on_export_plot()   
    click_on_clear()
-   click_on_load_variables()
+   click_on_load_variables_by_file()
+   click_on_load_variables_by_path()
+   click_on_sync_notebook()
    click_on_select_plot_type()
+   click_on_select_colormap()
    click_on_select_a_template()
    select_a_plot_type(plot_type)
    select_a_template(template)
@@ -116,7 +122,7 @@ Please examine the available classes and methods before adding test cases.
 - Do the following steps to install packages needed to run python selenium test cases:
 ```bash
     cd <jupyter-vcdat repo directory>
-    source jupyter-vcdat
+    source activate jupyter-vcdat
     conda install -c cdat/label/v81 testsrunner cdat_info
     pip install selenium
     pip install pyvirtualdisplay
@@ -125,7 +131,7 @@ Please examine the available classes and methods before adding test cases.
 - To run tests with **chrome**, open a terminal window, and do:
 ```bash
     # Download 'chromedriver' from the site listed at
-    # https://selenium-python.readthedocs.io/installation.html
+    # https://sites.google.com/a/chromium.org/chromedriver/downloads
     # Note down the location of 'chromedriver' and set the value of
     # BROWSER_DRIVER accordingly.
 
@@ -138,7 +144,7 @@ Please examine the available classes and methods before adding test cases.
 - To run tests with **firefox**, open a terminal window, and do:
 ```bash
     # Download 'geckodriver' from the site listed at
-    # https://selenium-python.readthedocs.io/installation.html
+    # https://github.com/mozilla/geckodriver/releases
     # Note down the location of 'geckodriver'
 
     # set the following environment variables:
@@ -163,6 +169,7 @@ Please examine the available classes and methods before adding test cases.
     python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
     python run_tests.py -H -v 2 tests/test_plot_locators.py
     python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
+    python run_tests.py -H -v 2 tests/test_file_browser_locators.py
 ```
 
 - Examples on how to run individual test cases

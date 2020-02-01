@@ -15,6 +15,8 @@ import {
   LabShell
 } from "@jupyterlab/application";
 
+import { ISettingRegistry } from "@jupyterlab/coreutils";
+
 import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
 import {
   ITutorial,
@@ -24,17 +26,13 @@ import {
 
 // Project Components
 import "../style/css/index.css";
-import {
-  EXTENSIONS,
-  GETTING_STARTED,
-  REPLACEMENT_STEPS,
-  VCDAT_VERSION
-} from "./constants";
+import { EXTENSIONS, GETTING_STARTED, REPLACEMENT_STEPS } from "./constants";
 import NCViewerWidget from "./NCViewerWidget";
 import NotebookUtilities from "./NotebookUtilities";
 import LeftSideBarWidget from "./LeftSideBarWidget";
 import Utilities from "./Utilities";
 import { Step } from "react-joyride";
+import { AppSettings } from "./AppSettings";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";
@@ -50,8 +48,14 @@ let mainMenu: MainMenu;
 const extension: JupyterFrontEndPlugin<void> = {
   activate,
   autoStart: true,
-  id: "@cdat/jupyter-vcdat",
-  requires: [INotebookTracker, IMainMenu, ILabShell, ITutorialManager]
+  id: "jupyter-vcdat",
+  requires: [
+    INotebookTracker,
+    IMainMenu,
+    ILabShell,
+    ITutorialManager,
+    ISettingRegistry
+  ]
 };
 
 export default extension;
@@ -64,7 +68,8 @@ function activate(
   tracker: NotebookTracker,
   menu: MainMenu,
   labShell: LabShell,
-  tutorialManager: ITutorialManager
+  tutorialManager: ITutorialManager,
+  settings: ISettingRegistry
 ): void {
   shell = app.shell;
   mainMenu = menu;
@@ -90,16 +95,19 @@ function activate(
   // Creates the left side bar widget once the app has fully started
   app.started
     .then(() => {
-      sidebar = new LeftSideBarWidget(app, labShell, tracker);
-      sidebar.id = /*@tag<left-side-bar>*/ "left-side-bar-vcdat";
-      sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
-      sidebar.title.closable = true;
+      settings.load("jupyter-vcdat:extension").then(loadedSettings => {
+        const appSettings: AppSettings = new AppSettings(loadedSettings);
+        sidebar = new LeftSideBarWidget(app, labShell, tracker, appSettings);
+        sidebar.id = /*@tag<left-side-bar>*/ "left-side-bar-vcdat";
+        sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
+        sidebar.title.closable = true;
 
-      // Attach it to the left side of main area
-      shell.add(sidebar, "left");
+        // Attach it to the left side of main area
+        shell.add(sidebar, "left");
 
-      // Activate the widget
-      shell.activateById(sidebar.id);
+        // Activate the widget
+        shell.activateById(sidebar.id);
+      });
     })
     .catch(error => {
       console.error(error);

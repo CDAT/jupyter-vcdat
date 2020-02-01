@@ -26,6 +26,7 @@ import {
 import NotebookUtilities from "./NotebookUtilities";
 import Utilities from "./Utilities";
 import { ExportFormat, ImageUnit } from "./types";
+import { boundMethod } from "autobind-decorator";
 
 /**
  * A class that manages the code injection of vCDAT commands
@@ -43,21 +44,6 @@ export default class CodeInjector {
     this.canvasReady = false;
     this.varTracker = variableTracker;
     this.logErrorsToConsole = true;
-    this.inject = this.inject.bind(this);
-    this.openCloseFileCmd = this.openCloseFileCmd.bind(this);
-    this.buildImportCommand = this.buildImportCommand.bind(this);
-    this.injectImportsCode = this.injectImportsCode.bind(this);
-    this.injectCanvasCode = this.injectCanvasCode.bind(this);
-    this.exportPlot = this.exportPlot.bind(this);
-    this.createCopyOfGM = this.createCopyOfGM.bind(this);
-    this.getGraphicMethod = this.getGraphicMethod.bind(this);
-    this.getTemplate = this.getTemplate.bind(this);
-    this.loadVariable = this.loadVariable.bind(this);
-    this.loadMultipleVariables = this.loadMultipleVariables.bind(this);
-    this.plot = this.plot.bind(this);
-    this.setNotebook = this.setNotebook.bind(this);
-    this.clearPlot = this.clearPlot.bind(this);
-    this.deleteVariable = this.deleteVariable.bind(this);
   }
 
   get isBusy(): boolean {
@@ -68,6 +54,7 @@ export default class CodeInjector {
     return this._notebookPanel;
   }
 
+  @boundMethod
   public async setNotebook(notebookPanel: NotebookPanel) {
     if (notebookPanel) {
       await notebookPanel.activated;
@@ -85,6 +72,7 @@ export default class CodeInjector {
    * imported and any that are will be skipped (not added) in the import statements of the required code.
    * @returns The index of where the cell was inserted
    */
+  @boundMethod
   public async injectImportsCode(
     index: number = -1,
     skip: boolean = false
@@ -94,7 +82,7 @@ export default class CodeInjector {
 
     if (skip) {
       // Check if necessary modules are loaded
-      const output: string = await NotebookUtilities.sendSimpleKernelRequest(
+      const output: string = await Utilities.sendSimpleKernelRequest(
         this.notebookPanel,
         CHECK_MODULES_CMD
       );
@@ -160,6 +148,7 @@ export default class CodeInjector {
    * If no cell containing canvas code is found a whole new one is inserted.
    * @param index The index of the cell to replace or insert the canvas code
    */
+  @boundMethod
   public async injectCanvasCode(index: number): Promise<number> {
     // Creates canvas(es)
     const cmd: string = `#Create canvas
@@ -205,6 +194,7 @@ canvas = vcs.init(display_target='off')`;
     return cellIdx;
   }
 
+  @boundMethod
   public async saveNetCDFFile(
     filename: string,
     currentVariableName: string,
@@ -245,6 +235,7 @@ canvas = vcs.init(display_target='off')`;
    * the cell's index and output result
    */
 
+  @boundMethod
   public async exportPlot(
     format: ExportFormat,
     name: string,
@@ -309,6 +300,7 @@ canvas = vcs.init(display_target='off')`;
     );
   }
 
+  @boundMethod
   public async createCopyOfGM(
     newName: string,
     groupName: string,
@@ -333,6 +325,7 @@ canvas = vcs.init(display_target='off')`;
     );
   }
 
+  @boundMethod
   public async getGraphicMethod(group: string, name: string) {
     const cmd: string =
       name.indexOf(group) < 0
@@ -349,6 +342,7 @@ canvas = vcs.init(display_target='off')`;
     );
   }
 
+  @boundMethod
   public async getTemplate(templateName: string) {
     const cmd: string = `${templateName} = vcs.gettemplate('${templateName}')`;
 
@@ -362,6 +356,7 @@ canvas = vcs.init(display_target='off')`;
     );
   }
 
+  @boundMethod
   public async deleteVariable(variable: Variable) {
     // inject the code to delete variable from notebook
     const cmd = `del ${variable.alias}`;
@@ -379,6 +374,7 @@ canvas = vcs.init(display_target='off')`;
     this.varTracker.refreshVariables();
   }
 
+  @boundMethod
   public async loadVariable(variable: Variable, newAlias?: string) {
     // If the variable doesn't have a source listed, load as a derived variable
     let isDerived: boolean = false;
@@ -428,17 +424,19 @@ canvas = vcs.init(display_target='off')`;
     this.varTracker.addVariable(variable);
   }
 
+  @boundMethod
   public async loadMultipleVariables(variables: Variable[]): Promise<void> {
     if (!variables) {
       return;
     }
 
-    if (!variables[0].sourceName) {
+    const fileName: string = variables[0].sourceName;
+
+    if (!fileName) {
       throw Error("Could not determine what file the variables are from.");
     }
 
     let cmd: string = ``;
-    const fileName: string = variables[0].sourceName;
     const newSelection = Array<string>();
     variables.forEach((variable: Variable) => {
       // Create code to load the variable into the notebook
@@ -460,6 +458,11 @@ canvas = vcs.init(display_target='off')`;
     cmd = cmd.slice(0, cmd.length - 1);
 
     cmd = await this.openCloseFileCmd(fileName, cmd);
+    if (!cmd) {
+      console.error(
+        "openCloseFileCmd result was empty. Could be the path was not correct."
+      );
+    }
 
     // Inject the code into the notebook cell
     await this.inject(
@@ -477,6 +480,7 @@ canvas = vcs.init(display_target='off')`;
     await this.varTracker.refreshVariables();
   }
 
+  @boundMethod
   public async clearPlot() {
     await this.inject(
       "canvas.clear()",
@@ -494,6 +498,7 @@ canvas = vcs.init(display_target='off')`;
    * @returns Promise<[number, string]> - A promise for when the cell code has executed containing
    * the cell's index and output result
    */
+  @boundMethod
   public async updateColormapName(
     gmName: string,
     gmGroup: string,
@@ -517,6 +522,10 @@ canvas = vcs.init(display_target='off')`;
     selectedGM: string,
     selectedGMGroup: string,
     selectedTemplate: string,
+    axisIndex: number,
+    rate: number,
+    invertAxis: boolean,
+    colormap: string
   ): Promise<[number, string]> {
 
     let selectedVariable: string = this.varTracker.findVariableByID(this.varTracker.selectedVariables[0])[1].alias;
@@ -540,12 +549,31 @@ canvas = vcs.init(display_target='off')`;
     cmd += `    os.makedirs(pngpath)\n`;
     cmd += `else:\n`;
     cmd += `    [os.remove(os.path.join(pngpath, x)) for x in os.listdir(pngpath)]\n`;
-    cmd += `for step in tqdm_notebook(range(${selectedVariable}.shape[0])):\n`;
+    cmd += "frame_index = 0\n";
+    cmd += `min, max = vcs.minmax(${selectedVariable})\n`;
+    cmd += `gm = vcs.create${selectedGMGroup}(source='${selectedGM}')\n`;
+    cmd += `gm.levels = [round(x) for x in numpy.arange(min, max, (max-min)/10)]\n`;
+    cmd += `gm.fillareacolors = vcs.getcolors(gm.levels)\n`;
+    cmd += `gm.colormap = "${colormap}"\n`;
+
+    if(invertAxis){
+      cmd += `for step in tqdm_notebook(list(reversed(range(${selectedVariable}.shape[${axisIndex}]))), desc="Creating animation frames for ${selectedVariable}"):\n`;  
+    } else {
+      cmd += `for step in tqdm_notebook(list(range(${selectedVariable}.shape[${axisIndex}])), desc="Creating animation for ${selectedVariable}"):\n`;
+    }
     cmd += `    canvas.clear()\n`;
-    cmd += `    canvas.plot(${selectedVariable}[step], ${templateParam}, ${gmParam})\n`;
-    cmd += "    canvas.png(os.path.join(pngpath,'{:06}'.format(step)))\n";
-    cmd += `canvas.ffmpeg("${selectedVariable}.mp4", sorted(glob(os.path.join(pngpath, "*png"))), rate=5)\n`
-    cmd += `\n`
+
+    let indexPrefix: string = "";
+    for(let i = 0; i < axisIndex; i++){
+      indexPrefix += ":, ";
+    }
+    
+    cmd += `    canvas.plot(${selectedVariable}[${indexPrefix}step], ${templateParam}, gm)\n`;
+    
+    cmd += "    canvas.png(os.path.join(pngpath,'{:06}'.format(frame_index)))\n";
+    cmd += "    frame_index += 1\n"
+    cmd += `canvas.ffmpeg("${selectedVariable}_animation.mp4", sorted(glob(os.path.join(pngpath, "*png"))), rate=${rate})\n`;
+    cmd += `\n`;
 
     return this.inject(
       cmd,
@@ -556,6 +584,7 @@ canvas = vcs.init(display_target='off')`;
     );
   }
 
+  @boundMethod
   public async plot(
     selectedGM: string,
     selectedGMGroup: string,
@@ -586,7 +615,7 @@ canvas = vcs.init(display_target='off')`;
     }
 
     let cmd: string = "";
-    const sidecarReady: string = await NotebookUtilities.sendSimpleKernelRequest(
+    const sidecarReady: string = await Utilities.sendSimpleKernelRequest(
       this.notebookPanel,
       CHECK_SIDECAR_EXISTS_CMD
     );
@@ -625,6 +654,7 @@ canvas = vcs.init(display_target='off')`;
    * @param funcArgs The arguments object of the calling function
    * @returns [number, string] The index of the following the newly injected cell, and the output result as a string
    */
+  @boundMethod
   private async inject(
     code: string,
     index?: number,
@@ -672,6 +702,7 @@ canvas = vcs.init(display_target='off')`;
    * This will construct an import string for the notebook based on the modules passed to it. It is used for imports injection.
    * @param modules An array of strings representing the modules to include in the import command.
    */
+  @boundMethod
   private buildImportCommand(modules: string[]): string {
     let cmd: string = "";
 
@@ -689,6 +720,7 @@ canvas = vcs.init(display_target='off')`;
    * @param filePath The path of the file to open
    * @param code The code that needs the open file
    */
+  @boundMethod
   private async openCloseFileCmd(
     filePath: string,
     code: string
@@ -698,18 +730,20 @@ canvas = vcs.init(display_target='off')`;
     }
 
     // Get the relative filepath to open the file
-    const relativePath = Utilities.getRelativePath(
+    const path = Utilities.getUpdatedPath(
       this.notebookPanel.session.path,
       filePath
     );
 
     // Check that file can open before adding it as code
-    const valid: boolean = await this.varTracker.tryFilePath(relativePath);
-    if (valid) {
-      let newCode: string = `${BASE_DATA_READER_NAME} = cdms2.open('${relativePath}')\n`;
+    if (await Utilities.tryFilePath(this.notebookPanel, path)) {
+      // Add code to notebook
+      let newCode: string = `${BASE_DATA_READER_NAME} = cdms2.open('${path}')\n`;
       newCode += `${code}\n${BASE_DATA_READER_NAME}.close()`;
       return newCode;
     }
+    console.error(`Opening file failed. Path: ${path}`);
+
     return "";
   }
 }

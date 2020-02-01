@@ -1,6 +1,6 @@
 // Dependencies
 import * as _ from "lodash";
-import * as moment from "moment";
+import moment from "moment";
 import * as React from "react";
 import { Col, Row } from "reactstrap";
 
@@ -14,6 +14,7 @@ import {
   Tracks
 } from "react-compound-slider";
 import { Handle, Tick, Track } from "./Tracks";
+import { boundMethod } from "autobind-decorator";
 
 const sliderStyle: React.CSSProperties = {
   marginBottom: "5%",
@@ -69,9 +70,6 @@ export default class DimensionSlider extends React.Component<
   private domain: [number, number]; // The domain to use for the slider
   constructor(props: IDimensionSliderProps) {
     super(props);
-    this.handleSliderChange = this.handleSliderChange.bind(this);
-    this.handleSliderUpdate = this.handleSliderUpdate.bind(this);
-    this.formatter = this.formatter.bind(this);
 
     // Set slider values and formatting
     let format: any;
@@ -145,6 +143,7 @@ export default class DimensionSlider extends React.Component<
   }
 
   // default formatter
+  @boundMethod
   public formatter(data: any): any {
     if (data.toFixed) {
       return data.toFixed(5);
@@ -153,6 +152,7 @@ export default class DimensionSlider extends React.Component<
   }
 
   // formats the tick indexes for display only
+  @boundMethod
   public tickValue(index: number): string {
     const tickIndex: number = this.state.tickValues[index];
     const realValue: number = this.state.possibleValues[tickIndex];
@@ -165,6 +165,33 @@ export default class DimensionSlider extends React.Component<
       return realValue.toExponential(4);
     }
     return realValue.toString();
+  }
+
+  @boundMethod
+  public handleSliderUpdate(e: any): void {
+    if (e.length !== 2) {
+      return;
+    }
+
+    this.setState({
+      first: e[0],
+      last: e[1]
+    });
+  }
+
+  @boundMethod
+  public handleSliderChange(e: any): void {
+    if (e.length !== 2) {
+      return;
+    }
+    this.props.updateDimInfo(
+      {
+        first: this.state.possibleValues[e[0]],
+        last: this.state.possibleValues[e[1]],
+        name: this.props.name
+      },
+      this.props.varID
+    );
   }
 
   public render(): JSX.Element {
@@ -251,30 +278,6 @@ export default class DimensionSlider extends React.Component<
           </div>
         )}
       </div>
-    );
-  }
-  public handleSliderUpdate(e: any): void {
-    if (e.length !== 2) {
-      return;
-    }
-
-    this.setState({
-      first: e[0],
-      last: e[1]
-    });
-  }
-
-  public handleSliderChange(e: any): void {
-    if (e.length !== 2) {
-      return;
-    }
-    this.props.updateDimInfo(
-      {
-        first: this.state.possibleValues[e[0]],
-        last: this.state.possibleValues[e[1]],
-        name: this.props.name
-      },
-      this.props.varID
     );
   }
 }

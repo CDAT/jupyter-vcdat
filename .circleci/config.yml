@@ -1,29 +1,40 @@
 version: 2
-
 aliases:
-
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
     command: |
-       source activate jupyter-vcdat
-       ./install_script.sh -v
-       echo "xxx doing a conda install"
-       conda install -n jupyter-vcdat -c cdat/label/v82 -c cdat/label/v81 -c cdat/label/nightly -c conda-forge vcs libnetcdf=4.6.2 testsrunner cdat_info
-       conda list
-       npm install
-       jupyter lab build
-       jupyter-labextension install .
-       echo "XXX npm list"
-       npm list
-       git status
+      source activate jupyter-vcdat
+      ./install_script.sh -v
+      echo "xxx doing a conda install"
+      conda install -n jupyter-vcdat -c cdat/label/nightly -c conda-forge vcs testsrunner cdat_info
+      conda list
+      npm install
+      jupyter lab build
+      jupyter-labextension install .
+      echo -e "\nInstalled jupyter-vcdat version $LOCAL_VCDAT_VERSION successfully."
+
+  - &check_vcdat_versions
+    name: check_npm_version
+    command: |
+      LOCAL_VCDAT_VERSION=`node -pe "require('./package.json').version"`
+      NPM_VCDAT_VERSION=`npm view jupyter-vcdat@nightly version`
+      echo "export LOCAL_VCDAT_VERSION=$LOCAL_VCDAT_VERSION" >> $BASH_ENV
+      echo "export NPM_VCDAT_VERSION=$NPM_VCDAT_VERSION" >> $BASH_ENV
+      function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+      if version_gt $LOCAL_VCDAT_VERSION $NPM_VCDAT_VERSION; then
+        echo "Version of $LOCAL_VCDAT_VERSION in the package.json looks good."
+      else
+        echo "Version $LOCAL_VCDAT_VERSION in package.json is not newer than npm version of $NPM_VCDAT_VERSION and will cause Publish job to fail."
+        echo "You should update version $LOCAL_VCDAT_VERSION in package.json to a version greater than $NPM_VCDAT_VERSION"
+        exit 1
+      fi
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
     command: |
-       export CDAT_ANONYMOUS_LOG=False
-       source activate jupyter-vcdat
-       conda list
-       jupyter lab --ip='127.0.0.1'
+      source activate jupyter-vcdat
+      conda list
+      jupyter lab --ip='127.0.0.1'
     background: true
 
   - &run_tests_with_chrome
@@ -32,15 +43,15 @@ aliases:
       BROWSER_TYPE: "chrome"
       BROWSER_DRIVER: "/usr/local/bin/chromedriver"
     command: |
-       source activate jupyter-vcdat
-       python run_tests.py -H -v 2 tests/test_locators.py
-       python run_tests.py -H -v 2 tests/test_load_a_variable.py
-       python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-       python run_tests.py -H -v 2 tests/test_plot_locators.py
-       python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
-       RESULT=$?
-       echo "*** $PY_VER test result: "${RESULT} 
-       exit $RESULT
+      source activate jupyter-vcdat
+      python run_tests.py -H -v 2 tests/test_locators.py
+      python run_tests.py -H -v 2 tests/test_load_a_variable.py
+      python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
+      python run_tests.py -H -v 2 tests/test_plot_locators.py
+      python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
+      RESULT=$?
+      echo "*** $PY_VER test result: ${RESULT}"
+      exit $RESULT
 
   - &run_tests_with_firefox
     name: run_tests_with_firefox
@@ -49,70 +60,104 @@ aliases:
       BROWSER_BINARY: "/usr/local/bin/firefox"
       BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     command: |
-       source activate jupyter-vcdat
-       python run_tests.py -H -v 2 tests/test_locators.py
-       python run_tests.py -H -v 2 tests/test_load_a_variable.py
-       python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-       python run_tests.py -H -v 2 tests/test_plot_locators.py
-       python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
-       RESULT=$?
-       echo "*** $PY_VER test result: "${RESULT} 
-       exit $RESULT
+      source activate jupyter-vcdat
+      python run_tests.py -H -v 2 tests/test_locators.py
+      python run_tests.py -H -v 2 tests/test_load_a_variable.py
+      python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
+      python run_tests.py -H -v 2 tests/test_plot_locators.py
+      python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
+      RESULT=$?
+      echo "*** $PY_VER test result: ${RESULT}"
+      exit $RESULT
 
   - &conda_upload
     name: conda_upload
     environment:
-       CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
+      CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
-       conda install conda-build anaconda-client
-       conda config --set anaconda_upload no
-       export CONDA_BLD_PATH=`pwd`/conda_build
-       git clone git://github.com/cdat/conda-recipes
-       cd conda-recipes
-       export PKG_NAME=jupyter-vcdat
-       export USER=cdat
-       export VERSION=2.0.0
-       if [[ $CIRCLE_BRANCH == 'master' ]]; then
-        export LABEL=nightly
-       else
-        export LABEL=${CIRCLE_BRANCH}
-       fi
-       ln -s ../recipe $PKG_NAME
-       python ./prep_for_build.py -l $VERSION -b ${CIRCLE_BRANCH}
-       conda build $PKG_NAME $CHANNELS --python=3.6
-       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+      export REPO_DIR=`pwd`
+      export PKG_NAME=jupyter-vcdat
+      export LABEL=nightly
+      export USER=cdat
+      conda install conda-build anaconda-client
+      conda config --set anaconda_upload no
+      export CONDA_BLD_PATH=`pwd`/conda_build
+      git clone https://github.com/cdat/conda-recipes
+      cd conda-recipes
+      export CONDA_RECIPES_REPO=`pwd`
+      ln -s $REPO_DIR .
+      cd $REPO_DIR
+      python $CONDA_RECIPES_REPO/prep_for_build.py -l $LOCAL_VCDAT_VERSION -b ${CIRCLE_BRANCH}
+      conda build $CHANNELS recipe
+      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force
+
+  - &npm_publish
+    name: npm_publish
+    command: |
+      npm install
+      npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+      npm publish --tag nightly
+
+  - &docker_publish
+    name: docker_publish
+    command: |
+      cd deploy
+      echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
+      echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
+      docker pull aims2.llnl.gov/nimbus-basic:latest
+      docker build --no-cache --tag=cdat/vcdat:nightly .
+      docker image tag cdat/vcdat:nightly cdat/vcdat:$LOCAL_VCDAT_VERSION
+      docker push cdat/vcdat:$LOCAL_VCDAT_VERSION
+      docker push cdat/vcdat:nightly
+      docker logout
 
 jobs:
+  publish:
+    docker:
+      - image: cdat/vcdat_circleci:nightly
+    steps:
+      - checkout
+      - run: *check_vcdat_versions
+      - run: *npm_publish
+      - setup_remote_docker
+      - run: *docker_publish
+      - run: *conda_upload
+
   linux_jupyter_vcdat:
     docker:
-      # - image: circleci/node:jessie-browsers
-      - image: muryanto1/jupyter-vcdat.2.0.1:latest
+      - image: cdat/vcdat_circleci:nightly
     environment:
       WORKDIR: "/tmp/jp-vcdat"
     steps:
       - checkout
       - run: echo 'export PATH=$WORKDIR/miniconda/bin:$PATH' >> $BASH_ENV
+      - run: *check_vcdat_versions
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 15
+      #- run: *run_tests_with_firefox
+      #- store_artifacts:
+      #    path: tests_html
+      #    destination: tests_firefox_html
+      #- run: sleep 5
       - run: *run_tests_with_chrome
       - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
-      - run: *run_tests_with_firefox
-      - store_artifacts:
-          path: tests_html
-          destination: tests_firefox_html
       - store_artifacts:
           path: jupyter-vcdat_logfile.txt
-      - run: *conda_upload
+      
+      # Uncomment below to upload directly to conda without merging to master
+      #- run: *conda_upload
 
 workflows:
   version: 2
   jupyter_vcdat:
     jobs:
       - linux_jupyter_vcdat
-
-
-
-
+      - publish:
+          requires:
+            - linux_jupyter_vcdat
+          filters:
+            branches:
+              only: master

@@ -14,7 +14,7 @@ REQUESTED_CONDA_ENV_NAME="jupyter-vcdat"
 
 
 # conda channels
-DEFAULT_CONDA_CHANNELS="-c cdat/label/v81 -c conda-forge"
+DEFAULT_CONDA_CHANNELS="-c cdat/label/v82 -c conda-forge"
 
 # extra conda channels
 CUSTOM_CONDA_CHANNELS=""
@@ -35,7 +35,7 @@ optional arguments:
                         extra conda channels to use (use an extra -c if more than one)
                         example:
                         -c "cdat/label/nightly"
-                        -c "cdat/label/nightly" -c "cdat/label/v81"
+                        -c "cdat/label/nightly" -c "cdat/label/v82"
 EOF
 exit 0
 }
@@ -111,7 +111,7 @@ trap 'handle_error $LINENO ${BASH_LINENO[@]}' ERR
 
 CONDA_EXE="$(which conda)"
 if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
-    echo "Ok current conda does not match requested conda: ${CONDA_DEFAULT_ENV:-'NA'} vs ${REQUESTED_CONDA_ENV_NAME}"
+    echo "Current conda does not match requested conda: ${CONDA_DEFAULT_ENV:-'NA'} vs ${REQUESTED_CONDA_ENV_NAME}"
     envs=$(${CONDA_EXE} env list | cut -d ' ' -f1)
     found=0
     for a_env in $envs
@@ -124,14 +124,14 @@ if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
         echo "ACTIVATING existing env: ${REQUESTED_CONDA_ENV_NAME}"
         source activate ${REQUESTED_CONDA_ENV_NAME}
     else
-        echo "The requested env ${REQUESTED_CONDA_ENV_NAME} does not seem to exist we will create it"
+        echo "The requested env ${REQUESTED_CONDA_ENV_NAME} does not seem to exist we will create it."
     fi
 fi
 
 if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
   echo "Creating conda env: ${REQUESTED_CONDA_ENV_NAME}"
   $CONDA_EXE update --all -y -n base
-  $CONDA_EXE create -y -n ${REQUESTED_CONDA_ENV_NAME} ${CUSTOM_CONDA_CHANNELS} ${DEFAULT_CONDA_CHANNELS} nodejs "python>3" vcs "jupyterlab>=1" pip nb_conda nb_conda_kernels plumbum jupyterhub libnetcdf=4.6.2
+  $CONDA_EXE create -y -n ${REQUESTED_CONDA_ENV_NAME} ${CUSTOM_CONDA_CHANNELS} ${DEFAULT_CONDA_CHANNELS} nodejs "python>3" vcs "jupyterlab>=1" pip nb_conda nb_conda_kernels plumbum jupyterhub "libnetcdf=4.6.2"
   CONDA_BASE=$(conda info --base)
   source $CONDA_BASE/etc/profile.d/conda.sh
   conda activate ${REQUESTED_CONDA_ENV_NAME}

@@ -1,4 +1,0 @@
-FROM cdoutrix/vcdat:core
-
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager && jupyter labextension install @jupyter-widgets/jupyterlab-sidecar && jupyter labextension install @jupyterlab/github && pip install jupyterlab_github && jupyter serverextension enable --sys-prefix jupyterlab_github && pip install nbgitpuller && jupyter serverextension enable --py nbgitpuller --sys-prefix && jupyter labextension install @jupyterlab/hub-extension && rm -rf node_modules && rm -rf ~/.cache/pip
-

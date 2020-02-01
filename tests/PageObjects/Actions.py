@@ -12,11 +12,12 @@ from selenium.webdriver.common.keys import Keys
 
 class Actions(object):
 
-    _delay = 0.5
-    _a_bit_delay = 0.5
+    _delay = 1.5
+    _a_bit_delay = 1
 
     def __init__(self, driver, server=None):
         self.driver = driver
+        driver.implicitly_wait(10)
 
     def find_element_by_id(self, id, descr):
         try:
@@ -93,7 +94,10 @@ class Actions(object):
     def move_to_click(self, element):
         time.sleep(self._a_bit_delay)
         print("...move_to_click...")
-        ActionChains(self.driver).move_to_element(element).click().perform()
+        ac = ActionChains(self.driver)
+        ac.move_to_element(element)
+        ac.click()
+        ac.perform()
 
     def move_to_double_click(self, element):
         print("...move_to_double_click...")
@@ -128,7 +132,7 @@ class Actions(object):
     def wait_click(self, method, locator):
         try:
             print("...wait_click..., locator: {}".format(locator))
-            wait = WebDriverWait(self.driver, 10)
+            wait = WebDriverWait(self.driver, 15)
             m = wait.until(EC.element_to_be_clickable((method,
                                                        locator)))
             m.click()
@@ -163,7 +167,7 @@ class Actions(object):
 
     def wait_till_element_is_visible(self, method, locator, descr):
         try:
-            wait = WebDriverWait(self.driver, 20)
+            wait = WebDriverWait(self.driver, 15)
             element = wait.until(EC.visibility_of_element_located((method,
                                                                    locator)))
             print("'{}' is now visible".format(descr))
@@ -174,7 +178,7 @@ class Actions(object):
 
     def wait_till_element_is_clickable(self, method, locator, descr):
         try:
-            wait = WebDriverWait(self.driver, 20)
+            wait = WebDriverWait(self.driver, 15)
             element = wait.until(EC.element_to_be_clickable((method,
                                                              locator)))
             print("'{}' is now clickable".format(descr))

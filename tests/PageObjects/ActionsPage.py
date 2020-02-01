@@ -11,7 +11,7 @@ from Actions import Actions
 
 class ActionsPage(Actions):
 
-    _wait_timeout = 10
+    _wait_timeout = 15
 
     def __init__(self, driver, server):
         super(ActionsPage, self).__init__(driver, server)

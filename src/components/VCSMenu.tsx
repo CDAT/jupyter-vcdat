@@ -9,6 +9,7 @@ import { Alert, Button, Card, CardBody, Col, Row, Spinner } from "reactstrap";
 import CodeInjector from "../CodeInjector";
 import {
   DISPLAY_MODE,
+  EXTENSIONS,
   GRAPHICS_METHOD_KEY,
   PLOT_OPTIONS_KEY,
   TEMPLATE_KEY
@@ -20,11 +21,13 @@ import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import Variable from "./Variable";
 import VarMenu from "./VarMenu";
+import InputModal from "./InputModal";
 import VariableTracker from "../VariableTracker";
 import Utilities from "../Utilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import { JupyterFrontEnd } from "@jupyterlab/application";
-import { ENGINE_METHOD_NONE } from "constants";
+import { AppSettings } from "../AppSettings";
+import { boundMethod } from "autobind-decorator";
 
 const btnStyle: React.CSSProperties = {
   width: "100%"
@@ -36,7 +39,7 @@ const centered: React.CSSProperties = {
 const sidebarOverflow: React.CSSProperties = {
   height: "calc(100vh - 52px)",
   maxHeight: "100vh",
-  minWidth: "365px",
+  minWidth: "370px",
   overflow: "auto"
 };
 
@@ -59,8 +62,10 @@ interface IVCSMenuProps {
   updateNotebookPanel: () => Promise<void>; // Function passed to the var menu
   syncNotebook: () => boolean; // Function passed to the var menu
   openSidecarPanel?: (openSidecarPanel: boolean) => void;
+  prepareNotebookFromPath: (filepath: string) => Promise<void>;
   codeInjector: CodeInjector;
   varTracker: VariableTracker;
+  appSettings: AppSettings;
 }
 interface IVCSMenuState {
   variables: Variable[]; // All the variables, loaded from files and derived by users
@@ -81,6 +86,9 @@ interface IVCSMenuState {
   previousDisplayMode: DISPLAY_MODE;
   currentDisplayMode: DISPLAY_MODE;
   shouldAnimate: boolean;
+  animationAxisIndex: number,
+  animationRate: number,
+  animateAxisInvert: boolean
 }
 
 export default class VCSMenu extends React.Component<
@@ -90,6 +98,7 @@ export default class VCSMenu extends React.Component<
   public varMenuRef: VarMenu;
   public graphicsMenuRef: GraphicsMenu;
   public templateMenuRef: TemplateMenu;
+  public filePathInputRef: InputModal;
   constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
@@ -110,52 +119,30 @@ export default class VCSMenu extends React.Component<
       selectedGMgroup: "",
       selectedTemplate: "",
       variables: this.props.varTracker.variables,
-      shouldAnimate: false
+      shouldAnimate: false,
+      animationAxisIndex: 0,
+      animationRate: 5,
+      animateAxisInvert: false
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
-    this.plot = this.plot.bind(this);
-    this.clear = this.clear.bind(this);
-    this.resetState = this.resetState.bind(this);
-    this.getCanvasDimensions = this.getCanvasDimensions.bind(this);
-    this.copyGraphicsMethod = this.copyGraphicsMethod.bind(this);
-    this.getPlotOptions = this.getPlotOptions.bind(this);
-    this.getGraphicsSelections = this.getGraphicsSelections.bind(this);
-    this.getTemplateSelection = this.getTemplateSelection.bind(this);
-    this.updateGraphicsOptions = this.updateGraphicsOptions.bind(this);
-    this.updateColormap = this.updateColormap.bind(this);
-    this.updateTemplateOptions = this.updateTemplateOptions.bind(this);
-    this.toggleModal = this.toggleModal.bind(this);
-    this.toggleOverlayMode = this.toggleOverlayMode.bind(this);
-    this.toggleSidecar = this.toggleSidecar.bind(this);
-    this.exportPlotAlerts = this.exportPlotAlerts.bind(this);
-    this.dismissSavePlotSpinnerAlert = this.dismissSavePlotSpinnerAlert.bind(
-      this
-    );
-    this.dismissExportSuccessAlert = this.dismissExportSuccessAlert.bind(this);
-    this.showExportSuccessAlert = this.showExportSuccessAlert.bind(this);
-    this.setPlotInfo = this.setPlotInfo.bind(this);
-    this.saveNotebook = this.saveNotebook.bind(this);
-    this.handleVariablesChanged = this.handleVariablesChanged.bind(this);
-    this.handlePlotReadyChanged = this.handlePlotReadyChanged.bind(this);
-    this.handlePlotExistsChanged = this.handlePlotExistsChanged.bind(this);
-    this.toggleAnimate = this.toggleAnimate.bind(this);
+
+    this.templateMenuRef = (React as any).createRef();
+    this.filePathInputRef = (React as any).createRef();
+
     // Close sidecar panel at startup
     if (this.props.openSidecarPanel) {
       this.props.openSidecarPanel(false);
     }
   }
 
-  public toggleAnimate(): void {
-    this.setState({
-      shouldAnimate: !this.state.shouldAnimate
-    });
-  }
-
   public componentDidMount(): void {
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
     this.props.plotExistsChanged.connect(this.handlePlotExistsChanged);
     this.props.varTracker.variablesChanged.connect(this.handleVariablesChanged);
+    this.filePathInputRef.savedOptionsChanged.connect(
+      this.handleOptionsChanged
+    );
   }
 
   public componentWillUnmount(): void {
@@ -166,19 +153,52 @@ export default class VCSMenu extends React.Component<
     );
   }
 
+  @boundMethod
+  public toggleAnimate(): void {
+    this.setState({
+      shouldAnimate: !this.state.shouldAnimate
+    });
+  }
+
+  @boundMethod
+  public updateAnimateAxis(axisId: number): void {
+    this.setState({
+      animationAxisIndex: axisId
+    });
+  }
+
+  @boundMethod
+  public toggleAnimateAxisInvert(): void {
+    this.setState({
+      animateAxisInvert: !this.state.animateAxisInvert
+    });
+  }
+
+  @boundMethod
+  public updateAnimateRate(rate: number): void {
+    this.setState({
+      animationRate: rate
+    });
+  }
+
+
+  @boundMethod
   public setPlotInfo(plotName: string, plotFormat: string) {
     this.setState({ plotName, plotFormat });
   }
 
+  @boundMethod
   public dismissSavePlotSpinnerAlert(): void {
     this.setState({ savePlotAlert: false });
     this.props.commands.execute("vcdat:refresh-browser");
   }
 
+  @boundMethod
   public dismissExportSuccessAlert(): void {
     this.setState({ exportSuccessAlert: false });
   }
 
+  @boundMethod
   public showExportSuccessAlert(): void {
     this.setState({ exportSuccessAlert: true }, () => {
       window.setTimeout(() => {
@@ -187,14 +207,22 @@ export default class VCSMenu extends React.Component<
     });
   }
 
+  @boundMethod
+  public showInputModal(): void {
+    this.filePathInputRef.show();
+  }
+
+  @boundMethod
   public exportPlotAlerts(): void {
     this.setState({ savePlotAlert: true });
   }
 
+  @boundMethod
   public toggleModal(): void {
     this.setState({ isModalOpen: !this.state.isModalOpen });
   }
 
+  @boundMethod
   public async toggleOverlayMode(): Promise<void> {
     await this.setState({ overlayMode: !this.state.overlayMode });
 
@@ -206,6 +234,7 @@ export default class VCSMenu extends React.Component<
     );
   }
 
+  @boundMethod
   public async toggleSidecar(): Promise<void> {
     this.state.currentDisplayMode === DISPLAY_MODE.Notebook
       ? await this.setState({ currentDisplayMode: DISPLAY_MODE.Sidecar })
@@ -224,10 +253,12 @@ export default class VCSMenu extends React.Component<
     );
   }
 
+  @boundMethod
   public saveNotebook() {
     NotebookUtilities.saveNotebook(this.state.notebookPanel);
   }
 
+  @boundMethod
   public async resetState(): Promise<void> {
     this.graphicsMenuRef.resetGraphicsState();
     this.templateMenuRef.resetTemplateMenuState();
@@ -241,6 +272,7 @@ export default class VCSMenu extends React.Component<
     });
   }
 
+  @boundMethod
   public async getCanvasDimensions(): Promise<{
     width: string;
     height: string;
@@ -248,7 +280,7 @@ export default class VCSMenu extends React.Component<
     try {
       if (this.state.plotReady) {
         // Check the dimensions of the current canvas object
-        const output: string = await NotebookUtilities.sendSimpleKernelRequest(
+        const output: string = await Utilities.sendSimpleKernelRequest(
           this.state.notebookPanel,
           CANVAS_DIMENSIONS_CMD
         );
@@ -265,6 +297,7 @@ export default class VCSMenu extends React.Component<
     }
   }
 
+  @boundMethod
   public getPlotOptions(): void {
     // Load the selected plot options from meta data (if exists)
     const plotOptions: [
@@ -293,6 +326,7 @@ export default class VCSMenu extends React.Component<
     });
   }
 
+  @boundMethod
   public getGraphicsSelections(): void {
     // Load the selected graphics method from meta data (if exists)
     const gmData: [string, string] = NotebookUtilities.getMetaDataNow(
@@ -322,6 +356,7 @@ export default class VCSMenu extends React.Component<
     });
   }
 
+  @boundMethod
   public getTemplateSelection(): void {
     // Load the selected template from meta data (if exists)
     const template: string = NotebookUtilities.getMetaDataNow(
@@ -343,6 +378,7 @@ export default class VCSMenu extends React.Component<
     });
   }
 
+  @boundMethod
   public async copyGraphicsMethod(
     groupName: string,
     methodName: string,
@@ -384,6 +420,7 @@ export default class VCSMenu extends React.Component<
    * @param group the group name that the selected GM came from
    * @param name the specific GM from the group
    */
+  @boundMethod
   public async updateGraphicsOptions(
     group: string,
     name: string
@@ -413,6 +450,7 @@ export default class VCSMenu extends React.Component<
     );
   }
 
+  @boundMethod
   public async updateColormap(colormapName: string) {
     this.setState({
       colormapHasBeenChanged: true,
@@ -425,6 +463,7 @@ export default class VCSMenu extends React.Component<
     );
   }
 
+  @boundMethod
   public async updateTemplateOptions(templateName: string): Promise<void> {
     // Attempt code injection
     await this.props.codeInjector.getTemplate(templateName);
@@ -443,6 +482,7 @@ export default class VCSMenu extends React.Component<
   /**
    * @description given the variable, graphics method, and template selected by the user, run the plot method
    */
+  @boundMethod
   public async plot(): Promise<void> {
     try {
       if (this.props.varTracker.selectedVariables.length === 0) {
@@ -455,7 +495,11 @@ export default class VCSMenu extends React.Component<
           await this.props.codeInjector.animate(
             this.state.selectedGM,
             this.state.selectedGMgroup,
-            this.state.selectedTemplate)
+            this.state.selectedTemplate,
+            this.state.animationAxisIndex,
+            this.state.animationRate,
+            this.state.animateAxisInvert,
+            this.state.selectedColormap)
         } else {
           // Inject the plot
           await this.props.codeInjector.plot(
@@ -474,6 +518,7 @@ export default class VCSMenu extends React.Component<
     }
   }
 
+  @boundMethod
   public clear(): void {
     this.props.codeInjector.clearPlot();
   }
@@ -491,7 +536,11 @@ export default class VCSMenu extends React.Component<
       updateColormap: this.updateColormap,
       updateGraphicsOptions: this.updateGraphicsOptions,
       varInfo: new Variable(),
-      toggleAnimate: this.toggleAnimate
+      toggleAnimate: this.toggleAnimate,
+      toggleAnimateInverse: this.toggleAnimateAxisInvert,
+      updateAnimateAxis: this.updateAnimateAxis,
+      updateAnimateRate: this.updateAnimateRate,
+      varTracker: this.props.varTracker
     };
     const varMenuProps = {
       codeInjector: this.props.codeInjector,
@@ -502,6 +551,7 @@ export default class VCSMenu extends React.Component<
       saveNotebook: this.saveNotebook,
       setPlotInfo: this.setPlotInfo,
       showExportSuccessAlert: this.showExportSuccessAlert,
+      showInputModal: this.showInputModal,
       syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel,
       varTracker: this.props.varTracker
@@ -522,6 +572,23 @@ export default class VCSMenu extends React.Component<
       setPlotInfo: this.setPlotInfo,
       showExportSuccessAlert: this.showExportSuccessAlert,
       toggle: this.toggleModal
+    };
+
+    const inputModalProps = {
+      acceptText: "Open File",
+      cancelText: "Cancel",
+      inputListHeader: "Saved File Paths",
+      inputOptions: this.props.appSettings.getSavedPaths(),
+      invalidInputMessage:
+        "The path entered is not valid. Make sure it contains an appropriate filename.",
+      isValid: (input: string): boolean => {
+        const ext: string = Utilities.getExtension(input);
+        return input.length > 0 && EXTENSIONS.indexOf(`.${ext}`) >= 0;
+      },
+      message: "Enter the path and name of the file you wish to open.",
+      onModalClose: this.props.prepareNotebookFromPath,
+      placeHolder: "file_path/file.ext",
+      title: "Load Variables from Path"
     };
 
     return (
@@ -589,6 +656,10 @@ export default class VCSMenu extends React.Component<
           ref={loader => (this.templateMenuRef = loader)}
         />
         <ExportPlotModal {...exportPlotModalProps} />
+        <InputModal
+          {...inputModalProps}
+          ref={loader => (this.filePathInputRef = loader)}
+        />
         <div>
           <Alert
             color="info"
@@ -610,18 +681,29 @@ export default class VCSMenu extends React.Component<
     );
   }
 
+  @boundMethod
   private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
     this.setState({ plotReady: value });
   }
 
+  @boundMethod
   private handlePlotExistsChanged(sidebar: LeftSideBarWidget, value: boolean) {
     this.setState({ plotExists: value });
   }
 
+  @boundMethod
   private handleVariablesChanged(
     varTracker: VariableTracker,
     variables: Variable[]
   ) {
     this.setState({ variables });
+  }
+
+  @boundMethod
+  private async handleOptionsChanged(
+    modal: InputModal,
+    options: string[]
+  ): Promise<void> {
+    await this.props.appSettings.setSavedPaths(options);
   }
 }

@@ -1,11 +1,13 @@
 import * as React from "react";
 import {
+  CardGroup,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownToggle
 } from "reactstrap";
 import { BASE_COLORMAPS } from "../constants";
+import { boundMethod } from "autobind-decorator";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
@@ -37,16 +39,16 @@ export default class ColormapEditor extends React.Component<
       showDropdown: false,
       showEdit: false
     };
-    this.toggleDropdown = this.toggleDropdown.bind(this);
-    this.selectColormap = this.selectColormap.bind(this);
   }
 
+  @boundMethod
   public toggleDropdown(): void {
     this.setState({
       showDropdown: !this.state.showDropdown
     });
   }
 
+  @boundMethod
   public selectColormap(name: string): void {
     this.setState({
       colormapChanged: true,
@@ -57,14 +59,14 @@ export default class ColormapEditor extends React.Component<
 
   public render(): JSX.Element {
     return (
-      <div>
+      <CardGroup>
         <Dropdown
           style={{ maxWidth: "calc(100% - 70px)", marginTop: "1em" }}
           isOpen={this.state.showDropdown}
           toggle={this.toggleDropdown}
         >
           <DropdownToggle
-            className={"graphics-dropdown-vcdat"}
+            className={/*@tag<colormap-dropdown>*/ "colormap-dropdown-vcdat"}
             disabled={!this.props.plotReady}
             caret={true}
           >
@@ -80,7 +82,9 @@ export default class ColormapEditor extends React.Component<
               };
               return (
                 <DropdownItem
-                  className={"graphics-dropdown-item-vcdat"}
+                  className={
+                    /*@tag<colormap-dropdown-item>*/ "colormap-dropdown-item-vcdat"
+                  }
                   onClick={selectCM}
                   key={cmName}
                 >
@@ -90,7 +94,7 @@ export default class ColormapEditor extends React.Component<
             })}
           </DropdownMenu>
         </Dropdown>
-      </div>
+      </CardGroup>
     );
   }
 }

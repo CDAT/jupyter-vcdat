@@ -9,6 +9,7 @@ sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
 from BaseTestCase import BaseTestCase
 
+
 # from selenium.webdriver.firefox.options import Options
 
 
@@ -89,8 +90,10 @@ class TestLocators(BaseTestCase):
         vcdat_panel.locate_plot()
         vcdat_panel.locate_export_plot()
         vcdat_panel.locate_clear()
-        vcdat_panel.locate_load_variables()
+        vcdat_panel.locate_load_variables_by_file()
+        vcdat_panel.locate_load_variables_by_path()
         vcdat_panel.locate_select_plot_type()
+        vcdat_panel.locate_select_colormap()
         vcdat_panel.locate_select_a_template()
 
     def test_file_browser_locators(self):

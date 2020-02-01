@@ -18,9 +18,9 @@ import {
 // Project Components
 import { checkForExportedFileCommand } from "../PythonCommands";
 import CodeInjector from "../CodeInjector";
-import NotebookUtilities from "../NotebookUtilities";
 import Utilities from "../Utilities";
 import { ExportFormat, ImageUnit } from "../types";
+import { boundMethod } from "autobind-decorator";
 
 interface IExportPlotModalProps {
   isOpen: boolean;
@@ -70,22 +70,9 @@ export default class ExportPlotModal extends React.Component<
       validateFileFormat: false,
       width: ""
     };
-    this.save = this.save.bind(this);
-    this.toggleModal = this.toggleModal.bind(this);
-    this.dismissExportValidation = this.dismissExportValidation.bind(this);
-    this.dismissFileFormatValidation = this.dismissFileFormatValidation.bind(
-      this
-    );
-    this.toggleDimensionsDisplay = this.toggleDimensionsDisplay.bind(this);
-    this.toggleCaptureProvenance = this.toggleCaptureProvenance.bind(this);
-    this.renderFormatBtns = this.renderFormatBtns.bind(this);
-    this.renderUnitBtns = this.renderUnitBtns.bind(this);
-    this.onInputChange = this.onInputChange.bind(this);
-    this.onHeightChange = this.onHeightChange.bind(this);
-    this.onWidthChange = this.onWidthChange.bind(this);
-    this.clearExportInfo = this.clearExportInfo.bind(this);
   }
 
+  @boundMethod
   public async toggleDimensionsDisplay() {
     if (!this.state.displayDimensions) {
       const dimensions = await this.props.getCanvasDimensions();
@@ -96,20 +83,24 @@ export default class ExportPlotModal extends React.Component<
     }));
   }
 
+  @boundMethod
   public toggleCaptureProvenance() {
     this.setState(prevState => ({
       captureProvenance: !prevState.captureProvenance
     }));
   }
 
+  @boundMethod
   public dismissFileFormatValidation() {
     this.setState({ validateFileFormat: false });
   }
 
+  @boundMethod
   public dismissExportValidation() {
     this.setState({ validateExportName: false });
   }
 
+  @boundMethod
   public clearExportInfo() {
     this.setState({
       captureProvenance: false,
@@ -119,6 +110,8 @@ export default class ExportPlotModal extends React.Component<
       validateFileFormat: false
     });
   }
+
+  @boundMethod
   public toggleModal() {
     this.setState({
       plotName: "",
@@ -128,6 +121,7 @@ export default class ExportPlotModal extends React.Component<
     this.props.toggle();
   }
 
+  @boundMethod
   public async save() {
     let plotName = this.state.plotName;
 
@@ -166,7 +160,7 @@ export default class ExportPlotModal extends React.Component<
     );
     const plotFileName = `${plotName}.${fileFormat}`;
     try {
-      const result: string = await NotebookUtilities.sendSimpleKernelRequest(
+      const result: string = await Utilities.sendSimpleKernelRequest(
         this.props.notebookPanel,
         checkForExportedFileCommand(plotFileName)
       );
@@ -182,18 +176,22 @@ export default class ExportPlotModal extends React.Component<
   }
 
   // ======= REACT COMPONENT FUNCTIONS =======
+  @boundMethod
   public onInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ plotName: event.target.value });
   }
 
+  @boundMethod
   public onWidthChange(event: React.ChangeEvent<HTMLInputElement>): void {
     this.setState({ width: event.target.value });
   }
 
+  @boundMethod
   public onHeightChange(event: React.ChangeEvent<HTMLInputElement>): void {
     this.setState({ height: event.target.value });
   }
 
+  @boundMethod
   public onFmtRadioBtnClick(rSelected: ExportFormat) {
     this.setState({ plotFileFormat: rSelected });
     if (rSelected === "png") {
@@ -203,6 +201,7 @@ export default class ExportPlotModal extends React.Component<
     }
   }
 
+  @boundMethod
   public onUnitRadioBtnClick(rSelected: ImageUnit) {
     this.setState({ plotUnits: rSelected });
   }
@@ -317,6 +316,7 @@ export default class ExportPlotModal extends React.Component<
     );
   }
 
+  @boundMethod
   private renderFormatBtns(): JSX.Element {
     // List of choices that will have buttons
     const formats: ExportFormat[] = ["png", "pdf", "svg", "ps"];
@@ -342,6 +342,7 @@ export default class ExportPlotModal extends React.Component<
     );
   }
 
+  @boundMethod
   private renderUnitBtns(): JSX.Element {
     // List of choices that will have buttons
     const units: ImageUnit[] = ["cm", "dot", "in", "mm", "px"];
