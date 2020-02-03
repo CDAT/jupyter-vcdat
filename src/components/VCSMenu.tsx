@@ -161,9 +161,9 @@ export default class VCSMenu extends React.Component<
   }
 
   @boundMethod
-  public updateAnimateAxis(axisId: number): void {
+  public updateAnimateAxisId(axis: number): void {
     this.setState({
-      animationAxisIndex: axisId
+      animationAxisIndex: axis
     });
   }
 
@@ -538,7 +538,7 @@ export default class VCSMenu extends React.Component<
       varInfo: new Variable(),
       toggleAnimate: this.toggleAnimate,
       toggleAnimateInverse: this.toggleAnimateAxisInvert,
-      updateAnimateAxis: this.updateAnimateAxis,
+      updateAnimateAxis: this.updateAnimateAxisId,
       updateAnimateRate: this.updateAnimateRate,
       varTracker: this.props.varTracker
     };
@@ -597,22 +597,24 @@ export default class VCSMenu extends React.Component<
           <CardBody className={/*@tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
             <div style={centered}>
               <Row>
-                <Col sm={3}>
+                <Col sm={this.state.shouldAnimate ? 5 : 3}>
                   <Button
                     className={
                       /*@tag<vcsmenu-plot-btn>*/ "vcsmenu-plot-btn-vcdat"
                     }
                     type="button"
-                    color="primary"
+                    color={this.state.shouldAnimate ? "warning" : "primary"}
                     style={btnStyle}
                     onClick={this.plot}
                     disabled={!this.state.plotReady}
-                    title="Plot the current selected variable(s)."
+                    title="Animate the selected variable over its selected axis"
                   >
-                    Plot
+                    {this.state.shouldAnimate ? "Animate" : "Plot"}
                   </Button>
                 </Col>
-                <Col sm={5} style={{ padding: "0 5px" }}>
+                <Col 
+                  sm={this.state.shouldAnimate ? 3 : 5} 
+                  style={{ padding: "0 5px" }}>
                   <Button
                     className={
                       /*@tag<vcsmenu-export-btn>*/ "vcsmenu-export-btn-vcdat"
@@ -621,13 +623,13 @@ export default class VCSMenu extends React.Component<
                     color="primary"
                     style={btnStyle}
                     onClick={this.toggleModal}
-                    disabled={!this.state.plotReady || !this.state.plotExists}
+                    disabled={!this.state.plotReady || !this.state.plotExists || this.state.shouldAnimate}
                     title="Exports the current canvas plot."
                   >
-                    Export Plot
+                    Export
                   </Button>
                 </Col>
-                <Col sm={4}>
+                <Col sm={3}>
                   <Button
                     className={
                       /*@tag<vcsmenu-clear-btn>*/ "vcsmenu-clear-btn-vcdat"
