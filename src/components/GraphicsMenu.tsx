@@ -30,6 +30,7 @@ import NotebookUtilities from "../NotebookUtilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import ColormapEditor from "./ColormapEditor";
 import VariableTracker from "../VariableTracker";
+import AnimationMenu from "./AnimationMenu";
 import { DISPLAY_MODE } from "../constants";
 import { boundMethod } from "autobind-decorator";
 
@@ -76,9 +77,6 @@ interface IGraphicsMenuState {
   nameValue: string;
   invalidName: boolean;
   plotReady: boolean;
-  shouldAnimate: boolean;
-  animateAxis: number;
-  animateRate: number;
 }
 
 export default class GraphicsMenu extends React.Component<
@@ -96,22 +94,10 @@ export default class GraphicsMenu extends React.Component<
       selectedMethod: "",
       showDropdown: false,
       showMenu: false,
-      tempGroup: "",
-      shouldAnimate: false,
-      animateAxis: 0,
-      animateRate: 5
+      tempGroup: ""
     };
 
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
-  }
-
-
-  @boundMethod
-  public toggleAnimate(): void {
-    this.setState({
-      shouldAnimate: !this.state.shouldAnimate
-    });
-    this.props.toggleAnimate();
   }
 
   @boundMethod
@@ -188,22 +174,6 @@ export default class GraphicsMenu extends React.Component<
     );
   }
 
-  @boundMethod
-  public changeAnimateAxis(e: any){
-    this.setState({
-      animateAxis: parseInt(e.target.value)
-    })
-    this.props.updateAnimateAxis(parseInt(e.target.value));
-  }
-
-  @boundMethod
-  public changeAnimateRate(e: any){
-    this.setState({
-      animateRate: parseInt(e.target.value)
-    });
-    this.props.updateAnimateRate(parseInt(e.target.value));
-  }
-
   // To Add Later: public openColormapEditor(): void {}
 
   public render(): JSX.Element {
@@ -221,129 +191,56 @@ export default class GraphicsMenu extends React.Component<
     if (this.state.invalidName) {
       validInputColor = "danger";
     }
-
-    let selectedVariableName = "";
-    let selectedVariable: any = undefined;
-    let axisNames = new Array<string>();
-    if(this.props.varTracker.selectedVariables.length > 0){
-      selectedVariableName = this.props.varTracker.selectedVariables[0].slice(0, this.props.varTracker.selectedVariables[0].length/2);
-      selectedVariable = this.props.varTracker.findVariableByAlias(selectedVariableName);
-      if(selectedVariable[0] != -1){
-        for(let i = 0; i < selectedVariable[1].axisList.length; i++){
-          if(selectedVariable[1].axisList[i] != 'lat' && selectedVariable[1].axisList[i] != 'lon'){
-            axisNames.push(selectedVariable[1].axisList[i]);
-          }
-        }
-      }
-    }
     return (
       <div>
         <Card>
           <CardBody className={/*@tag<graphics-menu>*/ "graphics-menu-vcdat"}>
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle>
-            <Container>
-              <Row>
-                <Col xs="auto">
-                  <CustomInput
-                    id="vcsmenu-overlay-switch-vcdat"
-                    type="switch"
-                    className={
-                      /*@tag<vcsmenu-overlay-switch>*/ "vcsmenu-overlay-switch-vcdat"
-                    }
-                    name="overlayModeSwitch"
-                    label="Overlay Mode"
-                    disabled={!this.state.plotReady}
-                    checked={this.props.overlayMode}
-                    onChange={this.props.toggleOverlayMode}
-                  />
-                </Col>
-              </Row>
-              <Row>
-                <Col xs="auto">
-                  <CustomInput
-                    id="vcsmenu-sidecar-switch-vcdat"
-                    type="switch"
-                    className={
-                      /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
-                    }
-                    name="sidecarSwitch"
-                    label="Plot to Sidecar"
-                    disabled={!this.state.plotReady}
-                    checked={
-                      this.props.currentDisplayMode === DISPLAY_MODE.Sidecar
-                    }
-                    onChange={this.props.toggleSidecar}
-                  />
-                </Col>
-              </Row>
-              <Row>
-                <Col xs="auto">
-                  <CustomInput
-                    type="switch"
-                    id={
-                      /*@tag<vcsmenu-animate-switch>*/ "vcsmenu-animate-switch-vcdat"
-                    }
-                    name="animateSwitch"
-                    label="Animate"
-                    disabled={!this.state.plotReady}
-                    onChange={this.toggleAnimate}
+              <Container>
+                <Row>
+                  <Col xs="auto">
+                    <CustomInput
+                      id="vcsmenu-overlay-switch-vcdat"
+                      type="switch"
+                      className={
+                        /*@tag<vcsmenu-overlay-switch>*/ "vcsmenu-overlay-switch-vcdat"
+                      }
+                      name="overlayModeSwitch"
+                      label="Overlay Mode"
+                      disabled={!this.state.plotReady}
+                      checked={this.props.overlayMode}
+                      onChange={this.props.toggleOverlayMode}
                     />
-                </Col>
-              </Row>
-              {this.state.shouldAnimate && (
-                <div>
-                  <Row>
-                    <Col xs="2">
-                      <Label for="vcsmenu-animate-select-vcdat">Axis:</Label>
-                    </Col>
-                    <Col xs="6">
-                      <CustomInput
-                        type="select"
-                        id={
-                          /*@tag<vcsmenu-animate-select>*/ "vcsmenu-animate-select-vcdat"
-                        }
-                        name="animateSelectAxis"
-                        onClick={this.changeAnimateAxis}
-                        disabled={!this.state.shouldAnimate}>
-                          {axisNames.map((name: string, idx: number) => {
-                            return (<option value={idx}>{name}</option>)
-                          })}
-                      </CustomInput>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col xs="2">
-                      <Label for="animateInverse">
-                        <span>
-                          Invert: 
-                        </span>
-                      </Label>
-                    </Col>
-                    <Col xs="6">
-                      <CustomInput 
-                        type="checkbox" 
-                        id="animateInverse" 
-                        onClick={this.props.toggleAnimateInverse}/>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col xs="auto">
-                      <Label for="animationRangeSlider">
-                        Rate: {this.state.animateRate}
-                      </Label>  
-                      <Input 
-                        id="animationRangeSlider" 
-                        value={this.state.animateRate} 
-                        type="range" 
-                        min="1" 
-                        max="30" 
-                        onChange={this.changeAnimateRate} />
-                    </Col>
-                  </Row>
-                </div>
-              )}
-            </Container>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs="auto">
+                    <CustomInput
+                      id="vcsmenu-sidecar-switch-vcdat"
+                      type="switch"
+                      className={
+                        /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
+                      }
+                      name="sidecarSwitch"
+                      label="Plot to Sidecar"
+                      disabled={!this.state.plotReady}
+                      checked={
+                        this.props.currentDisplayMode === DISPLAY_MODE.Sidecar
+                      }
+                      onChange={this.props.toggleSidecar}
+                    />
+                  </Col>
+                </Row>
+                <AnimationMenu 
+                  plotReady={this.state.plotReady}
+                  toggleAnimate={this.props.toggleAnimate}
+                  toggleInverse={this.props.toggleAnimateInverse}
+                  varTracker={this.props.varTracker}
+                  updateAxisId={this.props.updateAnimateAxis}
+                  updateRate={this.props.updateAnimateRate}
+                  />
+              </Container>
             </CardSubtitle>
             <CardGroup className={"clearfix"}>
               <Dropdown
