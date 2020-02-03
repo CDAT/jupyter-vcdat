@@ -532,9 +532,13 @@ canvas = vcs.init(display_target='off')`;
     // Create graphics method code
     let gmParam: string = selectedGM;
     if (!selectedGM) {
-      gmParam = '"boxfill"';
+      gmParam = 'boxfill';
     } else if (selectedGM.indexOf(selectedGMGroup) < 0) {
       gmParam += `_${selectedGMGroup}`;
+    }
+
+    if(!selectedGMGroup){
+      selectedGMGroup = 'boxfill';
     }
 
     // Create template code
@@ -545,16 +549,25 @@ canvas = vcs.init(display_target='off')`;
 
     let cmd: string = "from tqdm import tqdm_notebook\nfrom glob import glob\n"
     cmd += `pngpath = "vcdat_tmp"\n`;
+    cmd += `outpath = "vcdat_animations"\n`;
     cmd += `if not os.path.exists(pngpath):\n`;
     cmd += `    os.makedirs(pngpath)\n`;
+    cmd += `    os.makedirs(outpath)\n`;
     cmd += `else:\n`;
     cmd += `    [os.remove(os.path.join(pngpath, x)) for x in os.listdir(pngpath)]\n`;
     cmd += "frame_index = 0\n";
     cmd += `min, max = vcs.minmax(${selectedVariable})\n`;
-    cmd += `gm = vcs.create${selectedGMGroup}(source='${selectedGM}')\n`;
+    
+    if(selectedGM)
+      cmd += `gm = vcs.create${selectedGMGroup}(source='${selectedGM}')\n`;
+    else
+      cmd += `gm = vcs.create${selectedGMGroup}()\n`;
+
     cmd += `gm.levels = [round(x) for x in numpy.arange(min, max, (max-min)/10)]\n`;
     cmd += `gm.fillareacolors = vcs.getcolors(gm.levels)\n`;
-    cmd += `gm.colormap = "${colormap}"\n`;
+    
+    if(colormap)
+      cmd += `gm.colormap = "${colormap}"\n`;
 
     if(invertAxis){
       cmd += `for step in tqdm_notebook(list(reversed(range(${selectedVariable}.shape[${axisIndex}]))), desc="Creating animation frames for ${selectedVariable}"):\n`;  
@@ -572,7 +585,7 @@ canvas = vcs.init(display_target='off')`;
     
     cmd += "    canvas.png(os.path.join(pngpath,'{:06}'.format(frame_index)))\n";
     cmd += "    frame_index += 1\n"
-    cmd += `canvas.ffmpeg("${selectedVariable}_animation.mp4", sorted(glob(os.path.join(pngpath, "*png"))), rate=${rate})\n`;
+    cmd += `canvas.ffmpeg(os.path.join(outpath, "${selectedVariable}_animation.mp4"), sorted(glob(os.path.join(pngpath, "*png"))), rate=${rate})\n`;
     cmd += `\n`;
 
     return this.inject(
