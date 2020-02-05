@@ -3,8 +3,8 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 
 // Project Components
 import CellUtilities from "./CellUtilities";
-import AxisInfo from "./components/AxisInfo";
-import Variable from "./components/Variable";
+import AxisInfo from "./AxisInfo";
+import Variable from "./Variable";
 import VariableTracker from "./VariableTracker";
 import {
   BASE_DATA_READER_NAME,

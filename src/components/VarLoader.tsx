@@ -8,9 +8,9 @@ import { ISignal, Signal } from "@phosphor/signaling";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 // Project Components
-import AxisInfo from "./AxisInfo";
+import AxisInfo from "../AxisInfo";
 import VarCard from "./VarCard";
-import Variable from "./Variable";
+import Variable from "../Variable";
 import VariableTracker from "../VariableTracker";
 import NotebookUtilities from "../NotebookUtilities";
 import { boundMethod } from "autobind-decorator";

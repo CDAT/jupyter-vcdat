@@ -19,7 +19,7 @@ import NotebookUtilities from "../NotebookUtilities";
 import ExportPlotModal from "./ExportPlotModal";
 import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
-import Variable from "./Variable";
+import Variable from "../Variable";
 import VarMenu from "./VarMenu";
 import InputModal from "./InputModal";
 import VariableTracker from "../VariableTracker";

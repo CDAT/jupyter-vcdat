@@ -4,29 +4,51 @@
 
 The test suite is organized as follows:
 
-- tests/PageObjects/\*py implement classes that encapsulate locators which are means to find the selenium elements in the html page.
-- tests/TestUtils/\*py implement BaseTestCase and BaseTestCaseWithNoteBook classes. Test cases should inherit BaseTestCaseWithNoteBook class which will create a new note book and name it uniquely before starting test steps, and clean up after finishing test steps.
 - tests/\*py implements the test cases.
+- tests/PageObjects/\*py implement classes that encapsulate locators which are means to interact with elements in the html page.
+- tests/TestUtils/\*py implement BaseTestCase and BaseTestCaseWithNoteBook classes. Test cases should inherit BaseTestCase
+which will perform setup steps and and clean up after finishing test steps.
 
 ## Guidelines
 
 - Python Selenium locators (XPath, class names, id of selenium elements) should not be in any of the tests/test*py files. Locators should be encapsulated in a class in one of tests/PageObjects/*py.
 - Under tests/PageObjects, there are following classes:
 
-  - **Actions** class is a base class implementing actions like: find_element(), and find_elements() etc.
+  - **Actions** class is a base class implementing actions like: find_element(), and find_elements() etc. As well as the 'Action' object.
   - **ActionsPage** class is a subclass of **Actions** class which should be the parent class of all 'page' classes.
+  - **Locator** class handles interactions between 'Actions' class and page elements, to provide functionality to PageObject classes.
   - **MainPage** class is a page class for the main page of jupyter-vcdat web app.
+  - **VcdatPanel** class is a page class for the vcdat panel that is on the left side of the web app.
+  - **FileBrowser** class is a page class for the File Browser.
+  <!--
   - **NoteBookPage** class is a page class for the notebook page.
   - **LoadVariablesPopUp** class is a page class for the 'Load Variables' pop up page.
   - **EditAxisPopUp** class is a page class for the 'Edit Axis' pop up page.
   - **SavePlotPopUp** class is a page class for the 'Save Plot' pop up page.
-  - **VcdatPanel** class is a page class for the vcdat panel that is on the left side of the web app.
-  - **FileBrowser** class is a page class for the File Browser/
+  -->
+  - **AboutPage** class is for the About dialog which opens when the 'About VCDAT' is clicked in the 'help' menu.
 
-- When implementing a method to click on an element, please implement a locate() method and a click() method. For example in **VcdatPanel** class, we have:
-  - locate_export_plot() which implements how do find the 'Export Plot' button.
-  - click_on_export_plot() which calls locate_export_plot() and click on the element returned.
-    This ensures the locator for 'Export Plot' button is only defined in one place in the test suite.
+- When implementing a new interaction with the UI, the goal should be to create a function which returns a 'locator' object. For example in **MainPage** class, we have:
+  - jupyter_icon() which returns a locator object using the 'locator' create function inherited from ActionsPage.
+- Creating a locator requires:
+    - locator: can be an xpath, css, etc. used to find the element on the page
+    - locator type: specifies what method to use to find the element (xpath, css, id etc.)
+    - description: will be used to describe the element during testing and logging of test results. 
+    - requirements: any additional arguments after description are interpreted as locators or actions that need to be satisfied before the current element can be accessed. These can be either locator or action objects only. Note: the requirements are only performed if the element is not found with the first attempt.
+    - If the locator depends on previous locators being clicked, just pass the required locator object as a requirement and it will be clicked if needed. For example, in the **MainPage** class:
+        - top_menu_item() returns a locator which requires a 'top_menu' parent locator to be open first. If the parent locator is closed, the current locator would fail to be accessed, which would trigger the parent to be clicked, and then the current locator can be accessed.
+    - If the locator depends on a specific function to be run in order to be accessed, you can pass an action object as a requirement (described below).
+- Creating an 'Action' object which can be required by locators:
+    - function: the function that needs to be run, without parameters or ()
+    - description: used to describe the action during testing and logging test results.
+    - arguments (optional): any additional arguments will be passed as arguments to the action function when it's run.
+    - As an example, see **MainPage** tutorial_next() function, which creates an action object and passes it as a requirement to the locator.
+- Once created, locator objects come with built-in functions which are used by tests to interact with the U.I.
+    - Note: action 'objects' described above are created to specify a locator requirement and are meant to be used in page objects, not in tests.
+    - Action functions can be chained for example:
+        - 'input_locator.click().enter_text("input to enter").sleep(3).press_enter()' will first click the input_locator element, then enter text 'input to enter', then sleep for 3 seconds, then press the 'Enter' key.
+    - Locator object can be created once, and used multiple times for different actions, for example:
+        - my_locator.click(), my_locator.enter_text("text"), my_locator.double_click(), etc. 
 
 All of the classes under tests/PageObjects implement action methods on the corresponding pages. Test cases may instantiate some of these classes and call methods to perform actions on the page.
 
@@ -35,81 +57,26 @@ All of the classes under tests/PageObjects implement action methods on the corre
 Please examine the available classes and methods before adding test cases.
 
 ```bash
-   ## Actions class
-   find_element(locator_string, locator_type)
-   find_elements(locator_string, locator_type)
-   move_to_click(element)
-   move_to_double_click(element)
-   scroll_into_view(element)
-   scroll_click(element)
-   wait_click(method, locator)
-   enter_text(input_area, text)
-   open_file_browser()
-   wait_till_element_is_visible()
-   wait_till_element_is_clickable()
+   ## ActionsPage class
+   locator(locator_string, locator_type, description, requirements) # Creates a locator object
+   action(function, description, arguments) # Creates an action object
 
-   ## VcdatPanel class
-   locate_plot()
-   locate_export_plot()
-   locate_clear()
-   locate_load_variables_by_file()
-   locate_load_variables_by_path()
-   locate_sync_notebook_button()
-   locate_select_plot_type()
-   locate_select_colormap()
-   locate_select_a_template()
-   click_on_plot()
-   click_on_export_plot()
-   click_on_clear()
-   click_on_load_variables_by_file()
-   click_on_load_variables_by_path()
-   click_on_sync_notebook()
-   click_on_select_plot_type()
-   click_on_select_colormap()
-   click_on_select_a_template()
-   select_a_plot_type(plot_type)
-   select_a_template(template)
+   ## Locator object functions (available from created locators)
+   click() # Clicks the locator element
+   double_click() # Double clicks locator element
+   enter_text(text) # Enters specified text, in locator element
+   get_value(variable) # Looks for the 'value' attribute in element and saves the value in the specified variable
+   press_enter() # Presses the 'Enter' key event for the locator element
+   scroll_click() # Scrolls the element into view and clicks it
+   scroll_view # Scrolls the element into view
 
-   ## LoadVariablesPopUp class
-   locate_variable(var)
-   click_on_variable(var)
-   locate_variable_axis(var)
-   click_on_variable_axes(var)
-   click_on_load()
-   locate_axis_with_title(var, axis_title)
-   adjust_var_axes_slider(var, axis_title, min_offset_percent, max_offset_percent)
-   locate_all_axes_for_variable(var)
+   ## MainPage available locators:
+   jupyter_icon()
+   vcdat_icon()
+   top_menu(name)
+   top_menu_item(parent, name)
+   
 
-   ## SavePlotPopUp class
-   input_plot_file_name(plot_name)
-   select_export_format(export_format)
-   click_on_export()
-   select_custom_dimensions()
-   deselect_custom_dimensions()
-   click_on_custom_dimensions_unit()
-   enter_unit_width(the_dimension)
-   enter_unit_height(the_dimension)
-   select_capture_provenance()
-   deselect_capture_provenance()
-   select_overlay_mode()
-   deselect_overlay_mode()
-   select_variable(var)
-   deselect_variable(var)
-   click_on_edit_button_for_variable(var)
-
-   ## EditAxisPopUp class
-   adjust_var_axes_slider(var, axis_title, min_offset_percent, max_offset_percent)
-   click_on_update()
-
-   ## FileBrowser class
-   double_click_on_a_file()
-
-   ## NoteBookPage class
-   new_notebook(launcher_title, notebook_name)
-   get_notebook_name()
-   rename_notebook(new_name)
-   save_current_notebook()
-   close_current_notebook()
 ```
 
 ## Preparation to run test cases

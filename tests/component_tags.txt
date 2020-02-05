@@ -1,6 +1,10 @@
 Tag in: src/components/AboutVCDAT.tsx
-    Line 104, Col 22: "about-vcdat-modal" --> "about-vcdat-modal-vcdat"
-    Line 135, Col 19: "float-right about-modal-btn" --> "float-right about-modal-btn-vcdat"
+    Line 79, Col 13: "about-modal" --> "about-modal-vcdat"
+    Line 100, Col 31: "about-version" --> "about-version-vcdat"
+    Line 110, Col 22: "about-modal-body" --> "about-modal-body-vcdat"
+    Line 115, Col 21: "about-contributors" --> "about-contributors-vcdat"
+    Line 125, Col 21: "about-documentation" --> "about-documentation-vcdat"
+    Line 143, Col 19: "float-right about-modal-btn" --> "float-right about-modal-btn-vcdat"
 Tag in: src/components/ColormapEditor.tsx
     Line 69, Col 24: "colormap-dropdown" --> "colormap-dropdown-vcdat"
     Line 86, Col 21: "colormap-dropdown-item" --> "colormap-dropdown-item-vcdat"

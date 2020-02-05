@@ -1,90 +1,53 @@
-from MainPage import MainPage
+import time
 
-"""
-PageObject for the main page of JupyterLab application
-Contains locator functions for all menu items and left tabs.
-"""
+from selenium.common.exceptions import NoSuchElementException
+
+from ActionsPage import ActionsPage
+from ActionsPage import InvalidPageException
+from FileBrowser import FileBrowser
+from SavePlotPopUp import SavePlotPopUp
+from EditAxisPopUp import EditAxisPopUp
 
 
-class VcdatPanel(MainPage):
+class VcdatPanel(ActionsPage):
 
     def __init__(self, driver, server=None):
         super(VcdatPanel, self).__init__(driver, server)
-        main_page
 
     def _validate_page(self):
-        print("...Validate VcdatPanel...")
-        self.vcdat_icon()  # Make sure vcdat panel can open
+        print("...VcdatPanel.validate_page()...")
+        try:
+            self.locate_plot()
+        except NoSuchElementException:
+            raise InvalidPageException
 
-    # ----------  TOP LEVEL LOCATORS (Always accessible on page)  --------------
+    def locate_plot(self):
+        return self.find_element("vcsmenu-plot-btn-vcdat", "class")
 
-    def plot_btn(self):
-        loc = "vcsmenu-plot-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Plot Button", requires)
+    def locate_export_plot(self):
+        return self.find_element("vcsmenu-export-btn-vcdat", "class")
 
-    def export_btn(self):
-        loc = "vcsmenu-export-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Export Button", requires)
+    def locate_clear(self):
+        return self.find_element("vcsmenu-clear-btn-vcdat", "class")
 
-    def clear_btn(self):
-        loc = "vcsmenu-clear-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Clear Button", requires)
+    def locate_load_variables_by_file(self):
+        return self.find_element("varmenu-load-variables-file-btn-vcdat", "class")
 
-    def load_variables_file_btn(self):
-        loc = "varmenu-load-variables-file-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "File Load Button", requires)
+    def locate_load_variables_by_path(self):
+        return self.find_element("varmenu-load-variables-path-btn-vcdat", "class")
 
-    def load_variables_path_btn(self):
-        loc = "varmenu-load-variables-path-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Path Load Button", requires)
+    def locate_sync_notebook_button(self):
+        return self.find_element("varmenu-sync-btn-vcdat", "class")
 
-    def plot_type_btn(self):
-        loc = "graphics-dropdown-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Plot Type Button", requires)
+    def locate_select_plot_type(self):
+        return self.find_element("graphics-dropdown-vcdat", "class")
 
-    def colormap_btn(self):
-        loc = "colormap-dropdown-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Colormap Button", requires)
+    def locate_select_colormap(self):
+        return self.find_element("colormap-dropdown-vcdat", "class")
 
-    def template_btn(self):
-        loc = "template-dropdown-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Template Button", requires)
+    def locate_select_a_template(self):
+        return self.find_element("template-dropdown-vcdat", "class")
 
-    # -------------------------  SUB LEVEL LOCATORS  ---------------------------
-
-    # Locator will only show up if an existing, non-vcdat notebook is opened
-    def sync_notebook_btn(self, notebook_name):
-        loc = "varmenu-sync-btn-vcdat
-
-        # If locator not found, then make sure vcdat panel open
-        req1 = self.action(self.open_left_tab, "VCDAT")
-        # And create a notebook with specific name
-        req2 = self.action(
-            self.create_notebook, "Create notebook for syncing", notebook_name)
-        return self.locator(loc, "class", "Plot Button", req1, req2)
-
-    # Gets locator for an item in the Plot Type drop-down
-    def plot_type_item(self, item):
-        require = self.action()
-
-    # Gets locator for an item in colormap drop-down
-    def colormap_item(self, item):
-        pass
-
-    # Gets locator for an item in layout template drop-down
-    def layout_template_item(self, item):
-        pass
-
-
-"""
     def click_on_plot(self):
         element = self.locate_plot()
         self.scroll_click(element)
@@ -129,7 +92,6 @@ class VcdatPanel(MainPage):
         element = self.locate_select_a_template()
         # self.move_to_click(element)
         self.scroll_click(element)
-
 
     def _get_plot_type_elements(self):
         plot_type_elements_class = "graphics-dropdown-item-vcdat"
@@ -300,5 +262,3 @@ class VcdatPanel(MainPage):
 
         edit_axis_popup = EditAxisPopUp(self.driver, None)
         return edit_axis_popup
-
-"""

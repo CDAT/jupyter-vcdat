@@ -17,9 +17,9 @@ import {
 
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
-import AxisInfo from "./AxisInfo";
+import AxisInfo from "../AxisInfo";
 import DimensionSlider from "./DimensionSlider";
-import Variable from "./Variable";
+import Variable from "../Variable";
 import VarLoader from "./VarLoader";
 import { boundMethod } from "autobind-decorator";
 

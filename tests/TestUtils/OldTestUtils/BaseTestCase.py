@@ -5,11 +5,11 @@ from selenium.webdriver import DesiredCapabilities
 from selenium import webdriver
 import tempfile
 import unittest
+from NoteBookPage import NoteBookPage
 from MainPage import MainPage
 from JupyterUtils import JupyterUtils
 import os
 import sys
-import time
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, '..', 'PageObjects'))
@@ -25,7 +25,7 @@ class BaseTestCase(unittest.TestCase):
        BROWSER_BINARY: full path to your firefox binary
     '''
     _delay = 1
-    _wait_timeout = 7
+    _wait_timeout = 10
 
     def setUp(self):
         print("\n\n#########...{}...".format(self._testMethodName))
@@ -53,11 +53,7 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self):
         print("...BaseTestCase.tearDown()...")
-        self.main_page.jupyter_icon().click()
-        self.main_page.top_menu_item("File","Save All").click()
-        self.main_page.top_menu_item("File", "Close All Tabs").click()
-        self.main_page.dialog_btn("OK").lazy().click()
-        self.main_page.shutdown_all_kernels()
+        self.main_page.shutdown_kernel()
         self.driver.quit()
 
     def setup_for_chrome(self, mode):
@@ -84,3 +80,18 @@ class BaseTestCase(unittest.TestCase):
                                         firefox_binary=firefox_binary,
                                         executable_path=geckodriver_loc,
                                         capabilities=firefox_capabilities)
+
+    #
+    # Test Util functions
+    #
+    def new_notebook(self, launcher, notebook_name):
+        notebook = NoteBookPage(self.driver, None)
+        notebook.new_notebook(launcher, notebook_name)
+        return notebook
+
+    def save_close_notebook(self, notebook):
+        '''
+        save and close current notebook
+        '''
+        notebook.save_current_notebook()
+        notebook.close_current_notebook()

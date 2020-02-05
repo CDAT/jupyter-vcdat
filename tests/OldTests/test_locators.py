@@ -20,14 +20,14 @@ class TestLocators(BaseTestCase):
         locator = self.main_page
 
         # Select each element in the top left menu bar
-        locator.top_menu_item("File").click()
-        locator.top_menu_item("Edit").click()
-        locator.top_menu_item("View").click()
-        locator.top_menu_item("Run").click()
-        locator.top_menu_item("Kernel").click()
-        locator.top_menu_item("Tabs").click()
-        locator.top_menu_item("Settings").click()
-        locator.top_menu_item("Help").click()
+        locator.top_menu("File").click()
+        locator.top_menu("Edit").click()
+        locator.top_menu("View").click()
+        locator.top_menu("Run").click()
+        locator.top_menu("Kernel").click()
+        locator.top_menu("Tabs").click()
+        locator.top_menu("Settings").click()
+        locator.top_menu("Help").click()
 
     def test_jupyter_left_tab_locators(self):
         '''
@@ -99,7 +99,7 @@ class TestLocators(BaseTestCase):
         print("\n\n...test_file_browser_locators...")
         main_page = self.main_page
         main_page.click_on_folder_tab()
-        main_page.home_icon().click()
+        main_page.folder_icon().click()
 
     def ABCtest_all_locators(self):
         '''

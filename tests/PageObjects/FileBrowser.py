@@ -1,46 +1,71 @@
-import time
-from selenium.common.exceptions import NoSuchElementException
-from ActionsPage import ActionsPage
-from LoadVariablesPopUp import LoadVariablesPopUp
+from LoadVariablesPopup import LoadVariablesPopup
+from MainPage import MainPage
+
+"""
+PageObject for the main page of JupyterLab application
+Contains locator functions for all menu items and left tabs.
+"""
 
 
-class FileBrowser(ActionsPage):
+class FileBrowser(MainPage):
 
     def __init__(self, driver, server=None):
         super(FileBrowser, self).__init__(driver, server)
 
     def _validate_page(self):
-        print("...FileBrowser.validate_page()...")
-        file_name_header_locator = "#filebrowser div.jp-DirListing-headerItem"
-        file_name_header_locator += ".jp-id-name span.jp-DirListing-headerItemText"
-        self.find_element(file_name_header_locator, "css")
+        print("...Validate FileBrowser...")
+        # Make sure file browser can open
+        self.left_tab("FileBrowser")
 
-    def double_click_on_a_file(self, fname, expect_file_load_error=True):
-        time.sleep(3)
-        file_locator = "#filebrowser li.jp-DirListing-item[title~='{f}']".format(
-            f=fname)
-        file_element = self.find_element(file_locator, "css")
-        self.move_to_double_click(file_element)
-        time.sleep(self._delay)
+    # This will return an open variables popup given an appropriate .nc file
+    # to open in the file browser.
+    def open_load_variables_popup(self, fname):
+        self.open_file(fname)
+        return LoadVariablesPopup(self.driver, self.server)
 
-        if expect_file_load_error:
-            print("...click on the File Load Error OK button")
-            print("...doing WebDriverWait...till the element is clickable")
-            file_popup_modal_locator = "div.p-Widget.jp-Dialog div.p-Widget.p-Panel "
-            file_popup_modal_locator = "div.jp-Dialog-footer button.jp-mod-accept"
-            dismiss_btn = self.find_element(file_popup_modal_locator, "css")
-            self.move_to_click(dismiss_btn)
+    # ----------  TOP LEVEL LOCATORS (Always accessible on page)  --------------
 
-        time.sleep(self._delay)
+    # Provides locator for an icon in the file browser
+    def file_browser_button(self, icon_title):
+        loc = "//*[@id='filebrowser']//button[@title='{}']".format(icon_title)
+        requires = self.action(self.open_left_tab, "FileBrowser")
+        return self.locator(loc, "xpath", icon_title, requires)
 
-        # Select Kernel Popup if it exists
-        try:
-            accept_button = self.find_element(file_popup_modal_locator, "css")
-            print("Click accept button")
-            if accept_button is not None:
-                self.move_to_click(accept_button)
-        except NoSuchElementException:
-            pass
+    # Returns the locator for a file browser item (like a file)
+    def file_browser_item(self, item):
+        loc = "#filebrowser li.jp-DirListing-item[title~='{i}']".format(
+            i=item)
+        requires = self.action(
+            self.open_left_tab, "", "FileBrowser")
+        return self.locator(loc, "xpath", "FileBrowser Item: {}".format(item), requires)
 
-        load_variables_pop_up = LoadVariablesPopUp(self.driver, None)
-        return load_variables_pop_up
+    def new_launcher_icon(self):
+        return self.file_browser_button("New Launcher")
+
+    def new_folder_icon(self):
+        return self.file_browser_button("New Folder")
+
+    def upload_files_icon(self):
+        return self.file_browser_button("Upload Files")
+
+    def refresh_file_list_icon(self):
+        return self.file_browser_button("Refresh File List")
+
+    def folder_icon(self):
+        loc = ("// *[@id='filebrowser']/div[contains(@class, 'jp-FileBrowser-crumbs')]"
+               "/ span[contains(@class, 'jp-BreadCrumbs-home')]")
+        requires = self.action(
+            self.open_left_tab, "", "FileBrowser")
+        return self.locator(loc, "xpath", "Folder Icon in FileBrowser", requires)
+
+    # ----------------------------- PAGE FUNCTIONS -----------------------------
+
+    # Will open a file in the file browser
+    def open_file(self, fname):
+
+        self.file_browser_item(fname).double_click().wait(2)
+        # File Load Error popup may show
+        self.dialog_button("Dismiss", "File Load Error PopUp").lazy().click()
+        # Kernel Select popup may show
+        self.dialog_button(
+            "Select", "Kernel Select PopUp").lazy().click().wait(5)

@@ -17,7 +17,7 @@ import CellUtilities from "./CellUtilities";
 import CodeInjector from "./CodeInjector";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PopUpModal from "./components/PopUpModal";
-import Variable from "./components/Variable";
+import Variable from "./Variable";
 import VCSMenu from "./components/VCSMenu";
 import {
   BASE_GRAPHICS,
