@@ -56,7 +56,13 @@ const TESTS: { [name: string]: string[] } = {
     "TestFileBrowserLocators",
     "test_double_click_on_a_file"
   ],
-  test_mainpage_locators: ["TestMainPageLocators","test_top_menu_items"]
+  test_main_page_locators: ["TestMainPageLocators","test_top_menu_items"],
+  test_export_html: [
+    "TestExportHTML",
+    "test_export_plot_html_via_button",
+    "test_export_plot_html_via_nbconvert",
+    "test_export_plot_html_via_nbconvert_execute"
+  ]
 };
 
 const TASK_DATA_PATH: string = ".taskData";
