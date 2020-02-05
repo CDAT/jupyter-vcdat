@@ -1,22 +1,19 @@
+from pyvirtualdisplay import Display
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+from selenium.webdriver import DesiredCapabilities
+from selenium import webdriver
+import tempfile
+import unittest
+import time
 import os
 import sys
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, '..', 'PageObjects'))
-
-from JupyterUtils import JupyterUtils
-from MainPage import MainPage
 from NoteBookPage import NoteBookPage
-
-import time
-import unittest
-import tempfile
-
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-from pyvirtualdisplay import Display
+from MainPage import MainPage
+from JupyterUtils import JupyterUtils
 
 
 class BaseTestCase(unittest.TestCase):
@@ -66,6 +63,19 @@ class BaseTestCase(unittest.TestCase):
         chrome_options.add_argument(mode)
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("window-size=1200x600")
+        # Set up download directory
+        """https://stackoverflow.com/questions/18437816/
+        how-to-find-chrome-download-path-in-java"""
+        prefs = {
+            "download": {
+                "default_directory": os.getcwd()
+            }
+        }
+        """
+        http://makeseleniumeasy.com/2018/08/25/how-to-change-default-
+        download-directory-for-chrome-browser-in-selenium-webdriver/
+        """
+        chrome_options.add_experimental_option("prefs", prefs)
         self.driver = webdriver.Chrome(executable_path=os.getenv("BROWSER_DRIVER", "/usr/local/bin/chromedriver"),
                                        chrome_options=chrome_options,
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
@@ -78,8 +88,10 @@ class BaseTestCase(unittest.TestCase):
         firefox_capabilities['marionette'] = True
         firefox_capabilities['moz:firefoxOptions'] = {'args': ['--headless']}
 
-        firefox_binary = FirefoxBinary(os.getenv("BROWSER_BINARY", "/usr/bin/firefox"))
-        geckodriver_loc = os.getenv("BROWSER_DRIVER", "/usr/local/bin/geckodriver")
+        firefox_binary = FirefoxBinary(
+            os.getenv("BROWSER_BINARY", "/usr/bin/firefox"))
+        geckodriver_loc = os.getenv(
+            "BROWSER_DRIVER", "/usr/local/bin/geckodriver")
         self.driver = webdriver.Firefox(firefox_profile=firefox_profile,
                                         firefox_binary=firefox_binary,
                                         executable_path=geckodriver_loc,

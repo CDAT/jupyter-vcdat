@@ -73,3 +73,15 @@ class NoteBookPage(MainPage):
             self.move_to_click(ok_element)
         except NoSuchElementException:
             print("No 'Close without saving?' pop up")
+
+    def click_on_export_to_HTML(self):
+        print('...click_on_export_to_HTML...')
+        self.click_on_top_menu_item('File')
+        locator = "//ul[@class='p-Menu-content']/li[@data-type='submenu']"
+        locator += "/div[contains(text(),'Export Notebook')]"
+        elem = self.find_element_by_xpath(locator, "Export Menu")
+        self.move_to_click(elem)
+        locator = "//ul[@class='p-Menu-content']/li[@data-type='command']"
+        locator += "/div[contains(text(),'Export Notebook to HTML')]"
+        elem = self.find_element_by_xpath(locator, "Export HTML")
+        self.move_to_click(elem)
