@@ -6,52 +6,67 @@
 
 # default logfile name
 FILENAME="jupyter-vcdat_logfile.txt"
-# NOT verbose by default
-verbose=0
+
+# base conda channels
+BASE_CHANNELS="-c conda-forge"
+
+# dev conda channels to use
+DEV_CHANNELS="-c cdat/label/v82"
+
+# user conda channels (stable)
+USER_CHANNELS="-c cdat/label/v82"
+
+# base packages
+BASE_PKGS="pip vcs tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets"
+
+# dev and test packages
+DEV_PKGS="testsrunner cdat_info"
 
 # default env name
-REQUESTED_CONDA_ENV_NAME="jupyter-vcdat"
+REQUESTED_ENV_NAME="jupyter-vcdat"
 
+# NOT VERBOSE by default
+VERBOSE=0
 
-# conda channels
-DEFAULT_CONDA_CHANNELS="-c cdat/label/v82 -c conda-forge"
+# installation mode (USER or DEV)
+INSTALL_MODE="USER"
 
-# extra conda channels
-CUSTOM_CONDA_CHANNELS=""
+# conda channel and CONDA_PACKAGES to use
+CONDA_CHANNELS="$USER_CHANNELS $BASE_CHANNELS"
+CONDA_PACKAGES=$BASE_PKGS
 
 function usage() {
   cat << EOF
 usage: Install vcdat jupyter-lab extension
 
 optional arguments:
-  -h, --help            show this help message and exit
+  -h, --help            
+                        show this help message and exit
   -f FILENAME, --FILENAME FILENAME
                         name of file where to log output
   -v VERBOSE
                         Also prints output to screen
+  -d DEVELOPER
+                        Installs latest nightly version with test suite tools for developers
   -n CONDA_ENV_NAME, --name CONDA_ENV_NAME
                         Name of the conda environment to install in (will create if not existing)
-  -c CONDA_EXTRA_CHANNEL, --channel CONDA_EXTRA_CHANNEL
-                        extra conda channels to use (use an extra -c if more than one)
-                        example:
-                        -c "cdat/label/nightly"
-                        -c "cdat/label/nightly" -c "cdat/label/v82"
 EOF
 exit 0
 }
+
 # Figure out command line arguments: http://linuxcommand.org/lc3_wss0120.php
 while [ "$1" != "" ]; do
     case $1 in
         -f | --file )           shift
                                 FILENAME=$1
                                 ;;
-        -v | --verbose )        verbose=1
+        -v | --VERBOSE )        VERBOSE=1
                                 ;;
         -n | --name ) shift
-                                REQUESTED_CONDA_ENV_NAME=$1
+                                REQUESTED_ENV_NAME=$1
                                 ;;
-        -c | --channel ) shift
-                                CUSTOM_CONDA_CHANNELS=${CUSTOM_CONDA_CHANNELS}" -c "$1
+        -d | --dev ) shift
+                                INSTALL_MODE="DEV"
                                 ;;
         -h | --help )           usage
                                 ;;
@@ -61,11 +76,18 @@ while [ "$1" != "" ]; do
     shift
 done
 
-echo "Installing jupyter-vcdat extension in conda env: '${REQUESTED_CONDA_ENV_NAME}' (you can change this via -c option)"
-echo "Using following conda channels: '${CUSTOM_CONDA_CHANNELS} ${DEFAULT_CONDA_CHANNELS}'"
+echo "Installing jupyter-vcdat extension in conda env: '${REQUESTED_ENV_NAME}' (you can change this via -c option)"
+
+# Choose conda channels and packages based on installion mode
+if [ $INSTALL_MODE == "DEV" ]; then
+  CONDA_CHANNELS="$DEV_CHANNELS $BASE_CHANNELS"
+  CONDA_PACKAGES="$BASE_PKGS $DEV_PKGS"
+fi
+
+echo "Using following conda channels: '${CONDA_CHANNELS}'"
 echo "Output will be redirected to: '$FILENAME' (you can control the FILENAME with -f option)"
 # Redirect to logfile and possibly screen if verbose
-if [ $verbose == 1 ]; then
+if [ $VERBOSE == 1 ]; then
   # Redirect stdout ( > ) into a named pipe ( >() ) running "tee"
   exec > >(tee -i $FILENAME)
 
@@ -83,13 +105,7 @@ else
 fi
 # Without this, only stdout would be captured - i.e. your
 # log file would not contain any error messages.
-# SEE (and upvote) the answer by Adam Spiers, which keeps STDERR
-# as a separate stream - I did not want to steal from him by simply
-# adding his answer to mine.
 exec 2>&1
-
-  
-
 
 # exit when a command fails
 set -o errexit
@@ -110,45 +126,48 @@ function handle_error {
 trap 'handle_error $LINENO ${BASH_LINENO[@]}' ERR
 
 CONDA_EXE="$(which conda)"
-if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
-    echo "Current conda does not match requested conda: ${CONDA_DEFAULT_ENV:-'NA'} vs ${REQUESTED_CONDA_ENV_NAME}"
+
+if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_ENV_NAME} ]; then
+    echo "Current conda does not match requested conda: ${CONDA_DEFAULT_ENV:-'NA'} vs ${REQUESTED_ENV_NAME}"
     envs=$(${CONDA_EXE} env list | cut -d ' ' -f1)
     found=0
     for a_env in $envs
     do
-        if [ $a_env == ${REQUESTED_CONDA_ENV_NAME} ]; then
+        if [ $a_env == ${REQUESTED_ENV_NAME} ]; then
             found=1
         fi
     done
     if [ $found == 1 ]; then
-        echo "ACTIVATING existing env: ${REQUESTED_CONDA_ENV_NAME}"
-        source activate ${REQUESTED_CONDA_ENV_NAME}
+        echo "ACTIVATING existing env: ${REQUESTED_ENV_NAME}"
+        source activate ${REQUESTED_ENV_NAME}
     else
-        echo "The requested env ${REQUESTED_CONDA_ENV_NAME} does not seem to exist we will create it."
+        echo "The requested env ${REQUESTED_ENV_NAME} does not seem to exist we will create it."
     fi
 fi
 
-if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_CONDA_ENV_NAME} ]; then
-  echo "Creating conda env: ${REQUESTED_CONDA_ENV_NAME}"
-  $CONDA_EXE update --all -y -n base
-  $CONDA_EXE create -y -n ${REQUESTED_CONDA_ENV_NAME} ${CUSTOM_CONDA_CHANNELS} ${DEFAULT_CONDA_CHANNELS} nodejs "python>3" vcs "jupyterlab>=1" pip nb_conda nb_conda_kernels plumbum jupyterhub "libnetcdf=4.6.2"
+if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_ENV_NAME} ]; then
+  echo "Creating conda env: ${REQUESTED_ENV_NAME}"
+  conda config --set channel_priority strict
+  echo "conda create -y -n ${REQUESTED_ENV_NAME} $CONDA_CHANNELS $CONDA_PACKAGES"
+  conda create -y -n ${REQUESTED_ENV_NAME} $CONDA_CHANNELS $CONDA_PACKAGES
   CONDA_BASE=$(conda info --base)
   source $CONDA_BASE/etc/profile.d/conda.sh
-  conda activate ${REQUESTED_CONDA_ENV_NAME}
+  conda activate ${REQUESTED_ENV_NAME}
 
   # Install sidecar
   python -m pip install sidecar || pip install sidecar
 
+  # Install dev packages if needed
+  if [ $INSTALL_MODE == "DEV" ]; then
+    python -m pip install selenium || pip install selenium
+    python -m pip install pyvirtualdisplay || pip install pyvirtualdisplay
+  fi
+
+  # Install extensions
   jupyter labextension install @jupyter-widgets/jupyterlab-manager
   jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
-
-  # Install tutorial extension
   jupyter labextension install jupyterlab-tutorial-extension
-
-  # Jupyterhub extension
   jupyter labextension install @jupyterlab/hub-extension
-
-  # Favorites extension from LBNL
   jupyter labextension install jupyterlab-favorites
 fi
 
@@ -173,6 +192,7 @@ if [[ $REPO != "jupyter-vcdat" && $REPO != "jupyter-vcdat.git" ]]; then
   cd jupyter-vcdat
 fi
 
+# Install jupyter-vcdat extension
 npm install
 jupyter lab build
 jupyter-labextension install .

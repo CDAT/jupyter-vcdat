@@ -17,31 +17,10 @@ aliases:
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge"
        #PKGS: "nodejs 'python=3.7' vcs pip nb_conda nb_conda_kernels plumbum mesalib jupyterlab jupyterhub vcsaddons wk eofs windspharm autopep8 scipy scikit-learn cmor testsrunner cdat_info ipywidgets"
-       PKGS: "vcs nodejs 'python=3.7' jupyterlab pip jupyterhub testsrunner cdat_info"
+       PKGS: "pip vcs tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets testsrunner cdat_info"
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       conda activate base
-       conda config --add channels conda-forge --force
-       conda config --add channels cdat/label/nightly --force
-       conda config --set channel_priority strict
-       conda create -y -n jupyter-vcdat $CHANNELS $PKGS
-       conda activate jupyter-vcdat
-       pip install sidecar
-       jupyter labextension install @jupyter-widgets/jupyterlab-manager
-       jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
-       jupyter labextension install jupyterlab-tutorial-extension
-       jupyter labextension install @jupyterlab/hub-extension
-
-       npm install
-       jupyter lab build
-       jupyter labextension install .
-
-       pip install selenium
-       pip install pyvirtualdisplay
-       #rm -rf node_modules
-       #rm -rf ~/.cache/pip
-       conda list
-       conda list --verbose cdms2
+       ./install_script -v -d -n jupyter-vcdat
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
@@ -87,6 +66,22 @@ aliases:
        echo "*** $PY_VER test result: ${RESULT}"
        exit $RESULT
 
+  - &check_vcdat_versions
+    name: check_npm_version
+    command: |
+      LOCAL_VCDAT_VERSION=`node -pe "require('./package.json').version"`
+      NPM_VCDAT_VERSION=`npm view jupyter-vcdat@nightly version`
+      echo "export LOCAL_VCDAT_VERSION=$LOCAL_VCDAT_VERSION" >> $BASH_ENV
+      echo "export NPM_VCDAT_VERSION=$NPM_VCDAT_VERSION" >> $BASH_ENV
+      function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+      if version_gt $LOCAL_VCDAT_VERSION $NPM_VCDAT_VERSION; then
+        echo "Version of $LOCAL_VCDAT_VERSION in the package.json looks good."
+      else
+        echo "Version $LOCAL_VCDAT_VERSION in package.json is not newer than npm version of $NPM_VCDAT_VERSION and will cause Publish job to fail."
+        echo "You should update version $LOCAL_VCDAT_VERSION in package.json to a version greater than $NPM_VCDAT_VERSION"
+        exit 1
+      fi
+
   - &conda_upload
     name: conda_upload
     environment:
@@ -129,6 +124,16 @@ aliases:
       docker logout
 
 jobs:
+  publish:
+    docker:
+      - image: aims2.llnl.gov/nimbus-basic:latest
+    steps:
+      - checkout
+      - run: *check_vcdat_versions
+      - run: *npm_publish
+      - setup_remote_docker
+      - run: *docker_publish
+      - run: *conda_upload
 
   linux_chrome:
     docker:
