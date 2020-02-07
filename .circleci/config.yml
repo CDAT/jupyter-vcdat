@@ -20,7 +20,7 @@ aliases:
        PKGS: "pip vcs tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets testsrunner cdat_info"
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       sh install_script.sh -v -d -n jupyter-vcdat
+       ./install_script.sh -v -d -n jupyter-vcdat
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
