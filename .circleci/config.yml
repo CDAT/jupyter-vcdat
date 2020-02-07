@@ -23,7 +23,7 @@ aliases:
        apt-get update
        apt-get upgrade
        apt-get install git
-       ./install_script.sh -v
+       ./deploy/install_script.sh -v -d
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
