@@ -77,12 +77,14 @@ interface IGraphicsMenuState {
   nameValue: string;
   invalidName: boolean;
   plotReady: boolean;
+  shouldAnimate: boolean;
 }
 
 export default class GraphicsMenu extends React.Component<
   IGraphicsMenuProps,
   IGraphicsMenuState
 > {
+  public animationMenuRef: AnimationMenu;
   constructor(props: IGraphicsMenuProps) {
     super(props);
     this.state = {
@@ -94,10 +96,17 @@ export default class GraphicsMenu extends React.Component<
       selectedMethod: "",
       showDropdown: false,
       showMenu: false,
-      tempGroup: ""
+      tempGroup: "",
+      shouldAnimate: false
     };
-
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
+  }
+  @boundMethod
+  public toggleAnimate(): void {
+    this.setState({
+      shouldAnimate: !this.state.shouldAnimate
+    });
+    this.props.toggleAnimate();
   }
 
   @boundMethod
@@ -208,8 +217,8 @@ export default class GraphicsMenu extends React.Component<
                       }
                       name="overlayModeSwitch"
                       label="Overlay Mode"
-                      disabled={!this.state.plotReady}
-                      checked={this.props.overlayMode}
+                      disabled={!this.state.plotReady || this.state.shouldAnimate}
+                      checked={this.props.overlayMode && !this.state.shouldAnimate}
                       onChange={this.props.toggleOverlayMode}
                     />
                   </Col>
@@ -224,21 +233,25 @@ export default class GraphicsMenu extends React.Component<
                       }
                       name="sidecarSwitch"
                       label="Plot to Sidecar"
-                      disabled={!this.state.plotReady}
+                      disabled={!this.state.plotReady || this.state.shouldAnimate}
                       checked={
-                        this.props.currentDisplayMode === DISPLAY_MODE.Sidecar
+                        this.props.currentDisplayMode === DISPLAY_MODE.Sidecar && !this.state.shouldAnimate
                       }
                       onChange={this.props.toggleSidecar}
                     />
                   </Col>
                 </Row>
                 <AnimationMenu 
+                  className={
+                    /*@tag<graphicemenu-animation-switch>*/ "graphicemenu-animation-switch"
+                  }
                   plotReady={this.state.plotReady}
-                  toggleAnimate={this.props.toggleAnimate}
+                  toggleAnimate={this.toggleAnimate}
                   toggleInverse={this.props.toggleAnimateInverse}
                   varTracker={this.props.varTracker}
                   updateAxisId={this.props.updateAnimateAxis}
                   updateRate={this.props.updateAnimateRate}
+                  ref={loader => (this.animationMenuRef = loader)}
                   />
               </Container>
             </CardSubtitle>

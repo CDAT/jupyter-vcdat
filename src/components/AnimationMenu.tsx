@@ -22,6 +22,7 @@ interface IAnimationMenuProps {
   updateAxisId?: (event: any) => void;
   updateRate?: (event: any) => void;
   varTracker: VariableTracker;
+  className?: string;
 }
 interface IAnimateMenuState {
   selectedAxisId: number;
@@ -121,8 +122,7 @@ export default class AnimationMenu extends React.Component<
                     /*@tag<vcsmenu-animate-select>*/ "animation-menu-axis-select"
                   }
                   name="animation-menu-axis-select"
-                  onClick={this.updateAxisId}
-                  disabled={!this.state.shouldAnimate}>
+                  onClick={this.updateAxisId}>
                     {this.state.axisIds.map((name: string, idx: number) => {
                       return (<option value={idx} key={idx}>{name}</option>)
                     })}

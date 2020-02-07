@@ -126,7 +126,6 @@ export default class VCSMenu extends React.Component<
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
-
     this.templateMenuRef = (React as any).createRef();
     this.filePathInputRef = (React as any).createRef();
 
@@ -540,7 +539,8 @@ export default class VCSMenu extends React.Component<
       toggleAnimateInverse: this.toggleAnimateAxisInvert,
       updateAnimateAxis: this.updateAnimateAxisId,
       updateAnimateRate: this.updateAnimateRate,
-      varTracker: this.props.varTracker
+      varTracker: this.props.varTracker,
+      shouldAnimate: this.state.shouldAnimate
     };
     const varMenuProps = {
       codeInjector: this.props.codeInjector,
@@ -613,7 +613,7 @@ export default class VCSMenu extends React.Component<
                   </Button>
                 </Col>
                 <Col 
-                  sm={this.state.shouldAnimate ? 3 : 5} 
+                  sm={this.state.shouldAnimate ? 3 : 4} 
                   style={{ padding: "0 5px" }}>
                   <Button
                     className={
@@ -629,7 +629,7 @@ export default class VCSMenu extends React.Component<
                     Export
                   </Button>
                 </Col>
-                <Col sm={3}>
+                <Col sm={4}>
                   <Button
                     className={
                       /*@tag<vcsmenu-clear-btn>*/ "vcsmenu-clear-btn-vcdat"
