@@ -16,7 +16,7 @@ aliases:
     name: setup_jupyter_vcdat
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       .install_script.sh -v -d
+       ./install_script.sh -v -d
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
