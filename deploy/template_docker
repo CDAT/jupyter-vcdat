@@ -2,22 +2,18 @@
 FROM aims2.llnl.gov/nimbus-basic:latest
 
 # Install Conda packages
-ARG conda_channels="-c conda-forge-c cdat/label/v82"
-ARG conda_packages="pip vcs tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
+ARG conda_channels="$_conda_channels"
+ARG conda_packages="$_conda_pkgs"
 RUN conda config --set remote_read_timeout_secs 120
 RUN conda config --set channel_priority strict
 RUN conda install --force -y ${conda_channels} ${conda_packages}
 RUN conda clean -y --all
 
 # Install pip packages
-RUN python -m pip install sidecar || pip install sidecar
+$_pip_install
 
 # Install JupyterLab extensions
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
-RUN jupyter labextension install jupyterlab-tutorial-extension
-RUN jupyter labextension install @jupyterlab/hub-extension
-RUN jupyter labextension install jupyterlab-favorites
+$_install_extensions
 
 # Our extension needs to be built from npm repo otherwise jupyter-lab
 # tries to write into image and shifter does not let us do this.
