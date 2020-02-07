@@ -1,0 +1,185 @@
+#!/usr/bin/env bash
+
+# References
+# http://kvz.io/blog/2013/11/21/bash-best-practices/
+# http://jvns.ca/blog/2017/03/26/bash-quirks/
+
+# default logfile name
+FILENAME="jupyter-vcdat_logfile.txt"
+
+# base conda channels
+BASE_CHANNELS="-c conda-forge"
+
+# dev conda channels to use
+DEV_CHANNELS="-c cdat/label/v82" #Change to '-c cdat/label/nightly' when nightly is ready
+
+# user conda channels (stable)
+USER_CHANNELS="-c cdat/label/v82"
+
+# base packages
+BASE_CONDA_PKGS="pip vcs tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
+
+# dev and test packages
+DEV_CONDA_PKGS="testsrunner cdat_info"
+
+# default env name
+REQUESTED_ENV_NAME="jupyter-vcdat"
+
+# NOT VERBOSE by default
+VERBOSE=0
+
+# installation mode (USER or DEV)
+INSTALL_MODE="USER"
+
+# conda channel and CONDA_PACKAGES to use
+CONDA_CHANNELS="$USER_CHANNELS $BASE_CHANNELS"
+CONDA_PACKAGES=$BASE_CONDA_PKGS
+
+function usage() {
+  cat << EOF
+usage: Install vcdat jupyter-lab extension
+
+optional arguments:
+  -h, --help            
+                        show this help message and exit
+  -f FILENAME, --FILENAME FILENAME
+                        name of file where to log output
+  -v VERBOSE
+                        Also prints output to screen
+  -d DEVELOPER
+                        Installs developer version with developer tools
+  -n CONDA_ENV_NAME, --name CONDA_ENV_NAME
+                        Name of the conda environment to install in (will create if not existing)
+EOF
+exit 0
+}
+
+# Figure out command line arguments: http://linuxcommand.org/lc3_wss0120.php
+while [ "$1" != "" ]; do
+  case $1 in
+    -f | --file ) shift
+                            FILENAME=$1
+                            ;;
+    -v | --VERBOSE )        VERBOSE=1
+                            ;;
+    -n | --name ) shift
+                            REQUESTED_ENV_NAME=$1
+                            ;;
+    -d | --dev )
+                            INSTALL_MODE="DEV"
+                            ;;
+    -h | --help )           usage
+                            ;;
+    * )                     usage
+                            exit 1
+  esac
+  shift
+done
+
+echo "Installing jupyter-vcdat extension in conda env: '${REQUESTED_ENV_NAME}' (you can change this via -c option)"
+
+# Choose conda channels and packages based on installion mode
+if [ $INSTALL_MODE == "DEV" ]; then
+  CONDA_CHANNELS="$DEV_CHANNELS $BASE_CHANNELS"
+  CONDA_PACKAGES="$BASE_CONDA_PKGS $DEV_CONDA_PKGS"
+fi
+
+echo "Using following conda channels: '${CONDA_CHANNELS}'"
+echo "Output will be redirected to: '$FILENAME' (you can control the FILENAME with -f option)"
+# Redirect to logfile and possibly screen if verbose
+if [ $VERBOSE == 1 ]; then
+  # Redirect stdout ( > ) into a named pipe ( >() ) running "tee"
+  exec > >(tee -i $FILENAME)
+else
+  echo "Going into quiet mode, suppressing output"
+  echo "For verbose mode run with -v option"
+  # https://stackoverflow.com/questions/637827/redirect-stderr-and-stdout-in-bash
+  # Close STDOUT file descriptor
+  exec 1<&-
+  # Close STDERR FD
+  exec 2<&-
+
+  # Open STDOUT as $LOG_FILE file for read and write.
+  exec 1<>$FILENAME
+fi
+
+# Without this, only stdout would be captured - i.e. your
+# log file would not contain any error messages.
+exec 2>&1
+
+# exit when a command fails
+set -o errexit
+
+# exit if any pipe commands fail
+set -o pipefail
+
+set -E
+set -o functrace
+function handle_error {
+  local retval=$?
+  local line=${last_lineno:-$1}
+  echo "Failed at $line: $BASH_COMMAND"
+  echo "Trace: " "$@"
+  echo "return code: " "$?"
+  exit $retval
+}
+trap 'handle_error $LINENO ${BASH_LINENO[@]}' ERR
+
+CONDA_EXE="$(which conda)"
+
+# Activate requested conda environment
+if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_ENV_NAME} ]; then
+  echo "Current conda does not match requested conda: ${CONDA_DEFAULT_ENV:-'NA'} vs ${REQUESTED_ENV_NAME}"
+  envs=$(${CONDA_EXE} env list | cut -d ' ' -f1)
+  found=0
+  for a_env in $envs
+  do
+    if [ $a_env == ${REQUESTED_ENV_NAME} ]; then
+      found=1
+    fi
+  done
+  if [ $found == 1 ]; then
+    echo "ACTIVATING existing env: ${REQUESTED_ENV_NAME}"
+    conda activate ${REQUESTED_ENV_NAME}
+  else
+    echo "The requested env ${REQUESTED_ENV_NAME} does not seem to exist we will create it."
+  fi
+fi
+
+if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_ENV_NAME} ]; then
+  # If requested conda environment doesn't exist, create it
+  echo "Creating conda env: ${REQUESTED_ENV_NAME}"
+  conda config --set channel_priority strict
+  echo "conda create -y -n ${REQUESTED_ENV_NAME} $CONDA_CHANNELS $CONDA_PACKAGES"
+  conda create -y -n ${REQUESTED_ENV_NAME} $CONDA_CHANNELS $CONDA_PACKAGES
+  CONDA_BASE=$(conda info --base)
+  source $CONDA_BASE/etc/profile.d/conda.sh
+  conda activate ${REQUESTED_ENV_NAME}
+else
+  # Install required conda packages into existing environment
+  echo "Installing conda packages in  environment: ${REQUESTED_ENV_NAME}"
+  conda config --set channel_priority strict
+  echo "conda install -y $CONDA_CHANNELS $CONDA_PACKAGES"
+  conda create -y $CONDA_CHANNELS $CONDA_PACKAGES
+fi
+
+# Install sidecar
+python -m pip install sidecar || pip install sidecar
+
+# Install dev packages if needed
+if [ $INSTALL_MODE == "DEV" ]; then
+	python -m pip install selenium || pip install selenium
+	python -m pip install pyvirtualdisplay || pip install pyvirtualdisplay
+fi
+
+# Install extensions
+jupyter labextension install @jupyter-widgets/jupyterlab-manager
+jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
+jupyter labextension install jupyterlab-tutorial-extension
+jupyter labextension install @jupyterlab/hub-extension
+jupyter labextension install jupyterlab-favorites
+
+# Install jupyter-vcdat extension
+npm install
+jupyter lab build
+jupyter-labextension install .
