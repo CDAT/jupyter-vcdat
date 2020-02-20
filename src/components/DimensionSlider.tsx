@@ -196,7 +196,10 @@ export default class DimensionSlider extends React.Component<
 
   public render(): JSX.Element {
     return (
-      <div className={/*@tag<dimension-slider>*/ "dimension-slider-vcdat"}>
+      <div
+        data-axisname={this.props.name}
+        className={/*@tag<dimension-slider>*/ "dimension-slider-vcdat"}
+      >
         {!this.singleValue && (
           <div className={"form-inline"}>
             <div style={centered}>

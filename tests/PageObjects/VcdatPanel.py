@@ -1,5 +1,6 @@
 from MainPage import MainPage
 
+
 """
 PageObject for the main page of JupyterLab application
 Contains locator functions for all menu items and left tabs.
@@ -10,7 +11,6 @@ class VcdatPanel(MainPage):
 
     def __init__(self, driver, server=None):
         super(VcdatPanel, self).__init__(driver, server)
-        main_page
 
     def _validate_page(self):
         print("...Validate VcdatPanel...")
@@ -18,10 +18,18 @@ class VcdatPanel(MainPage):
 
     # ----------  TOP LEVEL LOCATORS (Always accessible on page)  --------------
 
+    def main_panel(self):
+        loc = "left-sidebar-vcdat"
+        requires = self.action(self.open_left_tab, "VCDAT")
+        return self.locator(loc, "id", "VCDAT Top Panel", requires)
+
+    def top_panel(self):
+        loc = "vcsmenu-main-vcdat"
+        return self.main_panel().find_child(loc, "class", "VCDAT Top Panel")
+
     def plot_btn(self):
         loc = "vcsmenu-plot-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Plot Button", requires)
+        return self.top_panel().find_child(loc, "class", "TESTING")
 
     def export_btn(self):
         loc = "vcsmenu-export-btn-vcdat"
@@ -43,6 +51,16 @@ class VcdatPanel(MainPage):
         requires = self.action(self.open_left_tab, "VCDAT")
         return self.locator(loc, "class", "Path Load Button", requires)
 
+    def overlay_switch(self):
+        loc = "vcsmenu-overlay-switch-vcdat"
+        requires = self.action(self.open_left_tab, "VCDAT")
+        return self.locator(loc, "id", "Overlay Switch", requires)
+
+    def sidecar_switch(self):
+        loc = "vcsmenu-sidecar-switch-vcdat"
+        requires = self.action(self.open_left_tab, "VCDAT")
+        return self.locator(loc, "id", "Sidecar Switch", requires)
+
     def plot_type_btn(self):
         loc = "graphics-dropdown-vcdat"
         requires = self.action(self.open_left_tab, "VCDAT")
@@ -61,27 +79,75 @@ class VcdatPanel(MainPage):
     # -------------------------  SUB LEVEL LOCATORS  ---------------------------
 
     # Locator will only show up if an existing, non-vcdat notebook is opened
-    def sync_notebook_btn(self, notebook_name):
-        loc = "varmenu-sync-btn-vcdat
+    def sync_notebook_btn(self, notebook_name="sync_notebook"):
+        loc = "varmenu-sync-btn-vcdat"
 
         # If locator not found, then make sure vcdat panel open
-        req1 = self.action(self.open_left_tab, "VCDAT")
-        # And create a notebook with specific name
-        req2 = self.action(
-            self.create_notebook, "Create notebook for syncing", notebook_name)
-        return self.locator(loc, "class", "Plot Button", req1, req2)
+        req = self.action(self.open_left_tab, "VCDAT")
+        return self.locator(loc, "class", "Plot Button", req)
 
-    # Gets locator for an item in the Plot Type drop-down
-    def plot_type_item(self, item):
-        require = self.action()
+    # Gets locator for a graphics method group in the Plot Type drop-down
+    def plot_type_group(self, group):
+        loc = "button.graphics-method-group-vcdat[value='{}']".format(group)
+        requires = self.plot_type_btn()
+        return self.locator(loc, "css", "Graphic Group Option: {}".format(group), requires)
+
+    # Gets locator for a graphics method item in the Plot Type drop-down
+    def plot_type_item(self, group, item):
+        loc = "button.graphics-method-item-vcdat[value~='{}']".format(item)
+        descr = "Graphic Option Item: {}".format(item)
+        requires = self.plot_type_group(group)
+        return self.locator(loc, "css", descr, requires)
+
+    # Gets locator for 'close' button shown when selecting graphic method group
+    def plot_type_close_btn(self, group="boxfill"):
+        loc = "button.graphics-close-btn-vcdat"
+        # Select plot group, to show close
+        require = self.plot_type_group(group)
+        return self.locator(loc, "css", "Graphic Group Close", require)
+
+    # Gets the locator for the 'copy' button shown when plot type has been set
+    def plot_type_copy_btn(self):
+        loc = "button.graphics-copy-btn-vcdat"
+        requires = self.plot_type_item("boxfill", "default")
+        return self.locator(loc, "css", "Graphic Copy Button", requires)
+
+    # Gets the locator for the 'copy' button shown when plot type has been set
+    # Will fail if plot type was not set (therefore no plot to copy from)
+    def plot_type_copy_cancel_btn(self):
+        loc = "button.graphics-cancel-btn-vcdat"
+        return self.locator(loc, "css", "Graphic Copy Cancel Button")
+
+    # Gets locator for the name input of the plot type copy feature
+    #
+    def plot_type_copy_name_input(self):
+        loc = "input.graphics-name-input-vcdat"
+        return self.locator(loc, "css", "Graphic Copy Name Input")
+
+    def plot_type_copy_name_enter_btn(self):
+        loc = "button.graphics-enter-btn-vcdat"
+        requires = self.plot_type_copy_btn()
+        return self.locator(loc, "css", "Graphics Enter Name Button", requires)
 
     # Gets locator for an item in colormap drop-down
     def colormap_item(self, item):
-        pass
+        loc = "button.colormap-dropdown-item-vcdat[value~='{}']".format(item)
+        self.colormap_btn().click().sleep(1)
+        return self.locator(loc, "css", "Colormap Option: {}".format(item))
 
     # Gets locator for an item in layout template drop-down
     def layout_template_item(self, item):
-        pass
+        loc = "button.template-item-vcdat[value~='{}']".format(item)
+        self.template_btn().click().sleep(1)
+        return self.locator(loc, "css", "Template Option: {}".format(item))
+
+    # ---------------------------  VCDAT Functions  ----------------------------
+
+    # Opens a notebook and syncs it to work with vcdat
+    def sync_new_notebook(self, notebook_name):
+        self.create_notebook(notebook_name)
+        self.open_left_tab("VCDAT")
+        self.sync_notebook_btn().click().sleep(3)  # Wait for imports to load
 
 
 """

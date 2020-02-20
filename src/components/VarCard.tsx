@@ -155,7 +155,10 @@ export default class VarCard extends React.Component<
     return (
       <div>
         <Card style={cardStyle}>
-          <CardBody>
+          <CardBody
+            data-name={this.props.variable.name}
+            data-alias={this.props.variable.alias}
+          >
             <CardTitle>
               <div style={centered}>
                 <Row className={/*@tag<varcard-main>*/ "varcard-main-vcdat"}>
@@ -216,20 +219,28 @@ export default class VarCard extends React.Component<
             >
               {this.state.selected && (
                 <Card>
-                  <CardBody>
+                  <CardBody
+                    className={
+                      /*@tag<varcard-rename-field>*/ "varcard-rename-field-vcdat"
+                    }
+                  >
                     <InputGroup style={{ marginTop: "5px" }}>
                       <InputGroupAddon addonType="prepend">
                         Rename Variable:
                       </InputGroupAddon>
                       <Input
                         onChange={this.handleNameInput}
-                        className="float-left"
+                        className={
+                          /*@tag<float-left varcard-rename-input>*/ "float-left varcard-rename-input-vcdat"
+                        }
                         value={this.state.nameValue}
                         placeholder="Enter new name here."
                       />
                       <InputGroupAddon addonType="append">
                         <Button
-                          className="float-right"
+                          className={
+                            /*@tag<float-right varcard-rename-status>*/ "float-right varcard-rename-status-vcdat"
+                          }
                           color={nameStateColor}
                           disabled={true}
                         >

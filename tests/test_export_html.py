@@ -1,13 +1,18 @@
+from LoadVariablesPopUp import LoadVariablesPopUp
+from FileBrowser import FileBrowser
+from VcdatPanel import VcdatPanel
+from BaseTestCase import BaseTestCase
 import os
 import sys
-import time
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
-from BaseTestCaseWithNoteBook import BaseTestCaseWithNoteBook
-from VcdatPanel import VcdatPanel
+
+"""
+UTILITY FUNCTIONS
+"""
 
 
 def debug_print(s):
@@ -29,71 +34,80 @@ def assert_image_tag_present(html_file):
     assert image_tag_present
 
 
-class TestExportHTML(BaseTestCaseWithNoteBook):
+def prepare(self, notebook):
+    """
+    Open, edit, and save the notebook before each test.
+    """
+    self.test_file = "clt.nc"
+    self.file_browser = FileBrowser(self.driver, None)
+    self.vcdat_panel = VcdatPanel(self.driver, None)
+
+    # Ensure the home directory working directory
+    file_browser.folder_icon().click()
+
+    # Open file for test
+    self.main_page.create_notebook(notebook)
+    load_variables_popup = file_browser.open_load_variables_popup(test_file)
+    load_variables_popup.variable_btn('v').click()
+    load_variables_popup.load_button().click()
+    self.vcdat_panel.plot_btn().click()
+    self.main_page.save_notebook()
+
+
+def check_image_tag_in_html(notebook):
+    """
+    Check that the HTML file contains an image tag.
+    """
+    debug_print('Check that HTML contains image.')
+    html_path = notebook.replace('.ipynb', '.html')
+    assert_image_tag_present(html_path)
+
+
+class TestExportHTML(BaseTestCase):
     """
     This class has methods to test exporting to HTML.
     """
 
-    def setUp(self):
-        """
-        Open, edit, and save the notebook before each test.
-        """
-        super(TestExportHTML, self).setUp()
-        notebook = self.notebooks[0]
-        test_file = "clt.nc"
-        notebook.click_on_folder_tab()
-        notebook.click_on_vcdat_icon()
-        vcdat_panel = VcdatPanel(self.driver, None)
-        file_browser = vcdat_panel.click_on_load_variables_by_file()
-        load_variable_popup = file_browser.double_click_on_a_file(test_file)
-        load_variable_popup.click_on_variable('v')
-        load_variable_popup.click_on_load()
-        vcdat_panel.click_on_plot()
-        notebook.save_current_notebook()
-        self.notebook_name = notebook.notebook_name
-
-    def execute_notebook_via_web(self):
-        """
-        Execute the notebook via web interface.
-        """
-        debug_print('Execute the notebook via web interface.')
-        self.notebooks[0].click_on_running_tab()
-
-    def check_image_tag_in_html(self):
-        """
-        Check that the HTML file contains an image tag.
-        """
-        debug_print('Check that HTML contains image.')
-        html_path = self.notebook_name.replace('.ipynb', '.html')
-        assert_image_tag_present(html_path)
-
     def test_export_plot_html_via_button(self):
         """
-        Test that running a notebook and then exporting to HTML via the "Export Notebook as" button displays the plot in the HTML.
+        Test that running a notebook and then exporting to HTML via the 
+        "Export Notebook as" button displays the plot in the HTML.
         """
-        self.execute_notebook_via_web()
+        NOTEBOOK_NAME = "test_export_plot_html_via_button.ipynb"
+        prepare(self, NOTEBOOK_NAME)
+        self.main_page.run_notebook_cells()
         # File > Export as > Export as HTML
         debug_print('Click button to download as HTML.')
-        self.notebooks[0].click_on_export_to_HTML()
+        self.main_page.sub_menu_item(
+            "File", "Export Notebook As", "Export Notebook to HTML").click().sleep(1)
         # Wait for HTML file to be created.
-        time.sleep(1)
-        self.check_image_tag_in_html()
+        check_image_tag_in_html(NOTEBOOK_NAME)
+        os.remove(NOTEBOOK_NAME)
 
     def test_export_plot_html_via_nbconvert(self):
         """
-        Test that running a notebook and then exporting to HTML via `jupyter nbconvert --to html` displays the plot in the HTML.
+        Test that running a notebook and then exporting to HTML via 
+        `jupyter nbconvert --to html` displays the plot in the HTML.
         """
-        self.execute_notebook_via_web()
+        NOTEBOOK_NAME = "test_export_plot_html_via_nbconvert"
+        prepare(self, NOTEBOOK_NAME)
+        self.main_page.run_notebook_cells()
         debug_print('Convert the notebook.')
-        convert_command = 'jupyter nbconvert --to html {}'.format(self.notebook_name)
+        convert_command = 'jupyter nbconvert --to html {}'.format(
+            self.notebook_name)
         assert os.system(convert_command) == 0
-        self.check_image_tag_in_html()
+        check_image_tag_in_html(NOTEBOOK_NAME)
+        os.remove(NOTEBOOK_NAME)
 
     def test_export_plot_html_via_nbconvert_execute(self):
         """
         Test that running `jupyter nbconvert --execute --to html` displays the plot in the HTML.
         """
+        NOTEBOOK_NAME = "test_export_plot_html_via_nbconvert"
+        prepare(self, NOTEBOOK_NAME)
         debug_print('Execute and convert the notebook in one step.')
-        command = 'jupyter nbconvert --to html --execute {}'.format(self.notebook_name)
+        command = 'jupyter nbconvert --to html --execute {}.ipynb'.format(
+            NOTEBOOK_NAME)
         assert os.system(command) == 0
-        self.check_image_tag_in_html()
+        self.check_image_tag_in_html(NOTEBOOK_NAME)
+        os.remove(NOTEBOOK_NAME)

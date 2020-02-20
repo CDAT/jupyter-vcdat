@@ -9,7 +9,8 @@ Contains locator functions for all menu items and left tabs.
 class AboutPage(MainPage):
 
     def __init__(self, driver, server=None):
-        super(AboutPage, self).__init__(driver, server)
+        print("...Validate AboutPage...")
+        super().__init__(driver, server)
 
     def _validate_page(self):
         print("...Validate FileBrowser...")
@@ -32,6 +33,6 @@ class AboutPage(MainPage):
         requires = self.top_menu_item("Help", "About VCDAT")
         return self.locator("about-documentation-vcdat", "id", "Documentation Link", requires)
 
-    def version_text(self):
+    def version(self):
         requires = self.top_menu_item("Help", "About VCDAT")
-        return self.locator("about-version-vcdat", "id", "Version Text", requires)
+        return self.locator("about-version-vcdat", "id", "Version Text", requires).get_text()

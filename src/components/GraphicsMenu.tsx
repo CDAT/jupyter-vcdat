@@ -143,8 +143,11 @@ export default class GraphicsMenu extends React.Component<
           };
           return (
             <ListGroupItem
-              className={"text-muted"}
+              className={
+                /*@tag<text-muted graphics-method-item>*/ "text-muted graphics-method-item-vcdat"
+              }
               key={group + item}
+              value={item}
               style={listItemStyle}
               tag="button"
               onClick={select}
@@ -255,8 +258,9 @@ export default class GraphicsMenu extends React.Component<
                       return (
                         <DropdownItem
                           className={
-                            /*@tag<graphics-dropdown-item>*/ "graphics-dropdown-item-vcdat"
+                            /*@tag<graphics-method-group>*/ "graphics-method-group-vcdat"
                           }
+                          value={item}
                           onClick={clickMethodGroup}
                           key={item}
                         >
@@ -267,8 +271,9 @@ export default class GraphicsMenu extends React.Component<
                     return (
                       <DropdownItem
                         className={
-                          /*@tag<graphics-dropdown-item>*/ "graphics-dropdown-item-vcdat"
+                          /*@tag<graphics-method-group>*/ "graphics-method-group-vcdat"
                         }
+                        value={item}
                         onClick={clickMethod}
                         key={item}
                       >

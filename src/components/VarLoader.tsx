@@ -302,7 +302,6 @@ export default class VarLoader extends React.Component<
                 this.state.variablesToShow.map((item: Variable) => {
                   return (
                     <VarCard
-                      // renameVariable={this.renameVariable}
                       varAliasExists={this.varAliasExists}
                       varSelectionChanged={this.selectionChanged}
                       updateDimInfo={this.updateDimInfo}

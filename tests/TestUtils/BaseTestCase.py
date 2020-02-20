@@ -5,14 +5,14 @@ from selenium.webdriver import DesiredCapabilities
 from selenium import webdriver
 import tempfile
 import unittest
-from MainPage import MainPage
-from JupyterUtils import JupyterUtils
 import os
 import sys
 import time
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, '..', 'PageObjects'))
+from JupyterUtils import JupyterUtils
+from MainPage import MainPage
 
 
 class BaseTestCase(unittest.TestCase):
@@ -53,11 +53,11 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self):
         print("...BaseTestCase.tearDown()...")
-        self.main_page.jupyter_icon().click()
-        self.main_page.top_menu_item("File","Save All").click()
-        self.main_page.top_menu_item("File", "Close All Tabs").click()
-        self.main_page.dialog_btn("OK").lazy().click()
-        self.main_page.shutdown_all_kernels()
+        self.main_page.jupyter_icon().silent().click()
+        self.main_page.top_menu_item("File", "Save All").silent().click()
+        self.main_page.top_menu_item("File", "Close All Tabs").silent().click()
+        self.main_page.dialog_btn("OK").silent().attempt().click()
+        self.main_page.shutdown_all_kernels(False)
         self.driver.quit()
 
     def setup_for_chrome(self, mode):

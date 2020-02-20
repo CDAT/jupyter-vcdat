@@ -22,46 +22,27 @@ const MESSAGE = {
 
 // Which selenium tests there are to run
 const TESTS: { [name: string]: string[] } = {
-  test_locators: [
-    "TestLocators",
-    "test_jupyter_top_menu_locators",
-    "test_jupyter_left_tab_locators",
-    "test_launcher_locators",
-    "test_file_browser_buttons",
-    "test_new_notebook",
-    "test_vcdat_panel_locators",
-    "test_file_browser_locators"
+  test_about_page: ["TestAboutPage", "test_about_page"],
+  test_main_page: [
+    "TestMainPage",
+    "test_create_notebook",
+    "test_left_tab",
+    "test_sub_menu",
+    "test_top_menu",
+    "test_tutorials"
   ],
-  test_load_a_variable: ["TestLoadVariable",
-  "test_load_a_variable"],
-  test_load_variables_popup_locators: [
-    "TestLoadVariablesPopUpLocators",
-    "test_click_a_variable",
-    "test_click_a_variable_axes",
-    "test_adjust_a_variable_axes"
-  ],
-  test_plot_locators: [
-    "TestPlot",
-    "test_plot",
-    "test_select_plot_type",
-    "test_select_a_template",
-    "test_export_plot",
-    "test_export_plot_adjust_unit",
-    "test_capture_provenance",
-    "test_select_deselect_variable",
-    "test_edit_variable"
-  ],
-  test_edit_axis_locators: ["TestEditAxis", "test_edit_axis"],
-  test_file_browser_locators: [
-    "TestFileBrowserLocators",
-    "test_double_click_on_a_file"
-  ],
-  test_main_page_locators: ["TestMainPageLocators","test_top_menu_items"],
   test_export_html: [
     "TestExportHTML",
     "test_export_plot_html_via_button",
     "test_export_plot_html_via_nbconvert",
     "test_export_plot_html_via_nbconvert_execute"
+  ],
+  test_vcdat_panel: [
+    "TestVcdatPanel",
+    "test_top_level",
+    "test_graphics_options",
+    "test_colormap_options",
+    "test_template_options"
   ]
 };
 
@@ -71,6 +52,7 @@ enum TaskData {
   chromeDriver,
   geckoDriver,
   firefoxBinary,
+  condaInstalled,
   LENGTH // Length must be last element in enum
 }
 
@@ -152,10 +134,6 @@ async function shell(code: string, silent: boolean = false): Promise<void> {
  */
 async function setTaskData(taskData: TaskData, value: string): Promise<void> {
   const idx: number = taskData + 1;
-
-  if (!(await checkFileExists(TASK_DATA_PATH))) {
-    await run(`seq 1 ${TaskData.LENGTH} > ${TASK_DATA_PATH}`);
-  }
   await run(`sed -i '' -e '${idx}s#.*#${value}#' ${TASK_DATA_PATH}`);
 }
 
@@ -251,17 +229,20 @@ async function getValidPath(prompt: string, quitMsg: string): Promise<string> {
  * Runs the specified selenium tests using the chrome browser and driver
  * @param testsToRun An array with the names of the tests to run.
  */
-async function testChrome(tests: {
-  [groupName: string]: string[];
-}): Promise<void> {
+async function testChrome(
+  tests: {
+    [groupName: string]: string[];
+  },
+  verbose = false
+): Promise<boolean> {
   console.log("===============CHROME TESTS BEGIN===============");
   const driver: string = await getTaskData(TaskData.chromeDriver);
   if (!driver) {
     console.error(
       "Missing driver path. To set path, run: \
-    npx task installTestTools"
+    npx task installTestTools -c"
     );
-    return;
+    return false;
   }
   const envSetup: string = dedent`
     export BROWSER_TYPE=chrome
@@ -279,7 +260,9 @@ async function testChrome(tests: {
       testNames = tests[testGroup];
       testCmds = testCmds.concat(
         ...testNames.map((test: string) => {
-          return ` && nosetests -s tests/${testGroup}.py:${testClass}.${test}`;
+          return ` && nosetests ${
+            verbose ? "" : "--nologcapture"
+          } -s tests/${testGroup}.py:${testClass}.${test}`;
         })
       );
     } else {
@@ -293,31 +276,33 @@ async function testChrome(tests: {
     })
   );
   await shell(`${envSetup}${testCmds}`);
+  return true;
 }
 
 /**
  * Runs the specified selenium tests using the firefox browser and drivers
  * @param testsToRun An array with the names of the tests to run.
  */
-async function testFirefox(tests: {
-  [groupName: string]: string[];
-}): Promise<void> {
+async function testFirefox(
+  tests: {
+    [groupName: string]: string[];
+  },
+  verbose = false
+): Promise<boolean> {
   console.log("=============FIREFOX TESTS BEGIN=============");
   const driver: string = await getTaskData(TaskData.geckoDriver);
   const binary: string = await getTaskData(TaskData.firefoxBinary);
-  if (!driver) {
+  if (!driver || driver == "undefined") {
     console.error(
-      "Missing driver path. To set path, run: \
-    npx task installTestTools"
+      "Missing driver path. To set path, run:\n'npx task installTestTools -f'"
     );
-    return;
+    return false;
   }
-  if (!binary) {
+  if (!binary || binary == "undefined") {
     console.error(
-      "Missing binary path. To set path, run: \
-    npx task installTestTools"
+      "Missing binary path. To set path, run:\n'npx task installTestTools -f'"
     );
-    return;
+    return false;
   }
   const envSetup: string = dedent`
     export BROWSER_TYPE=firefox
@@ -336,7 +321,9 @@ async function testFirefox(tests: {
       testNames = tests[testGroup];
       testCmds = testCmds.concat(
         ...testNames.map((test: string) => {
-          return ` && nosetests -s tests/${testGroup}.py:${testClass}.${test}`;
+          return ` && nosetests ${
+            verbose ? "" : "--nologcapture"
+          } -s tests/${testGroup}.py:${testClass}.${test}`;
         })
       );
     } else {
@@ -350,6 +337,7 @@ async function testFirefox(tests: {
     })
   );
   await shell(`${envSetup}${testCmds}`);
+  return true;
 }
 
 // Task: checkVersion
@@ -506,36 +494,62 @@ help(lint, `Performs linting operations on source files.`, {
 
 // Task : installTestTools
 async function installTestTools(options: ICLIOptions): Promise<void> {
-  const firefox: string = getOptionsValue(true, options.f, options.firefox);
-  const chrome: string = getOptionsValue(true, options.c, options.chrome);
+  const firefox: any = options.f || options.firefox;
+  const chrome: any = options.c || options.chrome;
   const CONDA_ENV: string = await run(`echo $CONDA_DEFAULT_ENV`);
   const CANCEL_PROMPT: string = "Installation cancelled.";
   const CHROME_DRIVER: string = "Please enter path to Chrome selenium driver";
   const GECKO_DRIVER: string = "Please enter path to Firefox selenium driver";
   const GECKO_EXE: string = "Please enter path to the Firefox executable";
   if (CONDA_ENV) {
-    const input: string = await getUserInput(
-      `Do you want to install test tools in '${CONDA_ENV}' conda environment (y/n)? `
-    );
-
-    if (input.toLowerCase().includes("y")) {
-      const chrmPath: string = await getValidPath(CHROME_DRIVER, CANCEL_PROMPT);
-      await setTaskData(TaskData.chromeDriver, chrmPath);
-
-      const geckoPath: string = await getValidPath(GECKO_DRIVER, CANCEL_PROMPT);
-      await setTaskData(TaskData.geckoDriver, geckoPath);
-
-      const firefoxBin: string = await getValidPath(GECKO_EXE, CANCEL_PROMPT);
-      await setTaskData(TaskData.firefoxBinary, firefoxBin);
-
-      console.log("Installing...");
-      await shell(
-        "conda install -c cdat/label/v82 testsrunner cdat_info <<< 'yes' && \
-      pip install selenium && pip install pyvirtualdisplay"
-      );
+    if (chrome || firefox) {
+      if (chrome) {
+        const chrmPath: string = await getValidPath(
+          CHROME_DRIVER,
+          CANCEL_PROMPT
+        );
+        if (chrmPath) {
+          await setTaskData(TaskData.chromeDriver, chrmPath);
+        } else {
+          return;
+        }
+      }
+      if (firefox) {
+        const geckoPath: string = await getValidPath(
+          GECKO_DRIVER,
+          CANCEL_PROMPT
+        );
+        if (geckoPath) {
+          await setTaskData(TaskData.geckoDriver, geckoPath);
+        } else {
+          return;
+        }
+        const firefoxBin: string = await getValidPath(GECKO_EXE, CANCEL_PROMPT);
+        if (firefoxBin) {
+          await setTaskData(TaskData.firefoxBinary, firefoxBin);
+        } else {
+          return;
+        }
+      }
+      const condaInstalled: boolean =
+        (await getTaskData(TaskData.condaInstalled)) == "true";
+      if (!condaInstalled) {
+        console.log("Installing conda dependencies...");
+        await shell(
+          `conda install -c cdat/label/v82 testsrunner cdat_info <<< 'yes' && \
+pip install selenium && pip install pyvirtualdisplay`
+        );
+        await setTaskData(TaskData.condaInstalled, "true");
+      } else {
+        console.log("Conda dependencies already installed.");
+      }
     } else {
-      console.log(CANCEL_PROMPT);
-      return;
+      console.log("Installing conda dependencies...");
+      await shell(
+        `conda install -c cdat/label/v82 testsrunner cdat_info <<< 'yes' && \
+pip install selenium && pip install pyvirtualdisplay`
+      );
+      await setTaskData(TaskData.condaInstalled, "true");
     }
   } else {
     console.error(
@@ -548,9 +562,23 @@ async function installTestTools(options: ICLIOptions): Promise<void> {
 
 help(
   installTestTools,
-  `Installs dependencies for running Selenium tests locally.`,
+  dedent`Installs dependencies and sets driver for running Selenium tests locally.
+  Note: If no browser is specified (see below), only conda packages will be installed.`,
   {
-    params: []
+    options: {
+      firefox: "<optional> Set firefox driver for tests.",
+      f: "<optional> Same as above.",
+      chrome: "<optional> Set chrome driver for tests.",
+      c: "<optional> Same as above."
+    },
+    examples: dedent`
+    Full install including chrome and firefox settings:
+      npx task installTestTools -c -f
+    Install with just chrome settings:
+      npx task installTestTools -c
+    Install or update conda dependencies only:
+      npx task installTestTools
+    `
   }
 );
 
@@ -613,26 +641,33 @@ async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
       }
     }
   });
+
   if (error) {
     return;
   }
+  const verbose: any = options.v || options.verbose;
 
   if (chrome !== firefox) {
     if (firefox) {
       console.log("Running tests for Firefox...");
-      await testFirefox(testData);
-      console.log("FIREFOX TESTS COMPLETE!!");
+      if (await testFirefox(testData, verbose)) {
+        console.log("FIREFOX TESTS COMPLETE!!");
+      }
     }
     if (chrome) {
       console.log("Running tests for Chrome...");
-      await testChrome(testData);
-      console.log("CHROME TESTS COMPLETE!!");
+      if (await testChrome(testData, verbose)) {
+        console.log("CHROME TESTS COMPLETE!!");
+      }
     }
   } else {
     console.log("Running tests for Chrome and Firefox...");
-    await testFirefox(testData);
-    await testChrome(testData);
-    console.log("FIREFOX AND CHROME TESTS COMPLETE!!");
+    if (
+      (await testFirefox(testData, verbose)) &&
+      (await testChrome(testData, verbose))
+    ) {
+      console.log("FIREFOX AND CHROME TESTS COMPLETE!!");
+    }
   }
 }
 
@@ -652,7 +687,9 @@ or running kernels before you start the tests. Otherwise tests may fail.`,
       chrome: "<optional> Run tests using chrome browser.",
       c: "<optional> Same as above.",
       list: "<optional> Prints list of available test groups or sub tests.",
-      l: "<optional> Same as above."
+      l: "<optional> Same as above.",
+      verbose: "<optional> Run nose tests with logging enabled.",
+      v: "<optional> Same as above."
     },
     examples: dedent`
   This will print out all available test groups:

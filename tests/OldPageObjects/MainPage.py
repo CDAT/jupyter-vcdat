@@ -14,7 +14,7 @@ VCDAT_ICON_CLASS = "jp-icon-vcdat"
 class MainPage(ActionsPage):
 
     def __init__(self, driver, server):
-        super().
+        super(MainPage, self).__init__(driver, server)
 
     def _validate_page(self):
         # validate Main page is displaying a 'Home' tab

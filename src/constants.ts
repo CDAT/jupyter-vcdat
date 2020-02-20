@@ -246,13 +246,14 @@ export const GETTING_STARTED: Step[] = [
     content: reactHtmlParser(
       `The blue stylized "C" on the left is the VCDAT icon. 
     Clicking on this icon will open and close the VCDAT panel.
-    The panel is currently <span style='color: green'>open</span>.<br />
-    Click <b>Next</b> to continue the tutorial.`
+    To continue, make sure the panel is open before clicking <b>Next<b>,
+    otherwise click <b>Skip</b> or leave panel closed to exit tutorial.`
     ),
     disableCloseOnEsc: true,
-    disableOverlay: true,
+    disableOverlayClose: true,
     hideCloseButton: true,
     placement: "right",
+    spotlightClicks: true,
     target: `#jp-main-content-panel > 
     div.p-Widget.p-TabBar.jp-SideBar.jp-mod-left.p-BoxPanel-child 
     > ul > li.p-TabBar-tab.p-mod-closable > 

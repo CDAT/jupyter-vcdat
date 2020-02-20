@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 
 """ Class used to call functions within a locator """
 
@@ -15,14 +16,14 @@ class Action:
         self.description = descr
         self.arguments = args
 
-    def perform(self):
+    def perform(self, verbose=True):
         try:
-            if self.description is not None:
+            if self.description is not None and verbose:
                 print(self.description)
             if self.arguments is not None:
-                self.action(*self.arguments)
+                return self.action(*self.arguments)
             else:
-                self.action()
+                return self.action()
         except Exception as e:
             print(e)
             if self.description is not None and self.arguments is not None:
@@ -46,53 +47,50 @@ class Actions(object):
     def __init__(self, driver, server=None):
         self.driver = driver
 
+    # Converts a locator type: "id", "class", "css", "xpath" into a method
+    def locator_type_to_method(self, locator):
+        method = By.XPATH
+        if locator == "css":
+            method = By.CSS_SELECTOR
+        elif locator == "class":
+            method = By.CLASS_NAME
+        elif locator == "id":
+            method = By.ID
+
+        return method
+
     def enter_input_text(self, input_area, text):
         input_area.clear()
         ac = ActionChains(self.driver)
         ac.click(input_area).send_keys(text).perform()
         time.sleep(self._delay)
 
+    """
     # Returns an element using the item's locator string
     # Locator string type can be: id, class, css or xpath (default)
     def find_element(self, locator, locator_type="xpath"):
         valid = ["id", "class", "css", "xpath"]
         if locator_type not in valid:
-            raise ValueError("Invalid locator type pass to function.")
+            raise ValueError("Invalid locator type passed to function.")
             return None
         try:
-            if locator_type == "id":
-                element = self.driver.find_element_by_id(locator)
-            elif locator_type == "class":
-                element = self.driver.find_element_by_class_name(locator)
-            elif locator_type == "css":
-                element = self.driver.find_element_by_css_selector(locator)
-            elif locator_type == "xpath":
-                element = self.driver.find_element_by_xpath(locator)
+            method = self.locator_type_to_method(locator_type)
+            return self.driver.find_element(method, locator)
         except NoSuchElementException:
             return None
-        return element
 
     # Returns multiple element that match the locator string
     # Locator string type can be: id, class, css or xpath (default)
     def find_elements(self, locator, locator_type="xpath"):
         valid = ["id", "class", "css", "xpath"]
         if locator_type not in valid:
-            raise ValueError("Invalid locator type pass to function.")
+            raise ValueError("Invalid locator type passed to function.")
         try:
-            if locator_type == "id":
-                elements = self.driver.find_elements_by_id(locator)
-            elif locator_type == "class":
-                elements = self.driver.find_elements_by_class_name(locator)
-            elif locator_type == "css":
-                elements = self.driver.find_elements_by_css_selector(locator)
-            elif locator_type == "xpath":
-                elements = self.driver.find_elements_by_xpath(locator)
+            method = self.locator_type_to_method(locator_type)
+            return self.driver.find_elements(method, locator)
         except NoSuchElementException:
             return False
-        return elements
-
-    def get_text(self, element):
-        return element.get_attribute("value")
+    """
 
     def move_to_click(self, element):
         ac = ActionChains(self.driver)
@@ -130,17 +128,12 @@ class Actions(object):
         print("Waiting for {} seconds...".format(amount))
         time.sleep(amount)
 
-    def wait_click(self, method, locator):
-        try:
-            print("...wait_click..., locator: {}".format(locator))
-            wait = WebDriverWait(self.driver, 15)
-            m = wait.until(EC.element_to_be_clickable((method,
-                                                       locator)))
-            m.click()
-            time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print("...error clicking item...")
-            raise e
+    def wait_to_click(self, loc_type, locator):
+        method = self.locator_type_to_method(loc_type)
+        wait = WebDriverWait(self.driver, 15)
+        m = wait.until(EC.element_to_be_clickable((method, locator)))
+        m.click()
+        time.sleep(self._delay)
 
     def wait_till_element_is_visible(self, method, locator, descr):
         try:

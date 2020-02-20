@@ -1,3 +1,4 @@
+import os
 from ActionsPage import ActionsPage
 
 """
@@ -22,7 +23,7 @@ class MainPage(ActionsPage):
 
     def _validate_page(self):
         # validate Main page is displaying a 'Jupyter' Logo and VCDAT icon
-        self.jupyter_icon().click()
+        self.jupyter_icon().silent().click()
 
     # ----------  TOP LEVEL LOCATORS (Always accessible on page)  --------------
     def jupyter_icon(self):
@@ -51,12 +52,12 @@ class MainPage(ActionsPage):
 
         # Dictionary contains the data-id and a description for each left tab
         Tabs = {
-            "FileBrowser": ["filebrowser", "File Browser Icon"],
-            "Running": ["jp-running-sessions", "Running Session Icon"],
-            "Commands": ["command-palette", "Command Palette Icon"],
-            "VCDAT": [VCDAT_LEFT_SIDEBAR_ID, "VCDAT Icon"],
+            "FileBrowser": ["filebrowser", "FileBrowser Tab"],
+            "Running": ["jp-running-sessions", "Running Session Tab"],
+            "Commands": ["command-palette", "Command Palette Tab"],
+            "VCDAT": [VCDAT_LEFT_SIDEBAR_ID, "VCDAT Tab"],
             "OpenTabs": ["tab-manager", "Open Tabs Icon"],
-            "ExtManager": ["extensionmanager.main-view", "Extension Manager Icon"]
+            "ExtManager": ["extensionmanager.main-view", "Extension Manager Tab"]
         }
         tab_id = Tabs[tab][0]
         tab_descr = Tabs[tab][1]
@@ -109,12 +110,27 @@ class MainPage(ActionsPage):
     def create_notebook(self, notebook_name):
         # Create notebook
         self.sub_menu_item("File", "New", "Notebook").click()
-        self.dialog_btn("Select").lazy().click()  # popup may not show
+        self.dialog_btn("Select").attempt().click()  # popup may not show
         # Rename notebook
         self.top_menu_item("File", "Rename").click()
         self.dialog_input("Rename").enter_text(
-            "test_create_notebook.ipynb").press_enter()
-        self.dialog_btn("Overwrite").lazy().click()  # popup may not show
+            "{}.ipynb".format(notebook_name)).press_enter()
+        self.dialog_btn("Overwrite").attempt(
+        ).click().sleep(2)  # popup may not show
+
+    # Will save current notebook if one is open
+    def save_notebook(self):
+        self.top_menu_item("File", "Save Notebook").attempt().click()
+
+    # Will remove the notebook with specified name, do not include extension
+    def remove_notebook(self, notebook_name):
+        filename = "{}.ipynb".format(notebook_name)
+        print("Removing file: {}".format(filename))
+        os.remove(filename)
+
+    # Will run all cells in current notebook, if one is open
+    def run_notebook_cells(self):
+        self.top_menu_item("Run", "Run All Cells").attempt().click()
 
     # Will make sure the specific left tab panel is open
     # Valid tabs: FileBrowser, Running, Commands, VCDAT, OpenTabs, ExtManager
@@ -150,72 +166,16 @@ class MainPage(ActionsPage):
         return self.locator(loc, "xpath", "Tutorial 'Skip' Button", requires)
 
     # Shuts down the current kernel if one is active.
-    def shutdown_kernel(self):
-        print("...shutdown kernel if needed...")
+    def shutdown_kernel(self, verbose=True):
+        if verbose:
+            print("...shutdown kernel if needed...")
         self.top_menu_item("Kernel", "Shut Down Kernel",
                            "Shut Down Kernel Button").click()
 
     # Shuts down all kernels if there are kernels to shut down.
-    def shutdown_all_kernels(self):
-        print("...shutdown all kernels...")
+    def shutdown_all_kernels(self, verbose=True):
+        if verbose:
+            print("...shutdown all kernels...")
         self.top_menu_item("Kernel", "Shut Down All Kernels",
                            "Shutdown All Kernels Button").click().sleep(1)
-        self.dialog_btn("Shut Down All").lazy().click().sleep(3)
-
-    """
-    # Locators for the main dock panel (where notebooks and launcher are displayed)
-    def locate_launcher_tab(self):
-        return "//div[@id='jp-main-dock-panel']//li[contains(@data-id,'launcher')]"
-
-    def locate_notebook_launcher_cards(self):
-        try:
-            launchers = self.find_elements("jp-LauncherCard", "class")
-            if launchers is None:
-                self.locate_new_launcher_icon().click()  # Open launcher if none was found
-            nb_launchers = []
-            for launcher in launchers:
-                category = launcher.get_attribute("data-category")
-                if category is not None and category == "Notebook":
-                    nb_launchers.append(launcher)
-            return nb_launchers
-        except NoSuchElementException as e:
-            print("NoSuchElementException... not notebook launchers found")
-            raise e
-
-    def locate_notebook_launcher(self, title):
-        try:
-            launchers = self.locate_notebook_launcher_cards()
-            for launcher in launchers:
-                if launcher.get_attribute("title") == title:
-                    print("FOUND launcher titled {}".format(title))
-                    return launcher
-            print(
-                "Did not find launcher with specified title {t}".format(t=title))
-            return None
-        except NoSuchElementException as e:
-            print(
-                "NoSuchElementException...did not find specified launcher {}".format(title))
-            raise e
-
-    def click_on_notebook_launcher(self, title):
-        element = self.locate_notebook_launcher(title)
-        self.move_to_click(element)
-
-    def click_on_select_kernel(self):
-        '''
-        click on the 'SELECT' button in the 'Select Kernel' pop up.
-        '''
-        select_kernel_popup_locator = "//span[contains(text(), 'Select Kernel')]"
-        kernel_select_button_locator = "//button//div[contains(text(), 'Select')]"
-
-        print("...click on 'SELECT' in the 'Select Kernel' pop up")
-        try:
-            self.find_element(select_kernel_popup_locator, "xpath")
-            el = self.find_element(kernel_select_button_locator, "xpath")
-            # time.sleep(self._a_bit_delay)
-            self.move_to_click(el)
-            # time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print("did not find 'Select Kernel' pop up")
-            raise e
-    """
+        self.dialog_btn("Shut Down All").attempt().click().sleep(3)

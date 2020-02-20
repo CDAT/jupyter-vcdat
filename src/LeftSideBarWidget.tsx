@@ -122,7 +122,7 @@ export default class LeftSideBarWidget extends Widget {
     this.labShell = labShell;
     this.notebookTracker = tracker;
     this.div = document.createElement("div");
-    this.div.id = "left-sidebar";
+    this.div.id = "left-sidebar-vcdat";
     this.node.appendChild(this.div);
     this.commands = app.commands;
     this._state = NOTEBOOK_STATE.Unknown;
@@ -725,7 +725,7 @@ export default class LeftSideBarWidget extends Widget {
       } else {
         if (!openSidecarPanel) {
           // Switches to the left sidebar in case a left-sidecar was opened
-          this.labShell.activateById("left-side-bar-vcdat");
+          this.labShell.activateById("left-sidebar-vcdat");
         }
       }
     }
@@ -749,7 +749,7 @@ export default class LeftSideBarWidget extends Widget {
     rwidgets.forEach((widget: Widget) => {
       if (widget.title.label === this.notebookPanel.title.label) {
         // Switches to the left sidebar in case a left-sidecar was opened
-        this.labShell.activateById("left-side-bar-vcdat");
+        this.labShell.activateById("left-sidebar-vcdat");
         // Select the approriate right-sidecar
         this.labShell.activateById(widget.id);
         // Update the active sidecar position

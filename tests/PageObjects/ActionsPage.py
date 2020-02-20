@@ -1,10 +1,10 @@
 import time
-
 from abc import abstractmethod
-from selenium.webdriver.common.by import By
+
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from Actions import Action, Actions
 from Locator import Locator
@@ -39,15 +39,19 @@ class ActionsPage(Actions):
             assert(False), "Page not found or timeout  for {0}".format(url)
         time.sleep(self._delay)
 
-    # Creates a locator with the driver added
+    # Creates a locator object (single element) with the driver added
     def locator(self, loc, loc_type, descr="", req=None):
-        return Locator(self.driver, loc, loc_type, descr, req)
+        return Locator(self.driver, loc, loc_type, descr, False, req)
+
+    # Creates locators object (multiple elements) with the driver added
+    def locators(self, loc, loc_type, descr="", req=None):
+        return Locator(self.driver, loc, loc_type, descr, True, req)
 
     # Creates an action object
     def action(self, action, descr, *args):
         if descr != "":
             print("Action: {}".format(descr))
-        return Action(action, descr, *args)
+        return Action(action, descr, True, *args)
 
 
 class InvalidPageException(Exception):

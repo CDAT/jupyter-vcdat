@@ -118,6 +118,7 @@ export default class TemplateMenu extends React.Component<
                             /*@tag<template-item>*/ "template-item-vcdat"
                           }
                           onClick={handleClick}
+                          value={item}
                           key={item}
                         >
                           {item}
