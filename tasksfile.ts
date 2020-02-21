@@ -38,12 +38,12 @@ const TESTS: { [name: string]: string[] } = {
     "test_top_menu",
     "test_tutorials"
   ],
-  test_export_html: [
+  /*test_export_html: [
     "TestExportHTML",
     "test_export_plot_html_via_button",
     "test_export_plot_html_via_nbconvert",
     "test_export_plot_html_via_nbconvert_execute"
-  ],
+  ],*/
   test_vcdat_panel: [
     "TestVcdatPanel",
     "test_top_level",

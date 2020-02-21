@@ -44,11 +44,7 @@ aliases:
       BROWSER_DRIVER: "/usr/local/bin/chromedriver"
     command: |
       source activate jupyter-vcdat
-      python run_tests.py -H -v 2 tests/test_locators.py
-      python run_tests.py -H -v 2 tests/test_load_a_variable.py
-      python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-      python run_tests.py -H -v 2 tests/test_plot_locators.py
-      python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
+      npx task test -c
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
       exit $RESULT
@@ -61,11 +57,7 @@ aliases:
       BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     command: |
       source activate jupyter-vcdat
-      python run_tests.py -H -v 2 tests/test_locators.py
-      python run_tests.py -H -v 2 tests/test_load_a_variable.py
-      python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-      python run_tests.py -H -v 2 tests/test_plot_locators.py
-      python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
+      npx task test -f
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
       exit $RESULT
