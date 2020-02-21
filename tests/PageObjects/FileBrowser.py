@@ -8,7 +8,6 @@ Contains locator functions for all menu items and left tabs.
 
 
 class FileBrowser(MainPage):
-
     def __init__(self, driver, server=None):
         print("...Validate FileBrowser Page...")
         super(FileBrowser, self).__init__(driver, server)
@@ -34,14 +33,13 @@ class FileBrowser(MainPage):
 
     # Provides locator for the small folder icon found in the browser breadcrumbs
     def folder_icon(self):
-        loc = ("span.jp-BreadCrumbs-home[data-icon~='folder']")
+        loc = "span.jp-BreadCrumbs-home[data-icon~='folder']"
         requires = self.action(self.open_left_tab, "", "FileBrowser")
         return self.locator(loc, "css", "Folder Icon in FileBrowser", requires)
 
     # Returns the locator for a file browser item (like a file)
     def file_browser_item(self, item):
-        loc = "#filebrowser li.jp-DirListing-item[title~='{i}']".format(
-            i=item)
+        loc = "#filebrowser li.jp-DirListing-item[title~='{i}']".format(i=item)
         requires = self.action(self.open_left_tab, "", "FileBrowser")
         return self.locator(loc, "xpath", "FileBrowser Item: {}".format(item), requires)
 
@@ -64,8 +62,6 @@ class FileBrowser(MainPage):
 
         self.file_browser_item(fname).double_click().wait(2)
         # File Load Error popup may show
-        self.dialog_button(
-            "Dismiss", "File Load Error PopUp").attempt().click()
+        self.dialog_button("Dismiss", "File Load Error PopUp").attempt().click()
         # Kernel Select popup may show
-        self.dialog_button(
-            "Select", "Kernel Select PopUp").attempt().click().wait(5)
+        self.dialog_button("Select", "Kernel Select PopUp").attempt().click().wait(5)

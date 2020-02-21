@@ -1,5 +1,4 @@
 import time
-from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -27,13 +26,16 @@ class Action:
         except Exception as e:
             print(e)
             if self.description is not None and self.arguments is not None:
-                print("Attempt to do: '{}' failed.\nArguments: {}".format(
-                    self.description, self.arguments))
+                print(
+                    "Attempt to do: '{}' failed.\nArguments: {}".format(
+                        self.description, self.arguments
+                    )
+                )
             elif self.description is not None:
                 print("Attempt to do: '{}' failed.".format(self.description))
             else:
                 print("Arguments: {}".format(self.arguments))
-            raise(e)
+            raise (e)
 
 
 """ All page objects inherit from this """
@@ -138,8 +140,7 @@ class Actions(object):
     def wait_till_element_is_visible(self, method, locator, descr):
         try:
             wait = WebDriverWait(self.driver, 15)
-            element = wait.until(EC.visibility_of_element_located((method,
-                                                                   locator)))
+            element = wait.until(EC.visibility_of_element_located((method, locator)))
             print("'{}' is now visible".format(descr))
             return element
         except TimeoutException as e:
@@ -149,10 +150,11 @@ class Actions(object):
     def wait_till_element_is_clickable(self, method, locator, descr):
         try:
             wait = WebDriverWait(self.driver, 15)
-            element = wait.until(EC.element_to_be_clickable((method,
-                                                             locator)))
+            element = wait.until(EC.element_to_be_clickable((method, locator)))
             print("'{}' is now clickable".format(descr))
             return element
         except TimeoutException as e:
-            print("Timeout in waiting for element to be clickable '{}'...".format(descr))
+            print(
+                "Timeout in waiting for element to be clickable '{}'...".format(descr)
+            )
             raise e

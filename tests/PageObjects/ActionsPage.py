@@ -24,19 +24,20 @@ class ActionsPage(Actions):
     def _validate_page(self):
         return
 
-    def load_page(self, server, expected_element=(By.TAG_NAME, 'html'),
-                  timeout=_wait_timeout):
+    def load_page(
+        self, server, expected_element=(By.TAG_NAME, "html"), timeout=_wait_timeout
+    ):
         url = server
         print("...load_page, url: {u}".format(u=url))
         try:
             self.driver.get(url)
         except TimeoutException:
-            assert(False), "Page not found or timeout for {0}".format(url)
+            assert False, "Page not found or timeout for {0}".format(url)
         element = EC.presence_of_element_located(expected_element)
         try:
             WebDriverWait(self.driver, timeout).until(element)
         except TimeoutException:
-            assert(False), "Page not found or timeout  for {0}".format(url)
+            assert False, "Page not found or timeout  for {0}".format(url)
         time.sleep(self._delay)
 
     # Creates a locator object (single element) with the driver added
@@ -56,4 +57,5 @@ class ActionsPage(Actions):
 
 class InvalidPageException(Exception):
     """ Throw this exception when we do not find the correct page """
+
     pass

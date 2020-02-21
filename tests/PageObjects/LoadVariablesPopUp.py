@@ -7,7 +7,6 @@ Contains locator functions for all menu items and left tabs.
 
 
 class LoadVariablesPopUp(ActionsPage):
-
     def __init__(self, driver, server=None):
         super(LoadVariablesPopUp, self).__init__(driver, server)
 

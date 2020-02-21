@@ -42,8 +42,7 @@ class Locator(Actions):
                 req.perform(self.__VERBOSE__)
             elif self.__VERBOSE__:
                 if self.description != "":
-                    print("Unkown requirement in locator: {}".format(
-                        self.description))
+                    print("Unkown requirement in locator: {}".format(self.description))
                 else:
                     print("Unkown requirement in locator")
         if self.__VERBOSE__:
@@ -141,8 +140,7 @@ class Locator(Actions):
             ready = self.__prepare__()
             if ready:
                 # If ready, try action again
-                self.element = self.__find_element__(
-                    self.locator, self.locator_type)
+                self.element = self.__find_element__(self.locator, self.locator_type)
                 if self.clickable():
                     # Element was found this time
                     self.__describe__(self.description, True)
@@ -150,12 +148,14 @@ class Locator(Actions):
                     # After preparing, element still not found
                     self.__describe__(self.description, False)
                     raise NoSuchElementException(
-                        "Element {} is still not clickable.".format(self.description))
+                        "Element {} is still not clickable.".format(self.description)
+                    )
             else:
                 # Nothing to prepare, element was not found
                 self.__describe__(self.description, False)
                 raise NoSuchElementException(
-                    "Element {} could not be found.".format(self.description))
+                    "Element {} could not be found.".format(self.description)
+                )
 
     """--------------- Modifier Functions ---------------"""
 

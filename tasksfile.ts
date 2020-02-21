@@ -17,6 +17,13 @@ const MESSAGE = {
         to a version greater than ${npmVersion}
       `;
     }
+  },
+  testChrome: {
+    error: "Missing driver path. To set path, run:\n'npx task installTestTools -c'"
+  },
+  testFirefox: {
+    error: "Missing driver path. To set path, run:\n'npx task installTestTools -f'",
+    error2: "Missing binary path. To set path, run:\n'npx task installTestTools -f'"
   }
 };
 
@@ -49,11 +56,26 @@ const TESTS: { [name: string]: string[] } = {
 const TASK_DATA_PATH: string = ".taskData";
 
 enum TaskData {
+  tasksReady,
   chromeDriver,
   geckoDriver,
   firefoxBinary,
   condaInstalled,
   LENGTH // Length must be last element in enum
+}
+
+enum OSTypes {
+  Linux,
+  MacOs
+}
+
+async function getOS(): Promise<OSTypes> {
+  const OS: string = await run("echo $OSTYPE");
+  switch (OS) {
+    case "linux-gnu":
+      return OSTypes.Linux;
+  }
+  return OSTypes.MacOs;
 }
 
 // Template function to convert string array to format with line breaks
@@ -134,7 +156,14 @@ async function shell(code: string, silent: boolean = false): Promise<void> {
  */
 async function setTaskData(taskData: TaskData, value: string): Promise<void> {
   const idx: number = taskData + 1;
-  await run(`sed -i '' -e '${idx}s#.*#${value}#' ${TASK_DATA_PATH}`);
+
+  // Run command based on current OS
+  const OS: OSTypes = await getOS();
+  if(OS == OSTypes.Linux){
+    await run(`sed -i -e '${idx}s#.*#${value}#' ${TASK_DATA_PATH}`);
+  } else {
+    await run(`sed -i '' -e '${idx}s#.*#${value}#' ${TASK_DATA_PATH}`);
+  }
 }
 
 /**
@@ -238,10 +267,7 @@ async function testChrome(
   console.log("===============CHROME TESTS BEGIN===============");
   const driver: string = await getTaskData(TaskData.chromeDriver);
   if (!driver) {
-    console.error(
-      "Missing driver path. To set path, run: \
-    npx task installTestTools -c"
-    );
+    console.error(MESSAGE.testChrome.error);
     return false;
   }
   const envSetup: string = dedent`
@@ -293,15 +319,11 @@ async function testFirefox(
   const driver: string = await getTaskData(TaskData.geckoDriver);
   const binary: string = await getTaskData(TaskData.firefoxBinary);
   if (!driver || driver == "undefined") {
-    console.error(
-      "Missing driver path. To set path, run:\n'npx task installTestTools -f'"
-    );
+    console.error(MESSAGE.testFirefox.error);
     return false;
   }
   if (!binary || binary == "undefined") {
-    console.error(
-      "Missing binary path. To set path, run:\n'npx task installTestTools -f'"
-    );
+    console.error(MESSAGE.testFirefox.error2);
     return false;
   }
   const envSetup: string = dedent`
@@ -536,7 +558,7 @@ async function installTestTools(options: ICLIOptions): Promise<void> {
       if (!condaInstalled) {
         console.log("Installing conda dependencies...");
         await shell(
-          `conda install -c cdat/label/v82 testsrunner cdat_info <<< 'yes' && \
+          `conda install -c cdat/label/v82 -c cdat/label/nightly testsrunner cdat_info <<< 'yes' && \
 pip install selenium && pip install pyvirtualdisplay`
         );
         await setTaskData(TaskData.condaInstalled, "true");
@@ -546,7 +568,7 @@ pip install selenium && pip install pyvirtualdisplay`
     } else {
       console.log("Installing conda dependencies...");
       await shell(
-        `conda install -c cdat/label/v82 testsrunner cdat_info <<< 'yes' && \
+        `conda install -c cdat/label/v82 -c cdat/label/nightly testsrunner cdat_info <<< 'yes' && \
 pip install selenium && pip install pyvirtualdisplay`
       );
       await setTaskData(TaskData.condaInstalled, "true");

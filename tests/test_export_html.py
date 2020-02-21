@@ -43,11 +43,11 @@ def prepare(self, notebook):
     self.vcdat_panel = VcdatPanel(self.driver, None)
 
     # Ensure the home directory working directory
-    file_browser.folder_icon().click()
+    self.file_browser.folder_icon().click()
 
     # Open file for test
     self.main_page.create_notebook(notebook)
-    load_variables_popup = file_browser.open_load_variables_popup(test_file)
+    load_variables_popup = self.file_browser.open_load_variables_popup(self.test_file)
     load_variables_popup.variable_btn('v').click()
     load_variables_popup.load_button().click()
     self.vcdat_panel.plot_btn().click()

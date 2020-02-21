@@ -7,7 +7,6 @@ Contains locator functions for all menu items and left tabs.
 
 
 class AboutPage(MainPage):
-
     def __init__(self, driver, server=None):
         print("...Validate AboutPage...")
         super().__init__(driver, server)
@@ -23,16 +22,24 @@ class AboutPage(MainPage):
     # Provides locator for an icon in the file browser
     def dismiss_button(self):
         requires = self.top_menu_item("Help", "About VCDAT")
-        return self.locator("about-modal-btn-vcdat", "class", "Dismiss Button", requires)
+        return self.locator(
+            "about-modal-btn-vcdat", "class", "Dismiss Button", requires
+        )
 
     def contributors_link(self):
         requires = self.top_menu_item("Help", "About VCDAT")
-        return self.locator("about-contributors-vcdat", "id", "Contributor's Link", requires)
+        return self.locator(
+            "about-contributors-vcdat", "id", "Contributor's Link", requires
+        )
 
     def documentation_link(self):
         requires = self.top_menu_item("Help", "About VCDAT")
-        return self.locator("about-documentation-vcdat", "id", "Documentation Link", requires)
+        return self.locator(
+            "about-documentation-vcdat", "id", "Documentation Link", requires
+        )
 
     def version(self):
         requires = self.top_menu_item("Help", "About VCDAT")
-        return self.locator("about-version-vcdat", "id", "Version Text", requires).get_text()
+        return self.locator(
+            "about-version-vcdat", "id", "Version Text", requires
+        ).get_text()

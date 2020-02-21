@@ -60,23 +60,22 @@ export default class AboutVCDAT extends React.Component<
 
   @boundMethod
   public async show(): Promise<void> {
-    await this.setState({ modalOpen: true });
+    this.setState({ modalOpen: true });
   }
 
   @boundMethod
   public async hide(): Promise<void> {
-    await this.setState({ modalOpen: false });
+    this.setState({ modalOpen: false });
   }
 
   @boundMethod
   public async toggle(): Promise<void> {
-    await this.setState({ modalOpen: !this.state.modalOpen });
+    this.setState({ modalOpen: !this.state.modalOpen });
   }
 
   public render(): JSX.Element {
     return (
       <Modal
-        id={/*@tag<about-modal>*/ "about-modal-vcdat"}
         style={{ ...modalStyling }}
         isOpen={this.state.modalOpen}
         toggle={this.toggle}
@@ -95,24 +94,18 @@ export default class AboutVCDAT extends React.Component<
               </Row>
               <Row>
                 <Col>
-                  <h4 className="text-info">
-                    Version{" "}
-                    <span id={/*@tag<about-version>*/ "about-version-vcdat"}>
-                      {this.props.version}
-                    </span>
-                  </h4>
+                  <h4 className="text-info">Version {this.props.version}</h4>
                 </Col>
               </Row>
             </Col>
           </Row>
         </ModalHeader>
         <ModalBody
-          className={/*@tag<about-modal-body>*/ "about-modal-body-vcdat"}
+          className={/*@tag<about-vcdat-modal>*/ "about-vcdat-modal-vcdat"}
         >
           <Row>
             <Col>
               <a
-                id={/*@tag<about-contributors>*/ "about-contributors-vcdat"}
                 className="text-muted"
                 target="_blank"
                 href="https://github.com/CDAT/jupyter-vcdat/graphs/contributors"
@@ -122,7 +115,6 @@ export default class AboutVCDAT extends React.Component<
             </Col>
             <Col style={{ textAlign: "right" }}>
               <a
-                id={/*@tag<about-documentation>*/ "about-documentation-vcdat"}
                 className="text-muted"
                 target="_blank"
                 href="https://github.com/CDAT/jupyter-vcdat/wiki"

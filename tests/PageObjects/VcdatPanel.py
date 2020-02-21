@@ -8,7 +8,6 @@ Contains locator functions for all menu items and left tabs.
 
 
 class VcdatPanel(MainPage):
-
     def __init__(self, driver, server=None):
         super(VcdatPanel, self).__init__(driver, server)
 
@@ -90,7 +89,9 @@ class VcdatPanel(MainPage):
     def plot_type_group(self, group):
         loc = "button.graphics-method-group-vcdat[value='{}']".format(group)
         requires = self.plot_type_btn()
-        return self.locator(loc, "css", "Graphic Group Option: {}".format(group), requires)
+        return self.locator(
+            loc, "css", "Graphic Group Option: {}".format(group), requires
+        )
 
     # Gets locator for a graphics method item in the Plot Type drop-down
     def plot_type_item(self, group, item):

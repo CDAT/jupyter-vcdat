@@ -7,11 +7,14 @@ from Utils import TestUtils
 
 
 class JupyterUtils(TestUtils):
-
     def __init__(self):
         super(JupyterUtils, self).__init__()
         output = subprocess.run(
-            ["git rev-parse --show-toplevel"], capture_output=True, text=True, shell=True)
+            ["git rev-parse --show-toplevel"],
+            capture_output=True,
+            text=True,
+            shell=True,
+        )
         self.MAIN_DIR = output.stdout.rstrip()
 
     def get_server(self):
@@ -19,7 +22,7 @@ class JupyterUtils(TestUtils):
 
         ret_code, output = self.run_command(cmd)
         server_line = output[1]
-        match_obj = re.match(r'(.*)\s+::\s+', server_line)
+        match_obj = re.match(r"(.*)\s+::\s+", server_line)
         server = match_obj.group(1)
         return server
 
@@ -35,8 +38,9 @@ class JupyterUtils(TestUtils):
 
     def get_package_version(self):
         output = subprocess.run(
-            ["node -pe \"require(\'{}/package.json\').version\"".format(self.MAIN_DIR)],
+            ["node -pe \"require('{}/package.json').version\"".format(self.MAIN_DIR)],
             capture_output=True,
             text=True,
-            shell=True)
+            shell=True,
+        )
         return output.stdout.rstrip()

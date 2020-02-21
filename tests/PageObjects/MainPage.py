@@ -12,10 +12,15 @@ VCDAT_ICON_CLASS = "jp-icon-vcdat"
 class MainPage(ActionsPage):
 
     # Menu and left tab names listed below
-    TOP_MENUS = ["File", "Edit", "View", "Run",
-                 "Kernel", "Tabs", "Settings", "Help"]
-    LEFT_TABS = ["FileBrowser", "Running",
-                 "Commands", "VCDAT", "OpenTabs", "ExtManager"]
+    TOP_MENUS = ["File", "Edit", "View", "Run", "Kernel", "Tabs", "Settings", "Help"]
+    LEFT_TABS = [
+        "FileBrowser",
+        "Running",
+        "Commands",
+        "VCDAT",
+        "OpenTabs",
+        "ExtManager",
+    ]
 
     def __init__(self, driver, server):
         print("...Validate MainPage...")
@@ -37,10 +42,12 @@ class MainPage(ActionsPage):
     def top_menu(self, name):
         if name not in self.TOP_MENUS:
             raise ValueError(
-                "Only the following names are valid: {}".format(self.TOP_MENUS))
+                "Only the following names are valid: {}".format(self.TOP_MENUS)
+            )
 
         loc = "//div[@class='p-MenuBar-itemLabel'][contains(text(),'{n}')]".format(
-            n=name)
+            n=name
+        )
         return self.locator(loc, "xpath", "{} Menu".format(name))
 
     # Provides locator for tabs on the left of main page.
@@ -48,7 +55,8 @@ class MainPage(ActionsPage):
     def left_tab(self, tab):
         if tab not in self.LEFT_TABS:
             raise ValueError(
-                "Only the following names are valid: {}".format(self.LEFT_TABS))
+                "Only the following names are valid: {}".format(self.LEFT_TABS)
+            )
 
         # Dictionary contains the data-id and a description for each left tab
         Tabs = {
@@ -57,12 +65,11 @@ class MainPage(ActionsPage):
             "Commands": ["command-palette", "Command Palette Tab"],
             "VCDAT": [VCDAT_LEFT_SIDEBAR_ID, "VCDAT Tab"],
             "OpenTabs": ["tab-manager", "Open Tabs Icon"],
-            "ExtManager": ["extensionmanager.main-view", "Extension Manager Tab"]
+            "ExtManager": ["extensionmanager.main-view", "Extension Manager Tab"],
         }
         tab_id = Tabs[tab][0]
         tab_descr = Tabs[tab][1]
-        loc = "//div[@id='jp-main-content-panel']//li[@data-id='{f}']".format(
-            f=tab_id)
+        loc = "//div[@id='jp-main-content-panel']//li[@data-id='{f}']".format(f=tab_id)
         return self.locator(loc, "xpath", tab_descr)
 
     # Provides a locator for a button shown on a popup dialog in main screen
@@ -114,9 +121,9 @@ class MainPage(ActionsPage):
         # Rename notebook
         self.top_menu_item("File", "Rename").click()
         self.dialog_input("Rename").enter_text(
-            "{}.ipynb".format(notebook_name)).press_enter()
-        self.dialog_btn("Overwrite").attempt(
-        ).click().sleep(2)  # popup may not show
+            "{}.ipynb".format(notebook_name)
+        ).press_enter()
+        self.dialog_btn("Overwrite").attempt().click().sleep(2)  # popup may not show
 
     # Will save current notebook if one is open
     def save_notebook(self):
@@ -169,13 +176,15 @@ class MainPage(ActionsPage):
     def shutdown_kernel(self, verbose=True):
         if verbose:
             print("...shutdown kernel if needed...")
-        self.top_menu_item("Kernel", "Shut Down Kernel",
-                           "Shut Down Kernel Button").click()
+        self.top_menu_item(
+            "Kernel", "Shut Down Kernel", "Shut Down Kernel Button"
+        ).click()
 
     # Shuts down all kernels if there are kernels to shut down.
     def shutdown_all_kernels(self, verbose=True):
         if verbose:
             print("...shutdown all kernels...")
-        self.top_menu_item("Kernel", "Shut Down All Kernels",
-                           "Shutdown All Kernels Button").click().sleep(1)
+        self.top_menu_item(
+            "Kernel", "Shut Down All Kernels", "Shutdown All Kernels Button"
+        ).click().sleep(1)
         self.dialog_btn("Shut Down All").attempt().click().sleep(3)
