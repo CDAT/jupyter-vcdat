@@ -547,14 +547,19 @@ canvas = vcs.init(display_target='off')`;
       templateParam = '"default"';
     }
 
-    let cmd: string = "from tqdm import tqdm_notebook\nfrom glob import glob\n"
+    let cmd: string = "from tqdm import tqdm_notebook\n";
+    cmd += "from glob import glob\n";
     cmd += `pngpath = "vcdat_tmp"\n`;
     cmd += `outpath = "vcdat_animations"\n`;
     cmd += `if not os.path.exists(pngpath):\n`;
     cmd += `    os.makedirs(pngpath)\n`;
+    cmd += `if not os.path.exists(outpath):\n`
     cmd += `    os.makedirs(outpath)\n`;
     cmd += `else:\n`;
-    cmd += `    [os.remove(os.path.join(pngpath, x)) for x in os.listdir(pngpath)]\n`;
+    cmd += `    try:\n`
+    cmd += `        [os.remove(os.path.join(pngpath, x)) for x in os.listdir(pngpath)]\n`;
+    cmd += "    except Exception as e:\n"
+    cmd += "        print(repr(e))\n"
     cmd += "frame_index = 0\n";
     cmd += `min, max = vcs.minmax(${selectedVariable})\n`;
     
