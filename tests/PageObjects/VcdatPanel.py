@@ -20,90 +20,97 @@ class VcdatPanel(MainPage):
     def main_panel(self):
         loc = "left-sidebar-vcdat"
         requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "id", "VCDAT Top Panel", requires)
+        return self.locator(loc, "id", "VCDAT Top Panel", requires).needs_to_be("visible")
 
+    # The VCDAT top panel
     def top_panel(self):
         loc = "vcsmenu-main-vcdat"
         return self.main_panel().find_child(loc, "class", "VCDAT Top Panel")
 
+    def var_panel(self):
+        loc = "varmenu-main-vcdat"
+        return self.main_panel().find_child(loc, "class", "VCDAT Variable Panel")
+
+    def graphics_panel(self):
+        loc = "graphicsmenu-main-vcdat"
+        return self.main_panel().find_child(loc, "class", "VCDAT Graphics Panel")
+
+    def templates_panel(self):
+        loc = "templatemenu-main-vcdat"
+        return self.main_panel().find_child(loc, "class", "VCDAT Templates Panel")
+
+    # ---- VCDAT Top panel buttons ----
     def plot_btn(self):
         loc = "vcsmenu-plot-btn-vcdat"
-        return self.top_panel().find_child(loc, "class", "TESTING")
+        return self.top_panel().find_child(loc, "class", "Plot Button")
 
     def export_btn(self):
         loc = "vcsmenu-export-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Export Button", requires)
+        return self.top_panel().find_child(loc, "class", "Export Button")
 
     def clear_btn(self):
         loc = "vcsmenu-clear-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Clear Button", requires)
+        return self.top_panel().find_child(loc, "class", "Clear Button")
 
+    # ---- VCDAT Variable panel buttons ----
     def load_variables_file_btn(self):
         loc = "varmenu-load-variables-file-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "File Load Button", requires)
+        return self.var_panel().find_child(loc, "class", "File Load Button")
 
     def load_variables_path_btn(self):
         loc = "varmenu-load-variables-path-btn-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Path Load Button", requires)
+        return self.var_panel().find_child(loc, "class", "Path Load Button")
 
+    # Note: Locator will only show up if an existing, non-vcdat notebook is opened
+    def sync_notebook_btn(self, notebook_name="sync_notebook"):
+        loc = "varmenu-sync-btn-vcdat"
+        return self.var_panel().find_child(loc, "class", "Sync Button")
+
+    # ---- VCDAT Graphics panel buttons ----
     def overlay_switch(self):
-        loc = "vcsmenu-overlay-switch-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "id", "Overlay Switch", requires)
+        loc = "graphics-overlay-switch-vcdat"
+        return self.graphics_panel().find_child(loc, "id", "Overlay Switch")
 
     def sidecar_switch(self):
-        loc = "vcsmenu-sidecar-switch-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "id", "Sidecar Switch", requires)
+        loc = "graphics-sidecar-switch-vcdat"
+        return self.graphics_panel().find_child(loc, "id", "Sidecar Switch")
+
+    def animate_switch(self):
+        loc = "graphics-animation-switch-vcdat"
+        return self.graphics_panel().find_child(loc, "id", "Animation Switch")
 
     def plot_type_btn(self):
         loc = "graphics-dropdown-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Plot Type Button", requires)
+        return self.graphics_panel().find_child(loc, "class", "Plot Type Dropdown")
 
     def colormap_btn(self):
         loc = "colormap-dropdown-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Colormap Button", requires)
+        return self.graphics_panel().find_child(loc, "class", "Colormap Dropdown")
 
+    # ---- VCDAT Template Panel button ----
     def template_btn(self):
         loc = "template-dropdown-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Template Button", requires)
+        return self.templates_panel().find_child(loc, "class", "Template Dropdown")
 
     # -------------------------  SUB LEVEL LOCATORS  ---------------------------
-
-    # Locator will only show up if an existing, non-vcdat notebook is opened
-    def sync_notebook_btn(self, notebook_name="sync_notebook"):
-        loc = "varmenu-sync-btn-vcdat"
-
-        # If locator not found, then make sure vcdat panel open
-        req = self.action(self.open_left_tab, "VCDAT")
-        return self.locator(loc, "class", "Plot Button", req)
 
     # Gets locator for a graphics method group in the Plot Type drop-down
     def plot_type_group(self, group):
         loc = "button.graphics-method-group-vcdat[value='{}']".format(group)
         requires = self.plot_type_btn()
-        return self.locator(
-            loc, "css", "Graphic Group Option: {}".format(group), requires
-        )
+        descr = "Graphic Group Option: {}".format(group)
+        return self.locator(loc, "css", descr, requires).needs_to_be("visible")
 
     # Gets locator for a graphics method item in the Plot Type drop-down
     def plot_type_item(self, group, item):
         loc = "button.graphics-method-item-vcdat[value~='{}']".format(item)
         descr = "Graphic Option Item: {}".format(item)
         requires = self.plot_type_group(group)
-        return self.locator(loc, "css", descr, requires)
+        return self.locator(loc, "css", descr, requires).needs_to_be("visible")
 
     # Gets locator for 'close' button shown when selecting graphic method group
     def plot_type_close_btn(self, group="boxfill"):
         loc = "button.graphics-close-btn-vcdat"
-        # Select plot group, to show close
         require = self.plot_type_group(group)
         return self.locator(loc, "css", "Graphic Group Close", require)
 
@@ -113,11 +120,12 @@ class VcdatPanel(MainPage):
         requires = self.plot_type_item("boxfill", "default")
         return self.locator(loc, "css", "Graphic Copy Button", requires)
 
-    # Gets the locator for the 'copy' button shown when plot type has been set
+    # Gets the locator for the 'cancel' button shown when 'copy' plot is clicked
     # Will fail if plot type was not set (therefore no plot to copy from)
     def plot_type_copy_cancel_btn(self):
         loc = "button.graphics-cancel-btn-vcdat"
-        return self.locator(loc, "css", "Graphic Copy Cancel Button")
+        requires = self.plot_type_copy_btn().needs_to_be("visible")
+        return self.locator(loc, "css", "Graphic Copy Cancel Button", requires)
 
     # Gets locator for the name input of the plot type copy feature
     #
@@ -127,20 +135,20 @@ class VcdatPanel(MainPage):
 
     def plot_type_copy_name_enter_btn(self):
         loc = "button.graphics-enter-btn-vcdat"
-        requires = self.plot_type_copy_btn()
+        requires = self.plot_type_copy_btn().needs_to_be("visible")
         return self.locator(loc, "css", "Graphics Enter Name Button", requires)
 
     # Gets locator for an item in colormap drop-down
     def colormap_item(self, item):
         loc = "button.colormap-dropdown-item-vcdat[value~='{}']".format(item)
-        self.colormap_btn().click().sleep(1)
-        return self.locator(loc, "css", "Colormap Option: {}".format(item))
+        requires = self.colormap_btn().needs_to_be("enabled")
+        return self.locator(loc, "css", "Colormap Option: {}".format(item), requires).needs_to_be("visible")
 
     # Gets locator for an item in layout template drop-down
     def layout_template_item(self, item):
         loc = "button.template-item-vcdat[value~='{}']".format(item)
-        self.template_btn().click().sleep(1)
-        return self.locator(loc, "css", "Template Option: {}".format(item))
+        requires = self.template_btn().needs_to_be("enabled")
+        return self.locator(loc, "css", "Template Option: {}".format(item), requires).needs_to_be("visible")
 
     # ---------------------------  VCDAT Functions  ----------------------------
 
@@ -152,122 +160,6 @@ class VcdatPanel(MainPage):
 
 
 """
-    def click_on_plot(self):
-        element = self.locate_plot()
-        self.scroll_click(element)
-        time.sleep(2)
-
-    def click_on_export_plot(self):
-        element = self.locate_export_plot()
-        self.move_to_click(element)
-        save_plot_popup = SavePlotPopUp(self.driver, None)
-        return save_plot_popup
-
-    def click_on_clear(self):
-        element = self.locate_clear()
-        self.move_to_click(element)
-
-    def click_on_load_variables_by_file(self):
-        element = self.locate_load_variables_by_file()
-        self.move_to_click(element)
-        file_browser = FileBrowser(self.driver, None)
-        return file_browser
-
-    def click_on_load_variables_by_path(self):
-        element = self.locate_load_variables_by_path()
-        self.move_to_click(element)
-
-    def click_on_sync_notebook(self):
-        element = self.locate_sync_notebook_button()
-        # self.move_to_click(element)
-        self.move_to_click(element)
-
-    def click_on_select_plot_type(self):
-        element = self.locate_select_plot_type()
-        # self.move_to_click(element)
-        self.scroll_click(element)
-
-    def click_on_select_colormap(self):
-        element = self.locate_select_colormap()
-        # self.move_to_click(element)
-        self.scroll_click(element)
-
-    def click_on_select_a_template(self):
-        element = self.locate_select_a_template()
-        # self.move_to_click(element)
-        self.scroll_click(element)
-
-
-    def _get_plot_type_elements(self):
-        plot_type_elements_class = "graphics-dropdown-item-vcdat"
-        try:
-            plot_type_elements = self.find_elements(
-                plot_type_elements_class, "class")
-            # for e in plot_type_elements:
-            #    print("plot_type_element: '{}'".format(e.text))
-            return plot_type_elements
-        except NoSuchElementException as e:
-            print("FAIL..._get_plot_type_elements...")
-            raise e
-
-    def _get_template_elements(self):
-        template_elements_class = "template-item-vcdat"
-        try:
-            template_elements = self.find_elements(
-                template_elements_class, "class")
-            # for t in template_elements:
-            #     print("template_element: '{}'".format(t.text))
-            return template_elements
-        except NoSuchElementException as e:
-            print("FAIL..._get_template_elements...")
-            raise e
-
-    def select_a_plot_type(self, plot_type):
-        try:
-            self.click_on_select_plot_type()
-        except NoSuchElementException as e:
-            print("FAIL...click_on_select_plot_type()")
-            raise e
-        try:
-            plot_type_elements = self._get_plot_type_elements()
-            i = 0
-            for e in plot_type_elements:
-                if e.text == plot_type:
-                    print("FOUND plot type '{}'".format(plot_type))
-                    self.scroll_click(e)
-                    break
-                else:
-                    i += 1
-            if i >= len(plot_type_elements):
-                print("Invalid plot type '{}'".format(plot_type))
-                # REVISIT raise an exception
-        except NoSuchElementException as e:
-            print("FAIL..._get_plot_type_elements()")
-            raise e
-
-    def select_a_template(self, template):
-        try:
-            self.click_on_select_a_template()
-        except NoSuchElementException as e:
-            print("FAIL...click_on_select_a_template()")
-            raise e
-        try:
-            template_elements = self._get_template_elements()
-            i = 0
-            for t in template_elements:
-                if t.text == template:
-                    print("FOUND template '{}'".format(template))
-                    self.scroll_click(t)
-                    break
-                else:
-                    i += 1
-            if i >= len(template_elements):
-                print("Invalid template '{}'".format(template))
-                # REVISIT raise an exception
-        except NoSuchElementException as e:
-            print("FAIL..._get_template_elements()")
-            raise e
-
     #
     # Overlay Mode
     #

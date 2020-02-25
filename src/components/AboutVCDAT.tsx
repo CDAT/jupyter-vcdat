@@ -81,7 +81,9 @@ export default class AboutVCDAT extends React.Component<
         toggle={this.toggle}
         size="lg"
       >
-        <ModalHeader>
+        <ModalHeader
+          className={/*@tag<about-modal-header>*/ "about-modal-header-vcdat"}
+        >
           <Row>
             <Col>
               <div style={{ ...iconStyling }} />
@@ -94,19 +96,24 @@ export default class AboutVCDAT extends React.Component<
               </Row>
               <Row>
                 <Col>
-                  <h4 className="text-info">Version {this.props.version}</h4>
+                  <h4 className="text-info">
+                    Version{" "}
+                    <span className={/*@tag<about-version>*/ "about-version-vcdat"}>
+                      {this.props.version}
+                    </span>
+                  </h4>
                 </Col>
               </Row>
             </Col>
           </Row>
         </ModalHeader>
         <ModalBody
-          className={/*@tag<about-vcdat-modal>*/ "about-vcdat-modal-vcdat"}
+          className={/*@tag<about-modal-body>*/ "about-modal-body-vcdat"}
         >
           <Row>
             <Col>
               <a
-                className="text-muted"
+                className={/*@tag<text-muted about-contributors>*/ "text-muted about-contributors-vcdat"}
                 target="_blank"
                 href="https://github.com/CDAT/jupyter-vcdat/graphs/contributors"
               >
@@ -115,7 +122,7 @@ export default class AboutVCDAT extends React.Component<
             </Col>
             <Col style={{ textAlign: "right" }}>
               <a
-                className="text-muted"
+                className={/*@tag<text-muted about-documentation>*/ "text-muted about-documentation-vcdat"}
                 target="_blank"
                 href="https://github.com/CDAT/jupyter-vcdat/wiki"
               >
@@ -124,7 +131,9 @@ export default class AboutVCDAT extends React.Component<
             </Col>
           </Row>
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter
+          className={/*@tag<about-modal-footer>*/ "about-modal-footer-vcdat"}
+        >
           <Row style={{ width: "100%", margin: 0 }}>
             <Col>
               <p style={copyrightStyling}>&#169;{YEAR} LLNL CDAT TEAM</p>

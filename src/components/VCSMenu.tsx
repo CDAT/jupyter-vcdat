@@ -85,6 +85,10 @@ interface IVCSMenuState {
   plotExists: boolean;
   previousDisplayMode: DISPLAY_MODE;
   currentDisplayMode: DISPLAY_MODE;
+  shouldAnimate: boolean;
+  animationAxisIndex: number;
+  animationRate: number;
+  animateAxisInvert: boolean;
 }
 
 export default class VCSMenu extends React.Component<
@@ -114,7 +118,11 @@ export default class VCSMenu extends React.Component<
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: "",
-      variables: this.props.varTracker.variables
+      variables: this.props.varTracker.variables,
+      shouldAnimate: false,
+      animationAxisIndex: 0,
+      animationRate: 5,
+      animateAxisInvert: false
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
@@ -142,6 +150,55 @@ export default class VCSMenu extends React.Component<
     this.props.varTracker.variablesChanged.disconnect(
       this.handleVariablesChanged
     );
+  }
+
+  @boundMethod
+  public async toggleAnimate(): Promise<void> {
+    const newAnimateState: boolean = !this.state.shouldAnimate;
+    this.setState({
+      shouldAnimate: newAnimateState
+    });
+    console.log(
+      `overlay: ${this.state.overlayMode}, display: ${this.state.currentDisplayMode}, animate: ${newAnimateState}`
+    );
+
+    // Turn off other options if animate is on
+    if (newAnimateState) {
+      await this.setState({
+        overlayMode: false,
+        currentDisplayMode: DISPLAY_MODE.Notebook
+      });
+    }
+    console.log(
+      `overlay: ${this.state.overlayMode}, display: ${this.state.currentDisplayMode}, animate: ${newAnimateState}`
+    );
+    // Save selection to meta data
+    NotebookUtilities.setMetaDataNow(
+      this.state.notebookPanel,
+      PLOT_OPTIONS_KEY,
+      [this.state.overlayMode, this.state.currentDisplayMode, newAnimateState]
+    );
+  }
+
+  @boundMethod
+  public updateAnimateAxisId(axis: number): void {
+    this.setState({
+      animationAxisIndex: axis
+    });
+  }
+
+  @boundMethod
+  public toggleAnimateAxisInvert(): void {
+    this.setState({
+      animateAxisInvert: !this.state.animateAxisInvert
+    });
+  }
+
+  @boundMethod
+  public updateAnimateRate(rate: number): void {
+    this.setState({
+      animationRate: rate
+    });
   }
 
   @boundMethod
@@ -186,37 +243,53 @@ export default class VCSMenu extends React.Component<
 
   @boundMethod
   public async toggleOverlayMode(): Promise<void> {
-    await this.setState({ overlayMode: !this.state.overlayMode });
+    this.setState({ overlayMode: !this.state.overlayMode });
 
     // Save selection to meta data
     NotebookUtilities.setMetaDataNow(
       this.state.notebookPanel,
       PLOT_OPTIONS_KEY,
-      [!this.state.overlayMode, this.state.currentDisplayMode]
+      [
+        !this.state.overlayMode,
+        this.state.currentDisplayMode,
+        this.state.shouldAnimate
+      ]
     );
   }
 
   @boundMethod
   public async toggleSidecar(): Promise<void> {
-    this.state.currentDisplayMode === DISPLAY_MODE.Notebook
-      ? await this.setState({ currentDisplayMode: DISPLAY_MODE.Sidecar })
-      : await this.setState({ currentDisplayMode: DISPLAY_MODE.Notebook });
+    let newDisplayMode: DISPLAY_MODE = DISPLAY_MODE.Notebook;
+
+    if (this.state.currentDisplayMode === DISPLAY_MODE.Notebook) {
+      newDisplayMode = DISPLAY_MODE.Sidecar;
+    }
+    this.setState({ currentDisplayMode: newDisplayMode });
     if (this.props.openSidecarPanel) {
       this.props.openSidecarPanel(
         this.state.currentDisplayMode === DISPLAY_MODE.Sidecar
       );
     }
-
     // Save selection to meta data
     NotebookUtilities.setMetaDataNow(
       this.state.notebookPanel,
       PLOT_OPTIONS_KEY,
-      [this.state.overlayMode, this.state.currentDisplayMode]
+      [this.state.overlayMode, newDisplayMode, this.state.shouldAnimate]
     );
   }
 
   @boundMethod
   public saveNotebook() {
+    // Save plot options to meta data
+    NotebookUtilities.setMetaDataNow(
+      this.state.notebookPanel,
+      PLOT_OPTIONS_KEY,
+      [
+        this.state.overlayMode,
+        this.state.currentDisplayMode,
+        this.state.shouldAnimate
+      ]
+    );
     NotebookUtilities.saveNotebook(this.state.notebookPanel);
   }
 
@@ -230,7 +303,8 @@ export default class VCSMenu extends React.Component<
       previousDisplayMode: DISPLAY_MODE.None,
       selectedGM: "",
       selectedGMgroup: "",
-      selectedTemplate: ""
+      selectedTemplate: "",
+      shouldAnimate: false
     });
   }
 
@@ -264,28 +338,35 @@ export default class VCSMenu extends React.Component<
     // Load the selected plot options from meta data (if exists)
     const plotOptions: [
       boolean,
-      DISPLAY_MODE
+      DISPLAY_MODE,
+      boolean
     ] = NotebookUtilities.getMetaDataNow(
       this.state.notebookPanel,
       PLOT_OPTIONS_KEY
     );
-
     if (!plotOptions) {
       // No meta data means fresh notebook, reset options
       this.setState({
         currentDisplayMode: DISPLAY_MODE.Notebook,
         overlayMode: false,
-        previousDisplayMode: DISPLAY_MODE.None
+        previousDisplayMode: DISPLAY_MODE.None,
+        shouldAnimate: false
       });
       return;
     }
 
+    console.log(
+      `overlay: ${plotOptions[0]}, display: ${plotOptions[1]}, animate: ${plotOptions[2]}`
+    );
     // Set state based on meta data from notebook
     this.setState({
       currentDisplayMode: plotOptions[1],
       overlayMode: plotOptions[0],
-      previousDisplayMode: this.state.currentDisplayMode
+      previousDisplayMode: this.state.currentDisplayMode,
+      shouldAnimate: plotOptions[2]
     });
+    // this.graphicsMenuRef.animationMenuRef.toggleAnimate();
+    // this.graphicsMenuRef.setState({shouldAnimate: plotOptions[2]})
   }
 
   @boundMethod
@@ -453,15 +534,28 @@ export default class VCSMenu extends React.Component<
           "Please select a variable from the left panel."
         );
       } else {
-        // Inject the plot
-        await this.props.codeInjector.plot(
-          this.state.selectedGM,
-          this.state.selectedGMgroup,
-          this.state.selectedTemplate,
-          this.state.overlayMode,
-          this.state.previousDisplayMode,
-          this.state.currentDisplayMode
-        );
+        if (this.state.shouldAnimate) {
+          // Inject the animation code
+          await this.props.codeInjector.animate(
+            this.state.selectedGM,
+            this.state.selectedGMgroup,
+            this.state.selectedTemplate,
+            this.state.animationAxisIndex,
+            this.state.animationRate,
+            this.state.animateAxisInvert,
+            this.state.selectedColormap
+          );
+        } else {
+          // Inject the plot
+          await this.props.codeInjector.plot(
+            this.state.selectedGM,
+            this.state.selectedGMgroup,
+            this.state.selectedTemplate,
+            this.state.overlayMode,
+            this.state.previousDisplayMode,
+            this.state.currentDisplayMode
+          );
+        }
         this.setState({ previousDisplayMode: this.state.currentDisplayMode });
         this.props.setPlotExists(true);
       }
@@ -487,7 +581,13 @@ export default class VCSMenu extends React.Component<
       toggleSidecar: this.toggleSidecar,
       updateColormap: this.updateColormap,
       updateGraphicsOptions: this.updateGraphicsOptions,
-      varInfo: new Variable()
+      varInfo: new Variable(),
+      toggleAnimate: this.toggleAnimate,
+      toggleAnimateInverse: this.toggleAnimateAxisInvert,
+      updateAnimateAxis: this.updateAnimateAxisId,
+      updateAnimateRate: this.updateAnimateRate,
+      varTracker: this.props.varTracker,
+      shouldAnimate: this.state.shouldAnimate
     };
     const varMenuProps = {
       codeInjector: this.props.codeInjector,
@@ -544,22 +644,25 @@ export default class VCSMenu extends React.Component<
           <CardBody className={/*@tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
             <div style={centered}>
               <Row>
-                <Col sm={3}>
+                <Col sm={this.state.shouldAnimate ? 5 : 3}>
                   <Button
                     className={
                       /*@tag<vcsmenu-plot-btn>*/ "vcsmenu-plot-btn-vcdat"
                     }
                     type="button"
-                    color="primary"
+                    color={this.state.shouldAnimate ? "warning" : "primary"}
                     style={btnStyle}
                     onClick={this.plot}
                     disabled={!this.state.plotReady}
-                    title="Plot the current selected variable(s)."
+                    title="Animate the selected variable over its selected axis"
                   >
-                    Plot
+                    {this.state.shouldAnimate ? "Animate" : "Plot"}
                   </Button>
                 </Col>
-                <Col sm={5} style={{ padding: "0 5px" }}>
+                <Col
+                  sm={this.state.shouldAnimate ? 3 : 4}
+                  style={{ padding: "0 5px" }}
+                >
                   <Button
                     className={
                       /*@tag<vcsmenu-export-btn>*/ "vcsmenu-export-btn-vcdat"
@@ -568,10 +671,14 @@ export default class VCSMenu extends React.Component<
                     color="primary"
                     style={btnStyle}
                     onClick={this.toggleModal}
-                    disabled={!this.state.plotReady || !this.state.plotExists}
+                    disabled={
+                      !this.state.plotReady ||
+                      !this.state.plotExists ||
+                      this.state.shouldAnimate
+                    }
                     title="Exports the current canvas plot."
                   >
-                    Export Plot
+                    Export
                   </Button>
                 </Col>
                 <Col sm={4}>

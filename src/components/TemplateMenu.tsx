@@ -84,7 +84,7 @@ export default class TemplateMenu extends React.Component<
     return (
       <div>
         <Card>
-          <CardBody className={/*@tag<template-main>*/ "template-main-vcdat"}>
+          <CardBody className={/*@tag<templatemenu-main>*/ "templatemenu-main-vcdat"}>
             <CardTitle>Layout Template</CardTitle>
             <CardSubtitle>
               <Dropdown

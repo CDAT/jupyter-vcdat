@@ -77,7 +77,7 @@ class TestVcdatPanel(BaseTestCase):
         else:
             print("Button was correctly displaying 'Invalid!'...")
         if vcdat_panel.plot_type_copy_name_enter_btn().enabled():
-            assert("The button should be disabled.")
+            assert("The 'copy enter' button should be disabled.")
         else:
             print("Button was correctly disabled...")
 
@@ -107,9 +107,10 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.load_variables_path_btn().found()
         vcdat_panel.overlay_switch().click()
         vcdat_panel.sidecar_switch().click()
+        vcdat_panel.animate_switch().click()
         vcdat_panel.plot_type_btn().found()
         vcdat_panel.colormap_btn().found()
-        vcdat_panel.template_path_btn().found()
+        vcdat_panel.template_btn().found()
 
     def test_template_options(self):
 

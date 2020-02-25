@@ -29,7 +29,7 @@ const MESSAGE = {
 
 // Which selenium tests there are to run
 const TESTS: { [name: string]: string[] } = {
-  test_about_page: ["TestAboutPage", "test_about_page"],
+  test_about_page: ["TestAboutPage", "test_about_modal"],
   test_main_page: [
     "TestMainPage",
     "test_create_notebook",
