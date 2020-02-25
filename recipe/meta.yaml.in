@@ -24,6 +24,7 @@ requirements:
     - jupyterlab
     - nb_conda
     - nb_conda_kernels
+    - tqdm
 
 about:
     home:  https://github.com/cdat/jupyter-vcdat
