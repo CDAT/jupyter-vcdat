@@ -18,13 +18,19 @@ import {
   InputGroup,
   InputGroupAddon,
   ListGroup,
-  ListGroupItem
+  ListGroupItem,
+  Row,
+  Col,
+  Label,
+  Container
 } from "reactstrap";
 
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import ColormapEditor from "./ColormapEditor";
+import VariableTracker from "../VariableTracker";
+import AnimationMenu from "./AnimationMenu";
 import { DISPLAY_MODE } from "../constants";
 import { boundMethod } from "autobind-decorator";
 
@@ -49,7 +55,12 @@ interface IGraphicsMenuProps {
   overlayMode: boolean;
   toggleOverlayMode: () => void;
   toggleSidecar: () => {};
+  toggleAnimate: () => void;
+  toggleAnimateInverse: () => void;
+  updateAnimateAxis: (axisId: number) => void;
+  updateAnimateRate: (rate: number) => void;
   currentDisplayMode: DISPLAY_MODE;
+  varTracker: VariableTracker;
   copyGraphicsMethod: (
     groupName: string,
     methodName: string,
@@ -66,12 +77,14 @@ interface IGraphicsMenuState {
   nameValue: string;
   invalidName: boolean;
   plotReady: boolean;
+  shouldAnimate: boolean;
 }
 
 export default class GraphicsMenu extends React.Component<
   IGraphicsMenuProps,
   IGraphicsMenuState
 > {
+  public animationMenuRef: AnimationMenu;
   constructor(props: IGraphicsMenuProps) {
     super(props);
     this.state = {
@@ -83,10 +96,17 @@ export default class GraphicsMenu extends React.Component<
       selectedMethod: "",
       showDropdown: false,
       showMenu: false,
-      tempGroup: ""
+      tempGroup: "",
+      shouldAnimate: false
     };
-
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
+  }
+  @boundMethod
+  public toggleAnimate(): void {
+    this.setState({
+      shouldAnimate: !this.state.shouldAnimate
+    });
+    this.props.toggleAnimate();
   }
 
   @boundMethod
@@ -186,36 +206,54 @@ export default class GraphicsMenu extends React.Component<
           <CardBody className={/*@tag<graphics-menu>*/ "graphics-menu-vcdat"}>
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle>
-              <InputGroup>
-                <div style={{ marginRight: "15px" }}>
-                  <CustomInput
-                    id="vcsmenu-overlay-switch-vcdat"
-                    type="switch"
-                    className={
-                      /*@tag<vcsmenu-overlay-switch>*/ "vcsmenu-overlay-switch-vcdat"
-                    }
-                    name="overlayModeSwitch"
-                    label="Overlay Mode"
-                    disabled={!this.state.plotReady}
-                    checked={this.props.overlayMode}
-                    onChange={this.props.toggleOverlayMode}
-                  />
-                </div>
-                <CustomInput
-                  id="vcsmenu-sidecar-switch-vcdat"
-                  type="switch"
+              <Container>
+                <Row>
+                  <Col xs="auto">
+                    <CustomInput
+                      id="vcsmenu-overlay-switch-vcdat"
+                      type="switch"
+                      className={
+                        /*@tag<vcsmenu-overlay-switch>*/ "vcsmenu-overlay-switch-vcdat"
+                      }
+                      name="overlayModeSwitch"
+                      label="Overlay Mode"
+                      disabled={!this.state.plotReady || this.state.shouldAnimate}
+                      checked={this.props.overlayMode && !this.state.shouldAnimate}
+                      onChange={this.props.toggleOverlayMode}
+                    />
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs="auto">
+                    <CustomInput
+                      id="vcsmenu-sidecar-switch-vcdat"
+                      type="switch"
+                      className={
+                        /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
+                      }
+                      name="sidecarSwitch"
+                      label="Plot to Sidecar"
+                      disabled={!this.state.plotReady || this.state.shouldAnimate}
+                      checked={
+                        this.props.currentDisplayMode === DISPLAY_MODE.Sidecar && !this.state.shouldAnimate
+                      }
+                      onChange={this.props.toggleSidecar}
+                    />
+                  </Col>
+                </Row>
+                <AnimationMenu 
                   className={
-                    /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
+                    /*@tag<graphicemenu-animation-switch>*/ "graphicemenu-animation-switch"
                   }
-                  name="sidecarSwitch"
-                  label="Plot to Sidecar"
-                  disabled={!this.state.plotReady}
-                  checked={
-                    this.props.currentDisplayMode === DISPLAY_MODE.Sidecar
-                  }
-                  onChange={this.props.toggleSidecar}
-                />
-              </InputGroup>
+                  plotReady={this.state.plotReady}
+                  toggleAnimate={this.toggleAnimate}
+                  toggleInverse={this.props.toggleAnimateInverse}
+                  varTracker={this.props.varTracker}
+                  updateAxisId={this.props.updateAnimateAxis}
+                  updateRate={this.props.updateAnimateRate}
+                  ref={loader => (this.animationMenuRef = loader)}
+                  />
+              </Container>
             </CardSubtitle>
             <CardGroup className={"clearfix"}>
               <Dropdown

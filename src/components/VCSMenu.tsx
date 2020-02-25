@@ -85,6 +85,10 @@ interface IVCSMenuState {
   plotExists: boolean;
   previousDisplayMode: DISPLAY_MODE;
   currentDisplayMode: DISPLAY_MODE;
+  shouldAnimate: boolean;
+  animationAxisIndex: number,
+  animationRate: number,
+  animateAxisInvert: boolean
 }
 
 export default class VCSMenu extends React.Component<
@@ -114,7 +118,11 @@ export default class VCSMenu extends React.Component<
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: "",
-      variables: this.props.varTracker.variables
+      variables: this.props.varTracker.variables,
+      shouldAnimate: false,
+      animationAxisIndex: 0,
+      animationRate: 5,
+      animateAxisInvert: false
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
@@ -143,6 +151,35 @@ export default class VCSMenu extends React.Component<
       this.handleVariablesChanged
     );
   }
+
+  @boundMethod
+  public toggleAnimate(): void {
+    this.setState({
+      shouldAnimate: !this.state.shouldAnimate
+    });
+  }
+
+  @boundMethod
+  public updateAnimateAxisId(axis: number): void {
+    this.setState({
+      animationAxisIndex: axis
+    });
+  }
+
+  @boundMethod
+  public toggleAnimateAxisInvert(): void {
+    this.setState({
+      animateAxisInvert: !this.state.animateAxisInvert
+    });
+  }
+
+  @boundMethod
+  public updateAnimateRate(rate: number): void {
+    this.setState({
+      animationRate: rate
+    });
+  }
+
 
   @boundMethod
   public setPlotInfo(plotName: string, plotFormat: string) {
@@ -450,18 +487,28 @@ export default class VCSMenu extends React.Component<
       if (this.props.varTracker.selectedVariables.length === 0) {
         NotebookUtilities.showMessage(
           "Notice",
-          "Please select a variable from the left panel."
-        );
+          "Please select a variable from the left panel.");
       } else {
-        // Inject the plot
-        await this.props.codeInjector.plot(
-          this.state.selectedGM,
-          this.state.selectedGMgroup,
-          this.state.selectedTemplate,
-          this.state.overlayMode,
-          this.state.previousDisplayMode,
-          this.state.currentDisplayMode
-        );
+        if(this.state.shouldAnimate){
+          // Inject the animation code
+          await this.props.codeInjector.animate(
+            this.state.selectedGM,
+            this.state.selectedGMgroup,
+            this.state.selectedTemplate,
+            this.state.animationAxisIndex,
+            this.state.animationRate,
+            this.state.animateAxisInvert,
+            this.state.selectedColormap)
+        } else {
+          // Inject the plot
+          await this.props.codeInjector.plot(
+            this.state.selectedGM,
+            this.state.selectedGMgroup,
+            this.state.selectedTemplate,
+            this.state.overlayMode,
+            this.state.previousDisplayMode,
+            this.state.currentDisplayMode);
+        }
         this.setState({ previousDisplayMode: this.state.currentDisplayMode });
         this.props.setPlotExists(true);
       }
@@ -487,7 +534,13 @@ export default class VCSMenu extends React.Component<
       toggleSidecar: this.toggleSidecar,
       updateColormap: this.updateColormap,
       updateGraphicsOptions: this.updateGraphicsOptions,
-      varInfo: new Variable()
+      varInfo: new Variable(),
+      toggleAnimate: this.toggleAnimate,
+      toggleAnimateInverse: this.toggleAnimateAxisInvert,
+      updateAnimateAxis: this.updateAnimateAxisId,
+      updateAnimateRate: this.updateAnimateRate,
+      varTracker: this.props.varTracker,
+      shouldAnimate: this.state.shouldAnimate
     };
     const varMenuProps = {
       codeInjector: this.props.codeInjector,
@@ -544,22 +597,24 @@ export default class VCSMenu extends React.Component<
           <CardBody className={/*@tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
             <div style={centered}>
               <Row>
-                <Col sm={3}>
+                <Col sm={this.state.shouldAnimate ? 5 : 3}>
                   <Button
                     className={
                       /*@tag<vcsmenu-plot-btn>*/ "vcsmenu-plot-btn-vcdat"
                     }
                     type="button"
-                    color="primary"
+                    color={this.state.shouldAnimate ? "warning" : "primary"}
                     style={btnStyle}
                     onClick={this.plot}
                     disabled={!this.state.plotReady}
-                    title="Plot the current selected variable(s)."
+                    title="Animate the selected variable over its selected axis"
                   >
-                    Plot
+                    {this.state.shouldAnimate ? "Animate" : "Plot"}
                   </Button>
                 </Col>
-                <Col sm={5} style={{ padding: "0 5px" }}>
+                <Col 
+                  sm={this.state.shouldAnimate ? 3 : 4} 
+                  style={{ padding: "0 5px" }}>
                   <Button
                     className={
                       /*@tag<vcsmenu-export-btn>*/ "vcsmenu-export-btn-vcdat"
@@ -568,10 +623,10 @@ export default class VCSMenu extends React.Component<
                     color="primary"
                     style={btnStyle}
                     onClick={this.toggleModal}
-                    disabled={!this.state.plotReady || !this.state.plotExists}
+                    disabled={!this.state.plotReady || !this.state.plotExists || this.state.shouldAnimate}
                     title="Exports the current canvas plot."
                   >
-                    Export Plot
+                    Export
                   </Button>
                 </Col>
                 <Col sm={4}>

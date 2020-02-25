@@ -31,7 +31,7 @@ export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
 export const PLOT_OPTIONS_KEY: string = "vcdat_plot_options";
 export const TEMPLATE_KEY: string = "template_selected";
 export const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
-export const REQUIRED_MODULES: string = '["cdms2","vcs","numpy"]';
+export const REQUIRED_MODULES: string = '["cdms2","vcs","numpy","os"]';
 
 export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
   "1d": [
