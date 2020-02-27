@@ -1,6 +1,5 @@
 import os
 from ActionsPage import ActionsPage
-from typing import Any, Callable, List, Optional, Union
 
 """
 PageObject for the main page of JupyterLab application
@@ -13,7 +12,8 @@ VCDAT_ICON_CLASS = "jp-icon-vcdat"
 class MainPage(ActionsPage):
 
     # Menu and left tab names listed below
-    TOP_MENUS = ["File", "Edit", "View", "Run", "Kernel", "Tabs", "Settings", "Help"]
+    TOP_MENUS = ["File", "Edit", "View", "Run",
+                 "Kernel", "Tabs", "Settings", "Help"]
     LEFT_TABS = [
         "FileBrowser",
         "Running",
@@ -41,6 +41,7 @@ class MainPage(ActionsPage):
     # Provides the locator for top menus.
     # Items available: File, Edit, View, Run, Kernel, Tabs, Settings, Help
     def top_menu(self, name):
+
         if name not in self.TOP_MENUS:
             raise ValueError(
                 "Only the following names are valid: {}".format(self.TOP_MENUS)
@@ -70,7 +71,8 @@ class MainPage(ActionsPage):
         }
         tab_id = Tabs[tab][0]
         tab_descr = Tabs[tab][1]
-        loc = "//div[@id='jp-main-content-panel']//li[@data-id='{f}']".format(f=tab_id)
+        loc = "//div[@id='jp-main-content-panel']//li[@data-id='{f}']".format(
+            f=tab_id)
         return self.locator(loc, "xpath", tab_descr)
 
     # Provides a locator for a button shown on a popup dialog in main screen
@@ -119,12 +121,15 @@ class MainPage(ActionsPage):
         # Create notebook
         self.sub_menu_item("File", "New", "Notebook").click()
         self.dialog_btn("Select").attempt().click()  # popup may not show
+        self.rename_notebook(notebook_name)
+
+    def rename_notebook(self, new_name):
         # Rename notebook
         self.top_menu_item("File", "Rename").click()
         self.dialog_input("Rename").enter_text(
-            "{}.ipynb".format(notebook_name)
-        ).press_enter()
-        self.dialog_btn("Overwrite").attempt().click().sleep(2)  # popup may not show
+            "{}.ipynb".format(new_name)).press_enter()
+        self.dialog_btn("Overwrite").attempt(
+        ).click().sleep(2)  # popup may not show
 
     # Will save current notebook if one is open
     def save_notebook(self):
@@ -162,30 +167,38 @@ class MainPage(ActionsPage):
     def tutorial_next(self):
         loc = "//*[contains(@id,'react-joyride-step')]//"
         loc += "button[contains(@aria-label,'Next') or contains(@aria-label,'Finish')]"
-        requires = self.action(self.tutorial_start, "Start Tutorial..")
-        return self.locator(loc, "xpath", "Tutorial 'Next' Button", requires)
+        return self.locator(loc, "xpath", "Tutorial 'Next' Button")
 
     # Ends a tutorial early by clicking the 'skip' button, or 'Finish' button. Starts
     # intro tutorial if no tutorial was already started.
     def tutorial_skip(self):
         loc = "//*[contains(@id,'react-joyride-step')]//"
         loc += "button[contains(@aria-label,'Skip') or contains(@aria-label,'Finish')]"
-        requires = self.action(self.tutorial_start, "Start Tutorial..")
-        return self.locator(loc, "xpath", "Tutorial 'Skip' Button", requires)
+        return self.locator(loc, "xpath", "Tutorial 'Skip' Button")
 
     # Shuts down the current kernel if one is active.
     def shutdown_kernel(self, verbose=True):
         if verbose:
             print("...shutdown kernel if needed...")
-        self.top_menu_item(
-            "Kernel", "Shut Down Kernel", "Shut Down Kernel Button"
-        ).click()
+            self.top_menu_item(
+                "Kernel", "Shut Down Kernel", "Shut Down Kernel Button"
+            ).click()
+        else:
+            self.top_menu_item(
+                "Kernel", "Shut Down Kernel", "Shut Down Kernel Button"
+            ).silent().click()
 
     # Shuts down all kernels if there are kernels to shut down.
     def shutdown_all_kernels(self, verbose=True):
         if verbose:
             print("...shutdown all kernels...")
-        self.top_menu_item(
-            "Kernel", "Shut Down All Kernels", "Shutdown All Kernels Button"
-        ).click().sleep(1)
-        self.dialog_btn("Shut Down All").attempt().click().sleep(3)
+            self.top_menu_item(
+                "Kernel", "Shut Down All Kernels", "Shutdown All Kernels Button"
+            ).click().sleep(1)
+            self.dialog_btn("Shut Down All").attempt().click().sleep(3)
+        else:
+            self.top_menu_item(
+                "Kernel", "Shut Down All Kernels", "Shutdown All Kernels Button"
+            ).silent().click().sleep(1)
+            self.dialog_btn("Shut Down All").silent(
+            ).attempt().click().sleep(3)

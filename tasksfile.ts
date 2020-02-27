@@ -38,6 +38,7 @@ const TESTS: { [name: string]: string[] } = {
     "test_top_menu",
     "test_tutorials"
   ],
+  // These tests can be activated once vcs is updated in master
   /*test_export_html: [
     "TestExportHTML",
     "test_export_plot_html_via_button",

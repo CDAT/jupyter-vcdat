@@ -246,7 +246,7 @@ export const GETTING_STARTED: Step[] = [
     content: reactHtmlParser(
       `The blue stylized "C" on the left is the VCDAT icon. 
     Clicking on this icon will open and close the VCDAT panel.
-    To continue, make sure the panel is open before clicking <b>Next<b>,
+    To continue, <b>make sure the panel is open</b> before clicking <b>Next</b>,
     otherwise click <b>Skip</b> or leave panel closed to exit tutorial.`
     ),
     disableCloseOnEsc: true,
@@ -326,17 +326,29 @@ export const GETTING_STARTED: Step[] = [
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
-    target: `.vcsmenu-overlay-switch-vcdat`,
+    target: `#graphics-overlay-switch-vcdat`,
     title: "Overlay Mode"
   },
   {
-    content: `When the 'Plot to Sidecar' toggle is on, plots will be rendered to the right \
-    of the notebook within the 'Sidecar' panel. The sidecar panel will remain on the right until \
-    the notebook is closed. If the toggle is left off, plots will be rendered within the notebook.`,
+    content: reactHtmlParser(`When the <b>Plot to Sidecar</b> toggle is on, plots will be rendered to the right \
+    of the notebook within the <b>Sidecar</b> panel. The sidecar panel will remain on the right until \
+    the notebook is closed. If the toggle is left off, plots will be rendered within the notebook.`),
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
-    target: `.vcsmenu-sidecar-switch-vcdat`,
+    target: `#graphics-sidecar-switch-vcdat`,
+    title: "Plot to Sidecar"
+  },
+  {
+    content: reactHtmlParser(`This is the <b>Animate</b> option. When <b>Animate</b> is on, the plot button will be \
+    replaced by an <b>Animate</b> button and animation options will appear below this switch. \
+    Clicking on the <b>Animate</b> button in the top left, will generate an animation of the \
+    selected variable using the specified animation options.
+    Note: overlay and sidecar options will be turned off, since they are not supported with animations.`),
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: `#graphics-animation-switch-vcdat`,
     title: "Plot to Sidecar"
   },
   {

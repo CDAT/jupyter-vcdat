@@ -5,18 +5,17 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from typing import Any, Callable, List, Optional, Union
 
 """ Class used to call functions within a locator """
 
 
 class Action:
-    def __init__(self, action: Callable[..., Any], descr: str = None, *args: Any) -> None:
+    def __init__(self, action, descr, *args):
         self.action = action
         self.description = descr
         self.arguments = args
 
-    def perform(self, verbose=True) -> Any:
+    def perform(self, verbose=True):
         try:
             if verbose and self.description is not None:
                 print(self.description)
@@ -48,11 +47,11 @@ class Actions(object):
     _delay = 1
     _a_bit_delay = 0.5
 
-    def __init__(self, driver: object, server: object = None) -> None:
+    def __init__(self, driver, server):
         self.driver = driver
 
     # Converts a locator type: "id", "class", "css", "xpath" into a method
-    def locator_type_to_method(self, locator: str) -> By:
+    def locator_type_to_method(self, locator):
         method = By.XPATH
         if locator == "css":
             method = By.CSS_SELECTOR
@@ -63,56 +62,35 @@ class Actions(object):
 
         return method
 
-    def enter_input_text(self, input_area: object, text: str) -> None:
+    def enter_input_text(self, input_area, text):
         input_area.clear()
         ac = ActionChains(self.driver)
         ac.click(input_area).send_keys(text).perform()
         time.sleep(self._delay)
 
-    """
-    # Returns an element using the item's locator string
-    # Locator string type can be: id, class, css or xpath (default)
-    def find_element(self, locator, locator_type="xpath"):
-        valid = ["id", "class", "css", "xpath"]
-        if locator_type not in valid:
-            raise ValueError("Invalid locator type passed to function.")
-            return None
-        try:
-            method = self.locator_type_to_method(locator_type)
-            return self.driver.find_element(method, locator)
-        except NoSuchElementException:
-            return None
+    def move_only(self, element, amount):
+        ac = ActionChains(self.driver)
+        ac.move_to_element(element)
+        ac.pause(amount)
+        ac.perform()
 
-    # Returns multiple element that match the locator string
-    # Locator string type can be: id, class, css or xpath (default)
-    def find_elements(self, locator, locator_type="xpath"):
-        valid = ["id", "class", "css", "xpath"]
-        if locator_type not in valid:
-            raise ValueError("Invalid locator type passed to function.")
-        try:
-            method = self.locator_type_to_method(locator_type)
-            return self.driver.find_elements(method, locator)
-        except NoSuchElementException:
-            return False
-    """
-
-    def move_to_click(self, element: object) -> None:
+    def move_to_click(self, element):
         ac = ActionChains(self.driver)
         ac.move_to_element(element)
         ac.click()
         ac.perform()
 
-    def move_to_double_click(self, element: object) -> None:
+    def move_to_double_click(self, element):
         ac = ActionChains(self.driver)
         ac.move_to_element(element)
         ac.double_click(element)
         ac.perform()
 
-    def input_press_enter(self, input_area: object) -> None:
+    def input_press_enter(self, input_area):
         ac = ActionChains(self.driver)
         ac.click(input_area).key_down(Keys.ENTER).perform()
 
-    def scroll_into_view(self, element: object) -> None:
+    def scroll_into_view(self, element):
         """
         when a page/area gets expanded and elements got shifted down,
         we may need to call this method to scroll the page so that the
@@ -122,24 +100,24 @@ class Actions(object):
         script = "return arguments[0].scrollIntoView(true);"
         self.driver.execute_script(script, element)
 
-    def scroll_to_click(self, element: object) -> None:
+    def scroll_to_click(self, element):
         script = "return arguments[0].scrollIntoView(true);"
         self.driver.execute_script(script, element)
         element.click()
         time.sleep(self._delay)
 
-    def wait(self) -> None:
+    def wait(self, amount):
         print("Waiting for {} seconds...".format(amount))
         time.sleep(amount)
 
-    def wait_to_click(self, loc_type: str, locator: str) -> None:
+    def wait_to_click(self, loc_type, locator):
         method = self.locator_type_to_method(loc_type)
         wait = WebDriverWait(self.driver, 15)
         m = wait.until(EC.element_to_be_clickable((method, locator)))
         m.click()
         time.sleep(self._delay)
 
-    def wait_till_element_is_visible(self, method: By, locator: str, descr: str) -> Optional[object]:
+    def wait_till_element_is_visible(self, method, locator, descr):
         try:
             wait = WebDriverWait(self.driver, 15)
             element = wait.until(
@@ -150,7 +128,7 @@ class Actions(object):
             print("Timeout in waiting for element to be visible '{}'...".format(descr))
             raise e
 
-    def wait_till_element_is_clickable(self, method: str, locator: str, descr: str) -> Optional[object]:
+    def wait_till_element_is_clickable(self, method, locator, descr):
         try:
             wait = WebDriverWait(self.driver, 15)
             element = wait.until(EC.element_to_be_clickable((method, locator)))

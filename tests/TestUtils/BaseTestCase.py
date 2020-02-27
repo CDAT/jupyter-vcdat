@@ -1,3 +1,5 @@
+from JupyterUtils import JupyterUtils
+from MainPage import MainPage
 from pyvirtualdisplay import Display
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
@@ -7,12 +9,9 @@ import tempfile
 import unittest
 import os
 import sys
-import time
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, '..', 'PageObjects'))
-from JupyterUtils import JupyterUtils
-from MainPage import MainPage
 
 
 class BaseTestCase(unittest.TestCase):
@@ -30,9 +29,9 @@ class BaseTestCase(unittest.TestCase):
     def setUp(self):
         print("\n\n#########...{}...".format(self._testMethodName))
         self._download_dir = tempfile.mkdtemp()
-        browser = os.getenv("BROWSER_TYPE", 'chrome')
+        self.browser = os.getenv("BROWSER_TYPE", 'chrome')
         mode = os.getenv("BROWSER_MODE", '--headless')
-        print("...browser: {b}".format(b=browser))
+        print("...browser: {b}".format(b=self.browser))
         print("...mode: {m}".format(m=mode))
 
         if mode == "--headless" and os.getenv("CIRCLECI"):
@@ -40,9 +39,9 @@ class BaseTestCase(unittest.TestCase):
             display = Display(visible=0, size=(800, 600))
             display.start()
 
-        if browser == 'chrome':
+        if self.browser == 'chrome':
             self.setup_for_chrome(mode)
-        elif browser == 'firefox':
+        elif self.browser == 'firefox':
             self.setup_for_firefox(mode)
 
         self.driver.implicitly_wait(self._wait_timeout)
@@ -50,6 +49,7 @@ class BaseTestCase(unittest.TestCase):
         utils = JupyterUtils()
         self.server = utils.get_server()
         self.main_page = MainPage(self.driver, self.server)
+        print("...BaseTestCase.setUp() Complete...")
 
     def tearDown(self):
         print("...BaseTestCase.tearDown()...")

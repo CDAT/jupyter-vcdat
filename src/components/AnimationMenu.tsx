@@ -35,10 +35,10 @@ export default class AnimationMenu extends React.Component<
     super(props);
     this.state = {
       axisIds: props.axisIds ? props.axisIds : [""],
-      selectedAxisId: 0,
       invertAxis: props.invertAxis ? props.invertAxis : false,
       rate: props.rate ? props.rate : 5,
-      selectedVariables: new Array<string>()
+      selectedAxisId: 0,
+      selectedVariables: Array<string>()
     };
   }
   @boundMethod
@@ -48,22 +48,22 @@ export default class AnimationMenu extends React.Component<
   ): void {
     let selectedVariableName = "";
     let selectedVariable: any;
-    const axisNames = new Array<string>();
+    const axisNames = Array<string>();
     for (let i = 0; i < varTracker.selectedVariables.length; i -= -1) {
       selectedVariableName = varTracker.selectedVariables[0].slice(
         0,
         varTracker.selectedVariables[0].length / 2
       );
       selectedVariable = varTracker.findVariableByAlias(selectedVariableName);
-      if (selectedVariable[0] != -1) {
-        for (let i = 0; i < selectedVariable[1].axisList.length; i++) {
-          axisNames.push(selectedVariable[1].axisList[i]);
+      if (selectedVariable[0] !== -1) {
+        for (const ii of selectedVariable[1].axisList) {
+          axisNames.push(selectedVariable[1].axisList[ii]);
         }
       }
     }
     this.setState({
-      selectedVariables: newSelection,
-      axisIds: axisNames
+      axisIds: axisNames,
+      selectedVariables: newSelection
     });
   }
 

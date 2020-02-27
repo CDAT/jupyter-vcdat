@@ -527,18 +527,14 @@ canvas = vcs.init(display_target='off')`;
     invertAxis: boolean,
     colormap: string
   ): Promise<[number, string]> {
+    const selectedVariable: string = this.varTracker.findVariableByID(
+      this.varTracker.selectedVariables[0]
+    )[1].alias;
 
-    let selectedVariable: string = this.varTracker.findVariableByID(this.varTracker.selectedVariables[0])[1].alias;
     // Create graphics method code
-    let gmParam: string = selectedGM;
-    if (!selectedGM) {
-      gmParam = 'boxfill';
-    } else if (selectedGM.indexOf(selectedGMGroup) < 0) {
-      gmParam += `_${selectedGMGroup}`;
-    }
-
-    if(!selectedGMGroup){
-      selectedGMGroup = 'boxfill';
+    let group: string = selectedGMGroup;
+    if (!group) {
+      group = "boxfill";
     }
 
     // Create template code
@@ -553,43 +549,46 @@ canvas = vcs.init(display_target='off')`;
     cmd += `outpath = "vcdat_animations"\n`;
     cmd += `if not os.path.exists(pngpath):\n`;
     cmd += `    os.makedirs(pngpath)\n`;
-    cmd += `if not os.path.exists(outpath):\n`
+    cmd += `if not os.path.exists(outpath):\n`;
     cmd += `    os.makedirs(outpath)\n`;
     cmd += `else:\n`;
-    cmd += `    try:\n`
+    cmd += `    try:\n`;
     cmd += `        [os.remove(os.path.join(pngpath, x)) for x in os.listdir(pngpath)]\n`;
-    cmd += "    except Exception as e:\n"
-    cmd += "        print(repr(e))\n"
+    cmd += "    except Exception as e:\n";
+    cmd += "        print(repr(e))\n";
     cmd += "frame_index = 0\n";
     cmd += `min, max = vcs.minmax(${selectedVariable})\n`;
-    
-    if(selectedGM)
-      cmd += `gm = vcs.create${selectedGMGroup}(source='${selectedGM}')\n`;
-    else
-      cmd += `gm = vcs.create${selectedGMGroup}()\n`;
+
+    if (selectedGM) {
+      cmd += `gm = vcs.create${group}(source='${selectedGM}')\n`;
+    } else {
+      cmd += `gm = vcs.create${group}()\n`;
+    }
 
     cmd += `gm.levels = [round(x) for x in numpy.arange(min, max, (max-min)/10)]\n`;
     cmd += `gm.fillareacolors = vcs.getcolors(gm.levels)\n`;
-    
-    if(colormap)
-      cmd += `gm.colormap = "${colormap}"\n`;
 
-    if(invertAxis){
-      cmd += `for step in tqdm_notebook(list(reversed(range(${selectedVariable}.shape[${axisIndex}]))), desc="Creating animation frames for ${selectedVariable}"):\n`;  
+    if (colormap) {
+      cmd += `gm.colormap = "${colormap}"\n`;
+    }
+
+    if (invertAxis) {
+      cmd += `for step in tqdm_notebook(list(reversed(range(${selectedVariable}.shape[${axisIndex}]))), desc="Creating animation frames for ${selectedVariable}"):\n`;
     } else {
       cmd += `for step in tqdm_notebook(list(range(${selectedVariable}.shape[${axisIndex}])), desc="Creating animation for ${selectedVariable}"):\n`;
     }
     cmd += `    canvas.clear()\n`;
 
     let indexPrefix: string = "";
-    for(let i = 0; i < axisIndex; i++){
+    for (let i = 0; i < axisIndex; i += 1) {
       indexPrefix += ":, ";
     }
-    
+
     cmd += `    canvas.plot(${selectedVariable}[${indexPrefix}step], ${templateParam}, gm)\n`;
-    
-    cmd += "    canvas.png(os.path.join(pngpath,'{:06}'.format(frame_index)))\n";
-    cmd += "    frame_index += 1\n"
+
+    cmd +=
+      "    canvas.png(os.path.join(pngpath,'{:06}'.format(frame_index)))\n";
+    cmd += "    frame_index += 1\n";
     cmd += `canvas.ffmpeg(os.path.join(outpath, "${selectedVariable}_animation.mp4"), sorted(glob(os.path.join(pngpath, "*png"))), rate=${rate})\n`;
     cmd += `\n`;
 

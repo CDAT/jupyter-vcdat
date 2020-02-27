@@ -102,6 +102,9 @@ export default class VCSMenu extends React.Component<
   constructor(props: IVCSMenuProps) {
     super(props);
     this.state = {
+      animateAxisInvert: false,
+      animationAxisIndex: 0,
+      animationRate: 5,
       colormapHasBeenChanged: false,
       currentDisplayMode: DISPLAY_MODE.Notebook,
       exportSuccessAlert: false,
@@ -118,11 +121,8 @@ export default class VCSMenu extends React.Component<
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: "",
-      variables: this.props.varTracker.variables,
       shouldAnimate: false,
-      animationAxisIndex: 0,
-      animationRate: 5,
-      animateAxisInvert: false
+      variables: this.props.varTracker.variables
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
@@ -158,20 +158,13 @@ export default class VCSMenu extends React.Component<
     this.setState({
       shouldAnimate: newAnimateState
     });
-    console.log(
-      `overlay: ${this.state.overlayMode}, display: ${this.state.currentDisplayMode}, animate: ${newAnimateState}`
-    );
-
     // Turn off other options if animate is on
     if (newAnimateState) {
-      await this.setState({
-        overlayMode: false,
-        currentDisplayMode: DISPLAY_MODE.Notebook
+      this.setState({
+        currentDisplayMode: DISPLAY_MODE.Notebook,
+        overlayMode: false
       });
     }
-    console.log(
-      `overlay: ${this.state.overlayMode}, display: ${this.state.currentDisplayMode}, animate: ${newAnimateState}`
-    );
     // Save selection to meta data
     NotebookUtilities.setMetaDataNow(
       this.state.notebookPanel,
@@ -354,10 +347,6 @@ export default class VCSMenu extends React.Component<
       });
       return;
     }
-
-    console.log(
-      `overlay: ${plotOptions[0]}, display: ${plotOptions[1]}, animate: ${plotOptions[2]}`
-    );
     // Set state based on meta data from notebook
     this.setState({
       currentDisplayMode: plotOptions[1],
@@ -365,8 +354,6 @@ export default class VCSMenu extends React.Component<
       previousDisplayMode: this.state.currentDisplayMode,
       shouldAnimate: plotOptions[2]
     });
-    // this.graphicsMenuRef.animationMenuRef.toggleAnimate();
-    // this.graphicsMenuRef.setState({shouldAnimate: plotOptions[2]})
   }
 
   @boundMethod
@@ -577,17 +564,17 @@ export default class VCSMenu extends React.Component<
       overlayMode: this.state.overlayMode,
       plotReady: this.state.plotReady,
       plotReadyChanged: this.props.plotReadyChanged,
+      shouldAnimate: this.state.shouldAnimate,
+      toggleAnimate: this.toggleAnimate,
+      toggleAnimateInverse: this.toggleAnimateAxisInvert,
       toggleOverlayMode: this.toggleOverlayMode,
       toggleSidecar: this.toggleSidecar,
+      updateAnimateAxis: this.updateAnimateAxisId,
+      updateAnimateRate: this.updateAnimateRate,
       updateColormap: this.updateColormap,
       updateGraphicsOptions: this.updateGraphicsOptions,
       varInfo: new Variable(),
-      toggleAnimate: this.toggleAnimate,
-      toggleAnimateInverse: this.toggleAnimateAxisInvert,
-      updateAnimateAxis: this.updateAnimateAxisId,
-      updateAnimateRate: this.updateAnimateRate,
-      varTracker: this.props.varTracker,
-      shouldAnimate: this.state.shouldAnimate
+      varTracker: this.props.varTracker
     };
     const varMenuProps = {
       codeInjector: this.props.codeInjector,

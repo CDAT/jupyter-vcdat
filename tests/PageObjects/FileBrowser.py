@@ -19,9 +19,10 @@ class FileBrowser(MainPage):
 
     # This will return an open variables popup given an appropriate .nc file
     # to open in the file browser.
-    def open_load_variables_popup(self, fname):
+    def open_variable_loader(self, fname, notebook_name):
+        self.create_notebook(notebook_name)
         self.open_file(fname)
-        return LoadVariablesPopUp(self.driver, self.server)
+        return LoadVariablesPopUp(self.driver)
 
     # ----------  TOP LEVEL LOCATORS (Always accessible on page)  --------------
 
@@ -35,13 +36,13 @@ class FileBrowser(MainPage):
     def folder_icon(self):
         loc = "span.jp-BreadCrumbs-home[data-icon~='folder']"
         requires = self.action(self.open_left_tab, "", "FileBrowser")
-        return self.locator(loc, "css", "Folder Icon in FileBrowser", requires)
+        return self.locator(loc, "css", "Folder Icon in FileBrowser", requires).needs_to_be("visible")
 
     # Returns the locator for a file browser item (like a file)
     def file_browser_item(self, item):
         loc = "#filebrowser li.jp-DirListing-item[title~='{i}']".format(i=item)
-        requires = self.action(self.open_left_tab, "", "FileBrowser")
-        return self.locator(loc, "xpath", "FileBrowser Item: {}".format(item), requires)
+        requires = self.folder_icon()
+        return self.locator(loc, "css", "FileBrowser Item: {}".format(item), requires)
 
     def new_launcher_icon(self):
         return self.file_browser_button("New Launcher")
@@ -58,10 +59,12 @@ class FileBrowser(MainPage):
     # ----------------------------- PAGE FUNCTIONS -----------------------------
 
     # Will open a file in the file browser
-    def open_file(self, fname):
-
-        self.file_browser_item(fname).double_click().wait(2)
+    def open_file(self, fname, delay=5):
+        print("Opening file {}".format(fname))
+        self.file_browser_item(fname).double_click()
         # File Load Error popup may show
-        self.dialog_button("Dismiss", "File Load Error PopUp").attempt().click()
+        self.dialog_btn(
+            "Dismiss", "File Load Error PopUp").attempt().click()
         # Kernel Select popup may show
-        self.dialog_button("Select", "Kernel Select PopUp").attempt().click().wait(5)
+        self.dialog_btn(
+            "Select", "Kernel Select PopUp").attempt().click().sleep(delay)
