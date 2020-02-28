@@ -21,7 +21,7 @@ class MainPage(ActionsPage):
         "Commands",
         "VCDAT",
         "OpenTabs",
-        "ExtManager",
+        # "ExtManager", # This tab is disabled by default
     ]
 
     def __init__(self, driver, server):
@@ -210,25 +210,29 @@ class MainPage(ActionsPage):
     def shutdown_kernel(self, verbose=True):
         if verbose:
             print("...shutdown kernel if needed...")
+            self.top_menu("Kernel").click()
             self.top_menu_item(
                 "Kernel", "Shut Down Kernel", "Shut Down Kernel Button"
-            ).click()
+            ).attempt().click()
         else:
+            self.top_menu("Kernel").silent().click()
             self.top_menu_item(
                 "Kernel", "Shut Down Kernel", "Shut Down Kernel Button"
-            ).silent().click()
+            ).silent().attempt().click()
 
     # Shuts down all kernels if there are kernels to shut down.
     def shutdown_all_kernels(self, verbose=True):
         if verbose:
             print("...shutdown all kernels...")
+            self.top_menu("Kernel").click()
             self.top_menu_item(
                 "Kernel", "Shut Down All Kernels", "Shutdown All Kernels Button"
-            ).click().sleep(1)
+            ).attempt().click()
             self.dialog_btn("Shut Down All").attempt().click().sleep(3)
         else:
+            self.top_menu("Kernel").silent().click()
             self.top_menu_item(
                 "Kernel", "Shut Down All Kernels", "Shutdown All Kernels Button"
-            ).silent().click().sleep(1)
+            ).silent().attempt().click()
             self.dialog_btn("Shut Down All").silent(
             ).attempt().click().sleep(3)

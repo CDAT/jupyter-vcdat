@@ -23,7 +23,7 @@ class TestMainPage(BaseTestCase):
         self.main_page.create_notebook(NOTEBOOK)
         self.main_page.remove_notebook(NOTEBOOK)
 
-    def test_left_tab(self):
+    def test_left_tabs(self):
         # Click on each left tab
         for tab in self.main_page.LEFT_TABS:
             self.main_page.left_tab(tab).click()

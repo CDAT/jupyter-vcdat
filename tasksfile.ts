@@ -36,7 +36,7 @@ const TESTS: { [name: string]: string[] } = {
   test_main_page: [
     "TestMainPage",
     "test_create_notebook",
-    "test_left_tab",
+    "test_left_tabs",
     "test_sub_menu",
     "test_top_menu",
     "test_tutorials"
