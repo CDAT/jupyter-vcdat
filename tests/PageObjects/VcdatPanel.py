@@ -103,10 +103,8 @@ class VcdatPanel(MainPage):
 
     # Gets locator for a graphics method item in the Plot Type drop-down
     def plot_type_item(self, group, item):
-        if self.browser == "firefox":
-            # Perform steps if browser is Firefox
-            self.plot_type_btn().click()
-            self.plot_type_group(group).scroll_click()
+        self.plot_type_btn().click()
+        self.plot_type_group(group).scroll_click()
         loc = "button.graphics-method-item-vcdat[value~='{}']".format(item)
         descr = "Graphic Option Item: {}".format(item)
         requires = self.plot_type_group(group)
