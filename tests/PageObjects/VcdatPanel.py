@@ -19,25 +19,25 @@ class VcdatPanel(MainPage):
 
     def main_panel(self):
         loc = "left-sidebar-vcdat"
-        requires = self.action(self.open_left_tab, "VCDAT")
+        requires = self.action(self.open_left_tab, "Open Left Tab", "VCDAT")
         return self.locator(loc, "id", "VCDAT Top Panel", requires).needs_to_be("visible")
 
     # The VCDAT top panel
     def top_panel(self):
         loc = "vcsmenu-main-vcdat"
-        return self.main_panel().find_child(loc, "class", "VCDAT Top Panel")
+        return self.main_panel().find_child(loc, "class", "VCDAT Top Panel").needs_to_be("visible")
 
     def var_panel(self):
         loc = "varmenu-main-vcdat"
-        return self.main_panel().find_child(loc, "class", "VCDAT Variable Panel")
+        return self.main_panel().find_child(loc, "class", "VCDAT Variable Panel").needs_to_be("visible")
 
     def graphics_panel(self):
         loc = "graphicsmenu-main-vcdat"
-        return self.main_panel().find_child(loc, "class", "VCDAT Graphics Panel")
+        return self.main_panel().find_child(loc, "class", "VCDAT Graphics Panel").needs_to_be("visible")
 
     def templates_panel(self):
         loc = "templatemenu-main-vcdat"
-        return self.main_panel().find_child(loc, "class", "VCDAT Templates Panel")
+        return self.main_panel().find_child(loc, "class", "VCDAT Templates Panel").needs_to_be("visible")
 
     # ---- VCDAT Top panel buttons ----
     def plot_btn(self):
@@ -103,6 +103,10 @@ class VcdatPanel(MainPage):
 
     # Gets locator for a graphics method item in the Plot Type drop-down
     def plot_type_item(self, group, item):
+        if self.browser == "firefox":
+            # Perform steps if browser is Firefox
+            self.plot_type_btn().click()
+            self.plot_type_group(group).scroll_click()
         loc = "button.graphics-method-item-vcdat[value~='{}']".format(item)
         descr = "Graphic Option Item: {}".format(item)
         requires = self.plot_type_group(group)
@@ -117,8 +121,7 @@ class VcdatPanel(MainPage):
     # Gets the locator for the 'copy' button shown when plot type has been set
     def plot_type_copy_btn(self):
         loc = "button.graphics-copy-btn-vcdat"
-        requires = self.plot_type_item("boxfill", "default")
-        return self.locator(loc, "css", "Graphic Copy Button", requires)
+        return self.locator(loc, "css", "Graphic Copy Button")
 
     # Gets the locator for the 'cancel' button shown when 'copy' plot is clicked
     # Will fail if plot type was not set (therefore no plot to copy from)
@@ -148,14 +151,13 @@ class VcdatPanel(MainPage):
     def layout_template_item(self, item):
         loc = "button.template-item-vcdat[value~='{}']".format(item)
         requires = self.template_btn().needs_to_be("enabled")
-        return self.locator(loc, "css", "Template Option: {}".format(item), requires).needs_to_be("visible")
+        return self.locator(loc, "css", "Template Option: {}".format(item), requires)
 
     # ---------------------------  VCDAT Functions  ----------------------------
 
     # Opens a notebook and syncs it to work with vcdat
     def sync_new_notebook(self, notebook_name):
         self.create_notebook(notebook_name)
-        self.open_left_tab("VCDAT")
         self.sync_notebook_btn().click().sleep(3)  # Wait for imports to load
 
 

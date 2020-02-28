@@ -1,4 +1,5 @@
 import os
+import re
 from ActionsPage import ActionsPage
 
 """
@@ -29,7 +30,9 @@ class MainPage(ActionsPage):
 
     def _validate_page(self):
         # validate Main page is displaying a 'Jupyter' Logo and VCDAT icon
-        self.jupyter_icon().silent().click()
+        self.jupyter_icon().silent().sleep(2).click()
+        # Ensure that the left side panel is wide enough
+        self.adjust_sidebar(400)
 
     # ----------  TOP LEVEL LOCATORS (Always accessible on page)  --------------
     def jupyter_icon(self):
@@ -100,21 +103,48 @@ class MainPage(ActionsPage):
     def top_menu_item(self, parent, name, descr=""):
         if descr == "":
             descr = name
-        requires = self.top_menu(parent)
+        parent = self.top_menu(parent)
         loc = "//div[@class='p-Widget p-Menu p-MenuBar-menu']//li/div[@class="
         loc += "'p-Menu-itemLabel'][contains(text(),'{n}')]".format(n=name)
-        return self.locator(loc, "xpath", descr, requires)
+        return self.locator(loc, "xpath", descr, parent)
 
     # Provides the locator for an item within a sub-menu. top_menu -> sub_menu -> item
     def sub_menu_item(self, top_menu, sub_menu, item, descr=""):
         if descr == "":
             descr = item
+
+        if self.browser == "firefox":
+            print("---Firefox steps---")
+            # Firefox needed steps to correctly click the element
+            self.top_menu(top_menu).simple_click()
+            self.top_menu_item(top_menu, sub_menu).move_to(0, 20).click()
+
         requires = self.top_menu_item(top_menu, sub_menu)
         loc = "//div[@class='p-Widget p-Menu']//li/div[@class='p-Menu-itemLabel']"
         loc += "[contains(text(),'{i}')]".format(i=item)
         return self.locator(loc, "xpath", descr, requires)
 
     # ----------------------------- PAGE FUNCTIONS -----------------------------
+
+    # Will drag the main split panel handle to the specified width.
+    def adjust_sidebar(self, width):
+        loc = "//*[@id='jp-main-split-panel']/div[contains(@class,'p-SplitPanel-handle')]"
+        divider = self.locator(loc, "xpath", "Split Panel Bar").get()
+        current_width = divider.get_attribute("style")
+        # Will extract the 'left: 1234.234' value from string
+        regex = r"left: (\d+\.\d+)"
+        if current_width:
+            result = re.search(regex, current_width)
+            if result:
+                current_width = re.search(regex, current_width).group(1)
+                current_width = float(current_width)
+                adjust = width - current_width
+                print("Current width is: {}, adjusting width by: {}".format(
+                    current_width, adjust))
+
+                # Adjust only if necessary
+                if abs(adjust) > 1:
+                    divider.drag_drop(adjust, 0)
 
     # Will create a new notebook and rename it using the file menu
     def create_notebook(self, notebook_name):

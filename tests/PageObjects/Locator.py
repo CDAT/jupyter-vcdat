@@ -227,7 +227,7 @@ class Locator(Actions):
         return self
 
     """--------------- Property Accessors ---------------"""
-    # Will test whether current element is clickable, returns true if so
+    # Will test whether current element is available, returns true if so
 
     def available(self):
         if self.element is None:
@@ -303,12 +303,25 @@ class Locator(Actions):
             self.move_only, "Hovering for {} seconds...".format(amount), amount)
         return self
 
+    def move_to(self, x, y):
+        self.__perform__(
+            self.move_offset, "Moving to element by offset...", x, y)
+        return self
+
     def click(self):
         self.__perform__(self.move_to_click, "Clicking...")
         return self
 
+    def simple_click(self):
+        self.__perform__(self.click_only, "Simple clicking...")
+        return self
+
     def double_click(self):
         self.__perform__(self.move_to_double_click, "Double clicking...")
+        return self
+
+    def drag_drop(self, x, y):
+        self.__perform__(self.drag_and_drop, "Dragging and dropping...", x, y)
         return self
 
     def enter_text(self, text):

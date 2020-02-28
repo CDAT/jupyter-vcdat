@@ -1,4 +1,3 @@
-import time
 from abc import abstractmethod
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -18,6 +17,7 @@ class ActionsPage(Actions):
         if server:
             self.load_page(server)
         self._validate_page()
+        self.browser = self.get_browser()
 
     @abstractmethod
     def _validate_page(self):
@@ -37,7 +37,12 @@ class ActionsPage(Actions):
             WebDriverWait(self.driver, timeout).until(element)
         except TimeoutException:
             assert False, "Page not found or timeout  for {0}".format(url)
-        time.sleep(self._delay)
+
+    # Returns the name of the current browser
+    def get_browser(self):
+        browser = self.driver.capabilities['browserName']
+        print("Browser is: {}".format(browser))
+        return browser
 
     # Creates a locator object (single element) with the driver added
     def locator(self, loc, loc_type, descr="", req=None):

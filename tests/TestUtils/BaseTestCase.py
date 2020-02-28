@@ -29,9 +29,9 @@ class BaseTestCase(unittest.TestCase):
     def setUp(self):
         print("\n\n#########...{}...".format(self._testMethodName))
         self._download_dir = tempfile.mkdtemp()
-        self.browser = os.getenv("BROWSER_TYPE", 'chrome')
+        browser = os.getenv("BROWSER_TYPE", 'chrome')
         mode = os.getenv("BROWSER_MODE", '--headless')
-        print("...browser: {b}".format(b=self.browser))
+        print("...browser: {b}".format(b=browser))
         print("...mode: {m}".format(m=mode))
 
         if mode == "--headless" and os.getenv("CIRCLECI"):
@@ -39,9 +39,9 @@ class BaseTestCase(unittest.TestCase):
             display = Display(visible=0, size=(800, 600))
             display.start()
 
-        if self.browser == 'chrome':
+        if browser == 'chrome':
             self.setup_for_chrome(mode)
-        elif self.browser == 'firefox':
+        elif browser == 'firefox':
             self.setup_for_firefox(mode)
 
         self.driver.implicitly_wait(self._wait_timeout)

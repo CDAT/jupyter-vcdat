@@ -66,7 +66,7 @@ class Actions(object):
         input_area.clear()
         ac = ActionChains(self.driver)
         ac.click(input_area).send_keys(text).perform()
-        time.sleep(self._delay)
+        # time.sleep(self._delay)
 
     def move_only(self, element, amount):
         ac = ActionChains(self.driver)
@@ -74,10 +74,25 @@ class Actions(object):
         ac.pause(amount)
         ac.perform()
 
+    def click_only(self, element):
+        element.click()
+
+    def move_offset(self, element, x, y):
+        ac = ActionChains(self.driver)
+        ac.move_to_element_with_offset(element, x, y)
+        ac.perform()
+
     def move_to_click(self, element):
         ac = ActionChains(self.driver)
         ac.move_to_element(element)
+        ac.pause(1)
         ac.click()
+        ac.perform()
+
+    def drag_and_drop(self, element, x, y):
+        ac = ActionChains(self.driver)
+        ac.pause(1)
+        ac.drag_and_drop_by_offset(element, x, y)
         ac.perform()
 
     def move_to_double_click(self, element):
@@ -101,10 +116,13 @@ class Actions(object):
         self.driver.execute_script(script, element)
 
     def scroll_to_click(self, element):
-        script = "return arguments[0].scrollIntoView(true);"
-        self.driver.execute_script(script, element)
-        element.click()
-        time.sleep(self._delay)
+        self.scroll_into_view(element)
+        ac = ActionChains(self.driver)
+        ac.move_to_element(element)
+        ac.pause(1)
+        ac.click()
+        ac.perform()
+        # time.sleep(self._delay)
 
     def wait(self, amount):
         print("Waiting for {} seconds...".format(amount))
@@ -115,7 +133,7 @@ class Actions(object):
         wait = WebDriverWait(self.driver, 15)
         m = wait.until(EC.element_to_be_clickable((method, locator)))
         m.click()
-        time.sleep(self._delay)
+        # time.sleep(self._delay)
 
     def wait_till_element_is_visible(self, method, locator, descr):
         try:

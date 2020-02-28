@@ -1,10 +1,10 @@
+from VcdatPanel import VcdatPanel
+from BaseTestCase import BaseTestCase
 import sys
 import os
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
-from BaseTestCase import BaseTestCase
-from VcdatPanel import VcdatPanel
 
 
 # To run these tests: npx task test -c test_vcdat_panel
@@ -58,13 +58,16 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.plot_type_close_btn().click()
 
         # Check graphics methods (random)
-        vcdat_panel.plot_type_item("boxfill", "a_boxfill").click()
+        vcdat_panel.plot_type_item("boxfill", "robinson").click()
         vcdat_panel.plot_type_item("scatter", "default_scatter_").click()
         vcdat_panel.plot_type_item("xvsy", "default").click()
-        vcdat_panel.plot_type_item("3d_scalar", "Hovmoller3D").click()
+        vcdat_panel.plot_type_item(
+            "3d_scalar", "Hovmoller3D").scroll_click().sleep(3)
+
+        vcdat_panel.plot_type_item("xvsy", "a_1d").click()
 
         # Try Copy/Cancel of graphic method
-        vcdat_panel.plot_type_copy_btn().click()
+        vcdat_panel.plot_type_copy_btn().click().sleep(2)
         vcdat_panel.plot_type_copy_cancel_btn().click()
 
         # Try copy and enter new name
@@ -124,12 +127,12 @@ class TestVcdatPanel(BaseTestCase):
         print("Testing template options...")
 
         # Test layout template options
-        vcdat_panel.layout_template_item("ASD").click()
-        vcdat_panel.layout_template_item("LLof4").click()
-        vcdat_panel.layout_template_item("default").click()
-        vcdat_panel.layout_template_item("top_of2").click()
-        vcdat_panel.layout_template_item("polar").click()
-        vcdat_panel.layout_template_item("no_legend").click()
-        vcdat_panel.layout_template_item("quick").click()
+        vcdat_panel.layout_template_item("ASD").scroll_click()
+        vcdat_panel.layout_template_item("LLof4").scroll_click()
+        vcdat_panel.layout_template_item("default").scroll_click()
+        vcdat_panel.layout_template_item("top_of2").scroll_click()
+        vcdat_panel.layout_template_item("polar").scroll_click()
+        vcdat_panel.layout_template_item("no_legend").scroll_click()
+        vcdat_panel.layout_template_item("quick").scroll_click()
 
         self.main_page.remove_notebook(NOTEBOOK)

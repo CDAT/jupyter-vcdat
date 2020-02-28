@@ -12,11 +12,6 @@ from BaseTestCase import BaseTestCase
 class TestMainPage(BaseTestCase):
 
     def test_create_notebook(self):
-
-        # Skip test if firefox browser used (Test failing and needs to be addressed later)
-        if self.browser == "firefox":
-            print("Skipping test for firefox...")
-            return
         # Ensure the home directory working directory
         file_browser = FileBrowser(self.driver, None)
         file_browser.folder_icon().click().sleep(3)
@@ -36,7 +31,7 @@ class TestMainPage(BaseTestCase):
         self.main_page.top_menu_item("File", "New Launcher").click()
         self.main_page.top_menu_item("File", "Close All Tabs").click()
         self.main_page.sub_menu_item(
-            "Settings", "JupyterLab Theme", "JupyterLab Dark").click()
+            "Settings", "JupyterLab Theme", "JupyterLab Dark").click().sleep(2)
         self.main_page.sub_menu_item(
             "Settings", "JupyterLab Theme", "JupyterLab Light").click()
         self.main_page.top_menu_item("Help", "VCS Basic Tutorial").click()
