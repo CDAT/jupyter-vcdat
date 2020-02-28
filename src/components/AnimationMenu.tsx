@@ -54,7 +54,6 @@ export default class AnimationMenu extends React.Component<
         axisNames = axisNames.concat(selectedVariable[1].axisList);
       }
     }
-    console.log(axisNames);
     this.setState({
       axisIds: axisNames,
       selectedVariables: newSelection
