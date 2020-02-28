@@ -1,6 +1,3 @@
-from FileBrowser import FileBrowser
-from VcdatPanel import VcdatPanel
-from BaseTestCase import BaseTestCase
 import os
 import sys
 
@@ -8,6 +5,11 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
+from FileBrowser import FileBrowser
+from VcdatPanel import VcdatPanel
+from BaseTestCase import BaseTestCase
+
+# To run these tests: npx task test -c test_export_html
 
 """
 UTILITY FUNCTIONS

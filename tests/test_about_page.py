@@ -1,5 +1,6 @@
 import sys
 import os
+
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
@@ -7,6 +8,7 @@ sys.path.append(os.path.join(this_dir, 'PageObjects'))
 from AboutPage import AboutPage
 from JupyterUtils import JupyterUtils
 from BaseTestCase import BaseTestCase
+
 # To run these tests: npx task test -c test_about_page
 
 
