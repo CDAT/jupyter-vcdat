@@ -22,7 +22,7 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.sync_new_notebook(NOTEBOOK)
 
         # Select a graphics option first
-        vcdat_panel.plot_type_item("boxfill", "a_boxfill").scroll_click()
+        vcdat_panel.plot_type_item("boxfill", "a_boxfill").click()
 
         # Check each locator
         print("Testing colormap options...")
