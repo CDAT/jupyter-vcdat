@@ -44,7 +44,7 @@ aliases:
       BROWSER_DRIVER: "/usr/local/bin/chromedriver"
     command: |
       source activate jupyter-vcdat
-      npx task test -c
+      npx task test --ready --chrome
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
       exit $RESULT
@@ -57,7 +57,7 @@ aliases:
       BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     command: |
       source activate jupyter-vcdat
-      npx task test -f
+      npx task test --ready --firefox
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
       exit $RESULT

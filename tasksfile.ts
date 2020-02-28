@@ -19,11 +19,14 @@ const MESSAGE = {
     }
   },
   testChrome: {
-    error: "Missing driver path. To set path, run:\n'npx task installTestTools -c'"
+    error:
+      "Missing driver path. To set path, run:\n'npx task installTestTools -c'"
   },
   testFirefox: {
-    error: "Missing driver path. To set path, run:\n'npx task installTestTools -f'",
-    error2: "Missing binary path. To set path, run:\n'npx task installTestTools -f'"
+    error:
+      "Missing driver path. To set path, run:\n'npx task installTestTools -f'",
+    error2:
+      "Missing binary path. To set path, run:\n'npx task installTestTools -f'"
   }
 };
 
@@ -150,6 +153,11 @@ async function shell(code: string, silent: boolean = false): Promise<void> {
   await sh(code, { async: true, nopipe: true, silent });
 }
 
+async function getEnvironmentVariable(variableName: string): Promise<string> {
+  const result: string = await run(`echo $${variableName}`);
+  return result;
+}
+
 /**
  * Will set the specified task data equal to a value.
  * @param taskData The data to set
@@ -160,7 +168,7 @@ async function setTaskData(taskData: TaskData, value: string): Promise<void> {
 
   // Run command based on current OS
   const OS: OSTypes = await getOS();
-  if(OS == OSTypes.Linux){
+  if (OS == OSTypes.Linux) {
     await run(`sed -i -e '${idx}s#.*#${value}#' ${TASK_DATA_PATH}`);
   } else {
     await run(`sed -i '' -e '${idx}s#.*#${value}#' ${TASK_DATA_PATH}`);
@@ -263,24 +271,35 @@ async function testChrome(
   tests: {
     [groupName: string]: string[];
   },
-  verbose = false
+  verbose = false,
+  envReady = false
 ): Promise<boolean> {
   console.log("===============CHROME TESTS BEGIN===============");
-  const driver: string = await getTaskData(TaskData.chromeDriver);
-  if (!driver) {
-    console.error(MESSAGE.testChrome.error);
-    return false;
-  }
-  const envSetup: string = dedent`
+
+  let driver: string = "";
+  let envSetup: string = dedent`echo $BROWSER_TYPE
+  echo $BROWSER_MODE`;
+
+  if (envReady) {
+    driver = await getEnvironmentVariable("BROWSER_DRIVER");
+    console.log(`Driver: ${driver}`);
+  } else {
+    driver = await getTaskData(TaskData.chromeDriver);
+    if (!driver) {
+      console.error(MESSAGE.testChrome.error);
+      return false;
+    }
+    envSetup = dedent`
     export BROWSER_TYPE=chrome
     export BROWSER_MODE='--foreground'
     export BROWSER_DRIVER=${driver}
   `;
+  }
+
   let testCmds: string = "";
   let testClass: string = "";
   let testNames: string[] = [];
   const testGroups: string[] = [];
-  console.log(tests);
   Object.keys(tests).forEach((testGroup: string) => {
     if (tests[testGroup].length > 0) {
       testClass = TESTS[testGroup][0];
@@ -314,25 +333,41 @@ async function testFirefox(
   tests: {
     [groupName: string]: string[];
   },
-  verbose = false
+  verbose = false,
+  envReady = false
 ): Promise<boolean> {
   console.log("=============FIREFOX TESTS BEGIN=============");
-  const driver: string = await getTaskData(TaskData.geckoDriver);
-  const binary: string = await getTaskData(TaskData.firefoxBinary);
-  if (!driver || driver == "undefined") {
-    console.error(MESSAGE.testFirefox.error);
-    return false;
+
+  let driver: string = "";
+  let binary: string = "";
+  let envSetup: string = dedent`echo $BROWSER_TYPE
+  echo $BROWSER_MODE`;
+
+  if (envReady) {
+    driver = await getEnvironmentVariable("BROWSER_DRIVER");
+    console.log(`Driver: ${driver}`);
+    binary = await getEnvironmentVariable("BROWSER_BINARY");
+    console.log(`Binary: ${binary}`);
+  } else {
+    // If environment is not set, prepare it
+    driver = await getTaskData(TaskData.geckoDriver);
+    binary = await getTaskData(TaskData.firefoxBinary);
+    if (!driver || driver == "undefined") {
+      console.error(MESSAGE.testFirefox.error);
+      return false;
+    }
+    if (!binary || binary == "undefined") {
+      console.error(MESSAGE.testFirefox.error2);
+      return false;
+    }
+    envSetup = dedent`
+      export BROWSER_TYPE=firefox
+      export BROWSER_MODE='--foreground'
+      export BROWSER_BINARY=${binary}
+      export BROWSER_DRIVER=${driver}
+    `;
   }
-  if (!binary || binary == "undefined") {
-    console.error(MESSAGE.testFirefox.error2);
-    return false;
-  }
-  const envSetup: string = dedent`
-    export BROWSER_TYPE=firefox
-    export BROWSER_MODE='--foreground'
-    export BROWSER_BINARY=${binary}
-    export BROWSER_DRIVER=${driver}
-  `;
+
   let testCmds: string = "";
   let testClass: string = "";
   let testNames: string[] = [];
@@ -669,25 +704,26 @@ async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
     return;
   }
   const verbose: any = options.v || options.verbose;
+  const envReady: any = options.r || options.ready;
 
   if (chrome !== firefox) {
     if (firefox) {
       console.log("Running tests for Firefox...");
-      if (await testFirefox(testData, verbose)) {
+      if (await testFirefox(testData, verbose, envReady)) {
         console.log("FIREFOX TESTS COMPLETE!!");
       }
     }
     if (chrome) {
       console.log("Running tests for Chrome...");
-      if (await testChrome(testData, verbose)) {
+      if (await testChrome(testData, verbose, envReady)) {
         console.log("CHROME TESTS COMPLETE!!");
       }
     }
   } else {
     console.log("Running tests for Chrome and Firefox...");
     if (
-      (await testFirefox(testData, verbose)) &&
-      (await testChrome(testData, verbose))
+      (await testFirefox(testData, verbose, envReady)) &&
+      (await testChrome(testData, verbose, envReady))
     ) {
       console.log("FIREFOX AND CHROME TESTS COMPLETE!!");
     }
@@ -712,7 +748,12 @@ or running kernels before you start the tests. Otherwise tests may fail.`,
       list: "<optional> Prints list of available test groups or sub tests.",
       l: "<optional> Same as above.",
       verbose: "<optional> Run nose tests with logging enabled.",
-      v: "<optional> Same as above."
+      v: "<optional> Same as above.",
+      ready:
+        "<optional> This indicates that installation and environment \
+      variables are ready to go. Use when running tests in an environment that \
+      is already set, such as in circleci.",
+      r: "<optional> Same as above"
     },
     examples: dedent`
   This will print out all available test groups:
