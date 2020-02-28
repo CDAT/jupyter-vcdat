@@ -347,13 +347,24 @@ export default class VCSMenu extends React.Component<
       });
       return;
     }
-    // Set state based on meta data from notebook
-    this.setState({
-      currentDisplayMode: plotOptions[1],
-      overlayMode: plotOptions[0],
-      previousDisplayMode: this.state.currentDisplayMode,
-      shouldAnimate: plotOptions[2]
-    });
+
+    if (plotOptions[2]) {
+      // If shouldAnimate is true, set state for that on only
+      this.setState({
+        currentDisplayMode: DISPLAY_MODE.Notebook,
+        overlayMode: false,
+        previousDisplayMode: plotOptions[1],
+        shouldAnimate: true
+      });
+    } else {
+      // Set state based on meta data from notebook
+      this.setState({
+        currentDisplayMode: plotOptions[1],
+        overlayMode: plotOptions[0],
+        previousDisplayMode: this.state.currentDisplayMode,
+        shouldAnimate: false
+      });
+    }
   }
 
   @boundMethod

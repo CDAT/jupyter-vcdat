@@ -77,6 +77,7 @@ interface IGraphicsMenuState {
   nameValue: string;
   invalidName: boolean;
   plotReady: boolean;
+  shouldAnimate: boolean;
 }
 
 export default class GraphicsMenu extends React.Component<
@@ -93,11 +94,19 @@ export default class GraphicsMenu extends React.Component<
       plotReady: this.props.plotReady,
       selectedGroup: "",
       selectedMethod: "",
+      shouldAnimate: false,
       showDropdown: false,
       showMenu: false,
       tempGroup: ""
     };
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
+  }
+  @boundMethod
+  public toggleAnimate(): void {
+    this.setState({
+      shouldAnimate: !this.state.shouldAnimate
+    });
+    this.props.toggleAnimate();
   }
 
   @boundMethod

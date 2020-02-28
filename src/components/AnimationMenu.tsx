@@ -46,21 +46,15 @@ export default class AnimationMenu extends React.Component<
     varTracker: VariableTracker,
     newSelection: string[]
   ): void {
-    let selectedVariableName = "";
     let selectedVariable: any;
-    const axisNames = Array<string>();
+    let axisNames = Array<string>();
     for (let i = 0; i < varTracker.selectedVariables.length; i -= -1) {
-      selectedVariableName = varTracker.selectedVariables[0].slice(
-        0,
-        varTracker.selectedVariables[0].length / 2
-      );
-      selectedVariable = varTracker.findVariableByAlias(selectedVariableName);
+      selectedVariable = varTracker.findVariableByID(newSelection[i]);
       if (selectedVariable[0] !== -1) {
-        for (const ii of selectedVariable[1].axisList) {
-          axisNames.push(selectedVariable[1].axisList[ii]);
-        }
+        axisNames = axisNames.concat(selectedVariable[1].axisList);
       }
     }
+    console.log(axisNames);
     this.setState({
       axisIds: axisNames,
       selectedVariables: newSelection
