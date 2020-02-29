@@ -17,8 +17,8 @@ import {
 } from "./PythonCommands";
 import Utilities from "./Utilities";
 import NotebookUtilities from "./NotebookUtilities";
-import Variable from "./components/Variable";
-import AxisInfo from "./components/AxisInfo";
+import Variable from "./Variable";
+import AxisInfo from "./AxisInfo";
 import { boundMethod } from "autobind-decorator";
 
 export default class VariableTracker {

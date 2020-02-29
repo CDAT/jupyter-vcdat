@@ -1,3 +1,5 @@
+from JupyterUtils import JupyterUtils
+from MainPage import MainPage
 from pyvirtualdisplay import Display
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
@@ -5,15 +7,11 @@ from selenium.webdriver import DesiredCapabilities
 from selenium import webdriver
 import tempfile
 import unittest
-import time
 import os
 import sys
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, '..', 'PageObjects'))
-from NoteBookPage import NoteBookPage
-from MainPage import MainPage
-from JupyterUtils import JupyterUtils
 
 
 class BaseTestCase(unittest.TestCase):
@@ -26,7 +24,7 @@ class BaseTestCase(unittest.TestCase):
        BROWSER_BINARY: full path to your firefox binary
     '''
     _delay = 1
-    _wait_timeout = 15
+    _wait_timeout = 7
 
     def setUp(self):
         print("\n\n#########...{}...".format(self._testMethodName))
@@ -47,15 +45,19 @@ class BaseTestCase(unittest.TestCase):
             self.setup_for_firefox(mode)
 
         self.driver.implicitly_wait(self._wait_timeout)
-        time.sleep(self._delay)
 
         utils = JupyterUtils()
         self.server = utils.get_server()
         self.main_page = MainPage(self.driver, self.server)
+        print("...BaseTestCase.setUp() Complete...")
 
     def tearDown(self):
         print("...BaseTestCase.tearDown()...")
-        self.main_page.shutdown_kernel()
+        self.main_page.jupyter_icon().silent().click()
+        self.main_page.top_menu_item("File", "Save All").silent().click()
+        self.main_page.top_menu_item("File", "Close All Tabs").silent().click()
+        self.main_page.dialog_btn("OK").silent().attempt().click()
+        self.main_page.shutdown_all_kernels(False)
         self.driver.quit()
 
     def setup_for_chrome(self, mode):
@@ -79,7 +81,6 @@ class BaseTestCase(unittest.TestCase):
         self.driver = webdriver.Chrome(executable_path=os.getenv("BROWSER_DRIVER", "/usr/local/bin/chromedriver"),
                                        chrome_options=chrome_options,
                                        service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
-        self.driver.implicitly_wait(10)
 
     def setup_for_firefox(self, mode):
         firefox_profile = FirefoxProfile()
@@ -96,19 +97,3 @@ class BaseTestCase(unittest.TestCase):
                                         firefox_binary=firefox_binary,
                                         executable_path=geckodriver_loc,
                                         capabilities=firefox_capabilities)
-        self.driver.implicitly_wait(10)
-
-    #
-    # Test Util functions
-    #
-    def new_notebook(self, launcher, notebook_name):
-        notebook = NoteBookPage(self.driver, None)
-        notebook.new_notebook(launcher, notebook_name)
-        return notebook
-
-    def save_close_notebook(self, notebook):
-        '''
-        save and close current notebook
-        '''
-        notebook.save_current_notebook()
-        notebook.close_current_notebook()

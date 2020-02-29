@@ -54,7 +54,7 @@ The browser should open automatically, if not, point your browser to: localhost:
 This example runs a jupyter-vcdat docker container at localhost:9000/lab, with mounted volume 'my_data':
 
 ```bash
-docker run -p 9000:8888 -v /Path/To/my_data/:/home/jovyan/my_data/ -it cdat/vcdat:latest #Run the image
+docker run -p 9000:8888 -v /Path/To/my_data/:/home/jovyan/my_data/ -it cdat/vcdat:latest jupyter lab #Run the image
 ```
 
 After the container is running, obtain the token (if needed) from the output shown in the console:

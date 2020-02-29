@@ -33,16 +33,11 @@ aliases:
       BROWSER_TYPE: "chrome"
       BROWSER_DRIVER: "/usr/bin/chromedriver"
     command: |
-       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       conda activate jupyter-vcdat
-       python run_tests.py -H -v 2 tests/test_locators.py
-       python run_tests.py -H -v 2 tests/test_load_a_variable.py
-       python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-       python run_tests.py -H -v 2 tests/test_plot_locators.py
-       python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
-       RESULT=$?
-       echo "*** $PY_VER test result: ${RESULT}"
-       exit $RESULT
+      source activate jupyter-vcdat
+      npx task test --ready --chrome
+      RESULT=$?
+      echo "*** $PY_VER test result: ${RESULT}"
+      exit $RESULT
 
   - &run_tests_with_firefox
     name: run_tests_with_firefox
@@ -51,32 +46,11 @@ aliases:
       BROWSER_BINARY: "/usr/bin/firefox"
       BROWSER_DRIVER: "/usr/bin/geckodriver"
     command: |
-       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       conda activate jupyter-vcdat
-       python run_tests.py -H -v 2 tests/test_locators.py
-       python run_tests.py -H -v 2 tests/test_load_a_variable.py
-       python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
-       python run_tests.py -H -v 2 tests/test_plot_locators.py
-       python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
-       RESULT=$?
-       echo "*** $PY_VER test result: ${RESULT}"
-       exit $RESULT
-
-  - &check_vcdat_versions
-    name: check_npm_version
-    command: |
-      LOCAL_VCDAT_VERSION=`node -pe "require('./package.json').version"`
-      NPM_VCDAT_VERSION=`npm view jupyter-vcdat@nightly version`
-      echo "export LOCAL_VCDAT_VERSION=$LOCAL_VCDAT_VERSION" >> $BASH_ENV
-      echo "export NPM_VCDAT_VERSION=$NPM_VCDAT_VERSION" >> $BASH_ENV
-      function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
-      if version_gt $LOCAL_VCDAT_VERSION $NPM_VCDAT_VERSION; then
-        echo "Version of $LOCAL_VCDAT_VERSION in the package.json looks good."
-      else
-        echo "Version $LOCAL_VCDAT_VERSION in package.json is not newer than npm version of $NPM_VCDAT_VERSION and will cause Publish job to fail."
-        echo "You should update version $LOCAL_VCDAT_VERSION in package.json to a version greater than $NPM_VCDAT_VERSION"
-        exit 1
-      fi
+      source activate jupyter-vcdat
+      npx task test --ready --firefox
+      RESULT=$?
+      echo "*** $PY_VER test result: ${RESULT}"
+      exit $RESULT
 
   - &conda_upload
     name: conda_upload
@@ -142,17 +116,10 @@ jobs:
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 15
-      #- run: *run_tests_with_firefox
-      #- store_artifacts:
-      #    path: tests_html
-      #    destination: tests_firefox_html
-      #- run: sleep 5
       - run: *run_tests_with_chrome
       - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
-      #- store_artifacts:
-      #    path: jupyter-vcdat_logfile.txt
       
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload
@@ -172,9 +139,6 @@ jobs:
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html
-      #- run: sleep 5
-      #- store_artifacts:
-      #    path: jupyter-vcdat_logfile.txt
       
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload

@@ -8,7 +8,9 @@ import {
   CardGroup,
   CardSubtitle,
   CardTitle,
+  Col,
   Collapse,
+  Container,
   CustomInput,
   Dropdown,
   DropdownItem,
@@ -18,13 +20,16 @@ import {
   InputGroup,
   InputGroupAddon,
   ListGroup,
-  ListGroupItem
+  ListGroupItem,
+  Row
 } from "reactstrap";
 
 // Project Components
 import NotebookUtilities from "../NotebookUtilities";
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import ColormapEditor from "./ColormapEditor";
+import VariableTracker from "../VariableTracker";
+import AnimationMenu from "./AnimationMenu";
 import { DISPLAY_MODE } from "../constants";
 import { boundMethod } from "autobind-decorator";
 
@@ -47,9 +52,15 @@ interface IGraphicsMenuProps {
   updateGraphicsOptions: (group: string, name: string) => Promise<void>;
   updateColormap: (name: string) => Promise<void>;
   overlayMode: boolean;
+  shouldAnimate: boolean;
   toggleOverlayMode: () => void;
   toggleSidecar: () => {};
+  toggleAnimate: () => void;
+  toggleAnimateInverse: () => void;
+  updateAnimateAxis: (axisId: number) => void;
+  updateAnimateRate: (rate: number) => void;
   currentDisplayMode: DISPLAY_MODE;
+  varTracker: VariableTracker;
   copyGraphicsMethod: (
     groupName: string,
     methodName: string,
@@ -66,12 +77,14 @@ interface IGraphicsMenuState {
   nameValue: string;
   invalidName: boolean;
   plotReady: boolean;
+  shouldAnimate: boolean;
 }
 
 export default class GraphicsMenu extends React.Component<
   IGraphicsMenuProps,
   IGraphicsMenuState
 > {
+  public animationMenuRef: AnimationMenu;
   constructor(props: IGraphicsMenuProps) {
     super(props);
     this.state = {
@@ -81,12 +94,19 @@ export default class GraphicsMenu extends React.Component<
       plotReady: this.props.plotReady,
       selectedGroup: "",
       selectedMethod: "",
+      shouldAnimate: false,
       showDropdown: false,
       showMenu: false,
       tempGroup: ""
     };
-
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
+  }
+  @boundMethod
+  public toggleAnimate(): void {
+    this.setState({
+      shouldAnimate: !this.state.shouldAnimate
+    });
+    this.props.toggleAnimate();
   }
 
   @boundMethod
@@ -143,8 +163,11 @@ export default class GraphicsMenu extends React.Component<
           };
           return (
             <ListGroupItem
-              className={"text-muted"}
+              className={
+                /*@tag<text-muted graphics-method-item>*/ "text-muted graphics-method-item-vcdat"
+              }
               key={group + item}
+              value={item}
               style={listItemStyle}
               tag="button"
               onClick={select}
@@ -183,39 +206,59 @@ export default class GraphicsMenu extends React.Component<
     return (
       <div>
         <Card>
-          <CardBody className={/*@tag<graphics-menu>*/ "graphics-menu-vcdat"}>
+          <CardBody
+            className={/*@tag<graphicsmenu-main>*/ "graphicsmenu-main-vcdat"}
+          >
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle>
-              <InputGroup>
-                <div style={{ marginRight: "15px" }}>
-                  <CustomInput
-                    id="vcsmenu-overlay-switch-vcdat"
-                    type="switch"
-                    className={
-                      /*@tag<vcsmenu-overlay-switch>*/ "vcsmenu-overlay-switch-vcdat"
-                    }
-                    name="overlayModeSwitch"
-                    label="Overlay Mode"
-                    disabled={!this.state.plotReady}
-                    checked={this.props.overlayMode}
-                    onChange={this.props.toggleOverlayMode}
-                  />
-                </div>
-                <CustomInput
-                  id="vcsmenu-sidecar-switch-vcdat"
-                  type="switch"
-                  className={
-                    /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
-                  }
-                  name="sidecarSwitch"
-                  label="Plot to Sidecar"
-                  disabled={!this.state.plotReady}
-                  checked={
-                    this.props.currentDisplayMode === DISPLAY_MODE.Sidecar
-                  }
-                  onChange={this.props.toggleSidecar}
+              <Container>
+                <Row>
+                  <Col xs="auto">
+                    <CustomInput
+                      type="switch"
+                      id={
+                        /*@tag<graphics-overlay-switch>*/ "graphics-overlay-switch-vcdat"
+                      }
+                      name="overlayModeSwitch"
+                      label="Overlay Mode"
+                      disabled={
+                        !this.state.plotReady || this.props.shouldAnimate
+                      }
+                      checked={this.props.overlayMode}
+                      onChange={this.props.toggleOverlayMode}
+                    />
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs="auto">
+                    <CustomInput
+                      type="switch"
+                      id={
+                        /*@tag<graphics-sidecar-switch>*/ "graphics-sidecar-switch-vcdat"
+                      }
+                      name="sidecarSwitch"
+                      label="Plot to Sidecar"
+                      disabled={
+                        !this.state.plotReady || this.props.shouldAnimate
+                      }
+                      checked={
+                        this.props.currentDisplayMode === DISPLAY_MODE.Sidecar
+                      }
+                      onChange={this.props.toggleSidecar}
+                    />
+                  </Col>
+                </Row>
+                <AnimationMenu
+                  plotReady={this.state.plotReady}
+                  toggleAnimate={this.props.toggleAnimate}
+                  toggleInverse={this.props.toggleAnimateInverse}
+                  varTracker={this.props.varTracker}
+                  updateAxisId={this.props.updateAnimateAxis}
+                  updateRate={this.props.updateAnimateRate}
+                  shouldAnimate={this.props.shouldAnimate}
+                  ref={loader => (this.animationMenuRef = loader)}
                 />
-              </InputGroup>
+              </Container>
             </CardSubtitle>
             <CardGroup className={"clearfix"}>
               <Dropdown
@@ -255,8 +298,9 @@ export default class GraphicsMenu extends React.Component<
                       return (
                         <DropdownItem
                           className={
-                            /*@tag<graphics-dropdown-item>*/ "graphics-dropdown-item-vcdat"
+                            /*@tag<graphics-method-group>*/ "graphics-method-group-vcdat"
                           }
+                          value={item}
                           onClick={clickMethodGroup}
                           key={item}
                         >
@@ -267,8 +311,9 @@ export default class GraphicsMenu extends React.Component<
                     return (
                       <DropdownItem
                         className={
-                          /*@tag<graphics-dropdown-item>*/ "graphics-dropdown-item-vcdat"
+                          /*@tag<graphics-method-group>*/ "graphics-method-group-vcdat"
                         }
+                        value={item}
                         onClick={clickMethod}
                         key={item}
                       >

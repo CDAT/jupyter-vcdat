@@ -3,7 +3,7 @@ import reactHtmlParser from "react-html-parser";
 
 export const NO_VERSION: string = "N/A";
 export const OLD_VCDAT_VERSION: string = "<=2.0";
-export const VCDAT_VERSION: string = "2.2";
+export const VCDAT_VERSION: string = "2.3";
 export const VCDAT_VERSION_KEY = "vcdat_version";
 export const MAX_SLABS: number = 2;
 export const MAX_DIM_LENGTH: number = 1000;
@@ -31,7 +31,7 @@ export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
 export const PLOT_OPTIONS_KEY: string = "vcdat_plot_options";
 export const TEMPLATE_KEY: string = "template_selected";
 export const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
-export const REQUIRED_MODULES: string = '["cdms2","vcs","numpy"]';
+export const REQUIRED_MODULES: string = '["cdms2","vcs","numpy","os"]';
 
 export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
   "1d": [
@@ -246,13 +246,14 @@ export const GETTING_STARTED: Step[] = [
     content: reactHtmlParser(
       `The blue stylized "C" on the left is the VCDAT icon. 
     Clicking on this icon will open and close the VCDAT panel.
-    The panel is currently <span style='color: green'>open</span>.<br />
-    Click <b>Next</b> to continue the tutorial.`
+    To continue, <b>make sure the panel is open</b> before clicking <b>Next</b>,
+    otherwise click <b>Skip</b> or leave panel closed to exit tutorial.`
     ),
     disableCloseOnEsc: true,
-    disableOverlay: true,
+    disableOverlayClose: true,
     hideCloseButton: true,
     placement: "right",
+    spotlightClicks: true,
     target: `#jp-main-content-panel > 
     div.p-Widget.p-TabBar.jp-SideBar.jp-mod-left.p-BoxPanel-child 
     > ul > li.p-TabBar-tab.p-mod-closable > 
@@ -325,17 +326,29 @@ export const GETTING_STARTED: Step[] = [
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
-    target: `.vcsmenu-overlay-switch-vcdat`,
+    target: `#graphics-overlay-switch-vcdat`,
     title: "Overlay Mode"
   },
   {
-    content: `When the 'Plot to Sidecar' toggle is on, plots will be rendered to the right \
-    of the notebook within the 'Sidecar' panel. The sidecar panel will remain on the right until \
-    the notebook is closed. If the toggle is left off, plots will be rendered within the notebook.`,
+    content: reactHtmlParser(`When the <b>Plot to Sidecar</b> toggle is on, plots will be rendered to the right \
+    of the notebook within the <b>Sidecar</b> panel. The sidecar panel will remain on the right until \
+    the notebook is closed. If the toggle is left off, plots will be rendered within the notebook.`),
     disableCloseOnEsc: true,
     hideCloseButton: true,
     placement: "right",
-    target: `.vcsmenu-sidecar-switch-vcdat`,
+    target: `#graphics-sidecar-switch-vcdat`,
+    title: "Plot to Sidecar"
+  },
+  {
+    content: reactHtmlParser(`This is the <b>Animate</b> option. When <b>Animate</b> is on, the plot button will be \
+    replaced by an <b>Animate</b> button and animation options will appear below this switch. \
+    Clicking on the <b>Animate</b> button in the top left, will generate an animation of the \
+    selected variable using the specified animation options.
+    Note: overlay and sidecar options will be turned off, since they are not supported with animations.`),
+    disableCloseOnEsc: true,
+    hideCloseButton: true,
+    placement: "right",
+    target: `#graphics-animation-switch-vcdat`,
     title: "Plot to Sidecar"
   },
   {

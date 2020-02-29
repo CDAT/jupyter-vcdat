@@ -86,6 +86,7 @@ export default class ColormapEditor extends React.Component<
                     /*@tag<colormap-dropdown-item>*/ "colormap-dropdown-item-vcdat"
                   }
                   onClick={selectCM}
+                  value={cmName}
                   key={cmName}
                 >
                   {cmName}
