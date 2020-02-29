@@ -13,7 +13,11 @@ frontend/
 .taskData
 tests/**/__pycache__
 tests/*/*.pyc
+<<<<<<< Updated upstream
 tests/.last_failure
+=======
+tests/Old*
+>>>>>>> Stashed changes
 tests_html
 tests_workdir
 *.ipynb
