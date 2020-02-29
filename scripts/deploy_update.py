@@ -1,6 +1,6 @@
-import glob
+# import glob
 import os
-import pathlib
+# import pathlib
 import subprocess
 from string import Template
 
@@ -8,7 +8,7 @@ from string import Template
 BASE_CHANNELS = "-c conda-forge"
 
 # dev conda channels (for developer deployment)
-#!!(change to '-c cdat/label/nightly' when nightly is ready)
+#  !!(change to '-c cdat/label/nightly' when nightly is ready)
 DEV_CHANNELS = "-c cdat/label/v82"
 
 # user conda channels (for stable deployment)
@@ -18,8 +18,8 @@ USER_CHANNELS = "-c cdat/label/v82"
 EXTRA_CHANNELS = "-c pcmdi/label/nightly"
 
 # base packages (always added)
-BASE_CONDA_PKGS = "pip vcs tqdm nodejs 'python=3.7' "
-BASE_CONDA_PKGS += "jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS = "pip vcs cdms2 tqdm nodejs 'python=3.7' "
+BASE_CONDA_PKGS += "'jupyterlab=1.2.1' jupyterhub ipywidgets 'numpy=1.17'"
 
 # extra packages ( Not included by default )
 EXTRA_PACKAGES = "vcsaddons thermo cmor eofs windspharm autopep8 mesalib "
@@ -114,16 +114,16 @@ def create_install_script(template_in, installer_out):
 def create_docker_script(template_in, docker_out):
 
     # Generate pip install commands
-    _pip = create_pip_commands(BASE_PIP_PKGS,"RUN ")
+    _pip = create_pip_commands(BASE_PIP_PKGS, "RUN ")
 
     # Generate extension install commands
     EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
-    install_ext = create_extension_commands(EXTS,"RUN ")
+    install_ext = create_extension_commands(EXTS, "RUN ")
 
     CONDA_CHANNELS = BASE_CHANNELS + USER_CHANNELS
     # Combine all settings into dictonary for template to use
     data = {"_conda_channels": CONDA_CHANNELS, "_conda_pkgs": BASE_CONDA_PKGS,
-        "_pip_install": _pip, "_install_extensions": install_ext}
+            "_pip_install": _pip, "_install_extensions": install_ext}
 
     # Create install file
     update_template(template_in, docker_out, data)
@@ -136,6 +136,7 @@ def main():
     template_in = "{}/deploy/template_docker".format(MAIN_DIR)
     file_out = "{}/deploy/Dockerfile".format(MAIN_DIR)
     create_docker_script(template_in, file_out)
+
 
 if __name__ == '__main__':
     MAIN_DIR = get_main_dir()
