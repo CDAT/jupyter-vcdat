@@ -372,7 +372,6 @@ async function testFirefox(
   let testClass: string = "";
   let testNames: string[] = [];
   const testGroups: string[] = [];
-  console.log(tests);
   Object.keys(tests).forEach((testGroup: string) => {
     if (tests[testGroup].length > 0) {
       testClass = TESTS[testGroup][0];
@@ -645,6 +644,9 @@ async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
   const firefox: string = getOptionsValue(true, options.f, options.firefox);
   const chrome: string = getOptionsValue(true, options.c, options.chrome);
 
+  const verbose: any = options.v || options.verbose;
+  const envReady: any = options.r || options.ready;
+
   const mainTests: string[] = Object.keys(TESTS);
   const testsToRun: string[] = tests.length > 0 ? tests : mainTests;
   let error: boolean = false;
@@ -675,8 +677,15 @@ async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
   const testData: { [testGroup: string]: string[] } = {};
   testsToRun.forEach((test: string) => {
     if (TESTS[test]) {
-      // Test is a testGroup
-      testData[test] = [];
+      // Test is a testGroup, process based on whether verbose or not
+      if (verbose) {
+        // This calls a one line command for the group along
+        testData[test] = [];
+      } else {
+        // This will call a nosetest command for each test in the group
+        // that way the --nologcapture option can be used to ignore log output
+        testData[test] = TESTS[test].slice(1);
+      }
     } else {
       let testFound: boolean = false;
       let tests: string[] = [];
@@ -703,8 +712,6 @@ async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
   if (error) {
     return;
   }
-  const verbose: any = options.v || options.verbose;
-  const envReady: any = options.r || options.ready;
 
   if (chrome !== firefox) {
     if (firefox) {
