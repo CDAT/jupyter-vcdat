@@ -49,7 +49,8 @@ aliases:
       BROWSER_TYPE: "chrome"
       BROWSER_DRIVER: "/usr/bin/chromedriver"
     command: |
-      source activate jupyter-vcdat
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate jupyter-vcdat
       npx task test --ready --chrome
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
@@ -62,7 +63,8 @@ aliases:
       BROWSER_BINARY: "/usr/bin/firefox"
       BROWSER_DRIVER: "/usr/bin/geckodriver"
     command: |
-      source activate jupyter-vcdat
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate jupyter-vcdat
       npx task test --ready --firefox
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
