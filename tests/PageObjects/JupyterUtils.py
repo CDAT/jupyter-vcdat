@@ -15,7 +15,6 @@ class JupyterUtils(TestUtils):
             shell=True,
         )
         self.MAIN_DIR = output.stdout.rstrip()
-        print(self.MAIN_DIR)
 
     def get_server(self):
         cmd = "jupyter notebook list"
@@ -37,11 +36,18 @@ class JupyterUtils(TestUtils):
         return test_files
 
     def get_package_version(self):
+        if self.MAIN_DIR:
+            cmd = "node -pe \"require('{}/package.json').version\"".format(self.MAIN_DIR)
+        else:
+            cmd = "node -pe \"require('package.json').version\""
         output = subprocess.run(
-            ["node -pe \"require('{}/package.json').version\"".format(self.MAIN_DIR)],
+            [cmd],
             capture_output=True,
             text=True,
             shell=True,
         )
-        print("Version Output: {}".format(output))
-        return output.stdout.rstrip()
+        if output.stdout:
+            return output.stdout.rstrip()
+        else:
+            print("An error occurred: {}".format(output.stderr))
+            return "Error"
