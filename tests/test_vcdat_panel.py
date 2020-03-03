@@ -43,7 +43,7 @@ class TestVcdatPanel(BaseTestCase):
 
         # Create notebook and sync it with vcdat
         NOTEBOOK = "test_graphics_options"
-        vcdat_panel.sync_new_notebook(NOTEBOOK)
+        vcdat_panel.sync_new_notebook(NOTEBOOK).sleep(3)
 
         # Check each locator
         print("Testing graphics options...")
