@@ -15,6 +15,7 @@ class JupyterUtils(TestUtils):
             shell=True,
         )
         self.MAIN_DIR = output.stdout.rstrip()
+        print(self.MAIN_DIR)
 
     def get_server(self):
         cmd = "jupyter notebook list"
@@ -42,4 +43,5 @@ class JupyterUtils(TestUtils):
             text=True,
             shell=True,
         )
+        print("Version Output: {}".format(output))
         return output.stdout.rstrip()
