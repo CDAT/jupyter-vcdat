@@ -39,7 +39,7 @@ class JupyterUtils(TestUtils):
         if self.MAIN_DIR:
             cmd = "node -pe \"require('{}/package.json').version\"".format(self.MAIN_DIR)
         else:
-            cmd = "node -pe \"require('package.json').version\""
+            cmd = "node -pe \"require('./package.json').version\""
         output = subprocess.run(
             [cmd],
             capture_output=True,
