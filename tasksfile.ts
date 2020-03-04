@@ -31,8 +31,10 @@ const MESSAGE = {
 };
 
 // Which selenium tests there are to run
+// You can comment out tests in order to troubleshoot a specific test
+// within circleci.
 const TESTS: { [name: string]: string[] } = {
-  test_about_page: ["TestAboutPage", "test_about_modal"],
+  /*test_about_page: ["TestAboutPage", "test_about_modal"],
   test_main_page: [
     "TestMainPage",
     "test_create_notebook",
@@ -40,7 +42,7 @@ const TESTS: { [name: string]: string[] } = {
     "test_sub_menu",
     "test_top_menu",
     "test_tutorials"
-  ],
+  ],*/
   // These tests can be activated once vcs is updated in master
   /*test_export_html: [
     "TestExportHTML",
@@ -50,8 +52,8 @@ const TESTS: { [name: string]: string[] } = {
   ],*/
   test_vcdat_panel: [
     "TestVcdatPanel",
-    "test_top_level",
-    "test_graphics_options",
+    //"test_top_level",
+    //"test_graphics_options",
     "test_colormap_options",
     "test_template_options"
   ]

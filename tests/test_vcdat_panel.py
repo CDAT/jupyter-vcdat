@@ -5,9 +5,8 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
-from VcdatPanel import VcdatPanel
 from BaseTestCase import BaseTestCase
-
+from VcdatPanel import VcdatPanel
 
 # To run these tests: npx task test -c test_vcdat_panel
 
@@ -38,8 +37,6 @@ class TestVcdatPanel(BaseTestCase):
 
         self.main_page.remove_notebook(NOTEBOOK)
 
-
-"""
     def test_graphics_options(self):
 
         vcdat_panel = VcdatPanel(self.driver, None)
@@ -142,4 +139,3 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.layout_template_item("quick").scroll_click()
 
         self.main_page.remove_notebook(NOTEBOOK)
-"""
