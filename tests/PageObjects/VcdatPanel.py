@@ -156,7 +156,7 @@ class VcdatPanel(MainPage):
     # Opens a notebook and syncs it to work with vcdat
     def sync_new_notebook(self, notebook_name):
         self.create_notebook(notebook_name)
-        self.sync_notebook_btn().click().sleep(3)  # Wait for imports to load
+        self.sync_notebook_btn().needs_to_be("visible").click().sleep(3)  # Wait for imports to load
         print("Notebook '{}' has been synced!".format(notebook_name))
 
 
