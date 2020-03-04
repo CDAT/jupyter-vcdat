@@ -5,8 +5,9 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
-from BaseTestCase import BaseTestCase
 from VcdatPanel import VcdatPanel
+from BaseTestCase import BaseTestCase
+
 
 # To run these tests: npx task test -c test_vcdat_panel
 
@@ -22,7 +23,7 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.sync_new_notebook(NOTEBOOK)
 
         # Select a graphics option first
-        vcdat_panel.plot_type_item("boxfill", "a_boxfill").click()
+        vcdat_panel.plot_type_item("boxfill", "a_boxfill").sleep(3).click()
 
         # Check each locator
         print("Testing colormap options...")
@@ -37,19 +38,21 @@ class TestVcdatPanel(BaseTestCase):
 
         self.main_page.remove_notebook(NOTEBOOK)
 
+
+"""
     def test_graphics_options(self):
 
         vcdat_panel = VcdatPanel(self.driver, None)
 
         # Create notebook and sync it with vcdat
         NOTEBOOK = "test_graphics_options"
-        vcdat_panel.sync_new_notebook(NOTEBOOK).sleep(3)
+        vcdat_panel.sync_new_notebook(NOTEBOOK)
 
         # Check each locator
         print("Testing graphics options...")
 
         # Check graphics group options available (random)
-        vcdat_panel.plot_type_group("boxfill").click()
+        vcdat_panel.plot_type_group("boxfill").sleep(3).click()
         vcdat_panel.plot_type_group("scatter").click()
         vcdat_panel.plot_type_group("xvsy").click()
         vcdat_panel.plot_type_group("1d").click()
@@ -130,7 +133,7 @@ class TestVcdatPanel(BaseTestCase):
         print("Testing template options...")
 
         # Test layout template options
-        vcdat_panel.layout_template_item("ASD").scroll_click()
+        vcdat_panel.layout_template_item("ASD").sleep(3).scroll_click()
         vcdat_panel.layout_template_item("LLof4").scroll_click()
         vcdat_panel.layout_template_item("default").scroll_click()
         vcdat_panel.layout_template_item("top_of2").scroll_click()
@@ -139,3 +142,4 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.layout_template_item("quick").scroll_click()
 
         self.main_page.remove_notebook(NOTEBOOK)
+"""
