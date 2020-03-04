@@ -57,12 +57,15 @@ class Locator(Actions):
                     req.silent().click()
             elif type(req).__name__ == "Action":
                 req.perform(self.__VERBOSE__)
-            elif self.__VERBOSE__:
-                if self.description != "":
-                    print("Unkown requirement in locator: {}".format(
-                        self.description))
-                else:
-                    print("Unkown requirement in locator")
+            else:
+                if self.__VERBOSE__:
+                    if self.description != "":
+                        print("Unkown requirement in locator: {}".format(
+                            self.description))
+                    else:
+                        print("Unkown requirement in locator")
+                return False
+
         if self.__VERBOSE__:
             print("Ready to perform action on {} again...".format(self.description))
         return True
