@@ -22,7 +22,7 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.sync_new_notebook(NOTEBOOK)
 
         # Select a graphics option first
-        vcdat_panel.plot_type_btn("boxfill").click()
+        vcdat_panel.plot_type_group("boxfill").click()
         vcdat_panel.plot_type_item("boxfill", "default").click()
 
         # Check each locator
