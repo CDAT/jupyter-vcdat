@@ -56,7 +56,7 @@ class BaseTestCase(unittest.TestCase):
         self.main_page.jupyter_icon().silent().click()
         self.main_page.top_menu_item("File", "Save All").silent().click()
         self.main_page.top_menu_item("File", "Close All Tabs").silent().click()
-        self.main_page.dialog_btn("OK").silent().attempt().click()
+        self.main_page.dialog_btn("OK").attempt().silent().click()
         self.main_page.shutdown_all_kernels(False)
         self.driver.quit()
 
