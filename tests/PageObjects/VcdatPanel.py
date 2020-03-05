@@ -62,7 +62,7 @@ class VcdatPanel(MainPage):
         return self.var_panel().find_child(loc, "class", "Path Load Button")
 
     # Note: Locator will only show up if an existing, non-vcdat notebook is opened
-    def sync_notebook_btn(self, notebook_name="sync_notebook"):
+    def sync_notebook_btn(self):
         loc = "varmenu-sync-btn-vcdat"
         return self.var_panel().find_child(loc, "class", "Sync Button")
 
@@ -156,7 +156,7 @@ class VcdatPanel(MainPage):
     # Opens a notebook and syncs it to work with vcdat
     def sync_new_notebook(self, notebook_name):
         self.create_notebook(notebook_name)
-        self.sync_notebook_btn().click().sleep(3)  # Wait for imports to load
+        self.sync_notebook_btn().needs_to_be("enabled").click().sleep(3)  # Wait for imports to load
         print("Notebook '{}' has been synced!".format(notebook_name))
 
 

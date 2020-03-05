@@ -27,8 +27,8 @@ def assert_image_tag_present(notebook_name):
     image_tag_present = False
     with open(notebook_name + ".html", 'r') as f:
         for line in f:
-            # If SLIDERS_ENABLED is False, then this tag appears in the HTML, as does the image.
-            # If SLIDERS_ENABLED is True, then this tag does not appear in the HTML.
+            # If SLIDERS_ENABLED is False, then this tag appears in the HTML
+            # If SLIDERS_ENABLED is True, then this tag does not appear in HTML.
             # However, the image itself may or may not appear.
             if '<img' in line:
                 image_tag_present = True
@@ -102,7 +102,8 @@ class TestExportHTML(BaseTestCase):
 
     def test_export_plot_html_via_nbconvert_execute(self):
         """
-        Test that running `jupyter nbconvert --execute --to html` displays the plot in the HTML.
+        Test that running `jupyter nbconvert --execute --to html`
+        displays the plot in the HTML.
         """
         NOTEBOOK_NAME = "test_export_plot_html_via_nbconvert"
         prepare(self, NOTEBOOK_NAME)

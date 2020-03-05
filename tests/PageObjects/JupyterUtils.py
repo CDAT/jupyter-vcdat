@@ -2,7 +2,6 @@ import re
 import os
 import subprocess
 import glob
-import pathlib
 from Utils import TestUtils
 
 
@@ -37,10 +36,18 @@ class JupyterUtils(TestUtils):
         return test_files
 
     def get_package_version(self):
+        if self.MAIN_DIR:
+            cmd = "node -pe \"require('{}/package.json').version\"".format(self.MAIN_DIR)
+        else:
+            cmd = "node -pe \"require('./package.json').version\""
         output = subprocess.run(
-            ["node -pe \"require('{}/package.json').version\"".format(self.MAIN_DIR)],
+            [cmd],
             capture_output=True,
             text=True,
             shell=True,
         )
-        return output.stdout.rstrip()
+        if output.stdout:
+            return output.stdout.rstrip()
+        else:
+            print("An error occurred: {}".format(output.stderr))
+            return "Error"

@@ -22,7 +22,9 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.sync_new_notebook(NOTEBOOK)
 
         # Select a graphics option first
-        vcdat_panel.plot_type_item("boxfill", "a_boxfill").click()
+        vcdat_panel.plot_type_btn().needs_to_be("enabled").click()
+        vcdat_panel.plot_type_group("boxfill").scroll_click()
+        vcdat_panel.plot_type_item("boxfill", "default").scroll_click()
 
         # Check each locator
         print("Testing colormap options...")
@@ -49,7 +51,7 @@ class TestVcdatPanel(BaseTestCase):
         print("Testing graphics options...")
 
         # Check graphics group options available (random)
-        vcdat_panel.plot_type_group("boxfill").click()
+        vcdat_panel.plot_type_group("boxfill").sleep(3).click()
         vcdat_panel.plot_type_group("scatter").click()
         vcdat_panel.plot_type_group("xvsy").click()
         vcdat_panel.plot_type_group("1d").click()

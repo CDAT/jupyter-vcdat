@@ -36,20 +36,16 @@ class LoadVariablesPopUp(ActionsPage):
         varcard = "div.card-body[data-name='{}']".format(name)
         loc = "{} button.varcard-axes-btn-vcdat".format(varcard)
         requires = self.variable_btn(name)
-        return self.locator(loc, "css", "Variable '{}' Edit Button".format(name))
+        return self.locator(loc, "css", "Variable '{}' Edit Button".format(name), requires)
 
     def rename_variable_input(self, name):
         varcard = "div.card-body[data-name='{}']".format(name)
         loc = "{} input.varcard-rename-input-vcdat".format(varcard)
         requires = self.edit_variable_btn(name)
-        return self.locator(loc, "css", "Variable '{}' Rename Input".format(name))
+        return self.locator(loc, "css", "Variable '{}' Rename Input".format(name), requires)
 
     def rename_variable_status(self, name):
         varcard = "div.card-body[data-name='{}']".format(name)
         loc = "{} button.varcard-rename-status-vcdat".format(varcard)
         requires = self.edit_variable_btn(name)
-        return self.locator(loc, "css", "Variable '{}' Rename Status".format(name))
-
-    def dimension_slider(self, name):
-        varcard = "div.card-body[data-name='{}']".format(name)
-        return DimensionSlider(self.driver, self.server, varcard, name)
+        return self.locator(loc, "css", "Variable '{}' Rename Status".format(name), requires)

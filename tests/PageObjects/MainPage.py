@@ -32,7 +32,7 @@ class MainPage(ActionsPage):
         # validate Main page is displaying a 'Jupyter' Logo and VCDAT icon
         self.jupyter_icon().silent().sleep(2).click()
         # Ensure that the left side panel is wide enough
-        self.adjust_sidebar(400)
+        assert self.adjust_sidebar(400), "The sidebar resize failed..."
 
     # ----------  TOP LEVEL LOCATORS (Always accessible on page)  --------------
     def jupyter_icon(self):
@@ -103,7 +103,9 @@ class MainPage(ActionsPage):
     def top_menu_item(self, parent, name, descr=""):
         if descr == "":
             descr = name
+
         parent = self.top_menu(parent)
+
         loc = "//div[@class='p-Widget p-Menu p-MenuBar-menu']//li/div[@class="
         loc += "'p-Menu-itemLabel'][contains(text(),'{n}')]".format(n=name)
         return self.locator(loc, "xpath", descr, parent)
@@ -117,7 +119,7 @@ class MainPage(ActionsPage):
             print("---Firefox steps---")
             # Firefox needed steps to correctly click the element
             self.top_menu(top_menu).simple_click()
-            self.top_menu_item(top_menu, sub_menu).move_to(0, 20).click()
+            self.top_menu_item(top_menu, sub_menu).move_to(10, 20).click()
 
         requires = self.top_menu_item(top_menu, sub_menu)
         loc = "//div[@class='p-Widget p-Menu']//li/div[@class='p-Menu-itemLabel']"
@@ -126,14 +128,15 @@ class MainPage(ActionsPage):
 
     # ----------------------------- PAGE FUNCTIONS -----------------------------
 
-    # Will drag the main split panel handle to the specified width.
+    # Will drag the main split panel handle to the specified width. Returns True
+    # if the adjustment was successful.
     def adjust_sidebar(self, width):
         loc = "//*[@id='jp-main-split-panel']/div[contains(@class,'p-SplitPanel-handle')]"
         divider = self.locator(loc, "xpath", "Split Panel Bar").get()
         current_width = divider.get_attribute("style")
         # Will extract the 'left: 1234.234' value from string
-        regex = r"left: (\d+\.\d+)"
-        if current_width:
+        regex = r"left: (\d+\.\d+|\d+)"
+        if current_width is not None:
             result = re.search(regex, current_width)
             if result:
                 current_width = re.search(regex, current_width).group(1)
@@ -145,23 +148,32 @@ class MainPage(ActionsPage):
                 # Adjust only if necessary
                 if abs(adjust) > 1:
                     divider.drag_drop(adjust, 0)
+                return True
+            else:
+                print("Regex result was None. Style attribute value: \
+                {}".format(current_width))
+                return False
+        else:
+            print("Divider attribute was None. \
+                Divider locator: ".format(divider))
+            return False
 
     # Will create a new notebook and rename it using the file menu
     def create_notebook(self, notebook_name):
         # Create notebook
         self.sub_menu_item("File", "New", "Notebook").click()
-        self.dialog_btn("Select").attempt().click()  # popup may not show
+        self.dialog_btn("Select").attempt().click()
         self.rename_notebook(notebook_name)
 
     def rename_notebook(self, new_name):
         # Rename notebook
-        self.top_menu_item("File", "Rename").click()
+        self.top_menu_item("File", "Rename").click().sleep(2)
         self.dialog_input("Rename").enter_text(
-            "{}.ipynb".format(new_name)).press_enter()
-        self.dialog_btn("Overwrite").attempt(
-        ).click().sleep(2)  # popup may not show
+            "{}.ipynb".format(new_name)).press_enter().sleep(2)
+        self.dialog_btn("Overwrite").attempt().click().sleep(2)
 
     # Will save current notebook if one is open
+
     def save_notebook(self):
         self.top_menu_item("File", "Save Notebook").attempt().click()
 
