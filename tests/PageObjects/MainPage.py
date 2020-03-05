@@ -29,10 +29,10 @@ class MainPage(ActionsPage):
         super(MainPage, self).__init__(driver, server)
 
     def _validate_page(self):
-        # validate Main page is displaying a 'Jupyter' Logo and VCDAT icon
-        self.jupyter_icon().silent().sleep(2).click()
         # Ensure that the left side panel is wide enough
         self.adjust_sidebar(400)
+        # validate Main page is displaying a 'Jupyter' Logo and VCDAT icon
+        self.jupyter_icon().silent().sleep(2).click()
 
     # ----------  TOP LEVEL LOCATORS (Always accessible on page)  --------------
     def jupyter_icon(self):
@@ -133,7 +133,7 @@ class MainPage(ActionsPage):
         current_width = divider.get_attribute("style")
         # Will extract the 'left: 1234.234' value from string
         regex = r"left: (\d+\.\d+)"
-        if current_width:
+        if current_width is not None:
             result = re.search(regex, current_width)
             if result:
                 current_width = re.search(regex, current_width).group(1)
@@ -145,6 +145,13 @@ class MainPage(ActionsPage):
                 # Adjust only if necessary
                 if abs(adjust) > 1:
                     divider.drag_drop(adjust, 0)
+                return True
+            else:
+                print("Regex result was None. Style attribute value: \
+                {}".format(current_width))
+        else:
+            print("Divider attribute was None. \
+                Divider locator: ".format(divider))
 
     # Will create a new notebook and rename it using the file menu
     def create_notebook(self, notebook_name):
@@ -157,11 +164,11 @@ class MainPage(ActionsPage):
         # Rename notebook
         self.top_menu_item("File", "Rename").click()
         self.dialog_input("Rename").enter_text(
-            "{}.ipynb".format(new_name)).press_enter()
-        self.dialog_btn("Overwrite").attempt(
-        ).click().sleep(2)  # popup may not show
+            "{}.ipynb".format(new_name)).press_enter().sleep(2)
+        self.dialog_btn("Overwrite").attempt().click().sleep(2)
 
     # Will save current notebook if one is open
+
     def save_notebook(self):
         self.top_menu_item("File", "Save Notebook").attempt().click()
 
