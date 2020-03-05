@@ -126,13 +126,14 @@ class MainPage(ActionsPage):
 
     # ----------------------------- PAGE FUNCTIONS -----------------------------
 
-    # Will drag the main split panel handle to the specified width.
+    # Will drag the main split panel handle to the specified width. Returns True
+    # if the adjustment was successful.
     def adjust_sidebar(self, width):
         loc = "//*[@id='jp-main-split-panel']/div[contains(@class,'p-SplitPanel-handle')]"
         divider = self.locator(loc, "xpath", "Split Panel Bar").get()
         current_width = divider.get_attribute("style")
         # Will extract the 'left: 1234.234' value from string
-        regex = r"left: (\d+\.\d+)"
+        regex = r"left: (\d+\.\d+|\d+)"
         if current_width is not None:
             result = re.search(regex, current_width)
             if result:
@@ -149,9 +150,11 @@ class MainPage(ActionsPage):
             else:
                 print("Regex result was None. Style attribute value: \
                 {}".format(current_width))
+                return False
         else:
             print("Divider attribute was None. \
                 Divider locator: ".format(divider))
+            return False
 
     # Will create a new notebook and rename it using the file menu
     def create_notebook(self, notebook_name):
