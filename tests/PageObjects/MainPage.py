@@ -29,11 +29,10 @@ class MainPage(ActionsPage):
         super(MainPage, self).__init__(driver, server)
 
     def _validate_page(self):
-        # Ensure that the left side panel is wide enough
-
-        assert self.adjust_sidebar(400), "The sidebar resize failed..."
         # validate Main page is displaying a 'Jupyter' Logo and VCDAT icon
         self.jupyter_icon().silent().sleep(2).click()
+        # Ensure that the left side panel is wide enough
+        assert self.adjust_sidebar(400), "The sidebar resize failed..."
 
     # ----------  TOP LEVEL LOCATORS (Always accessible on page)  --------------
     def jupyter_icon(self):
@@ -104,7 +103,14 @@ class MainPage(ActionsPage):
     def top_menu_item(self, parent, name, descr=""):
         if descr == "":
             descr = name
+
         parent = self.top_menu(parent)
+
+        if self.browser == "firefox":
+            print("---Firefox steps---")
+            # Firefox needed steps to correctly click the element
+            parent.simple_click()
+
         loc = "//div[@class='p-Widget p-Menu p-MenuBar-menu']//li/div[@class="
         loc += "'p-Menu-itemLabel'][contains(text(),'{n}')]".format(n=name)
         return self.locator(loc, "xpath", descr, parent)
