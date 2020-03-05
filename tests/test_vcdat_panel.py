@@ -132,7 +132,7 @@ class TestVcdatPanel(BaseTestCase):
         print("Testing template options...")
 
         # Test layout template options
-        vcdat_panel.layout_template_item("ASD").sleep(3).scroll_click()
+        vcdat_panel.layout_template_item("ASD").scroll_click()
         vcdat_panel.layout_template_item("LLof4").scroll_click()
         vcdat_panel.layout_template_item("default").scroll_click()
         vcdat_panel.layout_template_item("top_of2").scroll_click()

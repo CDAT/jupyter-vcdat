@@ -30,7 +30,8 @@ class MainPage(ActionsPage):
 
     def _validate_page(self):
         # Ensure that the left side panel is wide enough
-        self.adjust_sidebar(400)
+
+        assert self.adjust_sidebar(400), "The sidebar resize failed..."
         # validate Main page is displaying a 'Jupyter' Logo and VCDAT icon
         self.jupyter_icon().silent().sleep(2).click()
 
