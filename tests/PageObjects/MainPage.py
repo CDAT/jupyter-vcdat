@@ -161,12 +161,12 @@ class MainPage(ActionsPage):
     def create_notebook(self, notebook_name):
         # Create notebook
         self.sub_menu_item("File", "New", "Notebook").click()
-        self.dialog_btn("Select").attempt().click()  # popup may not show
+        self.dialog_btn("Select").attempt().click()
         self.rename_notebook(notebook_name)
 
     def rename_notebook(self, new_name):
         # Rename notebook
-        self.top_menu_item("File", "Rename").click()
+        self.top_menu_item("File", "Rename").click().sleep(2)
         self.dialog_input("Rename").enter_text(
             "{}.ipynb".format(new_name)).press_enter().sleep(2)
         self.dialog_btn("Overwrite").attempt().click().sleep(2)
