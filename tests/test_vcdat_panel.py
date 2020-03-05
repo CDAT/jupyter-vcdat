@@ -23,8 +23,8 @@ class TestVcdatPanel(BaseTestCase):
 
         # Select a graphics option first
         vcdat_panel.plot_type_btn().needs_to_be("enabled").click()
-        vcdat_panel.plot_type_group("boxfill").click()
-        vcdat_panel.plot_type_item("boxfill", "default").click()
+        vcdat_panel.plot_type_group("boxfill").scroll_click()
+        vcdat_panel.plot_type_item("boxfill", "default").scroll_click()
 
         # Check each locator
         print("Testing colormap options...")
