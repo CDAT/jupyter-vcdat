@@ -92,7 +92,7 @@ class TestVcdatPanel(BaseTestCase):
         # Test valid name
         vcdat_panel.plot_type_copy_name_input().enter_text("this_should_be_valid")
         if vcdat_panel.plot_type_copy_name_enter_btn().get_text() == "Enter":
-            print("Button corretly became 'Enter' and enabled...")
+            print("Button correctly became 'Enter' and enabled...")
             vcdat_panel.plot_type_copy_name_enter_btn()
         else:
             assert("The text should say 'Enter'.")
