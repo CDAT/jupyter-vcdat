@@ -54,12 +54,15 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.plot_type_group("boxfill").scroll_click()
         vcdat_panel.plot_type_group("scatter").scroll_click()
         vcdat_panel.plot_type_group("xvsy").scroll_click()
-        vcdat_panel.plot_type_group("1d").scroll_click()
-        vcdat_panel.plot_type_group("isoline").scroll_click()
-        vcdat_panel.plot_type_group("meshfill").scroll_click()
 
-        # Test close button
-        vcdat_panel.plot_type_group("isoline").scroll_click()
+        if self.main_page.browser != "firefox":
+            vcdat_panel.plot_type_group("1d").scroll_click()
+            vcdat_panel.plot_type_group("3d_dual_scalar").scroll_click()
+            vcdat_panel.plot_type_group("3d_vector").scroll_click()
+
+            # Test close button
+            vcdat_panel.plot_type_group("isoline").scroll_click()
+
         vcdat_panel.plot_type_close_btn().click()
 
         # Check graphics methods
