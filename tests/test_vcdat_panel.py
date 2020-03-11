@@ -50,19 +50,18 @@ class TestVcdatPanel(BaseTestCase):
         # Check each locator
         print("Testing graphics options...")
 
-        # Check graphics group options available (random)
+        # Check graphics group options available)
         vcdat_panel.plot_type_group("boxfill").scroll_click()
         vcdat_panel.plot_type_group("scatter").scroll_click()
         vcdat_panel.plot_type_group("xvsy").scroll_click()
         vcdat_panel.plot_type_group("1d").scroll_click()
-        vcdat_panel.plot_type_group("3d_dual_scalar").scroll_click()
         vcdat_panel.plot_type_group("3d_vector").scroll_click()
 
         # Test close button
         vcdat_panel.plot_type_group("isoline").scroll_click()
         vcdat_panel.plot_type_close_btn().click()
 
-        # Check graphics methods (random)
+        # Check graphics methods
         vcdat_panel.plot_type_item("boxfill", "robinson").scroll_click()
         vcdat_panel.plot_type_item("scatter", "default_scatter_").scroll_click()
         vcdat_panel.plot_type_item("xvsy", "default").scroll_click()
