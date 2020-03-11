@@ -55,7 +55,8 @@ class TestVcdatPanel(BaseTestCase):
         vcdat_panel.plot_type_group("scatter").scroll_click()
         vcdat_panel.plot_type_group("xvsy").scroll_click()
         vcdat_panel.plot_type_group("1d").scroll_click()
-        vcdat_panel.plot_type_group("3d_vector").scroll_click()
+        vcdat_panel.plot_type_group("isoline").scroll_click()
+        vcdat_panel.plot_type_group("meshfill").scroll_click()
 
         # Test close button
         vcdat_panel.plot_type_group("isoline").scroll_click()
