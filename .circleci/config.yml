@@ -57,7 +57,8 @@ aliases:
       BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     command: |
       source activate jupyter-vcdat
-      npx task test --ready --firefox
+      npx task test --ready --firefox test_about_page test_main_page \
+      test_colormap_options test_template_options test_top_level
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
       exit $RESULT
