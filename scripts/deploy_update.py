@@ -85,6 +85,26 @@ def update_template(template_in, file_out, data):
     f.close()
 
 
+# Takes a template of the dockerfile and creates a new dockerfile with specified
+# installation steps
+def create_docker_script(template_in, docker_out):
+
+    # Generate pip install commands
+    _pip = create_pip_commands(BASE_PIP_PKGS, "RUN ")
+
+    # Generate extension install commands
+    EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
+    install_ext = create_extension_commands(EXTS, "RUN ")
+
+    CONDA_CHANNELS = BASE_CHANNELS + USER_CHANNELS
+    # Combine all settings into dictonary for template to use
+    data = {"_conda_channels": CONDA_CHANNELS, "_conda_pkgs": BASE_CONDA_PKGS,
+            "_pip_install": _pip, "_install_extensions": install_ext}
+
+    # Create install file
+    update_template(template_in, docker_out, data)
+
+
 # Takes a template of the installer script and creates a new install script with specified
 # conda channels and packages.
 def create_install_script(template_in, installer_out):
@@ -107,26 +127,6 @@ def create_install_script(template_in, installer_out):
     update_template(template_in, installer_out, data)
     # Set permissions of install to execute
     os.chmod(installer_out, 0o777)
-
-
-# Takes a template of the dockerfile and creates a new dockerfile with specified
-# installation steps
-def create_docker_script(template_in, docker_out):
-
-    # Generate pip install commands
-    _pip = create_pip_commands(BASE_PIP_PKGS, "RUN ")
-
-    # Generate extension install commands
-    EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
-    install_ext = create_extension_commands(EXTS, "RUN ")
-
-    CONDA_CHANNELS = BASE_CHANNELS + USER_CHANNELS
-    # Combine all settings into dictonary for template to use
-    data = {"_conda_channels": CONDA_CHANNELS, "_conda_pkgs": BASE_CONDA_PKGS,
-            "_pip_install": _pip, "_install_extensions": install_ext}
-
-    # Create install file
-    update_template(template_in, docker_out, data)
 
 
 def main():
