@@ -97,3 +97,11 @@ class BaseTestCase(unittest.TestCase):
                                         firefox_binary=firefox_binary,
                                         executable_path=geckodriver_loc,
                                         capabilities=firefox_capabilities)
+        self.set_viewport_size(1200, 1200)  # Ensure viewport is large enough
+
+    def set_viewport_size(self, width, height):
+        window_size = self.driver.execute_script("""
+            return [window.outerWidth - window.innerWidth + arguments[0],
+            window.outerHeight - window.innerHeight + arguments[1]];
+            """, width, height)
+        self.driver.set_window_size(*window_size)
