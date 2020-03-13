@@ -106,7 +106,7 @@ class Locator(Actions):
             return Action(action, descr, *new_args).perform(self.__VERBOSE__)
 
     # Will find the element using the find actions, returns element(s) found
-    def __find_element__(self, locator, locator_type):
+    def __find_element__(self, locator, locator_type, show_error=False):
         # Valid locator types
         valid = ["id", "class", "css", "xpath"]
         if locator_type not in valid:
@@ -127,7 +127,9 @@ class Locator(Actions):
             if self.is_multiple:
                 return self.driver.find_elements(method, locator)
             return self.driver.find_element(method, locator)
-        except NoSuchElementException:
+        except NoSuchElementException as e:
+            if show_error:
+                raise(e)
             return None
 
     # Will try to find element and print status, will quit if not found
@@ -168,15 +170,15 @@ class Locator(Actions):
             if ready:
                 # If ready, try action again
                 self.element = self.__find_element__(
-                    self.locator, self.locator_type)
+                    self.locator, self.locator_type, True)
                 if self.__valid_state__():
                     # Element was found this time
                     self.__describe__(self.description, True)
                 else:
-                    # After preparing, element still not found
+                    # After preparing, element still not valid
                     self.__describe__(self.description, False)
                     raise NoSuchElementException(
-                        "Element {} is still not ready.".format(
+                        "Element {} is still not ready. ".format(
                             self.description)
                     )
             else:

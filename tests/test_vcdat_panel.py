@@ -50,26 +50,25 @@ class TestVcdatPanel(BaseTestCase):
         # Check each locator
         print("Testing graphics options...")
 
-        # Check graphics group options available (random)
-        vcdat_panel.plot_type_group("boxfill").sleep(3).click()
-        vcdat_panel.plot_type_group("scatter").click()
-        vcdat_panel.plot_type_group("xvsy").click()
-        vcdat_panel.plot_type_group("1d").click()
-        vcdat_panel.plot_type_group("3d_dual_scalar").click()
-        vcdat_panel.plot_type_group("3d_vector").click()
+        # Check graphics group options available)
+        vcdat_panel.plot_type_btn().needs_to_be("enabled").click()
+        vcdat_panel.plot_type_group("boxfill").scroll_click()
+        vcdat_panel.plot_type_group("scatter").scroll_click()
+        vcdat_panel.plot_type_group("xvsy").scroll_click()
+        vcdat_panel.plot_type_group("1d").scroll_click()
+        vcdat_panel.plot_type_group("3d_dual_scalar").scroll_click()
+        vcdat_panel.plot_type_group("3d_vector").scroll_click()
 
         # Test close button
-        vcdat_panel.plot_type_group("isoline").click()
+        vcdat_panel.plot_type_group("isoline").scroll_click()
         vcdat_panel.plot_type_close_btn().click()
 
-        # Check graphics methods (random)
-        vcdat_panel.plot_type_item("boxfill", "robinson").click()
-        vcdat_panel.plot_type_item("scatter", "default_scatter_").click()
-        vcdat_panel.plot_type_item("xvsy", "default").click()
-        vcdat_panel.plot_type_item(
-            "3d_scalar", "Hovmoller3D").scroll_click().sleep(3)
-
-        vcdat_panel.plot_type_item("xvsy", "a_1d").click()
+        # Check graphics methods
+        vcdat_panel.plot_type_item("boxfill", "robinson").scroll_click()
+        vcdat_panel.plot_type_item("scatter", "default_scatter_").scroll_click()
+        vcdat_panel.plot_type_item("xvsy", "default").scroll_click()
+        vcdat_panel.plot_type_item("3d_scalar", "Hovmoller3D").scroll_click()
+        vcdat_panel.plot_type_item("xvsy", "a_1d").scroll_click()
 
         # Try Copy/Cancel of graphic method
         vcdat_panel.plot_type_copy_btn().click().sleep(2)
@@ -92,7 +91,7 @@ class TestVcdatPanel(BaseTestCase):
         # Test valid name
         vcdat_panel.plot_type_copy_name_input().enter_text("this_should_be_valid")
         if vcdat_panel.plot_type_copy_name_enter_btn().get_text() == "Enter":
-            print("Button corretly became 'Enter' and enabled...")
+            print("Button correctly became 'Enter' and enabled...")
             vcdat_panel.plot_type_copy_name_enter_btn()
         else:
             assert("The text should say 'Enter'.")

@@ -134,6 +134,14 @@ jobs:
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 15
+<<<<<<< HEAD
+=======
+      - run: *run_tests_with_firefox
+      - store_artifacts:
+          path: tests_html
+          destination: tests_firefox_html
+      - run: sleep 5
+>>>>>>> 670843ae5d55c3cb41b27787b1c5ab1eef521073
       - run: *run_tests_with_chrome
       - store_artifacts:
           path: tests_html

@@ -106,11 +106,6 @@ class MainPage(ActionsPage):
 
         parent = self.top_menu(parent)
 
-        if self.browser == "firefox":
-            print("---Firefox steps---")
-            # Firefox needed steps to correctly click the element
-            parent.simple_click()
-
         loc = "//div[@class='p-Widget p-Menu p-MenuBar-menu']//li/div[@class="
         loc += "'p-Menu-itemLabel'][contains(text(),'{n}')]".format(n=name)
         return self.locator(loc, "xpath", descr, parent)
@@ -119,13 +114,11 @@ class MainPage(ActionsPage):
     def sub_menu_item(self, top_menu, sub_menu, item, descr=""):
         if descr == "":
             descr = item
-
         if self.browser == "firefox":
             print("---Firefox steps---")
             # Firefox needed steps to correctly click the element
             self.top_menu(top_menu).simple_click()
-            self.top_menu_item(top_menu, sub_menu).move_to(0, 20).click()
-
+            self.top_menu_item(top_menu, sub_menu).move_to(10, 20).click()
         requires = self.top_menu_item(top_menu, sub_menu)
         loc = "//div[@class='p-Widget p-Menu']//li/div[@class='p-Menu-itemLabel']"
         loc += "[contains(text(),'{i}')]".format(i=item)
