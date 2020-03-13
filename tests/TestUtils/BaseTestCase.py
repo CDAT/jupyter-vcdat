@@ -64,7 +64,7 @@ class BaseTestCase(unittest.TestCase):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument(mode)
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("window-size=1200x600")
+        chrome_options.add_argument("window-size=1200x1200")
         # Set up download directory
         """https://stackoverflow.com/questions/18437816/
         how-to-find-chrome-download-path-in-java"""
