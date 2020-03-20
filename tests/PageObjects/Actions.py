@@ -1,111 +1,109 @@
 import time
-
-from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+
+""" Class used to call functions within a locator """
+
+
+class Action:
+    def __init__(self, action, descr, *args):
+        self.action = action
+        self.description = descr
+        self.arguments = args
+
+    def perform(self, verbose=True):
+        try:
+            if verbose and self.description is not None:
+                print(self.description)
+            if self.arguments is not None:
+                return self.action(*self.arguments)
+            else:
+                return self.action()
+            self.__reset_defaults__()
+        except Exception as e:
+            print(e)
+            if self.description is not None and self.arguments is not None:
+                print(
+                    "Attempt to do: '{}' failed.\nArguments: {}".format(
+                        self.description, self.arguments
+                    )
+                )
+            elif self.description is not None:
+                print("Attempt to do: '{}' failed.".format(self.description))
+            else:
+                print("Arguments: {}".format(self.arguments))
+            raise (e)
+
 
 """ All page objects inherit from this """
 
 
 class Actions(object):
 
-    _delay = 1.5
-    _a_bit_delay = 1
+    _delay = 1
+    _a_bit_delay = 0.5
 
-    def __init__(self, driver, server=None):
+    def __init__(self, driver, server):
         self.driver = driver
-        driver.implicitly_wait(10)
 
-    def find_element_by_id(self, id, descr):
-        try:
-            element = self.driver.find_element_by_id(id)
-            print("FOUND {}".format(descr))
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding '{}'".format(descr))
-            raise e
-        return element
+    # Converts a locator type: "id", "class", "css", "xpath" into a method
+    def locator_type_to_method(self, locator):
+        method = By.XPATH
+        if locator == "css":
+            method = By.CSS_SELECTOR
+        elif locator == "class":
+            method = By.CLASS_NAME
+        elif locator == "id":
+            method = By.ID
 
-    def find_elements_by_id(self, id, descr):
-        try:
-            elements = self.driver.find_elements_by_id(id)
-            print("FOUND {}".format(descr))
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding '{}'".format(descr))
-            raise e
-        return elements
+        return method
 
-    def find_element_by_class(self, class_name, descr):
-        try:
-            element = self.driver.find_element_by_class_name(class_name)
-            print("FOUND {}".format(descr))
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding '{}'".format(descr))
-            raise e
-        return element
+    def enter_input_text(self, input_area, text):
+        input_area.clear()
+        ac = ActionChains(self.driver)
+        ac.click(input_area).send_keys(text).perform()
+        # time.sleep(self._delay)
 
-    def find_elements_by_class(self, class_name, descr):
-        try:
-            elements = self.driver.find_elements_by_class_name(class_name)
-            print("FOUND {}".format(descr))
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding '{}'".format(descr))
-            raise e
-        return elements
-
-    def find_element_by_xpath(self, xpath, descr):
-        try:
-            element = self.driver.find_element_by_xpath(xpath)
-            print("FOUND {}".format(descr))
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding {}".format(descr))
-            raise e
-        return element
-
-    def find_elements_by_xpath(self, xpath, descr):
-        try:
-            elements = self.driver.find_elements_by_xpath(xpath)
-            print("FOUND {}".format(descr))
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding {}".format(descr))
-            raise e
-        return elements
-
-    def find_element_by_css(self, css_selector, descr):
-        try:
-            element = self.driver.find_element_by_css_selector(css_selector)
-            print("FOUND {}".format(descr))
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding '{}'".format(descr))
-            raise e
-        return element
-
-    def find_elements_by_css(self, css_selector, descr):
-        try:
-            elements = self.driver.find_element_by_css_selector(css_selector)
-            print("FOUND {}".format(descr))
-        except NoSuchElementException as e:
-            print("NoSuchElementException...not finding '{}'".format(descr))
-            raise e
-        return elements
-
-    def move_to_click(self, element):
-        time.sleep(self._a_bit_delay)
-        print("...move_to_click...")
+    def move_only(self, element, amount):
         ac = ActionChains(self.driver)
         ac.move_to_element(element)
+        ac.pause(amount)
+        ac.perform()
+
+    def click_only(self, element):
+        element.click()
+
+    def move_offset(self, element, x, y):
+        ac = ActionChains(self.driver)
+        ac.move_to_element_with_offset(element, x, y)
+        ac.perform()
+
+    def move_to_click(self, element):
+        ac = ActionChains(self.driver)
+        ac.move_to_element(element)
+        ac.pause(1)
         ac.click()
         ac.perform()
 
+    def drag_and_drop(self, element, x, y):
+        ac = ActionChains(self.driver)
+        ac.pause(1)
+        ac.drag_and_drop_by_offset(element, x, y)
+        ac.perform()
+
     def move_to_double_click(self, element):
-        print("...move_to_double_click...")
-        time.sleep(self._a_bit_delay)
         ac = ActionChains(self.driver)
         ac.move_to_element(element)
         ac.double_click(element)
         ac.perform()
+
+    def input_press_enter(self, input_area):
+        ac = ActionChains(self.driver)
+        ac.click(input_area).key_down(Keys.ENTER).perform()
 
     def scroll_into_view(self, element):
         """
@@ -114,62 +112,33 @@ class Actions(object):
         element is within the viewing window before clicking on the
         element.
         """
-        self.driver.execute_script(
-            "return arguments[0].scrollIntoView(true);", element)
+        script = "return arguments[0].scrollIntoView(true);"
+        self.driver.execute_script(script, element)
 
-    def scroll_click(self, element):
-        print("...scroll_click...")
-        try:
-            self.driver.execute_script(
-                "return arguments[0].scrollIntoView(true);", element)
-            element.click()
-            time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print(
-                "Error when clicking on element...")
-            raise e
-
-    def wait_click(self, method, locator):
-        try:
-            print("...wait_click..., locator: {}".format(locator))
-            wait = WebDriverWait(self.driver, 15)
-            m = wait.until(EC.element_to_be_clickable((method,
-                                                       locator)))
-            m.click()
-            time.sleep(self._delay)
-        except NoSuchElementException as e:
-            print("...error clicking item...")
-            raise e
-
-    def enter_text(self, input_area, text):
-        input_area.clear()
+    def scroll_to_click(self, element):
+        self.scroll_into_view(element)
         ac = ActionChains(self.driver)
-        ac.click(input_area).send_keys(text).key_down(Keys.ENTER).perform()
-        time.sleep(self._delay)
+        ac.move_to_element(element)
+        ac.pause(1)
+        ac.click()
+        ac.perform()
+        # time.sleep(self._delay)
 
-    def open_file_browser(self):
-        try:
-            self.dropdown_click(self.locate_running_tab())
-            self.dropdown_click(self.locate_file_tab())
-        except NoSuchElementException as e:
-            print(
-                "NoSuchElementException...could not open filebrowser")
-            raise e
+    def wait(self, amount):
+        print("Waiting for {} seconds...".format(amount))
+        time.sleep(amount)
 
-    def open_vcdat_widget(self):
-        try:
-            self.dropdown_click(self.locate_running_tab())
-            self.dropdown_click(self.locate_vcdat_icon())
-        except NoSuchElementException as e:
-            print(
-                "NoSuchElementException...could not open vcdat widget")
-            raise e
+    def wait_to_click(self, loc_type, locator):
+        method = self.locator_type_to_method(loc_type)
+        wait = WebDriverWait(self.driver, 10)
+        m = wait.until(EC.element_to_be_clickable((method, locator)))
+        m.click()
 
     def wait_till_element_is_visible(self, method, locator, descr):
         try:
-            wait = WebDriverWait(self.driver, 15)
-            element = wait.until(EC.visibility_of_element_located((method,
-                                                                   locator)))
+            wait = WebDriverWait(self.driver, 10)
+            element = wait.until(
+                EC.visibility_of_element_located((method, locator)))
             print("'{}' is now visible".format(descr))
             return element
         except TimeoutException as e:
@@ -179,10 +148,12 @@ class Actions(object):
     def wait_till_element_is_clickable(self, method, locator, descr):
         try:
             wait = WebDriverWait(self.driver, 15)
-            element = wait.until(EC.element_to_be_clickable((method,
-                                                             locator)))
+            element = wait.until(EC.element_to_be_clickable((method, locator)))
             print("'{}' is now clickable".format(descr))
             return element
         except TimeoutException as e:
-            print("Timeout in waiting for element to be clickable '{}'...".format(descr))
+            print(
+                "Timeout in waiting for element to be clickable '{}'...".format(
+                    descr)
+            )
             raise e

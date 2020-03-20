@@ -4,11 +4,12 @@ import subprocess
 
 
 class TestUtils(object):
-
     def __init__(self):
         super(TestUtils, self).__init__()
 
-    def run_command(self, cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
+    def run_command(
+        self, cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None
+    ):
         if isinstance(cmd, str):
             cmd = shlex.split(cmd)
 
@@ -22,15 +23,21 @@ class TestUtils(object):
         else:
             current_wd = cwd
 
-        P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr_setting,
-                             bufsize=0, cwd=current_wd, shell=shell_cmd)
+        P = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=stderr_setting,
+            bufsize=0,
+            cwd=current_wd,
+            shell=shell_cmd,
+        )
         out = []
         while P.poll() is None:
             read = P.stdout.readline().rstrip()
-            decoded_str = read.decode('utf-8')
+            decoded_str = read.decode("utf-8")
             out.append(decoded_str)
             if verbose:
                 print(decoded_str)
 
         ret_code = P.returncode
-        return(ret_code, out)
+        return (ret_code, out)

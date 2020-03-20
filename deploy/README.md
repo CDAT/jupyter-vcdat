@@ -102,3 +102,36 @@ docker push cdat/vcdat:<new version>
 docker image tag cdat/vcdat:<new-version> cdat/vcdat:latest
 docker push cdat/vcdat:latest
 ```
+
+# Update VCDAT to latest version on NERSC
+- Log in to Cori at NERSC:
+```bash
+ssh user@cori.nersc.gov
+```
+
+- Check current vcdat versions available on Cori:
+```bash
+shifterimg images | grep vcdat
+```
+
+- Pull latest docker image for vcdat:
+```bash
+shifterimg -v pull docker:cdat/vcdat:latest
+```
+- Wait for Docker image update:
+Note: You'll see the same message printing out continuously with the time step and status (it may appear to be an error at first, but it's not and you just need to wait for it to complete).
+
+- Done! Make sure to test image to be sure everything is working well (see steps below).
+
+## Running
+
+- Make sure your home directory at NERSC contains a '.overrides-jupyter-' file with this line:
+```
+exec shifter --volume=$(pwd):/run --volume=$(pwd):/home/jovyan --image=cdat/vcdat:latest -- jupyter-labhub "$@"
+```
+
+- Point your browser to: https://jupyter.nersc.gov/hub/
+
+- Log in with NERSC credentials, and select 'Cori' option.
+
+- Once loaded, Jupyter-VCDAT should be ready to go!

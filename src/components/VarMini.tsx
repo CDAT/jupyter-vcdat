@@ -22,9 +22,9 @@ import {
 // Project Components
 import CodeInjector from "../CodeInjector";
 import Utilities from "../Utilities";
-import AxisInfo from "./AxisInfo";
+import AxisInfo from "../AxisInfo";
 import DimensionSlider from "./DimensionSlider";
-import Variable from "./Variable";
+import Variable from "../Variable";
 import NotebookUtilities from "../NotebookUtilities";
 import { checkForExportedFileCommand } from "../PythonCommands";
 import VariableTracker from "../VariableTracker";

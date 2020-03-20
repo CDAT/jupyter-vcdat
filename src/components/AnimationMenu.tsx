@@ -1,12 +1,6 @@
 // Dependencies
 import * as React from "react";
-import {
-    Row,
-    Col,
-    Label,
-    Input,
-    CustomInput
-} from "reactstrap";
+import { Col, CustomInput, Input, Label, Row } from "reactstrap";
 
 // Project Components
 import VariableTracker from "../VariableTracker";
@@ -17,6 +11,7 @@ interface IAnimationMenuProps {
   invertAxis?: boolean;
   rate?: number;
   plotReady: boolean;
+  shouldAnimate: boolean;
   toggleInverse?: () => void;
   toggleAnimate: () => void;
   updateAxisId?: (event: any) => void;
@@ -29,8 +24,7 @@ interface IAnimateMenuState {
   axisIds: string[];
   invertAxis: boolean;
   rate: number;
-  shouldAnimate: boolean;
-  selectedVariables: string[]
+  selectedVariables: string[];
 }
 
 export default class AnimationMenu extends React.Component<
@@ -40,76 +34,67 @@ export default class AnimationMenu extends React.Component<
   constructor(props: IAnimationMenuProps) {
     super(props);
     this.state = {
-      axisIds: props.axisIds ? props.axisIds : [''],
-      selectedAxisId: 0,
+      axisIds: props.axisIds ? props.axisIds : [""],
       invertAxis: props.invertAxis ? props.invertAxis : false,
       rate: props.rate ? props.rate : 5,
-      shouldAnimate: false,
-      selectedVariables: new Array<string>()
-    }
+      selectedAxisId: 0,
+      selectedVariables: Array<string>()
+    };
   }
   @boundMethod
   public handleSelectionChanged(
     varTracker: VariableTracker,
     newSelection: string[]
   ): void {
-    let selectedVariableName = "";
-    let selectedVariable: any = undefined;
-    let axisNames = new Array<string>();
-    for(let i = 0; i < varTracker.selectedVariables.length; i-=-1){
-      selectedVariableName = varTracker.selectedVariables[0].slice(0, varTracker.selectedVariables[0].length/2);
-      selectedVariable = varTracker.findVariableByAlias(selectedVariableName);
-      if(selectedVariable[0] != -1){
-        for(let i = 0; i < selectedVariable[1].axisList.length; i++){
-          axisNames.push(selectedVariable[1].axisList[i]);
-        }
+    let selectedVariable: any;
+    let axisNames = Array<string>();
+    for (let i = 0; i < varTracker.selectedVariables.length; i -= -1) {
+      selectedVariable = varTracker.findVariableByID(newSelection[i]);
+      if (selectedVariable[0] !== -1) {
+        axisNames = axisNames.concat(selectedVariable[1].axisList);
       }
     }
-    this.setState({ 
-      selectedVariables: newSelection,
-      axisIds: axisNames
-     });
-  }
-  @boundMethod
-  public toggleAnimate(){
     this.setState({
-      shouldAnimate: !this.state.shouldAnimate
-    })
-    this.props.toggleAnimate();
+      axisIds: axisNames,
+      selectedVariables: newSelection
+    });
   }
+
   @boundMethod
-  public updateRate(event: any){
-    let newRate = event.currentTarget.value;
+  public updateRate(event: any) {
+    const newRate = event.currentTarget.value;
     this.setState({
       rate: newRate
     });
     this.props.updateRate(newRate);
   }
   @boundMethod
-  public updateAxisId(event: any){
-    let newId = event.currentTarget.value;
+  public updateAxisId(event: any) {
+    const newId = event.currentTarget.value;
     this.setState({
       selectedAxisId: newId
     });
     this.props.updateAxisId(newId);
   }
-  public render(): JSX.Element { 
-    return (<div>
-      <Row>
-        <Col xs="auto">
-          <CustomInput
-            type="switch"
-            id={
-              /*@tag<animation-menu-switch>*/ "animation-menu-switch-vcdat"
-            }
-            name="animateSwitch"
-            label="Animate"
-            disabled={!this.props.plotReady}
-            onChange={this.toggleAnimate}
+  public render(): JSX.Element {
+    return (
+      <div>
+        <Row>
+          <Col xs="auto">
+            <CustomInput
+              type="switch"
+              id={
+                /*@tag<graphics-animation-switch>*/ "graphics-animation-switch-vcdat"
+              }
+              name="animateSwitch"
+              label="Animate"
+              disabled={!this.props.plotReady}
+              checked={this.props.shouldAnimate}
+              onChange={this.props.toggleAnimate}
             />
-        </Col>
-      </Row>
-        {this.state.shouldAnimate && (
+          </Col>
+        </Row>
+        {this.props.shouldAnimate && (
           <div>
             <Row>
               <Col xs="2">
@@ -119,48 +104,54 @@ export default class AnimationMenu extends React.Component<
                 <CustomInput
                   type="select"
                   id={
-                    /*@tag<vcsmenu-animate-select>*/ "animation-menu-axis-select"
+                    /*@tag<vcsmenu-animate-select>*/ "vcsmenu-animate-select-vcdat"
                   }
                   name="animation-menu-axis-select"
-                  onClick={this.updateAxisId}>
-                    {this.state.axisIds.map((name: string, idx: number) => {
-                      return (<option value={idx} key={idx}>{name}</option>)
-                    })}
+                  onClick={this.updateAxisId}
+                >
+                  {this.state.axisIds.map((name: string, idx: number) => {
+                    return (
+                      <option value={idx} key={idx}>
+                        {name}
+                      </option>
+                    );
+                  })}
                 </CustomInput>
               </Col>
             </Row>
             <Row>
               <Col xs="2">
                 <Label for="animation-menu-axis-inverse">
-                  <span>
-                    Invert: 
-                  </span>
+                  <span>Invert:</span>
                 </Label>
               </Col>
               <Col xs="6">
-                <CustomInput 
-                  type="checkbox" 
-                  id="animation-menu-axis-inverse" 
-                  onClick={this.props.toggleInverse}/>
+                <CustomInput
+                  type="checkbox"
+                  id="animation-menu-axis-inverse"
+                  onClick={this.props.toggleInverse}
+                />
               </Col>
             </Row>
             <Row>
               <Col xs="auto">
                 <Label for="animation-menu-rate-slider">
                   Rate: {this.state.rate}
-                </Label>  
-                <Input 
-                  id="animation-menu-rate-slider" 
-                  value={this.state.rate} 
-                  type="range" 
-                  min="1" 
-                  max="30" 
-                  onChange={this.updateRate} />
+                </Label>
+                <Input
+                  id="animation-menu-rate-slider"
+                  value={this.state.rate}
+                  type="range"
+                  min="1"
+                  max="30"
+                  onChange={this.updateRate}
+                />
               </Col>
             </Row>
           </div>
         )}
-    </div>)
+      </div>
+    );
   }
   public componentDidMount(): void {
     this.props.varTracker.selectedVariablesChanged.connect(

@@ -17,7 +17,7 @@ import {
 // Project Components
 import CodeInjector from "../CodeInjector";
 import ColorFunctions from "../ColorFunctions";
-import Variable from "./Variable";
+import Variable from "../Variable";
 import VarLoader from "./VarLoader";
 import VarMini from "./VarMini";
 import VariableTracker from "../VariableTracker";

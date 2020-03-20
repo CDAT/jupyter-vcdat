@@ -8,7 +8,9 @@ import {
   CardGroup,
   CardSubtitle,
   CardTitle,
+  Col,
   Collapse,
+  Container,
   CustomInput,
   Dropdown,
   DropdownItem,
@@ -19,10 +21,7 @@ import {
   InputGroupAddon,
   ListGroup,
   ListGroupItem,
-  Row,
-  Col,
-  Label,
-  Container
+  Row
 } from "reactstrap";
 
 // Project Components
@@ -53,6 +52,7 @@ interface IGraphicsMenuProps {
   updateGraphicsOptions: (group: string, name: string) => Promise<void>;
   updateColormap: (name: string) => Promise<void>;
   overlayMode: boolean;
+  shouldAnimate: boolean;
   toggleOverlayMode: () => void;
   toggleSidecar: () => {};
   toggleAnimate: () => void;
@@ -94,10 +94,10 @@ export default class GraphicsMenu extends React.Component<
       plotReady: this.props.plotReady,
       selectedGroup: "",
       selectedMethod: "",
+      shouldAnimate: false,
       showDropdown: false,
       showMenu: false,
-      tempGroup: "",
-      shouldAnimate: false
+      tempGroup: ""
     };
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
   }
@@ -163,8 +163,11 @@ export default class GraphicsMenu extends React.Component<
           };
           return (
             <ListGroupItem
-              className={"text-muted"}
+              className={
+                /*@tag<text-muted graphics-method-item>*/ "text-muted graphics-method-item-vcdat"
+              }
               key={group + item}
+              value={item}
               style={listItemStyle}
               tag="button"
               onClick={select}
@@ -203,22 +206,25 @@ export default class GraphicsMenu extends React.Component<
     return (
       <div>
         <Card>
-          <CardBody className={/*@tag<graphics-menu>*/ "graphics-menu-vcdat"}>
+          <CardBody
+            className={/*@tag<graphicsmenu-main>*/ "graphicsmenu-main-vcdat"}
+          >
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle>
               <Container>
                 <Row>
                   <Col xs="auto">
                     <CustomInput
-                      id="vcsmenu-overlay-switch-vcdat"
                       type="switch"
-                      className={
-                        /*@tag<vcsmenu-overlay-switch>*/ "vcsmenu-overlay-switch-vcdat"
+                      id={
+                        /*@tag<graphics-overlay-switch>*/ "graphics-overlay-switch-vcdat"
                       }
                       name="overlayModeSwitch"
                       label="Overlay Mode"
-                      disabled={!this.state.plotReady || this.state.shouldAnimate}
-                      checked={this.props.overlayMode && !this.state.shouldAnimate}
+                      disabled={
+                        !this.state.plotReady || this.props.shouldAnimate
+                      }
+                      checked={this.props.overlayMode}
                       onChange={this.props.toggleOverlayMode}
                     />
                   </Col>
@@ -226,33 +232,32 @@ export default class GraphicsMenu extends React.Component<
                 <Row>
                   <Col xs="auto">
                     <CustomInput
-                      id="vcsmenu-sidecar-switch-vcdat"
                       type="switch"
-                      className={
-                        /*@tag<vcsmenu-sidecar-switch>*/ "vcsmenu-sidecar-switch-vcdat"
+                      id={
+                        /*@tag<graphics-sidecar-switch>*/ "graphics-sidecar-switch-vcdat"
                       }
                       name="sidecarSwitch"
                       label="Plot to Sidecar"
-                      disabled={!this.state.plotReady || this.state.shouldAnimate}
+                      disabled={
+                        !this.state.plotReady || this.props.shouldAnimate
+                      }
                       checked={
-                        this.props.currentDisplayMode === DISPLAY_MODE.Sidecar && !this.state.shouldAnimate
+                        this.props.currentDisplayMode === DISPLAY_MODE.Sidecar
                       }
                       onChange={this.props.toggleSidecar}
                     />
                   </Col>
                 </Row>
-                <AnimationMenu 
-                  className={
-                    /*@tag<graphicemenu-animation-switch>*/ "graphicemenu-animation-switch"
-                  }
+                <AnimationMenu
                   plotReady={this.state.plotReady}
-                  toggleAnimate={this.toggleAnimate}
+                  toggleAnimate={this.props.toggleAnimate}
                   toggleInverse={this.props.toggleAnimateInverse}
                   varTracker={this.props.varTracker}
                   updateAxisId={this.props.updateAnimateAxis}
                   updateRate={this.props.updateAnimateRate}
+                  shouldAnimate={this.props.shouldAnimate}
                   ref={loader => (this.animationMenuRef = loader)}
-                  />
+                />
               </Container>
             </CardSubtitle>
             <CardGroup className={"clearfix"}>
@@ -293,8 +298,9 @@ export default class GraphicsMenu extends React.Component<
                       return (
                         <DropdownItem
                           className={
-                            /*@tag<graphics-dropdown-item>*/ "graphics-dropdown-item-vcdat"
+                            /*@tag<graphics-method-group>*/ "graphics-method-group-vcdat"
                           }
+                          value={item}
                           onClick={clickMethodGroup}
                           key={item}
                         >
@@ -305,8 +311,9 @@ export default class GraphicsMenu extends React.Component<
                     return (
                       <DropdownItem
                         className={
-                          /*@tag<graphics-dropdown-item>*/ "graphics-dropdown-item-vcdat"
+                          /*@tag<graphics-method-group>*/ "graphics-method-group-vcdat"
                         }
+                        value={item}
                         onClick={clickMethod}
                         key={item}
                       >
