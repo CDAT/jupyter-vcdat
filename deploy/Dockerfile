@@ -2,7 +2,7 @@
 FROM aims2.llnl.gov/nimbus-basic:latest
 
 # Install Conda packages
-ARG conda_channels="-c conda-forge-c cdat/label/v82"
+ARG conda_channels="-c conda-forge -c cdat/label/v82"
 ARG conda_packages="pip vcs cdms2 tqdm nodejs 'python=3.7' 'jupyterlab=1.2.1' jupyterhub ipywidgets 'numpy=1.17'"
 RUN conda config --set remote_read_timeout_secs 120
 RUN conda config --set channel_priority strict

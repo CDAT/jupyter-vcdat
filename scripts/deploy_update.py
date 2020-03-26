@@ -96,7 +96,7 @@ def create_docker_script(template_in, docker_out):
     EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
     install_ext = create_extension_commands(EXTS, "RUN ")
 
-    CONDA_CHANNELS = BASE_CHANNELS + USER_CHANNELS
+    CONDA_CHANNELS = BASE_CHANNELS + " " + USER_CHANNELS
     # Combine all settings into dictonary for template to use
     data = {"_conda_channels": CONDA_CHANNELS, "_conda_pkgs": BASE_CONDA_PKGS,
             "_pip_install": _pip, "_install_extensions": install_ext}
