@@ -23,8 +23,6 @@ sample_data
 tests/.last_failure
 tests/**/__pycache__
 tests/*/*.pyc
-tests/.last_failure
-tests/Old*
 tests_html
 tests_workdir
 vcdat_animations

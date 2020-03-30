@@ -182,4 +182,4 @@ jupyter labextension install jupyterlab-favorites
 # Install jupyter-vcdat extension
 npm install
 jupyter lab build
-jupyter-labextension install .
+jupyter labextension install .

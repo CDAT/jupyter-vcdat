@@ -5,12 +5,11 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(this_dir, 'TestUtils'))
 sys.path.append(os.path.join(this_dir, 'PageObjects'))
 
-from BaseTestCase import BaseTestCase
 from VcdatPanel import VcdatPanel
+from BaseTestCase import BaseTestCase
+
 
 # To run these tests: npx task test -c test_vcdat_panel
-
-
 class TestVcdatPanel(BaseTestCase):
 
     def test_colormap_options(self):
@@ -65,7 +64,8 @@ class TestVcdatPanel(BaseTestCase):
 
         # Check graphics methods
         vcdat_panel.plot_type_item("boxfill", "robinson").scroll_click()
-        vcdat_panel.plot_type_item("scatter", "default_scatter_").scroll_click()
+        vcdat_panel.plot_type_item(
+            "scatter", "default_scatter_").scroll_click()
         vcdat_panel.plot_type_item("xvsy", "default").scroll_click()
         vcdat_panel.plot_type_item("3d_scalar", "Hovmoller3D").scroll_click()
         vcdat_panel.plot_type_item("xvsy", "a_1d").scroll_click()
