@@ -47,7 +47,7 @@ aliases:
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate jupyter-vcdat
-      npx task test --ready --chrome
+      npx task test -v --ready --chrome
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
       exit $RESULT
