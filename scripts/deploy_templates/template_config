@@ -69,7 +69,7 @@ aliases:
   - &conda_upload
     name: conda_upload
     environment:
-      CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
+      CHANNELS: "$_upload_channels"
     command: |
       export REPO_DIR=`pwd`
       export PKG_NAME=jupyter-vcdat
@@ -100,17 +100,17 @@ aliases:
       cd deploy
       echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
       echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
-      docker pull nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
-      docker build --no-cache --tag=cdat/vcdat:nightly .
-      docker image tag cdat/vcdat:nightly cdat/vcdat:$LOCAL_VCDAT_VERSION
-      docker push cdat/vcdat:$LOCAL_VCDAT_VERSION
-      docker push cdat/vcdat:nightly
+      docker pull $_base_image
+      docker build --no-cache --tag=$_vcdat_tag:nightly .
+      docker image tag $_vcdat_tag:nightly $_vcdat_tag:$LOCAL_VCDAT_VERSION
+      docker push $_vcdat_tag:$LOCAL_VCDAT_VERSION
+      docker push $_vcdat_tag:nightly
       docker logout
 
 jobs:
   publish:
     docker:
-      - image: nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
+      - image: $_base_image
     steps:
       - checkout
       - run: *check_vcdat_versions
@@ -121,7 +121,7 @@ jobs:
 
   linux_chrome:
     docker:
-      - image: selenium/node-chrome
+      - image: $_test_chrome_img
     environment:
       WORKDIR: "linux_chrome"
     steps:
@@ -140,7 +140,7 @@ jobs:
 
   linux_firefox:
     docker:
-      - image: selenium/node-firefox
+      - image: $_test_firefox_img
     environment:
       WORKDIR: "linux_firefox"
     steps:

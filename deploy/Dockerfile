@@ -1,5 +1,5 @@
 # This dockerfile will create a docker image for an official release
-FROM aims2.llnl.gov/nimbus-basic:latest
+FROM nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
 
 # Install Conda packages
 ARG conda_channels="-c conda-forge -c cdat/label/v82"

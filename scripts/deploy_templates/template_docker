@@ -1,5 +1,5 @@
 # This dockerfile will create a docker image for an official release
-FROM aims2.llnl.gov/nimbus-basic:latest
+FROM $_base_image
 
 # Install Conda packages
 ARG conda_channels="$_conda_channels"

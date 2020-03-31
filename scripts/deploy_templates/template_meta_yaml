@@ -11,21 +11,8 @@ build:
   noarch: python
 
 requirements:
-  host:
-    - jupyterlab
-    - nodejs
-    - pip
-    - python >=3.7
-  run:
-    - cdms2
-    - ipywidgets
-    - jupyterhub
-    - jupyterlab
-    - nb_conda
-    - nb_conda_kernels
-    - python >=3.7
-    - tqdm
-    - vcs
+  host:$_host_reqs
+  run:$_run_reqs
 
 about:
   home:  https://github.com/cdat/jupyter-vcdat

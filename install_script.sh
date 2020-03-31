@@ -11,7 +11,7 @@ FILENAME="jupyter-vcdat_logfile.txt"
 BASE_CHANNELS="-c conda-forge"
 
 # dev conda channels to use
-DEV_CHANNELS="-c cdat/label/v82" #Change to '-c cdat/label/nightly' when nightly is ready
+DEV_CHANNELS="-c cdat/label/nightly" #Change to '-c cdat/label/nightly' when nightly is ready
 
 # user conda channels (stable)
 USER_CHANNELS="-c cdat/label/v82"
@@ -182,4 +182,4 @@ jupyter labextension install jupyterlab-favorites
 # Install jupyter-vcdat extension
 npm install
 jupyter lab build
-jupyter labextension install .
+jupyter-labextension install .

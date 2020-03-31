@@ -3,6 +3,10 @@ aliases:
   - &setup_miniconda
     name: setup_miniconda
     command: |
+      ##mkdir -p workspace
+      ##git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+      # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
+      ##python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
       mkdir $WORKDIR
       cd $WORKDIR
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O Miniconda3-latest-Linux-x86_64.sh
@@ -100,7 +104,7 @@ aliases:
       cd deploy
       echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
       echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
-      docker pull nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
+      docker pull aims2.llnl.gov/nimbus-basic:latest
       docker build --no-cache --tag=cdat/vcdat:nightly .
       docker image tag cdat/vcdat:nightly cdat/vcdat:$LOCAL_VCDAT_VERSION
       docker push cdat/vcdat:$LOCAL_VCDAT_VERSION
@@ -110,7 +114,7 @@ aliases:
 jobs:
   publish:
     docker:
-      - image: nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
+      - image: aims2.llnl.gov/nimbus-basic:latest
     steps:
       - checkout
       - run: *check_vcdat_versions
