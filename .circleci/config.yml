@@ -61,10 +61,7 @@ aliases:
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate jupyter-vcdat
-      #npx task test -v --ready --firefox
-      python run_tests.py -H -v 2 tests/test_about_page.py
-      python run_tests.py -H -v 2 tests/test_main_page.py
-      python run_tests.py -H -v 2 tests/test_vcdat_panel.py
+      npx task test -v --ready --firefox
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
       exit $RESULT

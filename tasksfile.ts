@@ -642,7 +642,7 @@ async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
     if (TESTS[test]) {
       // Test is a testGroup, process based on whether verbose or not
       if (verbose) {
-        // This calls a one line command for the group along
+        // This calls a one line command for the group
         testData[test] = [];
       } else {
         // This will call a nosetest command for each test in the group

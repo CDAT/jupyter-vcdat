@@ -49,7 +49,7 @@ class TestVcdatPanel(BaseTestCase):
         # Check each locator
         print("Testing graphics options...")
 
-        # Check graphics group options available)
+        # Check graphics group options available
         vcdat_panel.plot_type_btn().needs_to_be("enabled").click()
         vcdat_panel.plot_type_group("boxfill").scroll_click()
         vcdat_panel.plot_type_group("scatter").scroll_click()
