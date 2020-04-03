@@ -159,16 +159,16 @@ class MainPage(ActionsPage):
     # Will create a new notebook and rename it using the file menu
     def create_notebook(self, notebook_name):
         # Create notebook
-        self.sub_menu_item("File", "New", "Notebook").click()
-        self.dialog_btn("Select").attempt().click()
+        self.sub_menu_item("File", "New", "Notebook").click().sleep(2)
+        self.dialog_btn("Select").attempt().click().sleep(2)
         self.rename_notebook(notebook_name)
 
     def rename_notebook(self, new_name):
         # Rename notebook
-        self.top_menu_item("File", "Rename").click().sleep(2)
+        self.top_menu_item("File", "Rename").click().sleep(3)
         self.dialog_input("Rename").enter_text(
-            "{}.ipynb".format(new_name)).press_enter().sleep(2)
-        self.dialog_btn("Overwrite").attempt().click().sleep(2)
+            "{}.ipynb".format(new_name)).press_enter().sleep(3)
+        self.dialog_btn("Overwrite").attempt().click().sleep(3)
 
     # Will save current notebook if one is open
 
