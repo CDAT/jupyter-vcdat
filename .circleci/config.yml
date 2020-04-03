@@ -99,7 +99,7 @@ aliases:
     command: |
       cd deploy
       echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
-      echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
+      echo "$DOCKER_TOKEN2" | docker login $DOCKER_IMAGE_SOURCE --username $DOCKER_USER --password-stdin
       docker pull $DOCKER_BASE_IMAGE
       docker build --no-cache --tag=cdat/vcdat:nightly .
       docker image tag cdat/vcdat:nightly cdat/vcdat:$LOCAL_VCDAT_VERSION
