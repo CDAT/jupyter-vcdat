@@ -99,7 +99,7 @@ aliases:
     command: |
       cd deploy
       echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
-      echo "$DOCKER_TOKEN2" | docker login $DOCKER_IMAGE_SOURCE --username $DOCKER_USER --password-stdin
+      echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
       docker pull $DOCKER_BASE_IMAGE
       docker build --no-cache --tag=cdat/vcdat:nightly .
       docker image tag cdat/vcdat:nightly cdat/vcdat:$LOCAL_VCDAT_VERSION
@@ -113,11 +113,11 @@ jobs:
       - image: nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
     steps:
       - checkout
-      #- run: *check_vcdat_versions
-      #- run: *npm_publish
+      - run: *check_vcdat_versions
+      - run: *npm_publish
       - setup_remote_docker
       - run: *docker_publish
-      #- run: *conda_upload
+      - run: *conda_upload
 
   linux_chrome:
     docker:
@@ -161,4 +161,12 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - publish
+      - linux_chrome
+      - linux_firefox
+      - publish:
+          requires:
+            - linux_chrome
+            - linux_firefox
+          filters:
+            branches:
+              only: master
