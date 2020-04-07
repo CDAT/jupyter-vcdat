@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from ActionsPage import ActionsPage
 
 """
@@ -159,9 +160,10 @@ class MainPage(ActionsPage):
     # Will create a new notebook and rename it using the file menu
     def create_notebook(self, notebook_name):
         # Create notebook
-        self.sub_menu_item("File", "New", "Notebook").click().sleep(2)
+        self.sub_menu_item("File", "New", "Notebook").click()
         self.dialog_btn("Select").attempt().click().sleep(2)
         self.rename_notebook(notebook_name)
+        time.sleep(4)
 
     def rename_notebook(self, new_name):
         # Rename notebook

@@ -110,7 +110,7 @@ aliases:
 jobs:
   publish:
     docker:
-      - image: $_base_image
+      - image: $DOCKER_BASE_IMAGE
     steps:
       - checkout
       - run: *check_vcdat_versions

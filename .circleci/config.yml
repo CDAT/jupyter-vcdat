@@ -110,7 +110,7 @@ aliases:
 jobs:
   publish:
     docker:
-      - image: nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
+      - image: $DOCKER_BASE_IMAGE
     steps:
       - checkout
       - run: *check_vcdat_versions
