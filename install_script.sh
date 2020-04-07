@@ -11,13 +11,13 @@ FILENAME="jupyter-vcdat_logfile.txt"
 BASE_CHANNELS="-c conda-forge"
 
 # dev conda channels to use
-DEV_CHANNELS="-c cdat/label/nightly" #Change to '-c cdat/label/nightly' when nightly is ready
+DEV_CHANNELS="-c cdat/label/nightly"
 
 # user conda channels (stable)
-USER_CHANNELS="-c cdat/label/v82"
+USER_CHANNELS="-c cdat/label/nightly"
 
 # base packages
-BASE_CONDA_PKGS="pip vcs cdms2 tqdm nodejs 'python=3.7' 'jupyterlab=1.2.1' jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS="pip vcs cdms2 tqdm nodejs 'python=3.7' 'libnetcdf=4.7.3' 'jupyterlab=1.2' jupyterhub ipywidgets 'numpy=1.17'"
 
 # dev and test packages
 DEV_CONDA_PKGS="testsrunner cdat_info"

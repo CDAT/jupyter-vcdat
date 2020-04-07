@@ -11,7 +11,7 @@ FILENAME="jupyter-vcdat_logfile.txt"
 BASE_CHANNELS="$_base_channels"
 
 # dev conda channels to use
-DEV_CHANNELS="$_dev_channels" #Change to '-c cdat/label/nightly' when nightly is ready
+DEV_CHANNELS="$_dev_channels"
 
 # user conda channels (stable)
 USER_CHANNELS="$_user_channels"
