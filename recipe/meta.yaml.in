@@ -15,14 +15,14 @@ requirements:
     - jupyterlab
     - nodejs
     - pip
-    - python>=3.7
+    - 'python>=3.7'
   run:
     - cdms2
     - ipywidgets
     - jupyterhub
     - 'jupyterlab=1.2'
     - nb_conda
-    - libnetcdf=4.7.3
+    - 'libnetcdf=4.7.3'
     - nb_conda_kernels
     - 'python>=3.7'
     - tqdm

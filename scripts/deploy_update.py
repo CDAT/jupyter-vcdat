@@ -18,11 +18,11 @@ TEST_FIREFOX_IMAGE = "selenium/node-firefox"
 VCDAT_IMAGE_TAG = "cdat/vcdat"
 
 # Host requirements for conda package
-HOST_REQUIREMENTS = ["jupyterlab", "nodejs", "pip", "python>=3.7"]
+HOST_REQUIREMENTS = ["jupyterlab", "nodejs", "pip", "'python>=3.7'"]
 
 # Run requirements for conda package
 RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "'jupyterlab=1.2'", "nb_conda",
-                    "libnetcdf=4.7.3", "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
+                    "'libnetcdf=4.7.3'", "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
 
 # base conda channels (always added)
 BASE_CHANNELS = "-c conda-forge"

@@ -1,5 +1,5 @@
-from __future__ import annotations
 import time
+import os
 from Actions import Action, Actions
 from selenium.common.exceptions import NoSuchElementException
 
@@ -24,6 +24,23 @@ class Locator(Actions):
         self.__reset_defaults__()
 
     """--------------- Helper Functions ---------------"""
+
+    def __save_screenshot__(self, name=""):
+        if name == "" and self.description != "":
+            name = "[{}]_not_found.png".format(self.description)
+            i = 0  # Value to add to filename to prevent overriding
+            while os.path.exists(name):
+                name = "[{}]_not_found{}.png".format(self.description, i)
+                i += 1
+        else:
+            name = "element_not_found.png"
+            while os.path.exists(name):
+                name = "element_not_found{}.png".format(i)
+                i += 1
+        try:
+            self.driver.save_screenshot(name)
+        except Exception:
+            print("Screenshot could not be saved...")
 
     def __reset_defaults__(self):
         # Action Modifier, will modify how action is performed if set to true
@@ -129,6 +146,7 @@ class Locator(Actions):
             return self.driver.find_element(method, locator)
         except NoSuchElementException as e:
             if show_error:
+                self.__save_screenshot__()
                 raise(e)
             return None
 
@@ -176,6 +194,7 @@ class Locator(Actions):
                     self.__describe__(self.description, True)
                 else:
                     # After preparing, element still not valid
+                    self.__save_screenshot__()
                     self.__describe__(self.description, False)
                     raise NoSuchElementException(
                         "Element {} is still not ready. ".format(
@@ -183,6 +202,7 @@ class Locator(Actions):
                     )
             else:
                 # Nothing to prepare, element was not found
+                self.__save_screenshot__()
                 self.__describe__(self.description, False)
                 raise NoSuchElementException(
                     "Element {} could not be prepared.".format(
