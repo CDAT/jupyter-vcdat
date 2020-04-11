@@ -30,13 +30,19 @@ class Locator(Actions):
             name = "[{}]_not_found.png".format(self.description)
             i = 0  # Value to add to filename to prevent overriding
             while os.path.exists(name):
+                i += 1
                 name = "[{}]_not_found{}.png".format(self.description, i)
-                i += 1
-        else:
+        elif name == "":
             name = "element_not_found.png"
+            i = 0
             while os.path.exists(name):
-                name = "element_not_found{}.png".format(i)
                 i += 1
+                name = "element_not_found{}.png".format(i)
+        else:
+            i = 0
+            while os.path.exists(name):
+                i += 1
+                name = "{}{}.png".format(name, i)
         try:
             self.driver.save_screenshot(name)
         except Exception:

@@ -49,6 +49,14 @@ const TESTS: { [name: string]: string[] } = {
     "test_export_plot_html_via_nbconvert",
     "test_export_plot_html_via_nbconvert_execute"
   ],*/
+  // These tests were OBSOLETE and removed, but should be re-implemented
+  // View previous commits to master if you need to reference them.
+  /*
+  test_edit_axis_locators:[],
+  test_load_a_variable:[],
+  test_load_variables_popup:[],
+  test_plots:[]
+  */
   test_vcdat_panel: [
     "TestVcdatPanel",
     "test_top_level",

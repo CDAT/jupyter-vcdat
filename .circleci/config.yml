@@ -12,6 +12,7 @@ aliases:
     name: setup_jupyter_vcdat
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate base
       ./install_script.sh -v -d
 
   - &check_vcdat_versions

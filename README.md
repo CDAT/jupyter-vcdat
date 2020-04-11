@@ -103,7 +103,7 @@ Change into the directory containing the repo and type in the following commands
 
     # The following two lines of code install tslint if developers want to use it (optional):
       # For VSCode:
-       code --install-extension tslint
+      code --install-extension tslint
 
       # For Atom:
       apm install linter-tslint
