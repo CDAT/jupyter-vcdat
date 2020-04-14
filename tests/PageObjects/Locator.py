@@ -26,20 +26,18 @@ class Locator(Actions):
     """--------------- Helper Functions ---------------"""
 
     def __save_screenshot__(self, name=""):
+        i = 0 # Value to add to filename to prevent overriding
         if name == "" and self.description != "":
             name = "[{}]_not_found.png".format(self.description)
-            i = 0  # Value to add to filename to prevent overriding
             while os.path.exists(name):
                 i += 1
                 name = "[{}]_not_found{}.png".format(self.description, i)
         elif name == "":
             name = "element_not_found.png"
-            i = 0
             while os.path.exists(name):
                 i += 1
                 name = "element_not_found{}.png".format(i)
         else:
-            i = 0
             while os.path.exists(name):
                 i += 1
                 name = "{}{}.png".format(name, i)

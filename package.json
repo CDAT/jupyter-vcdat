@@ -30,7 +30,7 @@
     "watch": "tsc -w",
     "task": "ts-node ./tasksfile.ts",
     "link": "jupyter labextension link . --nobuild",
-    "prepare": "npm run clean &&npm run build",
+    "prepare": "npm run clean && npm run build",
     "scss-watch": "node-sass --watch style/scss -o style/css",
     "scss": "node-sass style/scss -o style/css",
     "tslint-check": "npx tslint-config-prettier-check ./tslint.json"
