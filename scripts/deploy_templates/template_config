@@ -111,6 +111,9 @@ jobs:
   publish:
     docker:
       - image: $DOCKER_BASE_IMAGE
+      auth:
+        username: $DOCKER_USER  
+        password: $DOCKER_TOKEN2
     steps:
       - checkout
       - run: *check_vcdat_versions
