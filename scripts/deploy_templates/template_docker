@@ -1,0 +1,20 @@
+# This dockerfile will create a docker image for an official release
+FROM $_base_image
+
+# Install Conda packages
+ARG conda_channels="$_conda_channels"
+ARG conda_packages="$_conda_pkgs"
+RUN conda config --set remote_read_timeout_secs 120
+RUN conda config --set channel_priority strict
+RUN conda install --force -y ${conda_channels} ${conda_packages}
+RUN conda clean -y --all
+
+# Install pip packages
+$_pip_install
+
+# Install JupyterLab extensions
+$_install_extensions
+
+# Our extension needs to be built from npm repo otherwise jupyter-lab
+# tries to write into image and shifter does not let us do this.
+RUN jupyter labextension install jupyter-vcdat@nightly

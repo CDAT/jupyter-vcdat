@@ -8,19 +8,19 @@
 FILENAME="jupyter-vcdat_logfile.txt"
 
 # base conda channels
-BASE_CHANNELS="-c conda-forge"
+BASE_CHANNELS="$_base_channels"
 
 # dev conda channels to use
-DEV_CHANNELS="-c cdat/label/nightly"
+DEV_CHANNELS="$_dev_channels"
 
 # user conda channels (stable)
-USER_CHANNELS="-c cdat/label/nightly"
+USER_CHANNELS="$_user_channels"
 
 # base packages
-BASE_CONDA_PKGS="pip vcs cdms2 tqdm nodejs 'python=3.7' 'libnetcdf=4.7.3' 'jupyterlab=1.2' jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS="$_base_conda_pkgs"
 
 # dev and test packages
-DEV_CONDA_PKGS="testsrunner cdat_info"
+DEV_CONDA_PKGS="$_dev_conda_pkgs"
 
 # default env name
 REQUESTED_ENV_NAME="jupyter-vcdat"
@@ -164,20 +164,15 @@ else
 fi
 
 # Install sidecar
-python -m pip install sidecar || pip install sidecar
+$_base_pip_install
 
 # Install dev packages if needed
 if [ $INSTALL_MODE == "DEV" ]; then
-	python -m pip install selenium || pip install selenium
-	python -m pip install pyvirtualdisplay || pip install pyvirtualdisplay
+$_dev_pip_install
 fi
 
 # Install extensions
-jupyter labextension install @jupyter-widgets/jupyterlab-manager
-jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
-jupyter labextension install jupyterlab-tutorial-extension
-jupyter labextension install @jupyterlab/hub-extension
-jupyter labextension install jupyterlab-favorites
+$_install_extensions
 
 # Install jupyter-vcdat extension
 npm install

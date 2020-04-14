@@ -98,7 +98,9 @@ export default class AboutVCDAT extends React.Component<
                 <Col>
                   <h4 className="text-info">
                     Version{" "}
-                    <span className={/*@tag<about-version>*/ "about-version-vcdat"}>
+                    <span
+                      className={/*@tag<about-version>*/ "about-version-vcdat"}
+                    >
                       {this.props.version}
                     </span>
                   </h4>
@@ -113,7 +115,9 @@ export default class AboutVCDAT extends React.Component<
           <Row>
             <Col>
               <a
-                className={/*@tag<text-muted about-contributors>*/ "text-muted about-contributors-vcdat"}
+                className={
+                  /*@tag<text-muted about-contributors>*/ "text-muted about-contributors-vcdat"
+                }
                 target="_blank"
                 href="https://github.com/CDAT/jupyter-vcdat/graphs/contributors"
               >
@@ -122,7 +126,9 @@ export default class AboutVCDAT extends React.Component<
             </Col>
             <Col style={{ textAlign: "right" }}>
               <a
-                className={/*@tag<text-muted about-documentation>*/ "text-muted about-documentation-vcdat"}
+                className={
+                  /*@tag<text-muted about-documentation>*/ "text-muted about-documentation-vcdat"
+                }
                 target="_blank"
                 href="https://github.com/CDAT/jupyter-vcdat/wiki"
               >

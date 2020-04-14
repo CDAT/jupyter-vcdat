@@ -99,11 +99,11 @@ Change into the directory containing the repo and type in the following commands
 ```bash
 
     #Create the environment
-    ./scripts/install_script.sh #Note: You can use -h to get help and options for installation script.
+    ./install_script.sh #Note: You can use -h to get help and options for installation script.
 
     # The following two lines of code install tslint if developers want to use it (optional):
       # For VSCode:
-       code --install-extension tslint
+      code --install-extension tslint
 
       # For Atom:
       apm install linter-tslint

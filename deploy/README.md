@@ -58,6 +58,7 @@ npm publish
 ```
 ## Docker Image Build and publish:
 
+- NOTE: THIS WILL BUILD USING THE LATEST PUBLISHED NPM NIGHTLY VERSION OF VCDAT EXTENSION.
 - Build docker image:
 ```bash
 #Do this within the deploy directory
@@ -78,7 +79,7 @@ docker image tag cdat/vcdat:<new version> cdat/vcdat:latest
 docker push cdat/vcdat:latest
 ```
 
-# Docker Image Build for local testing:
+# Docker Image Build With Local Extension:
 
 - Build docker image from local branch:
 ```bash

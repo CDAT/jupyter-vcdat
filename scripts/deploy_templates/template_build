@@ -1,0 +1,6 @@
+#!/bin/sh
+conda list
+$_pip
+$_install_ext
+npm install
+jupyter lab build

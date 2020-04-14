@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from ActionsPage import ActionsPage
 
 """
@@ -114,13 +115,11 @@ class MainPage(ActionsPage):
     def sub_menu_item(self, top_menu, sub_menu, item, descr=""):
         if descr == "":
             descr = item
-
         if self.browser == "firefox":
             print("---Firefox steps---")
             # Firefox needed steps to correctly click the element
             self.top_menu(top_menu).simple_click()
             self.top_menu_item(top_menu, sub_menu).move_to(10, 20).click()
-
         requires = self.top_menu_item(top_menu, sub_menu)
         loc = "//div[@class='p-Widget p-Menu']//li/div[@class='p-Menu-itemLabel']"
         loc += "[contains(text(),'{i}')]".format(i=item)
@@ -162,15 +161,16 @@ class MainPage(ActionsPage):
     def create_notebook(self, notebook_name):
         # Create notebook
         self.sub_menu_item("File", "New", "Notebook").click()
-        self.dialog_btn("Select").attempt().click()
+        self.dialog_btn("Select").attempt().click().sleep(2)
         self.rename_notebook(notebook_name)
+        time.sleep(4)
 
     def rename_notebook(self, new_name):
         # Rename notebook
-        self.top_menu_item("File", "Rename").click().sleep(2)
+        self.top_menu_item("File", "Rename").click().sleep(3)
         self.dialog_input("Rename").enter_text(
-            "{}.ipynb".format(new_name)).press_enter().sleep(2)
-        self.dialog_btn("Overwrite").attempt().click().sleep(2)
+            "{}.ipynb".format(new_name)).press_enter().sleep(3)
+        self.dialog_btn("Overwrite").attempt().click().sleep(3)
 
     # Will save current notebook if one is open
 
