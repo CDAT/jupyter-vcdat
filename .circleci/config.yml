@@ -132,11 +132,11 @@ jobs:
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
-      - run: sleep 15
-      - run: *run_tests_with_chrome
-      - store_artifacts:
-          path: tests_html
-          destination: tests_chrome_html
+      #- run: sleep 15
+      #- run: *run_tests_with_chrome
+      #- store_artifacts:
+      #    path: tests_html
+      #    destination: tests_chrome_html
 
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload
@@ -151,11 +151,11 @@ jobs:
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
-      - run: sleep 15
-      - run: *run_tests_with_firefox
-      - store_artifacts:
-          path: tests_html
-          destination: tests_firefox_html
+      #- run: sleep 15
+      #- run: *run_tests_with_firefox
+      #- store_artifacts:
+      #    path: tests_html
+      #    destination: tests_firefox_html
 
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload
@@ -164,4 +164,9 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - publish
+      - linux_chrome
+      - linux_firefox
+      - publish:
+          requires:
+            - linux_chrome
+            - linux_firefox
