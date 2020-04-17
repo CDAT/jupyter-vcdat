@@ -1,6 +1,4 @@
-# import glob
 import os
-# import pathlib
 import subprocess
 from string import Template
 
@@ -18,10 +16,10 @@ TEST_FIREFOX_IMAGE = "selenium/node-firefox"
 VCDAT_IMAGE_TAG = "cdat/vcdat"
 
 # Host requirements for conda package
-HOST_REQUIREMENTS = ["jupyterlab", "nodejs", "pip", "'python>=3.7'"]
+HOST_REQUIREMENTS = ["'jupyterlab=1.2.10'", "nodejs", "pip", "'python>=3.7'"]
 
 # Run requirements for conda package
-RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "'jupyterlab=1.2'", "nb_conda",
+RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "'jupyterlab=1.2.10'", "nb_conda",
                     "'libnetcdf=4.7.3'", "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
 
 # base conda channels (always added)
@@ -41,7 +39,7 @@ EXTRA_CHANNELS = "-c pcmdi/label/nightly"
 
 # base packages (always added)
 BASE_CONDA_PKGS = "pip vcs cdms2 tqdm nodejs 'python=3.7' 'libnetcdf=4.7.3'"
-BASE_CONDA_PKGS += " 'jupyterlab=1.2' jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS += " 'jupyterlab=1.2.10' jupyterhub ipywidgets 'numpy=1.17'"
 
 # extra packages ( Not included by default )
 EXTRA_PACKAGES = "vcsaddons thermo cmor eofs windspharm autopep8 mesalib "
