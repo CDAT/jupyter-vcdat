@@ -3,7 +3,7 @@ import {
   ABCWidgetFactory,
   DocumentRegistry,
   DocumentWidget,
-  IDocumentWidget
+  IDocumentWidget,
 } from "@jupyterlab/docregistry";
 
 import { INotebookTracker, NotebookTracker } from "@jupyterlab/notebook";
@@ -12,16 +12,16 @@ import {
   ILabShell,
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
-  LabShell
+  LabShell,
 } from "@jupyterlab/application";
 
-import { ISettingRegistry } from "@jupyterlab/coreutils";
+import { ISettingRegistry } from "@jupyterlab/settingregistry";
 
 import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
 import {
   ITutorial,
   ITutorialManager,
-  TutorialDefault
+  TutorialDefault,
 } from "jupyterlab-tutorial";
 
 // Project Components
@@ -54,8 +54,8 @@ const extension: JupyterFrontEndPlugin<void> = {
     IMainMenu,
     ILabShell,
     ITutorialManager,
-    ISettingRegistry
-  ]
+    ISettingRegistry,
+  ],
 };
 
 export default extension;
@@ -78,7 +78,7 @@ function activate(
     defaultFor: [FILETYPE],
     fileTypes: [FILETYPE],
     name: FACTORY_NAME,
-    readOnly: true
+    readOnly: true,
   });
 
   const ft: DocumentRegistry.IFileType = {
@@ -86,7 +86,7 @@ function activate(
     extensions: EXTENSIONS,
     fileFormat: "base64",
     mimeTypes: ["application/netcdf"],
-    name: FILETYPE
+    name: FILETYPE,
   };
 
   app.docRegistry.addFileType(ft);
@@ -95,10 +95,10 @@ function activate(
   // Creates the left side bar widget once the app has fully started
   app.started
     .then(() => {
-      settings.load("jupyter-vcdat:extension").then(loadedSettings => {
+      settings.load("jupyter-vcdat:extension").then((loadedSettings) => {
         const appSettings: AppSettings = new AppSettings(loadedSettings);
         sidebar = new LeftSideBarWidget(app, labShell, tracker, appSettings);
-        sidebar.id = /*@tag<left-side-bar>*/ "left-side-bar-vcdat";
+        sidebar.id = /* @tag<left-side-bar>*/ "left-side-bar-vcdat";
         sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
         sidebar.title.closable = true;
 
@@ -109,7 +109,7 @@ function activate(
         shell.activateById(sidebar.id);
       });
     })
-    .catch(error => {
+    .catch((error) => {
       console.error(error);
     });
 
@@ -151,7 +151,7 @@ function activate(
 
       sidebar.initialize();
     })
-    .catch(error => {
+    .catch((error) => {
       console.error(error);
     });
 }
@@ -160,19 +160,19 @@ function initializeTutorial(
   tutorial: ITutorial,
   steps: Step[],
   handler: (tutorial: ITutorial) => void
-) {
+): void {
   tutorial.steps = Utilities.deepCopy(steps);
 
-  function clickListenerOn(t: ITutorial) {
-    shell.node.onclick = () => {
+  function clickListenerOn(t: ITutorial): void {
+    shell.node.onclick = (): void => {
       handler(t);
     };
   }
-  function clickListenerOff() {
+  function clickListenerOff(): void {
     shell.node.onclick = null;
   }
 
-  function stepChangedHandler(t: ITutorial) {
+  function stepChangedHandler(t: ITutorial): void {
     handler(t);
   }
 
@@ -203,7 +203,7 @@ function getStepForIndex(index: number, alternate: boolean): Step {
   return Utilities.deepCopy(GETTING_STARTED[index]);
 }
 
-function updateIntroTutorial(tutorial: ITutorial) {
+function updateIntroTutorial(tutorial: ITutorial): void {
   if (tutorial.currentStepIndex >= 0) {
     const newStep: Step = getStepForIndex(
       tutorial.currentStepIndex,
@@ -233,7 +233,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
     shell.activateById(sidebar.id);
 
     // Prepare the notebook for code injection
-    sidebar.prepareNotebookPanel(context.session.path).catch(error => {
+    sidebar.prepareNotebookPanel(context.sessionContext.path).catch((error) => {
       if (error.status === "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
       } else if (error.message) {

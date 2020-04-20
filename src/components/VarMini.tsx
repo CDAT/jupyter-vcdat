@@ -1,6 +1,6 @@
 // Dependencies
 import * as React from "react";
-import { ISignal } from "@phosphor/signaling";
+import { ISignal } from "@lumino/signaling";
 import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Alert,
@@ -16,7 +16,7 @@ import {
   Modal,
   ModalBody,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
 } from "reactstrap";
 
 // Project Components
@@ -31,20 +31,20 @@ import VariableTracker from "../VariableTracker";
 import { boundMethod } from "autobind-decorator";
 
 const axisStyle: React.CSSProperties = {
-  marginLeft: ".5em"
+  marginLeft: ".5em",
 };
 const badgeStyle: React.CSSProperties = {
   margin: "auto",
-  marginLeft: "0.5em"
+  marginLeft: "0.5em",
 };
 
 const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
-  overflow: "auto"
+  overflow: "auto",
 };
 
 // Regex filter for unallowed variable names
-const forbidden: RegExp = /^[^a-z_]|[^a-z0-9_]+/i;
+const forbidden = /^[^a-z_]|[^a-z0-9_]+/i;
 
 interface IVarMiniProps {
   buttonColor: string; // The hex value for the color
@@ -108,7 +108,7 @@ export default class VarMini extends React.Component<
       showAxis: false,
       showSaveModal: false,
       validateFileName: false,
-      variable: this.props.variable
+      variable: this.props.variable,
     };
   }
 
@@ -135,14 +135,14 @@ export default class VarMini extends React.Component<
       showAxis: false,
       showSaveModal: false,
       validateFileName: false,
-      variable: this.props.variable
+      variable: this.props.variable,
     });
   }
 
   @boundMethod
   public updateSelections(): void {
     this.setState({
-      selected: this.props.isSelected(this.state.variable.varID)
+      selected: this.props.isSelected(this.state.variable.varID),
     });
   }
 
@@ -153,7 +153,7 @@ export default class VarMini extends React.Component<
   public openMenu(): void {
     if (!this.state.showAxis) {
       this.setState({
-        showAxis: true
+        showAxis: true,
       });
     }
   }
@@ -165,7 +165,7 @@ export default class VarMini extends React.Component<
   public toggleModal(): void {
     this.props.modalOpen(!this.state.showAxis);
     this.setState({
-      showAxis: !this.state.showAxis
+      showAxis: !this.state.showAxis,
     });
   }
 
@@ -184,7 +184,7 @@ export default class VarMini extends React.Component<
       activateShuffle: false,
       deflateValue: 0,
       filename: "",
-      showSaveModal: !this.state.showSaveModal
+      showSaveModal: !this.state.showSaveModal,
     });
   }
 
@@ -194,7 +194,7 @@ export default class VarMini extends React.Component<
   @boundMethod
   public toggleShuffle(): void {
     this.setState({
-      activateShuffle: !this.state.activateShuffle
+      activateShuffle: !this.state.activateShuffle,
     });
   }
 
@@ -205,12 +205,12 @@ export default class VarMini extends React.Component<
   public toggleDeflate(): void {
     this.setState(
       {
-        activateDeflate: !this.state.activateDeflate
+        activateDeflate: !this.state.activateDeflate,
       },
       () => {
         if (!this.state.activateDeflate) {
           this.setState({
-            deflateValue: 0
+            deflateValue: 0,
           });
         }
       }
@@ -223,32 +223,34 @@ export default class VarMini extends React.Component<
   @boundMethod
   public toggleAppend(): void {
     this.setState({
-      activateAppend: !this.state.activateAppend
+      activateAppend: !this.state.activateAppend,
     });
   }
 
   @boundMethod
-  public onFilenameChange(event: React.ChangeEvent<HTMLInputElement>) {
+  public onFilenameChange(event: React.ChangeEvent<HTMLInputElement>): void {
     this.setState({ filename: event.target.value });
   }
 
   @boundMethod
-  public updateDeflateValue(event: React.ChangeEvent<HTMLInputElement>) {
+  public updateDeflateValue(event: React.ChangeEvent<HTMLInputElement>): void {
     this.setState({ deflateValue: parseInt(event.target.value, 10) });
   }
 
   @boundMethod
-  public updateNewVariableName(event: React.ChangeEvent<HTMLInputElement>) {
+  public updateNewVariableName(
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void {
     this.setState({ newVariableSaveName: event.target.value });
   }
 
   @boundMethod
-  public dismissFilenameValidation() {
+  public dismissFilenameValidation(): void {
     this.setState({ validateFileName: false });
   }
 
   @boundMethod
-  public async save() {
+  public async save(): Promise<void> {
     const splitFileName = this.state.filename.split(".");
 
     if (!this.state.filename) {
@@ -309,11 +311,11 @@ export default class VarMini extends React.Component<
       <div>
         <div
           className={
-            /*@tag<clearfix varmini-main>*/ "clearfix varmini-main-vcdat"
+            /* @tag<clearfix varmini-main>*/ "clearfix varmini-main-vcdat"
           }
         >
           <Button
-            className={/*@tag<varmini-name-btn>*/ "varmini-name-btn-vcdat"}
+            className={/* @tag<varmini-name-btn>*/ "varmini-name-btn-vcdat"}
             outline={true}
             color={"success"}
             active={this.props.isSelected(this.state.variable.varID)}
@@ -326,14 +328,14 @@ export default class VarMini extends React.Component<
                 disabled={true}
                 style={{
                   ...badgeStyle,
-                  ...{ backgroundColor: this.props.buttonColor }
+                  ...{ backgroundColor: this.props.buttonColor },
                 }}
               >
                 {Utilities.numToOrdStr(this.props.selectOrder)}
               </Button>
             )}
             <Button
-              className={/*@tag<varmini-edit-btn>*/ "varmini-edit-btn-vcdat"}
+              className={/* @tag<varmini-edit-btn>*/ "varmini-edit-btn-vcdat"}
               outline={true}
               // style={axisStyle}
               title={
@@ -374,7 +376,7 @@ export default class VarMini extends React.Component<
             Edit Variable: {this.state.variable.alias}
           </ModalHeader>
           <ModalBody
-            className={/*@tag<varmini-edit-modal>*/ "varmini-edit-modal-vcdat"}
+            className={/* @tag<varmini-edit-modal>*/ "varmini-edit-modal-vcdat"}
           >
             <Card>
               <CardBody>
@@ -419,7 +421,7 @@ export default class VarMini extends React.Component<
           <ModalFooter>
             <Button
               className={
-                /*@tag<varmini-update-btn>*/ "varmini-update-btn-vcdat"
+                /* @tag<varmini-update-btn>*/ "varmini-update-btn-vcdat"
               }
               color="primary"
               onClick={this.handleUpdateClick}

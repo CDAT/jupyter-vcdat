@@ -7,7 +7,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  Row
+  Row,
 } from "reactstrap";
 import { boundMethod } from "autobind-decorator";
 
@@ -26,7 +26,7 @@ const modalStyling: React.CSSProperties = {
   top: "50%",
   transform: "translate(-50%, -50%)",
   verticalAlign: "middle",
-  width: "400px"
+  width: "400px",
 };
 
 const copyrightStyling: React.CSSProperties = {
@@ -35,14 +35,14 @@ const copyrightStyling: React.CSSProperties = {
   fontWeight: "bold",
   left: 0,
   margin: 0,
-  position: "absolute"
+  position: "absolute",
 };
 
 const iconStyling: React.CSSProperties = {
   backgroundImage: `url(${require("../../style/icons/cdat_icon_colored.png")})`,
   backgroundSize: "100px",
   height: "100px",
-  width: "100px"
+  width: "100px",
 };
 
 const YEAR: number = new Date().getFullYear();
@@ -54,7 +54,7 @@ export default class AboutVCDAT extends React.Component<
   constructor(props: IAboutProps) {
     super(props);
     this.state = {
-      modalOpen: false
+      modalOpen: false,
     };
   }
 
@@ -82,7 +82,7 @@ export default class AboutVCDAT extends React.Component<
         size="lg"
       >
         <ModalHeader
-          className={/*@tag<about-modal-header>*/ "about-modal-header-vcdat"}
+          className={/* @tag<about-modal-header>*/ "about-modal-header-vcdat"}
         >
           <Row>
             <Col>
@@ -99,7 +99,7 @@ export default class AboutVCDAT extends React.Component<
                   <h4 className="text-info">
                     Version{" "}
                     <span
-                      className={/*@tag<about-version>*/ "about-version-vcdat"}
+                      className={/* @tag<about-version>*/ "about-version-vcdat"}
                     >
                       {this.props.version}
                     </span>
@@ -110,15 +110,16 @@ export default class AboutVCDAT extends React.Component<
           </Row>
         </ModalHeader>
         <ModalBody
-          className={/*@tag<about-modal-body>*/ "about-modal-body-vcdat"}
+          className={/* @tag<about-modal-body>*/ "about-modal-body-vcdat"}
         >
           <Row>
             <Col>
               <a
                 className={
-                  /*@tag<text-muted about-contributors>*/ "text-muted about-contributors-vcdat"
+                  /* @tag<text-muted about-contributors>*/ "text-muted about-contributors-vcdat"
                 }
                 target="_blank"
+                rel="noopener noreferrer"
                 href="https://github.com/CDAT/jupyter-vcdat/graphs/contributors"
               >
                 Contributors
@@ -127,9 +128,10 @@ export default class AboutVCDAT extends React.Component<
             <Col style={{ textAlign: "right" }}>
               <a
                 className={
-                  /*@tag<text-muted about-documentation>*/ "text-muted about-documentation-vcdat"
+                  /* @tag<text-muted about-documentation>*/ "text-muted about-documentation-vcdat"
                 }
                 target="_blank"
+                rel="noopener noreferrer"
                 href="https://github.com/CDAT/jupyter-vcdat/wiki"
               >
                 Documentation
@@ -138,7 +140,7 @@ export default class AboutVCDAT extends React.Component<
           </Row>
         </ModalBody>
         <ModalFooter
-          className={/*@tag<about-modal-footer>*/ "about-modal-footer-vcdat"}
+          className={/* @tag<about-modal-footer>*/ "about-modal-footer-vcdat"}
         >
           <Row style={{ width: "100%", margin: 0 }}>
             <Col>
@@ -147,7 +149,7 @@ export default class AboutVCDAT extends React.Component<
             <Col style={{ padding: 0 }}>
               <Button
                 className={
-                  /*@tag<float-right about-modal-btn>*/ "float-right about-modal-btn-vcdat"
+                  /* @tag<float-right about-modal-btn>*/ "float-right about-modal-btn-vcdat"
                 }
                 outline={true}
                 color="primary"

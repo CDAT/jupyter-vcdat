@@ -4,7 +4,6 @@ pip install https://files.pythonhosted.org/packages/e9/29/1a8ba5daffc63f883f23fc
 jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
 jupyter labextension install @jupyter-widgets/jupyterlab-sidecar --no-build
 jupyter labextension install jupyterlab-tutorial-extension --no-build
-jupyter labextension install @jupyterlab/hub-extension --no-build
-jupyter labextension install jupyterlab-favorites
+jupyter labextension install @jupyterlab/hub-extension
 npm install
 jupyter lab build

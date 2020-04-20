@@ -1,7 +1,7 @@
 // Dependencies
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 import { NotebookPanel } from "@jupyterlab/notebook";
-import { CommandRegistry } from "@phosphor/commands";
+import { CommandRegistry } from "@lumino/commands";
 
 /** Contains utility functions for manipulating/handling notebooks in the application. */
 export default class NotebookUtilities {
@@ -16,11 +16,11 @@ export default class NotebookUtilities {
   public static async showMessage(
     title: string,
     msg: string,
-    buttonLabel: string = "OK",
-    buttonClassName: string = ""
+    buttonLabel = "OK",
+    buttonClassName = ""
   ): Promise<void> {
-    const buttons: ReadonlyArray<Dialog.IButton> = [
-      Dialog.okButton({ label: buttonLabel, className: buttonClassName })
+    const buttons: readonly Dialog.IButton[] = [
+      Dialog.okButton({ label: buttonLabel, className: buttonClassName }),
     ];
     await showDialog({ title, buttons, body: msg });
   }
@@ -38,14 +38,14 @@ export default class NotebookUtilities {
   public static async showYesNoDialog(
     title: string,
     msg: string,
-    acceptLabel: string = "YES",
-    rejectLabel: string = "NO",
-    yesButtonClassName: string = "",
-    noButtonClassName: string = ""
+    acceptLabel = "YES",
+    rejectLabel = "NO",
+    yesButtonClassName = "",
+    noButtonClassName = ""
   ): Promise<boolean> {
-    const buttons: ReadonlyArray<Dialog.IButton> = [
+    const buttons: readonly Dialog.IButton[] = [
       Dialog.okButton({ label: acceptLabel, className: yesButtonClassName }),
-      Dialog.cancelButton({ label: rejectLabel, className: noButtonClassName })
+      Dialog.cancelButton({ label: rejectLabel, className: noButtonClassName }),
     ];
     const result = await showDialog({ title, buttons, body: msg });
     if (result.button.label === acceptLabel) {
@@ -62,12 +62,15 @@ export default class NotebookUtilities {
   public static async createNewNotebook(
     command: CommandRegistry
   ): Promise<NotebookPanel> {
-    const notebook: any = await command.execute("notebook:create-new", {
-      activate: true,
-      path: "",
-      preferredLanguage: ""
-    });
-    await notebook.session.ready;
+    const notebook: NotebookPanel = await command.execute(
+      "notebook:create-new",
+      {
+        activate: true,
+        path: "",
+        preferredLanguage: "",
+      }
+    );
+    await notebook.sessionContext.ready;
     return notebook;
   }
 
@@ -103,7 +106,7 @@ export default class NotebookUtilities {
         "The notebook is null or undefined. No meta data available."
       );
     }
-    await notebookPanel.session.ready; // Wait for session to load in notebook
+    await notebookPanel.sessionContext.ready; // Wait for session to load in notebook
     if (notebookPanel.model && notebookPanel.model.metadata.has(key)) {
       return notebookPanel.model.metadata.get(key);
     }
@@ -141,14 +144,14 @@ export default class NotebookUtilities {
     notebookPanel: NotebookPanel,
     key: string,
     value: any,
-    save: boolean = false
+    save = false
   ): Promise<any> {
     if (!notebookPanel) {
       throw new Error(
         "The notebook is null or undefined. No meta data available."
       );
     }
-    await notebookPanel.session.ready;
+    await notebookPanel.sessionContext.ready;
     const oldVal: any = notebookPanel.model.metadata.set(key, value);
     if (save) {
       this.saveNotebook(notebookPanel);
@@ -170,7 +173,7 @@ export default class NotebookUtilities {
     notebookPanel: NotebookPanel,
     key: string,
     value: any,
-    save: boolean = false
+    save = false
   ): any {
     if (!notebookPanel) {
       throw new Error(

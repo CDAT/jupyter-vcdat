@@ -1,5 +1,5 @@
 // Dependencies
-import { ISignal } from "@phosphor/signaling";
+import { ISignal } from "@lumino/signaling";
 import * as React from "react";
 import {
   Button,
@@ -21,7 +21,7 @@ import {
   InputGroupAddon,
   ListGroup,
   ListGroupItem,
-  Row
+  Row,
 } from "reactstrap";
 
 // Project Components
@@ -37,11 +37,11 @@ const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
   maxHeight: "250px",
   overflow: "auto",
-  padding: "2px"
+  padding: "2px",
 };
 const listItemStyle: React.CSSProperties = {
   padding: "2px 7px",
-  textAlign: "left"
+  textAlign: "left",
 };
 
 interface IGraphicsMenuProps {
@@ -97,14 +97,14 @@ export default class GraphicsMenu extends React.Component<
       shouldAnimate: false,
       showDropdown: false,
       showMenu: false,
-      tempGroup: ""
+      tempGroup: "",
     };
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
   }
   @boundMethod
   public toggleAnimate(): void {
     this.setState({
-      shouldAnimate: !this.state.shouldAnimate
+      shouldAnimate: !this.state.shouldAnimate,
     });
     this.props.toggleAnimate();
   }
@@ -112,11 +112,11 @@ export default class GraphicsMenu extends React.Component<
   @boundMethod
   public toggleDropdown(): void {
     this.setState({
-      showDropdown: !this.state.showDropdown
+      showDropdown: !this.state.showDropdown,
     });
     if (this.state.showMenu && this.state.enterName) {
       this.setState({
-        showMenu: false
+        showMenu: false,
       });
     }
   }
@@ -132,7 +132,7 @@ export default class GraphicsMenu extends React.Component<
       selectedMethod: "",
       showDropdown: false,
       showMenu: false,
-      tempGroup: ""
+      tempGroup: "",
     });
   }
 
@@ -146,7 +146,7 @@ export default class GraphicsMenu extends React.Component<
       this.setState({
         selectedGroup: this.state.tempGroup,
         selectedMethod: item,
-        showMenu: false
+        showMenu: false,
       });
     } else {
       this.setState({ showMenu: false });
@@ -158,13 +158,13 @@ export default class GraphicsMenu extends React.Component<
     return (
       <ListGroup flush={true}>
         {this.props.getGraphicsList()[group].map((item: string) => {
-          const select = () => {
+          const select = (): void => {
             this.selectItem(item);
           };
           return (
             <ListGroupItem
               className={
-                /*@tag<text-muted graphics-method-item>*/ "text-muted graphics-method-item-vcdat"
+                /* @tag<text-muted graphics-method-item>*/ "text-muted graphics-method-item-vcdat"
               }
               key={group + item}
               value={item}
@@ -192,9 +192,11 @@ export default class GraphicsMenu extends React.Component<
     // Set the dropdown title based on state
     let dropdownTitle = "Select Plot Type";
     if (this.state.tempGroup) {
-      this.state.tempGroup === this.state.selectedGroup
-        ? (dropdownTitle = `${this.state.tempGroup} (${this.state.selectedMethod})`)
-        : (dropdownTitle = `${this.state.tempGroup}`);
+      if (this.state.tempGroup === this.state.selectedGroup) {
+        dropdownTitle = `${this.state.tempGroup} (${this.state.selectedMethod})`;
+      } else {
+        dropdownTitle = `${this.state.tempGroup}`;
+      }
     } else if (this.state.selectedMethod) {
       dropdownTitle = `${this.state.selectedGroup} (${this.state.selectedMethod})`;
     }
@@ -207,7 +209,7 @@ export default class GraphicsMenu extends React.Component<
       <div>
         <Card>
           <CardBody
-            className={/*@tag<graphicsmenu-main>*/ "graphicsmenu-main-vcdat"}
+            className={/* @tag<graphicsmenu-main>*/ "graphicsmenu-main-vcdat"}
           >
             <CardTitle>Graphics Options</CardTitle>
             <CardSubtitle>
@@ -217,7 +219,7 @@ export default class GraphicsMenu extends React.Component<
                     <CustomInput
                       type="switch"
                       id={
-                        /*@tag<graphics-overlay-switch>*/ "graphics-overlay-switch-vcdat"
+                        /* @tag<graphics-overlay-switch>*/ "graphics-overlay-switch-vcdat"
                       }
                       name="overlayModeSwitch"
                       label="Overlay Mode"
@@ -234,7 +236,7 @@ export default class GraphicsMenu extends React.Component<
                     <CustomInput
                       type="switch"
                       id={
-                        /*@tag<graphics-sidecar-switch>*/ "graphics-sidecar-switch-vcdat"
+                        /* @tag<graphics-sidecar-switch>*/ "graphics-sidecar-switch-vcdat"
                       }
                       name="sidecarSwitch"
                       label="Plot to Sidecar"
@@ -256,7 +258,9 @@ export default class GraphicsMenu extends React.Component<
                   updateAxisId={this.props.updateAnimateAxis}
                   updateRate={this.props.updateAnimateRate}
                   shouldAnimate={this.props.shouldAnimate}
-                  ref={loader => (this.animationMenuRef = loader)}
+                  ref={(loader): AnimationMenu =>
+                    (this.animationMenuRef = loader)
+                  }
                 />
               </Container>
             </CardSubtitle>
@@ -269,7 +273,7 @@ export default class GraphicsMenu extends React.Component<
               >
                 <DropdownToggle
                   className={
-                    /*@tag<graphics-dropdown>*/ "graphics-dropdown-vcdat"
+                    /* @tag<graphics-dropdown>*/ "graphics-dropdown-vcdat"
                   }
                   disabled={!this.state.plotReady || this.state.enterName}
                   caret={true}
@@ -277,20 +281,20 @@ export default class GraphicsMenu extends React.Component<
                   {dropdownTitle}
                 </DropdownToggle>
                 <DropdownMenu style={dropdownMenuStyle}>
-                  {Object.keys(this.props.getGraphicsList()).map(item => {
+                  {Object.keys(this.props.getGraphicsList()).map((item) => {
                     const methods: any = this.props.getGraphicsList()[item];
-                    const clickMethodGroup = () => {
+                    const clickMethodGroup = (): void => {
                       this.setState({
                         showDropdown: false,
                         showMenu: true,
-                        tempGroup: item
+                        tempGroup: item,
                       });
                     };
-                    const clickMethod = async () => {
-                      await this.setState({
+                    const clickMethod = async (): Promise<void> => {
+                      this.setState({
                         showDropdown: false,
                         showMenu: false,
-                        tempGroup: item
+                        tempGroup: item,
                       });
                       this.selectItem(methods[0]);
                     };
@@ -298,7 +302,7 @@ export default class GraphicsMenu extends React.Component<
                       return (
                         <DropdownItem
                           className={
-                            /*@tag<graphics-method-group>*/ "graphics-method-group-vcdat"
+                            /* @tag<graphics-method-group>*/ "graphics-method-group-vcdat"
                           }
                           value={item}
                           onClick={clickMethodGroup}
@@ -311,7 +315,7 @@ export default class GraphicsMenu extends React.Component<
                     return (
                       <DropdownItem
                         className={
-                          /*@tag<graphics-method-group>*/ "graphics-method-group-vcdat"
+                          /* @tag<graphics-method-group>*/ "graphics-method-group-vcdat"
                         }
                         value={item}
                         onClick={clickMethod}
@@ -325,7 +329,7 @@ export default class GraphicsMenu extends React.Component<
               </Dropdown>
               <Button
                 className={
-                  /*@tag<float-left graphics-close-btn>*/ "float-left graphics-close-btn-vcdat"
+                  /* @tag<float-left graphics-close-btn>*/ "float-left graphics-close-btn-vcdat"
                 }
                 hidden={!this.state.showMenu || this.state.enterName}
                 style={{ marginLeft: "5px" }}
@@ -336,7 +340,7 @@ export default class GraphicsMenu extends React.Component<
               </Button>
               <Button
                 className={
-                  /*@tag<float-right graphics-copy-btn>*/ "float-right graphics-copy-btn-vcdat"
+                  /* @tag<float-right graphics-copy-btn>*/ "float-right graphics-copy-btn-vcdat"
                 }
                 style={{ marginLeft: "0.5em" }}
                 hidden={
@@ -353,7 +357,7 @@ export default class GraphicsMenu extends React.Component<
               </Button>
               <Button
                 className={
-                  /*@tag<float-right graphics-cancel-btn>*/ "float-right graphics-cancel-btn-vcdat"
+                  /* @tag<float-right graphics-cancel-btn>*/ "float-right graphics-cancel-btn-vcdat"
                 }
                 hidden={!this.state.enterName}
                 onClick={this.handleCancelClick}
@@ -368,7 +372,7 @@ export default class GraphicsMenu extends React.Component<
             >
               <Input
                 className={
-                  /*@tag<float-left graphics-name-input>*/ "float-left graphics-name-input-vcdat"
+                  /* @tag<float-left graphics-name-input>*/ "float-left graphics-name-input-vcdat"
                 }
                 onChange={this.handleNameInput}
                 value={this.state.nameValue}
@@ -377,7 +381,7 @@ export default class GraphicsMenu extends React.Component<
               <InputGroupAddon addonType="append">
                 <Button
                   className={
-                    /*@tag<float-right graphics-enter-btn>*/ "float-right graphics-enter-btn-vcdat"
+                    /* @tag<float-right graphics-enter-btn>*/ "float-right graphics-enter-btn-vcdat"
                   }
                   onClick={this.handleEnterClick}
                   color={validInputColor}
@@ -419,14 +423,17 @@ export default class GraphicsMenu extends React.Component<
 
   // ======= REACT COMPONENT HANDLERS =======
   @boundMethod
-  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
+  private handlePlotReadyChanged(
+    sidebar: LeftSideBarWidget,
+    value: boolean
+  ): void {
     this.setState({ plotReady: value });
   }
 
   @boundMethod
   private handleNameInput(event: React.ChangeEvent<HTMLInputElement>): void {
     // Regex filter for unallowed name characters
-    const forbidden: RegExp = /^[^_a-z]|[^_a-z0-9]+/i;
+    const forbidden = /^[^_a-z]|[^_a-z0-9]+/i;
     const invalid: boolean = forbidden.test(event.target.value);
     this.setState({ nameValue: event.target.value, invalidName: invalid });
   }
@@ -436,7 +443,7 @@ export default class GraphicsMenu extends React.Component<
     this.setState({
       showDropdown: false,
       showMenu: false,
-      tempGroup: this.state.selectedGroup
+      tempGroup: this.state.selectedGroup,
     });
   }
 
@@ -450,7 +457,7 @@ export default class GraphicsMenu extends React.Component<
     this.setState({
       enterName: false,
       invalidName: false,
-      nameValue: ""
+      nameValue: "",
     });
   }
 
@@ -467,7 +474,7 @@ export default class GraphicsMenu extends React.Component<
           enterName: false,
           invalidName: false,
           nameValue: "",
-          selectedMethod: this.state.nameValue
+          selectedMethod: this.state.nameValue,
         });
       } catch (error) {
         console.error(error);

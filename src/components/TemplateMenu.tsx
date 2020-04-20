@@ -8,16 +8,16 @@ import {
   Dropdown,
   DropdownItem,
   DropdownMenu,
-  DropdownToggle
+  DropdownToggle,
 } from "reactstrap";
-import { ISignal } from "@phosphor/signaling";
+import { ISignal } from "@lumino/signaling";
 
 import LeftSideBarWidget from "../LeftSideBarWidget";
 import { boundMethod } from "autobind-decorator";
 
 const dropdownMenuStype: React.CSSProperties = {
   maxHeight: "250px",
-  overflow: "auto"
+  overflow: "auto",
 };
 
 interface ITemplateMenuProps {
@@ -45,7 +45,7 @@ export default class TemplateMenu extends React.Component<
       plotReady: this.props.plotReady,
       selectedTemplate: "",
       showDropdown: false,
-      showMenu: false
+      showMenu: false,
     };
 
     this.props.plotReadyChanged.connect(this.handlePlotReadyChanged);
@@ -58,21 +58,21 @@ export default class TemplateMenu extends React.Component<
       optionsChanged: false,
       selectedTemplate: "",
       showDropdown: false,
-      showMenu: false
+      showMenu: false,
     });
   }
 
   @boundMethod
   public toggleMenu(): void {
     this.setState({
-      showMenu: !this.state.showMenu
+      showMenu: !this.state.showMenu,
     });
   }
 
   @boundMethod
   public toggleDropdown(): void {
     this.setState({
-      showDropdown: !this.state.showDropdown
+      showDropdown: !this.state.showDropdown,
     });
   }
 
@@ -85,7 +85,7 @@ export default class TemplateMenu extends React.Component<
       <div>
         <Card>
           <CardBody
-            className={/*@tag<templatemenu-main>*/ "templatemenu-main-vcdat"}
+            className={/* @tag<templatemenu-main>*/ "templatemenu-main-vcdat"}
           >
             <CardTitle>Layout Template</CardTitle>
             <CardSubtitle>
@@ -95,7 +95,7 @@ export default class TemplateMenu extends React.Component<
               >
                 <DropdownToggle
                   className={
-                    /*@tag<template-dropdown>*/ "template-dropdown-vcdat"
+                    /* @tag<template-dropdown>*/ "template-dropdown-vcdat"
                   }
                   disabled={!this.state.plotReady}
                   caret={true}
@@ -105,19 +105,19 @@ export default class TemplateMenu extends React.Component<
                 {this.state.showDropdown && (
                   <DropdownMenu style={dropdownMenuStype}>
                     {this.props.getTemplatesList().map((item: string) => {
-                      const handleClick = () => {
+                      const handleClick = (): void => {
                         this.props.updateTemplateOptions(item);
                         this.setState({
                           optionsChanged: false,
                           selectedTemplate: item,
                           showDropdown: false,
-                          showMenu: false
+                          showMenu: false,
                         });
                       };
                       return (
                         <DropdownItem
                           className={
-                            /*@tag<template-item>*/ "template-item-vcdat"
+                            /* @tag<template-item>*/ "template-item-vcdat"
                           }
                           onClick={handleClick}
                           value={item}
@@ -138,7 +138,10 @@ export default class TemplateMenu extends React.Component<
   }
 
   @boundMethod
-  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
+  private handlePlotReadyChanged(
+    sidebar: LeftSideBarWidget,
+    value: boolean
+  ): void {
     this.setState({ plotReady: value });
   }
 }

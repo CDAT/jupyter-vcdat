@@ -3,12 +3,12 @@ import { JupyterFrontEnd, LabShell } from "@jupyterlab/application";
 import {
   NotebookActions,
   NotebookPanel,
-  NotebookTracker
+  NotebookTracker,
 } from "@jupyterlab/notebook";
 
-import { ISignal, Signal } from "@phosphor/signaling";
-import { CommandRegistry } from "@phosphor/commands";
-import { Widget } from "@phosphor/widgets";
+import { ISignal, Signal } from "@lumino/signaling";
+import { CommandRegistry } from "@lumino/commands";
+import { Widget } from "@lumino/widgets";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
@@ -29,7 +29,7 @@ import {
   NOTEBOOK_STATE,
   OLD_VCDAT_VERSION,
   VCDAT_VERSION,
-  VCDAT_VERSION_KEY
+  VCDAT_VERSION_KEY,
 } from "./constants";
 import NotebookUtilities from "./NotebookUtilities";
 import Utilities from "./Utilities";
@@ -38,11 +38,11 @@ import {
   CHECK_PLOT_EXIST_CMD,
   CHECK_VCS_CMD,
   REFRESH_GRAPHICS_CMD,
-  REFRESH_TEMPLATES_CMD
+  REFRESH_TEMPLATES_CMD,
 } from "./PythonCommands";
 import AboutVCDAT from "./components/AboutVCDAT";
 import { ICellModel } from "@jupyterlab/cells";
-import { IIterator } from "@phosphor/algorithm";
+import { IIterator } from "@lumino/algorithm";
 import { AppSettings } from "./AppSettings";
 import { boundMethod } from "autobind-decorator";
 
@@ -53,7 +53,7 @@ export default class LeftSideBarWidget extends Widget {
   // =======GETTERS AND SETTERS=======
   public get plotReady(): boolean {
     return (
-      this.state === NOTEBOOK_STATE.VCS_Ready ||
+      this.state === NOTEBOOK_STATE.VCSReady ||
       this.state === NOTEBOOK_STATE.InitialCellsReady
     );
   }
@@ -77,7 +77,7 @@ export default class LeftSideBarWidget extends Widget {
   public set state(notebookState: NOTEBOOK_STATE) {
     this._state = notebookState;
     const plotReady: boolean =
-      this._state === NOTEBOOK_STATE.VCS_Ready ||
+      this._state === NOTEBOOK_STATE.VCSReady ||
       this._state === NOTEBOOK_STATE.InitialCellsReady;
     this._plotReadyChanged.emit(plotReady);
   }
@@ -144,7 +144,7 @@ export default class LeftSideBarWidget extends Widget {
         <VCSMenu
           appSettings={this.appSettings}
           application={this.application}
-          ref={loader => (this.vcsMenuRef = loader)}
+          ref={(loader): VCSMenu => (this.vcsMenuRef = loader)}
           commands={this.commands}
           codeInjector={this.codeInjector}
           varTracker={this.varTracker}
@@ -166,11 +166,11 @@ export default class LeftSideBarWidget extends Widget {
           title="Notice"
           message="Loading CDAT core modules. Please wait..."
           btnText="OK"
-          ref={loader => (this.loadingModalRef = loader)}
+          ref={(loader): PopUpModal => (this.loadingModalRef = loader)}
         />
         <AboutVCDAT
           version={this.appSettings.getVersion()}
-          ref={loader => (this.aboutRef = loader)}
+          ref={(loader): AboutVCDAT => (this.aboutRef = loader)}
         />
       </ErrorBoundary>,
       this.div
@@ -178,9 +178,9 @@ export default class LeftSideBarWidget extends Widget {
 
     // Add command to refresh the filebrowser
     this.commands.addCommand("vcdat:refresh-browser", {
-      execute: args => {
+      execute: (): void => {
         this.commands.execute("filebrowser:go-to-path", { path: "." });
-      }
+      },
     });
 
     // Add command that displays the 'About' dialog
@@ -189,16 +189,16 @@ export default class LeftSideBarWidget extends Widget {
       execute: () => {
         this.aboutRef.show();
       },
-      label: "About VCDAT"
+      label: "About VCDAT",
     });
   }
 
   // =======PROPS FUNCTIONS=======
   public async delay(ms: number): Promise<any> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  public syncNotebook = () => {
+  public syncNotebook = (): boolean => {
     return (
       !this.preparing &&
       (this.state === NOTEBOOK_STATE.ActiveNotebook ||
@@ -206,11 +206,11 @@ export default class LeftSideBarWidget extends Widget {
     );
   };
 
-  public getGraphics = () => {
+  public getGraphics = (): any => {
     return this.graphicsMethods;
   };
 
-  public getTemplates = () => {
+  public getTemplates = (): string[] => {
     return this.templatesList;
   };
 
@@ -249,7 +249,7 @@ export default class LeftSideBarWidget extends Widget {
       this._notebookPanel = notebookPanel;
 
       await this.vcsMenuRef.setState({
-        notebookPanel
+        notebookPanel,
       });
 
       // Update notebook state
@@ -264,24 +264,26 @@ export default class LeftSideBarWidget extends Widget {
 
       // Check if notebook is ready for vcs, and prepare it if so
       if (
-        this.state === NOTEBOOK_STATE.VCS_Ready ||
+        this.state === NOTEBOOK_STATE.VCSReady ||
         this.state === NOTEBOOK_STATE.InitialCellsReady
       ) {
         // Run cells to make notebook vcs ready
         if (this.state === NOTEBOOK_STATE.InitialCellsReady) {
           // Run the imports cell
-          const [idx, cell] = CellUtilities.findCellWithMetaKey(
+          const idx = CellUtilities.findCellWithMetaKey(
             this._notebookPanel,
             IMPORT_CELL_KEY
-          );
+          )[0];
           if (idx >= 0) {
             await CellUtilities.runCellAtIndex(this._notebookPanel, idx);
             // select next cell
             this.notebookPanel.content.activeCellIndex = idx + 1;
             // Update kernel list to identify this kernel is ready
-            this.kernels.push(this.notebookPanel.session.kernel.id);
+            this.kernels.push(
+              this.notebookPanel.sessionContext.session.kernel.id
+            );
             // Update state
-            this.state = NOTEBOOK_STATE.VCS_Ready;
+            this.state = NOTEBOOK_STATE.VCSReady;
           } else {
             this.state = NOTEBOOK_STATE.ActiveNotebook;
             // Leave notebook alone if its not vcs ready, refresh var list for UI
@@ -419,7 +421,7 @@ export default class LeftSideBarWidget extends Widget {
         this.notebookPanel.content.model.cells.length - 1;
 
       // Update kernel list to identify this kernel is ready
-      this.kernels.push(this.notebookPanel.session.kernel.id);
+      this.kernels.push(this.notebookPanel.sessionContext.session.kernel.id);
 
       // Save the notebook
       NotebookUtilities.saveNotebook(this.notebookPanel);
@@ -429,7 +431,7 @@ export default class LeftSideBarWidget extends Widget {
 
       this._notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
 
-      this.state = NOTEBOOK_STATE.VCS_Ready;
+      this.state = NOTEBOOK_STATE.VCSReady;
 
       this.preparing = false;
     } catch (error) {
@@ -472,7 +474,7 @@ export default class LeftSideBarWidget extends Widget {
   @boundMethod
   public async checkPlotExists(): Promise<boolean> {
     try {
-      if (this.state === NOTEBOOK_STATE.VCS_Ready) {
+      if (this.state === NOTEBOOK_STATE.VCSReady) {
         // Get the list of display elements in the canvas
         const output: string = await Utilities.sendSimpleKernelRequest(
           this.notebookPanel,
@@ -491,7 +493,7 @@ export default class LeftSideBarWidget extends Widget {
    */
   @boundMethod
   public async refreshGraphicsList(): Promise<void> {
-    if (this.state === NOTEBOOK_STATE.VCS_Ready) {
+    if (this.state === NOTEBOOK_STATE.VCSReady) {
       // Refresh the graphic methods
       const output: string = await Utilities.sendSimpleKernelRequest(
         this.notebookPanel,
@@ -518,7 +520,7 @@ export default class LeftSideBarWidget extends Widget {
   @boundMethod
   public async refreshTemplatesList(): Promise<void> {
     try {
-      if (this.state === NOTEBOOK_STATE.VCS_Ready) {
+      if (this.state === NOTEBOOK_STATE.VCSReady) {
         // Refresh the graphic methods
         const output: string = await Utilities.sendSimpleKernelRequest(
           this.notebookPanel,
@@ -546,14 +548,16 @@ export default class LeftSideBarWidget extends Widget {
         // Check if notebook is active widget
         if (this.notebookPanel instanceof NotebookPanel) {
           // Ensure notebook session is ready before checking for metadata
-          await this._notebookPanel.session.ready;
+          await this._notebookPanel.sessionContext.ready;
           // Check if there is a kernel listed as vcsReady
           if (
             this.kernels.length > 0 &&
-            this.kernels.indexOf(this.notebookPanel.session.kernel.id) >= 0
+            this.kernels.indexOf(
+              this.notebookPanel.sessionContext.session.kernel.id
+            ) >= 0
           ) {
             // Ready kernel identified, so the notebook is ready for injection
-            this.state = NOTEBOOK_STATE.VCS_Ready;
+            this.state = NOTEBOOK_STATE.VCSReady;
           } else {
             // Search for a cell containing the imports key
             const importKeyFound: boolean =
@@ -623,7 +627,8 @@ export default class LeftSideBarWidget extends Widget {
       await this.loadingModalRef.show();
 
       // Inject the imports
-      let currentIdx: number = 0;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      let currentIdx = 0;
       currentIdx = await this.codeInjector.injectImportsCode();
 
       // Open the variable launcher modal
@@ -653,10 +658,10 @@ export default class LeftSideBarWidget extends Widget {
         this.notebookPanel.content.model.cells.length - 1;
 
       // Update kernel list to identify this kernel is ready
-      this.kernels.push(this.notebookPanel.session.kernel.id);
+      this.kernels.push(this.notebookPanel.sessionContext.session.kernel.id);
 
       // Save the notebook to preserve the cell metadata, update state
-      this.state = NOTEBOOK_STATE.VCS_Ready;
+      this.state = NOTEBOOK_STATE.VCSReady;
 
       // Save the notebook
       await NotebookUtilities.saveNotebook(this.notebookPanel);
@@ -696,7 +701,7 @@ export default class LeftSideBarWidget extends Widget {
   }
 
   @boundMethod
-  public setSidecarPanel(openSidecarPanel: boolean) {
+  public setSidecarPanel(openSidecarPanel: boolean): void {
     if (this.activeSidecarOnRight) {
       const panelClosed: boolean = this.labShell.rightCollapsed;
       if (panelClosed) {
@@ -846,14 +851,16 @@ export default class LeftSideBarWidget extends Widget {
   }
 
   @boundMethod
-  private async handleNotebookDisposed(notebookPanel: NotebookPanel) {
+  private async handleNotebookDisposed(
+    notebookPanel: NotebookPanel
+  ): Promise<void> {
     notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
     this.updateActiveSidecar();
   }
 
   @boundMethod
   private async handleNotebookCellRun(): Promise<void> {
-    if (this.state !== NOTEBOOK_STATE.VCS_Ready) {
+    if (this.state !== NOTEBOOK_STATE.VCSReady) {
       return;
     }
     try {

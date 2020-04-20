@@ -1,15 +1,15 @@
 import { Step } from "react-joyride";
 import reactHtmlParser from "react-html-parser";
 
-export const NO_VERSION: string = "N/A";
-export const OLD_VCDAT_VERSION: string = "<=2.0";
-export const VCDAT_VERSION: string = "2.3";
+export const NO_VERSION = "N/A";
+export const OLD_VCDAT_VERSION = "<=2.0";
+export const VCDAT_VERSION = "2.3";
 export const VCDAT_VERSION_KEY = "vcdat_version";
-export const MAX_SLABS: number = 2;
-export const MAX_DIM_LENGTH: number = 1000;
-export const BASE_URL: string = "/vcs";
-export const BASE_DATA_READER_NAME: string = "file_data";
-export const READY_KEY: string = "vcdat_ready";
+export const MAX_SLABS = 2;
+export const MAX_DIM_LENGTH = 1000;
+export const BASE_URL = "/vcs";
+export const BASE_DATA_READER_NAME = "file_data";
+export const READY_KEY = "vcdat_ready";
 export const EXTENSIONS: string[] = [
   ".nc",
   ".nc3",
@@ -18,20 +18,20 @@ export const EXTENSIONS: string[] = [
   ".ctl",
   ".dic",
   ".pp",
-  ".cdf"
+  ".cdf",
 ];
 
 export const OUTPUT_RESULT_NAME = "_private_vcdat_output";
-export const FILE_PATH_KEY: string = "vcdat_file_path";
-export const IMPORT_CELL_KEY: string = "vcdat_imports";
-export const CANVAS_CELL_KEY: string = "vcdat_canvases";
-export const SELECTED_VARIABLES_KEY: string = "selected_variables";
-export const VARIABLE_INFO_KEY: string = "vcdat_variable_info";
-export const GRAPHICS_METHOD_KEY: string = "graphics_method_selected";
-export const PLOT_OPTIONS_KEY: string = "vcdat_plot_options";
-export const TEMPLATE_KEY: string = "template_selected";
-export const VARIABLES_LOADED_KEY: string = "vcdat_loaded_variables";
-export const REQUIRED_MODULES: string = '["cdms2","vcs","numpy","os"]';
+export const FILE_PATH_KEY = "vcdat_file_path";
+export const IMPORT_CELL_KEY = "vcdat_imports";
+export const CANVAS_CELL_KEY = "vcdat_canvases";
+export const SELECTED_VARIABLES_KEY = "selected_variables";
+export const VARIABLE_INFO_KEY = "vcdat_variable_info";
+export const GRAPHICS_METHOD_KEY = "graphics_method_selected";
+export const PLOT_OPTIONS_KEY = "vcdat_plot_options";
+export const TEMPLATE_KEY = "template_selected";
+export const VARIABLES_LOADED_KEY = "vcdat_loaded_variables";
+export const REQUIRED_MODULES = '["cdms2","vcs","numpy","os"]';
 
 export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
   "1d": [
@@ -47,7 +47,7 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "default_xyvsy_",
     "default_yxvsx_",
     "quick_scatter",
-    "red_yxvsx"
+    "red_yxvsx",
   ],
   "3d_dual_scalar": ["default"],
   "3d_scalar": ["default", "Hovmoller3D"],
@@ -61,7 +61,7 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "default",
     "polar",
     "quick",
-    "robinson"
+    "robinson",
   ],
   isofill: [
     "a_isofill",
@@ -72,7 +72,7 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "default",
     "polar",
     "quick",
-    "robinson"
+    "robinson",
   ],
   isoline: [
     "a_isoline",
@@ -83,7 +83,7 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "default",
     "P_and_height",
     "polar",
-    "quick"
+    "quick",
   ],
   meshfill: [
     "a_lambert_meshfill",
@@ -91,7 +91,7 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "a_mollweide_meshfill",
     "a_polar_meshfill",
     "a_robinson_meshfill",
-    "default"
+    "default",
   ],
   scatter: ["a_scatter_scatter_", "default_scatter_", "quick_scatter"],
   streamline: ["default"],
@@ -105,7 +105,7 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "default",
     "default_xvsy_",
     "default_yxvsx_",
-    "red_yxvsx"
+    "red_yxvsx",
   ],
   xyvsy: ["a_xyvsy_xyvsy_", "default_xyvsy_"],
   yxvsx: [
@@ -116,8 +116,8 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
     "default",
     "default_xvsy_",
     "default_yxvsx_",
-    "red_yxvsx"
-  ]
+    "red_yxvsx",
+  ],
 };
 
 export const BASE_COLORMAPS = [
@@ -162,7 +162,7 @@ export const BASE_COLORMAPS = [
   "white_to_green",
   "white_to_magenta",
   "white_to_red",
-  "white_to_yellow"
+  "white_to_yellow",
 ];
 
 export const BASE_TEMPLATES: string[] = [
@@ -207,7 +207,7 @@ export const BASE_TEMPLATES: string[] = [
   "por_topof3",
   "por_topof3_dud",
   "quick",
-  "top_of2"
+  "top_of2",
 ];
 
 // Specifies the states of the Jupyterlab main area tab/notebook
@@ -218,7 +218,7 @@ export enum NOTEBOOK_STATE {
   ActiveNotebook, // An active notebook, but needs imports cell
   NoSession, // The active notebook doesn't have a client session running
   InitialCellsReady, // Has imports cell, but they need to be run
-  VCS_Ready // The notebook is ready for code injection
+  VCSReady, // The notebook is ready for code injection
 }
 
 // Specifies the display target modes (whether to plot in notebook or on sidecar)
@@ -227,7 +227,7 @@ export enum NOTEBOOK_STATE {
 export enum DISPLAY_MODE {
   Notebook,
   Sidecar,
-  None
+  None,
 }
 
 // Note: Using reactHtmlParser function, tutorial steps can be rendered as HTML
@@ -240,7 +240,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "center",
     target: "#jp-main-dock-panel",
-    title: `VCDAT Introduction`
+    title: `VCDAT Introduction`,
   },
   {
     content: reactHtmlParser(
@@ -258,7 +258,7 @@ export const GETTING_STARTED: Step[] = [
     div.p-Widget.p-TabBar.jp-SideBar.jp-mod-left.p-BoxPanel-child 
     > ul > li.p-TabBar-tab.p-mod-closable > 
     div.p-TabBar-tabIcon.jp-SideBar-tabIcon.jp-icon-vcdat`,
-    title: `VCDAT Icon`
+    title: `VCDAT Icon`,
   },
   {
     content: `This is the main VCDAT panel. From here you can load variables, 
@@ -268,7 +268,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: "#left-side-bar-vcdat",
-    title: `VCDAT Main Panel`
+    title: `VCDAT Main Panel`,
   },
   {
     content: `When a variable is ready to plot, click this button and a 
@@ -277,7 +277,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: ".vcsmenu-plot-btn-vcdat",
-    title: "Plot Button"
+    title: "Plot Button",
   },
   {
     content: `Once a plot has been created, click this button to open the export
@@ -286,7 +286,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: ".vcsmenu-export-btn-vcdat",
-    title: "Export Plot"
+    title: "Export Plot",
   },
   {
     content: `When you wish to clear the plot canvas, click this button.`,
@@ -294,7 +294,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: ".vcsmenu-clear-btn-vcdat",
-    title: "Clear"
+    title: "Clear",
   },
   {
     content: `Use this button to load variables from a data file. When clicked,
@@ -307,7 +307,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: ".varmenu-load-variables-file-btn-vcdat",
-    title: "Load Variable"
+    title: "Load Variable",
   },
   {
     content: `Use this button to open an input dialog where you can enter a specific
@@ -317,7 +317,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: ".varmenu-load-variables-path-btn-vcdat",
-    title: "Load Variable"
+    title: "Load Variable",
   },
   {
     content: `When the overlay mode is on, new plots will overlap previous plots.
@@ -327,7 +327,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: `#graphics-overlay-switch-vcdat`,
-    title: "Overlay Mode"
+    title: "Overlay Mode",
   },
   {
     content: reactHtmlParser(`When the <b>Plot to Sidecar</b> toggle is on, plots will be rendered to the right \
@@ -337,7 +337,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: `#graphics-sidecar-switch-vcdat`,
-    title: "Plot to Sidecar"
+    title: "Plot to Sidecar",
   },
   {
     content: reactHtmlParser(`This is the <b>Animate</b> option. When <b>Animate</b> is on, the plot button will be \
@@ -349,7 +349,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: `#graphics-animation-switch-vcdat`,
-    title: "Plot to Sidecar"
+    title: "Plot to Sidecar",
   },
   {
     content: `Use this dropdown to choose the type of plot you'd like,
@@ -358,7 +358,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: ".graphics-dropdown-vcdat",
-    title: "Plot Type Dropdown"
+    title: "Plot Type Dropdown",
   },
   {
     content: `Use the colormap dropdown to choose the colormap you'd like to use,
@@ -367,7 +367,7 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: ".colormap-dropdown-vcdat",
-    title: "Colormap Dropdown"
+    title: "Colormap Dropdown",
   },
   {
     content: `Use this button to change the way the plot looks on the "page".
@@ -377,8 +377,8 @@ export const GETTING_STARTED: Step[] = [
     hideCloseButton: true,
     placement: "right",
     target: ".template-dropdown-vcdat",
-    title: "Layout Template"
-  }
+    title: "Layout Template",
+  },
 ];
 
 export const REPLACEMENT_STEPS: Step[] = [
@@ -389,7 +389,7 @@ export const REPLACEMENT_STEPS: Step[] = [
     placement: "center",
     showProgress: false,
     target: "#jp-main-dock-panel",
-    title: "Tutorial Error"
+    title: "Tutorial Error",
   },
   {
     content: reactHtmlParser(`The blue stylized "C" on the left is the VCDAT icon. 
@@ -405,6 +405,6 @@ export const REPLACEMENT_STEPS: Step[] = [
       div.p-Widget.p-TabBar.jp-SideBar.jp-mod-left.p-BoxPanel-child 
       > ul > li.p-TabBar-tab.p-mod-closable > 
       div.p-TabBar-tabIcon.jp-SideBar-tabIcon.jp-icon-vcdat`,
-    title: `VCDAT Icon`
-  }
+    title: `VCDAT Icon`,
+  },
 ];

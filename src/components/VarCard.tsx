@@ -1,5 +1,5 @@
 // Dependencies
-import { ISignal } from "@phosphor/signaling";
+import { ISignal } from "@lumino/signaling";
 import * as React from "react";
 import {
   Button,
@@ -12,7 +12,7 @@ import {
   Input,
   InputGroup,
   InputGroupAddon,
-  Row
+  Row,
 } from "reactstrap";
 
 // Project Components
@@ -24,19 +24,19 @@ import VarLoader from "./VarLoader";
 import { boundMethod } from "autobind-decorator";
 
 const cardStyle: React.CSSProperties = {
-  margin: ".5em"
+  margin: ".5em",
 };
 const centered: React.CSSProperties = {
-  margin: "auto"
+  margin: "auto",
 };
 const axisStyle: React.CSSProperties = {
-  marginTop: "0.5em"
+  marginTop: "0.5em",
 };
 const buttonsStyle: React.CSSProperties = {
-  width: "inherit"
+  width: "inherit",
 };
 // Regex filter for unallowed variable names
-const forbidden: RegExp = /^[^a-z_]|[^a-z0-9_]+/i;
+const forbidden = /^[^a-z_]|[^a-z0-9_]+/i;
 
 type NameStatus =
   | "Invalid!"
@@ -75,7 +75,7 @@ export default class VarCard extends React.Component<
       nameValue: "",
       selected: props.selected,
       showAxis: false,
-      variable: this.props.variable
+      variable: this.props.variable,
     };
   }
 
@@ -88,10 +88,10 @@ export default class VarCard extends React.Component<
   }
 
   @boundMethod
-  public updateSelections() {
+  public updateSelections(): void {
     this.setState({
       selected: this.props.isSelected(this.state.variable.varID),
-      variable: this.props.variable
+      variable: this.props.variable,
     });
   }
 
@@ -111,7 +111,7 @@ export default class VarCard extends React.Component<
     this.setState({
       nameState: "Valid",
       nameValue: "",
-      selected: !isSelected
+      selected: !isSelected,
     });
   }
 
@@ -122,7 +122,7 @@ export default class VarCard extends React.Component<
   public openMenu(): void {
     if (!this.state.showAxis && this.state.selected) {
       this.setState({
-        showAxis: true
+        showAxis: true,
       });
     }
   }
@@ -161,11 +161,11 @@ export default class VarCard extends React.Component<
           >
             <CardTitle>
               <div style={centered}>
-                <Row className={/*@tag<varcard-main>*/ "varcard-main-vcdat"}>
+                <Row className={/* @tag<varcard-main>*/ "varcard-main-vcdat"}>
                   <Col xs="sm-5">
                     <Button
                       className={
-                        /*@tag<varcard-name-btn>*/ "varcard-name-btn-vcdat"
+                        /* @tag<varcard-name-btn>*/ "varcard-name-btn-vcdat"
                       }
                       outline={true}
                       color={"success"}
@@ -180,7 +180,7 @@ export default class VarCard extends React.Component<
                     {this.state.selected && (
                       <Button
                         className={
-                          /*@tag<varcard-axes-btn>*/ "varcard-axes-btn-vcdat"
+                          /* @tag<varcard-axes-btn>*/ "varcard-axes-btn-vcdat"
                         }
                         outline={true}
                         color={"danger"}
@@ -192,24 +192,26 @@ export default class VarCard extends React.Component<
                       </Button>
                     )}
                   </Col>
-                  {// Check variable is selected before checking if alias exists for better performance
-                  this.state.selected &&
-                    this.props.varAliasExists(
-                      this.state.variable.alias,
-                      false
-                    ) && (
-                      <Col xs="sm-3">
-                        <Button
-                          className={
-                            /*@tag<varcard-warning-btn>*/ "varcard-warning-btn-vcdat"
-                          }
-                          color={"warning"}
-                          onClick={this.handleWarningsClick}
-                        >
-                          !
-                        </Button>
-                      </Col>
-                    )}
+                  {
+                    // Check variable is selected before checking if alias exists for better performance
+                    this.state.selected &&
+                      this.props.varAliasExists(
+                        this.state.variable.alias,
+                        false
+                      ) && (
+                        <Col xs="sm-3">
+                          <Button
+                            className={
+                              /* @tag<varcard-warning-btn>*/ "varcard-warning-btn-vcdat"
+                            }
+                            color={"warning"}
+                            onClick={this.handleWarningsClick}
+                          >
+                            !
+                          </Button>
+                        </Col>
+                      )
+                  }
                 </Row>
               </div>
             </CardTitle>
@@ -221,7 +223,7 @@ export default class VarCard extends React.Component<
                 <Card>
                   <CardBody
                     className={
-                      /*@tag<varcard-rename-field>*/ "varcard-rename-field-vcdat"
+                      /* @tag<varcard-rename-field>*/ "varcard-rename-field-vcdat"
                     }
                   >
                     <InputGroup style={{ marginTop: "5px" }}>
@@ -231,7 +233,7 @@ export default class VarCard extends React.Component<
                       <Input
                         onChange={this.handleNameInput}
                         className={
-                          /*@tag<float-left varcard-rename-input>*/ "float-left varcard-rename-input-vcdat"
+                          /* @tag<float-left varcard-rename-input>*/ "float-left varcard-rename-input-vcdat"
                         }
                         value={this.state.nameValue}
                         placeholder="Enter new name here."
@@ -239,7 +241,7 @@ export default class VarCard extends React.Component<
                       <InputGroupAddon addonType="append">
                         <Button
                           className={
-                            /*@tag<float-right varcard-rename-status>*/ "float-right varcard-rename-status-vcdat"
+                            /* @tag<float-right varcard-rename-status>*/ "float-right varcard-rename-status-vcdat"
                           }
                           color={nameStateColor}
                           disabled={true}
@@ -262,7 +264,7 @@ export default class VarCard extends React.Component<
                       <Card>
                         <CardBody
                           className={
-                            /*@tag<varcard-dimension>*/ "varcard-dimension-vcdat"
+                            /* @tag<varcard-dimension>*/ "varcard-dimension-vcdat"
                           }
                         >
                           <DimensionSlider
@@ -307,7 +309,7 @@ export default class VarCard extends React.Component<
       const updatedVariable: Variable = this.state.variable;
       updatedVariable.alias = nameEntry;
       this.setState({
-        variable: updatedVariable
+        variable: updatedVariable,
       });
     }
 

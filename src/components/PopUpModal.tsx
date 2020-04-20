@@ -20,7 +20,7 @@ export default class PopUpModal extends React.Component<
   constructor(props: IPopUpProps) {
     super(props);
     this.state = {
-      modalOpen: false
+      modalOpen: false,
     };
   }
 
@@ -43,12 +43,12 @@ export default class PopUpModal extends React.Component<
     return (
       <Modal isOpen={this.state.modalOpen} toggle={this.toggle} size="lg">
         <ModalHeader>{this.props.title}</ModalHeader>
-        <ModalBody className={/*@tag<popup-modal>*/ "popup-modal-vcdat"}>
+        <ModalBody className={/* @tag<popup-modal>*/ "popup-modal-vcdat"}>
           {this.props.message}
         </ModalBody>
         <ModalFooter>
           <Button
-            className={/*@tag<popup-modal-btn>*/ "popup-modal-btn-vcdat"}
+            className={/* @tag<popup-modal-btn>*/ "popup-modal-btn-vcdat"}
             outline={true}
             color="primary"
             onClick={this.hide}

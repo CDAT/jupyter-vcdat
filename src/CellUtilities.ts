@@ -1,6 +1,12 @@
 // Dependencies
 import { ICellModel, isCodeCellModel } from "@jupyterlab/cells";
-import { nbformat } from "@jupyterlab/coreutils";
+import {
+  isExecuteResult,
+  isStream,
+  isError,
+  IError,
+  IExecuteResult,
+} from "@jupyterlab/nbformat";
 import { Notebook, NotebookActions, NotebookPanel } from "@jupyterlab/notebook";
 
 // Project Components
@@ -31,15 +37,15 @@ export default class CellUtilities {
       return null;
     }
     const out = cell.outputs.toJSON().pop();
-    if (nbformat.isExecuteResult(out)) {
-      const execData: nbformat.IExecuteResult = out;
+    if (isExecuteResult(out)) {
+      const execData: IExecuteResult = out;
       return execData.data["text/plain"];
     }
-    if (nbformat.isStream(out)) {
+    if (isStream(out)) {
       return out.text;
     }
-    if (nbformat.isError(out)) {
-      const errData: nbformat.IError = out;
+    if (isError(out)) {
+      const errData: IError = out;
 
       throw new Error(
         `Code resulted in errors. Error name: ${errData.ename}.\nMessage: ${errData.evalue}.`
@@ -87,7 +93,7 @@ export default class CellUtilities {
     index: number,
     key: string,
     value: any,
-    save: boolean = false
+    save = false
   ): any {
     if (!notebookPanel) {
       throw new Error("Notebook was null!");
@@ -160,7 +166,7 @@ export default class CellUtilities {
         "Null or undefined parameter was given for command or notebook argument."
       );
     }
-    // await notebookPanel.session.ready;
+    // await notebookPanel.sessionContext.ready;
     const notebook = notebookPanel.content;
     if (index < 0 || index >= notebook.widgets.length) {
       throw new Error("The index was out of range.");
@@ -169,7 +175,7 @@ export default class CellUtilities {
     const oldIndex = notebook.activeCellIndex;
     notebook.activeCellIndex = index;
     try {
-      await NotebookActions.run(notebook, notebookPanel.session);
+      await NotebookActions.run(notebook, notebookPanel.sessionContext);
 
       // await command.execute("notebook:run-cell");
       const output = CellUtilities.readOutput(notebook, index);
@@ -386,7 +392,7 @@ export default class CellUtilities {
     code: string,
     insertAtEnd = true
   ): Promise<string> {
-    let idx: number = -1;
+    let idx = -1;
     if (insertAtEnd) {
       idx = notebookPanel.content.model.cells.length;
     }

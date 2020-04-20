@@ -2,25 +2,25 @@ import {
   DISPLAY_MODE,
   MAX_DIM_LENGTH,
   OUTPUT_RESULT_NAME,
-  REQUIRED_MODULES
+  REQUIRED_MODULES,
 } from "./constants";
 
 // Simple function to prevent variable names from overlapping with user-created names
-function safe(baseName: string) {
+function safe(baseName: string): string {
   return `${baseName}_F9FY9AE028RRF982`;
 }
 
 // PYTHON COMMAND CONSTANTS
-export const CANVAS_DIMENSIONS_CMD: string = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
+export const CANVAS_DIMENSIONS_CMD = `${OUTPUT_RESULT_NAME}=[canvas.width,canvas.height]`;
 
-export const CHECK_PLOT_EXIST_CMD: string = `import json\n\
+export const CHECK_PLOT_EXIST_CMD = `import json\n\
 try:\n\
 	${OUTPUT_RESULT_NAME} = json.dumps(canvas.listelements('display'))\n\
 except:\n\
 	del ${OUTPUT_RESULT_NAME}\n\
 	pass\n`;
 
-export const CHECK_VCS_CMD: string = `import __main__\n\
+export const CHECK_VCS_CMD = `import __main__\n\
 try:\n\
 for nm, obj in __main__.__dict__.items():\n\
 	if isinstance(obj, cdms2.MV2.TransientVariable):\n\
@@ -29,13 +29,13 @@ for nm, obj in __main__.__dict__.items():\n\
 except:\n\
 	${OUTPUT_RESULT_NAME}=False\n`;
 
-export const CHECK_SIDECAR_EXISTS_CMD: string = `try:\n\
+export const CHECK_SIDECAR_EXISTS_CMD = `try:\n\
 	sidecar\n\
 	${OUTPUT_RESULT_NAME}=True\n\
 except NameError:\n\
 	${OUTPUT_RESULT_NAME}=False\n`;
 
-export const REFRESH_GRAPHICS_CMD: string = `import __main__\n\
+export const REFRESH_GRAPHICS_CMD = `import __main__\n\
 import json\n\
 def graphic_methods():\n\
 	out = {}\n\
@@ -44,11 +44,11 @@ def graphic_methods():\n\
 	return out\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(graphic_methods())\n`;
 
-export const REFRESH_TEMPLATES_CMD: string = `import __main__\n\
+export const REFRESH_TEMPLATES_CMD = `import __main__\n\
 import json\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(vcs.listelements('template'))\n`;
 
-export const CHECK_MODULES_CMD: string = `import types\n\
+export const CHECK_MODULES_CMD = `import types\n\
 import json\n\
 ${safe("required")} = ${REQUIRED_MODULES}\n\
 def imports():\n\
@@ -60,7 +60,7 @@ ${OUTPUT_RESULT_NAME} = json.dumps(list(set(${safe("required")})-set(${safe(
   "found"
 )})))\n`;
 
-export const LIST_CANVASES_CMD: string = `import __main__\n\
+export const LIST_CANVASES_CMD = `import __main__\n\
 import json\n\
 def canvases():\n\
 	out = []\n\
@@ -70,7 +70,7 @@ def canvases():\n\
 	return out\n\
 ${OUTPUT_RESULT_NAME} = json.dumps(canvases())\n`;
 
-const AXIS_INFO_CODE: string = `\n\
+const AXIS_INFO_CODE = `\n\
 	${safe("first")} = float(${safe("axis")}[:].min())\n\
 	${safe("last")} = float(${safe("axis")}[:].max())\n\
 	if len(${safe("axis")}) < ${MAX_DIM_LENGTH}:\n\
@@ -100,7 +100,7 @@ const AXIS_INFO_CODE: string = `\n\
 		'isTime': ${safe("axis")}.isTime()\n\
 	}\n`;
 
-const VAR_INFO_CODE: string = `# Get a displayable name for the variable\n\
+const VAR_INFO_CODE = `# Get a displayable name for the variable\n\
 	if hasattr(${safe("var")}, 'long_name'):\n\
 		${safe("name")} = ${safe("var")}.long_name\n\
 	elif hasattr(${safe("var")}, 'title'):\n\
@@ -158,7 +158,7 @@ const VAR_INFO_CODE: string = `# Get a displayable name for the variable\n\
 	if ('bounds' not in ${safe("outVars")}[${safe("vname")}]):\n\
 		${safe("outVars")}[${safe("vname")}]['bounds'] = None\n`;
 
-export const REFRESH_VAR_CMD: string = `import __main__\n\
+export const REFRESH_VAR_CMD = `import __main__\n\
 import json\n\
 import cdms2\n\
 import numpy\n\
@@ -178,7 +178,7 @@ ${safe("var")} = None`;
 
 // FUNCTIONS THAT GENERATE PYTHON COMMANDS
 export function checkCDMS2FileOpens(filename: string): string {
-  const command: string = `import cdms2\n\
+  const command = `import cdms2\n\
 try:\n\
 	file=cdms2.open("${filename}")\n\
 	file.close()\n\

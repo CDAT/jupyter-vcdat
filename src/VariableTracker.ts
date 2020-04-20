@@ -1,19 +1,19 @@
 // Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
-import { ISignal, Signal } from "@phosphor/signaling";
+import { ISignal, Signal } from "@lumino/signaling";
 
 // Project Components
 import {
   FILE_PATH_KEY,
   SELECTED_VARIABLES_KEY,
   VARIABLE_INFO_KEY,
-  VARIABLES_LOADED_KEY
+  VARIABLES_LOADED_KEY,
 } from "./constants";
 import {
   getAxisInfoFromFileCommand,
   getAxisInfoFromVariableCommand,
   getFileVarsCommand,
-  REFRESH_VAR_CMD
+  REFRESH_VAR_CMD,
 } from "./PythonCommands";
 import Utilities from "./Utilities";
 import NotebookUtilities from "./NotebookUtilities";
@@ -70,7 +70,7 @@ export default class VariableTracker {
   set variables(newVariables: Variable[]) {
     // Ensure selected variable list doesn't contain deleted variables
     const newSelection: string[] = Array<string>();
-    this.selectedVariables.forEach(selection => {
+    this.selectedVariables.forEach((selection) => {
       if (this.findVariableByID(selection, newVariables)[0] >= 0) {
         newSelection.push(selection);
       }
@@ -131,7 +131,7 @@ export default class VariableTracker {
     return this._selectedVariablesChanged;
   }
 
-  public resetVarTracker() {
+  public resetVarTracker(): void {
     this.currentFile = "";
     this.variables = Array<Variable>();
     this._variableInfo = {};
@@ -139,7 +139,7 @@ export default class VariableTracker {
   }
 
   @boundMethod
-  public async setNotebook(notebookPanel: NotebookPanel) {
+  public async setNotebook(notebookPanel: NotebookPanel): Promise<void> {
     if (this._notebookPanel) {
       // Save meta data in current notebook before switching
       await this.saveMetaData();
@@ -171,7 +171,7 @@ export default class VariableTracker {
   ): [number, Variable] {
     const variables: Variable[] = varArray ? varArray : this.variables;
 
-    for (let idx: number = 0; idx < variables.length; idx += 1) {
+    for (let idx = 0; idx < variables.length; idx += 1) {
       if (variables[idx].varID === varID) {
         return [idx, variables[idx]];
       }
@@ -192,7 +192,7 @@ export default class VariableTracker {
   ): [number, Variable] {
     const variables: Variable[] = varArray ? varArray : this.variables;
 
-    for (let idx: number = 0; idx < variables.length; idx += 1) {
+    for (let idx = 0; idx < variables.length; idx += 1) {
       if (variables[idx].alias === alias) {
         return [idx, variables[idx]];
       }
@@ -209,7 +209,7 @@ export default class VariableTracker {
     // Save the variable information
     this.variableInfo[variable.alias] = {
       name: variable.name,
-      source: variable.sourceName
+      source: variable.sourceName,
     };
 
     let currentVars: Variable[] = this.variables;
@@ -334,8 +334,8 @@ export default class VariableTracker {
   }
 
   @boundMethod
-  public async saveMetaData() {
-    await this.notebookPanel.session.ready;
+  public async saveMetaData(): Promise<void> {
+    await this.notebookPanel.sessionContext.ready;
 
     if (!this.notebookPanel || !this.notebookPanel.model) {
       return;
@@ -373,8 +373,8 @@ export default class VariableTracker {
   }
 
   @boundMethod
-  public async loadMetaData() {
-    await this.notebookPanel.session.ready;
+  public async loadMetaData(): Promise<void> {
+    await this.notebookPanel.sessionContext.ready;
 
     if (!this.notebookPanel || !this.notebookPanel.model) {
       return;
@@ -425,7 +425,7 @@ export default class VariableTracker {
 
     try {
       // Get valid path for the file
-      const nbPath: string = `${this.notebookPanel.session.path}`;
+      const nbPath = `${this.notebookPanel.sessionContext.path}`;
       const path: string = Utilities.getUpdatedPath(nbPath, filePath);
 
       this._isBusy = true;
@@ -569,7 +569,7 @@ export default class VariableTracker {
     }
 
     // Get relative path for the file
-    const nbPath: string = `${this.notebookPanel.session.path}`;
+    const nbPath = `${this.notebookPanel.sessionContext.path}`;
     const path: string = Utilities.getUpdatedPath(nbPath, sourceFile);
 
     this._isBusy = true;

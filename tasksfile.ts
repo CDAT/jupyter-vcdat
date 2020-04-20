@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/camelcase */
 import { cli, help, sh } from "tasksfile";
 import { dedent } from "ts-dedent";
 import compareVersions from "compare-versions";
@@ -6,28 +8,28 @@ import { ICLIOptions } from "@pawelgalazka/cli";
 // Place to store the messages for different commands.
 const MESSAGE = {
   checkVersion: {
-    valid: (version: string) => {
+    valid: (version: string): string => {
       return `Version ${version} in the package.json looks good!"`;
     },
-    error: (localVersion: string, npmVersion: string) => {
+    error: (localVersion: string, npmVersion: string): string => {
       return dedent`
         Version ${localVersion} in package.json is not newer than npm
         version of ${npmVersion} and will cause Publish job to fail.
         You should update version ${localVersion} in package.json
         to a version greater than ${npmVersion}
       `;
-    }
+    },
   },
   testChrome: {
     error:
-      "Missing driver path. To set path, run:\n'npx task installTestTools -c'"
+      "Missing driver path. To set path, run:\n'npx task installTestTools -c'",
   },
   testFirefox: {
     error:
       "Missing driver path. To set path, run:\n'npx task installTestTools -f'",
     error2:
-      "Missing binary path. To set path, run:\n'npx task installTestTools -f'"
-  }
+      "Missing binary path. To set path, run:\n'npx task installTestTools -f'",
+  },
 };
 
 // Which selenium tests there are to run
@@ -40,10 +42,10 @@ const TESTS: { [name: string]: string[] } = {
     "test_left_tabs",
     "test_sub_menu",
     "test_top_menu",
-    "test_tutorials"
+    "test_tutorials",
   ],
   // These tests can be activated once vcs is updated in master
-  /*test_export_html: [
+  /* test_export_html: [
     "TestExportHTML",
     "test_export_plot_html_via_button",
     "test_export_plot_html_via_nbconvert",
@@ -62,11 +64,11 @@ const TESTS: { [name: string]: string[] } = {
     "test_top_level",
     "test_graphics_options",
     "test_colormap_options",
-    "test_template_options"
-  ]
+    "test_template_options",
+  ],
 };
 
-const TASK_DATA_PATH: string = ".taskData";
+const TASK_DATA_PATH = ".taskData";
 
 enum TaskData {
   tasksReady,
@@ -74,12 +76,12 @@ enum TaskData {
   geckoDriver,
   firefoxBinary,
   condaInstalled,
-  LENGTH // Length must be last element in enum
+  LENGTH, // Length must be last element in enum
 }
 
 enum OSTypes {
   Linux,
-  MacOs
+  MacOs,
 }
 
 /**
@@ -220,7 +222,7 @@ async function getValidPath(prompt: string, quitMsg: string): Promise<string> {
 
 // Template function to convert string array to format with line breaks
 function printArrayVertically(strings: any, array: string[]): string {
-  let result: string = ``;
+  let result = ``;
 
   array.forEach((element: any) => {
     result += `\n${strings[0]}${element}${strings[1]}`;
@@ -234,8 +236,8 @@ function printArrayVertically(strings: any, array: string[]): string {
  * @param code The shell command to run
  * @param silent Whether the shell output should be silent. Default true.
  */
-async function run(code: string, silent: boolean = true): Promise<string> {
-  let output: string = "";
+async function run(code: string, silent = true): Promise<string> {
+  let output = "";
   try {
     output = await sh(code, { async: true, silent });
   } catch (error) {
@@ -255,7 +257,7 @@ async function setTaskData(taskData: TaskData, value: string): Promise<void> {
 
   // Run command based on current OS
   const OS: OSTypes = await getOS();
-  if (OS == OSTypes.Linux) {
+  if (OS === OSTypes.Linux) {
     await run(`sed -i -e '${idx}s#.*#${value}#' ${TASK_DATA_PATH}`);
   } else {
     await run(`sed -i '' -e '${idx}s#.*#${value}#' ${TASK_DATA_PATH}`);
@@ -267,7 +269,7 @@ async function setTaskData(taskData: TaskData, value: string): Promise<void> {
  * @param code The shell command to run
  * @param silent Whether the shell output should be silent. Default false.
  */
-async function shell(code: string, silent: boolean = false): Promise<void> {
+async function shell(code: string, silent = false): Promise<void> {
   await sh(code, { async: true, nopipe: true, silent });
 }
 
@@ -284,7 +286,7 @@ async function testChrome(
 ): Promise<boolean> {
   console.log("===============CHROME TESTS BEGIN===============");
 
-  let driver: string = "";
+  let driver = "";
   let envSetup: string = dedent`echo $BROWSER_TYPE
   echo $BROWSER_MODE`;
 
@@ -304,8 +306,8 @@ async function testChrome(
   `;
   }
 
-  let testCmds: string = "";
-  let testClass: string = "";
+  let testCmds = "";
+  let testClass = "";
   let testNames: string[] = [];
   const testGroups: string[] = [];
   Object.keys(tests).forEach((testGroup: string) => {
@@ -313,10 +315,10 @@ async function testChrome(
       testClass = TESTS[testGroup][0];
       testNames = tests[testGroup];
       testCmds = testCmds.concat(
-        ...testNames.map((test: string) => {
+        ...testNames.map((testName: string) => {
           return ` && nosetests ${
             verbose ? "" : "--nologcapture"
-          } -s tests/${testGroup}.py:${testClass}.${test}`;
+          } -s tests/${testGroup}.py:${testClass}.${testName}`;
         })
       );
     } else {
@@ -325,8 +327,8 @@ async function testChrome(
   });
 
   testCmds = testCmds.concat(
-    ...testGroups.map((test: string) => {
-      return ` && python run_tests.py -H -v 2 tests/${test}.py`;
+    ...testGroups.map((testName: string) => {
+      return ` && python run_tests.py -H -v 2 tests/${testName}.py`;
     })
   );
   await shell(`${envSetup}${testCmds}`);
@@ -346,8 +348,8 @@ async function testFirefox(
 ): Promise<boolean> {
   console.log("=============FIREFOX TESTS BEGIN=============");
 
-  let driver: string = "";
-  let binary: string = "";
+  let driver = "";
+  let binary = "";
   let envSetup: string = dedent`echo $BROWSER_TYPE
   echo $BROWSER_MODE`;
 
@@ -360,11 +362,11 @@ async function testFirefox(
     // If environment is not set, prepare it
     driver = await getTaskData(TaskData.geckoDriver);
     binary = await getTaskData(TaskData.firefoxBinary);
-    if (!driver || driver == "undefined") {
+    if (!driver || driver === "undefined") {
       console.error(MESSAGE.testFirefox.error);
       return false;
     }
-    if (!binary || binary == "undefined") {
+    if (!binary || binary === "undefined") {
       console.error(MESSAGE.testFirefox.error2);
       return false;
     }
@@ -376,8 +378,8 @@ async function testFirefox(
     `;
   }
 
-  let testCmds: string = "";
-  let testClass: string = "";
+  let testCmds = "";
+  let testClass = "";
   let testNames: string[] = [];
   const testGroups: string[] = [];
   Object.keys(tests).forEach((testGroup: string) => {
@@ -385,10 +387,10 @@ async function testFirefox(
       testClass = TESTS[testGroup][0];
       testNames = tests[testGroup];
       testCmds = testCmds.concat(
-        ...testNames.map((test: string) => {
+        ...testNames.map((testName: string) => {
           return ` && nosetests ${
             verbose ? "" : "--nologcapture"
-          } -s tests/${testGroup}.py:${testClass}.${test}`;
+          } -s tests/${testGroup}.py:${testClass}.${testName}`;
         })
       );
     } else {
@@ -397,8 +399,8 @@ async function testFirefox(
   });
 
   testCmds = testCmds.concat(
-    ...testGroups.map((test: string) => {
-      return ` && python run_tests.py -H -v 2 tests/${test}.py`;
+    ...testGroups.map((testName: string) => {
+      return ` && python run_tests.py -H -v 2 tests/${testName}.py`;
     })
   );
   await shell(`${envSetup}${testCmds}`);
@@ -410,7 +412,7 @@ async function testFirefox(
  */
 
 // Task: build
-async function build() {
+async function build(): Promise<void> {
   shell("python scripts/deploy_update.py && npm run build && jlpm run build");
 }
 
@@ -437,7 +439,7 @@ help(
   `Compares package.json version with the version published \
 on npm and exits with error if the published version is newer.`,
   {
-    params: []
+    params: [],
   }
 );
 
@@ -445,9 +447,9 @@ on npm and exits with error if the published version is newer.`,
 async function format(options: ICLIOptions, arg: string): Promise<void> {
   try {
     if (!arg) {
-      await shell("npx prettier-tslint fix 'src/**/*.{ts,tsx,css,scss}'");
+      await shell("npx prettier --write --check 'src/**/*.{js,ts,tsx}'");
     } else {
-      await shell(`npx prettier-tslint fix ${arg}`);
+      await shell(`npx prettier --write --check ${arg}`);
     }
   } catch (error) {
     console.error(error);
@@ -455,7 +457,7 @@ async function format(options: ICLIOptions, arg: string): Promise<void> {
 }
 
 help(format, "Format source files using prettier-tslint", {
-  params: []
+  params: [],
 });
 
 // Task : installTestTools
@@ -463,10 +465,10 @@ async function installTestTools(options: ICLIOptions): Promise<void> {
   const firefox: any = options.f || options.firefox;
   const chrome: any = options.c || options.chrome;
   const CONDA_ENV: string = await run(`echo $CONDA_DEFAULT_ENV`);
-  const CANCEL_PROMPT: string = "Installation cancelled.";
-  const CHROME_DRIVER: string = "Please enter path to Chrome selenium driver";
-  const GECKO_DRIVER: string = "Please enter path to Firefox selenium driver";
-  const GECKO_EXE: string = "Please enter path to the Firefox executable";
+  const CANCEL_PROMPT = "Installation cancelled.";
+  const CHROME_DRIVER = "Please enter path to Chrome selenium driver";
+  const GECKO_DRIVER = "Please enter path to Firefox selenium driver";
+  const GECKO_EXE = "Please enter path to the Firefox executable";
   if (CONDA_ENV) {
     if (chrome || firefox) {
       if (chrome) {
@@ -498,7 +500,7 @@ async function installTestTools(options: ICLIOptions): Promise<void> {
         }
       }
       const condaInstalled: boolean =
-        (await getTaskData(TaskData.condaInstalled)) == "true";
+        (await getTaskData(TaskData.condaInstalled)) === "true";
       if (!condaInstalled) {
         console.log("Installing conda dependencies...");
         await shell(
@@ -535,7 +537,7 @@ help(
       firefox: "<optional> Set firefox driver for tests.",
       f: "<optional> Same as above.",
       chrome: "<optional> Set chrome driver for tests.",
-      c: "<optional> Same as above."
+      c: "<optional> Same as above.",
     },
     examples: dedent`
     Full install including chrome and firefox settings:
@@ -544,18 +546,16 @@ help(
       npx task installTestTools -c
     Install or update conda dependencies only:
       npx task installTestTools
-    `
+    `,
   }
 );
 
 // Task: lint
 async function lint(options: ICLIOptions): Promise<void> {
   try {
-    let command: string = "";
-    const tsOpts: string = options.fix
-      ? "--fix --project tsconfig.json"
-      : "--project tsconfig.json";
-    const pyOpts: string = `--show-source --statistics \
+    let command = "";
+    const tsOpts: string = options.fix ? "--fix" : "";
+    const pyOpts = `--show-source --statistics \
 --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 \
 --max-line-length=120`;
 
@@ -569,16 +569,16 @@ async function lint(options: ICLIOptions): Promise<void> {
     await checkVersion();
     if (tsFile && pyFile) {
       console.log(`Linting Typescript files and Python files...`);
-      command = `npx tslint ${tsOpts} ${tsFile}\nflake8 ${pyOpts} ${pyFile}`;
+      command = `npx eslint ${tsOpts} ${tsFile}\nflake8 ${pyOpts} ${pyFile}`;
     } else if (tsFile) {
       console.log("Linting Typescript files...");
-      command = `npx tslint ${tsOpts} ${tsFile}`;
+      command = `npx eslint ${tsOpts} ${tsFile}`;
     } else if (pyFile) {
       console.log("Linting Python files...");
       command = `flake8 ${pyOpts} ${pyFile}`;
     } else {
       console.log("Linting all Typescript and Python source files...");
-      command = `npx tslint ${tsOpts} 'src/**/*.{ts,tsx}'\nflake8 ${pyOpts} *.py`;
+      command = `npx eslint ${tsOpts} 'src/**/*.{ts,tsx}'\nflake8 ${pyOpts} *.py`;
     }
     await shell(`${command}`);
     console.log("Done!");
@@ -594,7 +594,7 @@ help(lint, `Performs linting operations on source files.`, {
     tsfile: "<optional> Specific file to lint. Default: All source files.",
     t: "<optional> Same as above.",
     pyfile: "<optional> Perform linting of Python source files with flake8.",
-    p: "<optional> Same as above."
+    p: "<optional> Same as above.",
   },
   examples: dedent`
   To lint and fix specific typescript file:
@@ -607,7 +607,7 @@ help(lint, `Performs linting operations on source files.`, {
     npx task lint --fix -p -t OR npx task lint
   To run lint on specific typescript and specific python file:
     npx task lint -t=myFile.ts -p=anotherFile.py
-  `
+  `,
 });
 
 // Task: test
@@ -620,7 +620,7 @@ async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
 
   const mainTests: string[] = Object.keys(TESTS);
   const testsToRun: string[] = tests.length > 0 ? tests : mainTests;
-  let error: boolean = false;
+  let error = false;
 
   // Print out list of tests if list option set
   if (options.l || options.list) {
@@ -629,15 +629,15 @@ async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
         `Available Tests:\n\n${printArrayVertically`  ${mainTests}`}\n`
       );
     } else {
-      testsToRun.forEach((test: string) => {
-        if (TESTS[test]) {
+      testsToRun.forEach((testName: string) => {
+        if (TESTS[testName]) {
           console.log(
-            `${TESTS[test][0]}:\n\n${printArrayVertically`  ${TESTS[test].slice(
-              1
-            )}`}\n`
+            `${TESTS[testName][0]}:\n\n${printArrayVertically`  ${TESTS[
+              testName
+            ].slice(1)}`}\n`
           );
         } else {
-          console.error(`\nError: ${test} is not a test group.`);
+          console.error(`\nError: ${testName} is not a test group.`);
         }
       });
     }
@@ -646,35 +646,35 @@ async function test(options: ICLIOptions, ...tests: string[]): Promise<void> {
   }
 
   const testData: { [testGroup: string]: string[] } = {};
-  testsToRun.forEach((test: string) => {
-    if (TESTS[test]) {
+  testsToRun.forEach((testName: string) => {
+    if (TESTS[testName]) {
       // Test is a testGroup, process based on whether verbose or not
       if (verbose) {
         // This calls a one line command for the group
-        testData[test] = [];
+        testData[testName] = [];
       } else {
         // This will call a nosetest command for each test in the group
         // that way the --nologcapture option can be used to ignore log output
-        testData[test] = TESTS[test].slice(1);
+        testData[testName] = TESTS[testName].slice(1);
       }
     } else {
-      let testFound: boolean = false;
-      let tests: string[] = [];
+      let testFound = false;
+      let testNames: string[] = [];
 
       Object.keys(TESTS).forEach((testGroup: string) => {
-        tests = TESTS[testGroup].slice(1);
-        if (tests.includes(test)) {
+        testNames = TESTS[testGroup].slice(1);
+        if (testNames.includes(testName)) {
           testFound = true;
           if (testData[testGroup]) {
-            testData[testGroup].push(test);
+            testData[testGroup].push(testName);
           } else {
-            testData[testGroup] = [test];
+            testData[testGroup] = [testName];
           }
         }
       });
       if (!testFound) {
         // Return error if test not found
-        console.error(`ARGUMENT ERROR: Unrecognized test: ${test}.`);
+        console.error(`ARGUMENT ERROR: Unrecognized test: ${testName}.`);
         error = true;
       }
     }
@@ -731,7 +731,7 @@ or running kernels before you start the tests. Otherwise tests may fail.`,
         "<optional> This indicates that installation and environment \
       variables are ready to go. Use when running tests in an environment that \
       is already set, such as in circleci.",
-      r: "<optional> Same as above"
+      r: "<optional> Same as above",
     },
     examples: dedent`
   This will print out all available test groups:
@@ -754,7 +754,7 @@ or running kernels before you start the tests. Otherwise tests may fail.`,
     npx task test -f <specific_test_group>
   This will run specific test and test group in chrome only:
     npx task test -c <specific_test> <specific_test_group>
-  `
+  `,
   }
 );
 
@@ -769,7 +769,7 @@ function updateTags(options: ICLIOptions): void {
       `python scripts/update_tags.py --log ${log} --source ${source} --suffix ${suffix}`,
       {
         silent: true,
-        async: false
+        async: false,
       }
     );
   } catch (error) {
@@ -784,7 +784,7 @@ help(updateTags, "Will find and update all className tags in source files.", {
     source: `The path of the file or files to update. Default: "src/**/*.tsx"`,
     suffix: dedent`The string value to attach to the end of the tags.
     Ex: --suffix='-1234' changes 'tagName' to 'tagName_1234'. Default: "vcdat"
-    Note: If you change this, make sure all classNames are updated in test suite.`
+    Note: If you change this, make sure all classNames are updated in test suite.`,
   },
   examples: dedent`
   Use the following example for adding and updating tags to components:
@@ -801,7 +801,7 @@ help(updateTags, "Will find and update all className tags in source files.", {
     <component className={/* tag<newNameForTag> */ "oldClassName" } />
       ---> <component className={/* tag<newNameForTag> */ "newNameForTag_suffix" } />
     <component className={/* tag<otherClass newInsertClass>*/ "otherClass oldClass" } />
-      ---> <component className={/* tag<otherClass newInsertClass>*/ "otherClass newInsertClass" } />`
+      ---> <component className={/* tag<otherClass newInsertClass>*/ "otherClass newInsertClass" } />`,
 });
 
 cli({
@@ -811,5 +811,5 @@ cli({
   installTestTools,
   lint,
   test,
-  updateTags
+  updateTags,
 });

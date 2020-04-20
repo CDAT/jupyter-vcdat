@@ -11,7 +11,7 @@ import {
   Col,
   ListGroup,
   ListGroupItem,
-  Row
+  Row,
 } from "reactstrap";
 
 // Project Components
@@ -24,12 +24,12 @@ import VariableTracker from "../VariableTracker";
 import { boundMethod } from "autobind-decorator";
 
 const varButtonStyle: React.CSSProperties = {
-  marginBottom: "1em"
+  marginBottom: "1em",
 };
 
 const formOverflow: React.CSSProperties = {
   maxHeight: "250px",
-  overflowY: "auto"
+  overflowY: "auto",
 };
 
 interface IVarMenuProps {
@@ -62,7 +62,7 @@ export default class VarMenu extends React.Component<
     this.state = {
       modalOpen: false,
       selectedVariables: this.props.varTracker.selectedVariables,
-      variables: this.props.varTracker.variables
+      variables: this.props.varTracker.variables,
     };
     this.varLoaderRef = (React as any).createRef();
   }
@@ -113,7 +113,7 @@ export default class VarMenu extends React.Component<
     await this.varLoaderRef.reset();
     // Update state to show launcher with variables
     this.varLoaderRef.setState({
-      show: true
+      show: true,
     });
     this.varLoaderRef.updateFileVars(fileVariables);
   }
@@ -159,7 +159,7 @@ export default class VarMenu extends React.Component<
     return (
       <div>
         <Card>
-          <CardBody className={/*@tag<varmenu-main>*/ "varmenu-main-vcdat"}>
+          <CardBody className={/* @tag<varmenu-main>*/ "varmenu-main-vcdat"}>
             <CardTitle>Load Variable Options</CardTitle>
             <CardSubtitle>
               <Row>
@@ -167,7 +167,7 @@ export default class VarMenu extends React.Component<
                   <ButtonGroup style={{ minWidth: "155px" }}>
                     <Button
                       className={
-                        /*@tag<varmenu-load-variables-file-btn>*/ "varmenu-load-variables-file-btn-vcdat"
+                        /* @tag<varmenu-load-variables-file-btn>*/ "varmenu-load-variables-file-btn-vcdat"
                       }
                       color="info"
                       onClick={this.launchFilebrowser}
@@ -178,7 +178,7 @@ export default class VarMenu extends React.Component<
                     </Button>
                     <Button
                       className={
-                        /*@tag<varmenu-load-variables-path-btn>*/ "varmenu-load-variables-path-btn-vcdat"
+                        /* @tag<varmenu-load-variables-path-btn>*/ "varmenu-load-variables-path-btn-vcdat"
                       }
                       color="info"
                       onClick={this.launchFilepathModal}
@@ -193,7 +193,7 @@ export default class VarMenu extends React.Component<
                   <Col>
                     <Button
                       className={
-                        /*@tag<varmenu-sync-btn>*/ "varmenu-sync-btn-vcdat"
+                        /* @tag<varmenu-sync-btn>*/ "varmenu-sync-btn-vcdat"
                       }
                       color="info"
                       onClick={this.props.updateNotebook}
@@ -208,11 +208,11 @@ export default class VarMenu extends React.Component<
             </CardSubtitle>
             {this.state.variables.length > 0 && (
               <ListGroup
-                className={/*@tag<varmenu-varlist>*/ "varmenu-varlist-vcdat"}
+                className={/* @tag<varmenu-varlist>*/ "varmenu-varlist-vcdat"}
                 style={formOverflow}
               >
                 {this.state.variables.map((item: Variable, idx: number) => {
-                  const toggleSelection = () => {
+                  const toggleSelection = (): void => {
                     if (this.state.modalOpen) {
                       return;
                     }
@@ -264,7 +264,7 @@ export default class VarMenu extends React.Component<
         <VarLoader
           varTracker={this.props.varTracker}
           loadSelectedVariables={this.props.codeInjector.loadMultipleVariables}
-          ref={(loader: VarLoader) => (this.varLoaderRef = loader)}
+          ref={(loader: VarLoader): VarLoader => (this.varLoaderRef = loader)}
         />
       </div>
     );

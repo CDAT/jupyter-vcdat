@@ -16,11 +16,11 @@ TEST_FIREFOX_IMAGE = "selenium/node-firefox"
 VCDAT_IMAGE_TAG = "cdat/vcdat"
 
 # Host requirements for conda package
-HOST_REQUIREMENTS = ["'jupyterlab=1.2.10'", "nodejs", "pip", "'python>=3.7'"]
+HOST_REQUIREMENTS = ["jupyterlab", "nodejs", "pip", "'python>=3.7'"]
 
 # Run requirements for conda package
-RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "'jupyterlab=1.2.10'", "nb_conda",
-                    "'libnetcdf=4.7.3'", "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
+RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "jupyterlab", "nb_conda",
+                    "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
 
 # base conda channels (always added)
 BASE_CHANNELS = "-c conda-forge"
@@ -38,8 +38,8 @@ UPLOAD_CHANNELS = "-c cdat/label/nightly -c conda-forge -c cdat"
 EXTRA_CHANNELS = "-c pcmdi/label/nightly"
 
 # base packages (always added)
-BASE_CONDA_PKGS = "pip vcs cdms2 tqdm nodejs 'python=3.7' 'libnetcdf=4.7.3'"
-BASE_CONDA_PKGS += " 'jupyterlab=1.2.10' jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS = "pip vcs cdms2 tqdm nodejs 'python=3.7'"
+BASE_CONDA_PKGS += " jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
 
 # extra packages ( Not included by default )
 EXTRA_PACKAGES = "vcsaddons thermo cmor eofs windspharm autopep8 mesalib "
@@ -52,7 +52,7 @@ DEV_CONDA_PKGS = "testsrunner cdat_info"
 BASE_PIP_PKGS = ["sidecar"]
 
 # dev pip packages (required only for developer deployment)
-DEV_PIP_PKGS = ["selenium", "pyvirtualdisplay"]
+DEV_PIP_PKGS = ["flake8", "selenium", "pyvirtualdisplay"]
 
 # REQURIED JupyterLab extensions to install (not including Jupyter-VCDAT)
 BASE_EXTENSIONS = [
@@ -63,9 +63,7 @@ BASE_EXTENSIONS = [
 ]
 
 # EXTRA JupyterLab extensions (installed but not required)
-EXTRA_EXTENSIONS = [
-    "jupyterlab-favorites"
-]
+EXTRA_EXTENSIONS = []
 
 
 def get_main_dir():

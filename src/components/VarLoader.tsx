@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 // Dependencies
 import * as React from "react";
 import * as _ from "lodash";
-import { ISignal, Signal } from "@phosphor/signaling";
+import { ISignal, Signal } from "@lumino/signaling";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 // Project Components
@@ -17,10 +17,10 @@ import { boundMethod } from "autobind-decorator";
 
 const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
-  overflow: "auto"
+  overflow: "auto",
 };
 const noScroll: React.CSSProperties = {
-  overflow: "hidden"
+  overflow: "hidden",
 };
 
 interface IVarLoaderProps {
@@ -46,7 +46,7 @@ export default class VarLoader extends React.Component<
       fileVariables: Array<Variable>(),
       selectedVariables: Array<Variable>(),
       show: false,
-      variablesToShow: Array<Variable>()
+      variablesToShow: Array<Variable>(),
     };
     this._selectionChanged = new Signal<this, Variable[]>(this);
   }
@@ -69,7 +69,7 @@ export default class VarLoader extends React.Component<
     this.selections = Array<Variable>();
     await this.setState({
       fileVariables: Array<Variable>(),
-      variablesToShow: Array<Variable>()
+      variablesToShow: Array<Variable>(),
     });
   }
 
@@ -81,7 +81,7 @@ export default class VarLoader extends React.Component<
     // Reset the state of the var loader when done
     await this.reset();
     await this.setState({
-      show: !this.state.show
+      show: !this.state.show,
     });
   }
 
@@ -186,14 +186,14 @@ export default class VarLoader extends React.Component<
           fileVariables[varIndex].axisInfo[axisIndex].first = newInfo.first;
           fileVariables[varIndex].axisInfo[axisIndex].last = newInfo.last;
           this.setState({
-            fileVariables
+            fileVariables,
           });
         });
       }
     );
   }
 
-  public variableSort(a: Variable, b: Variable) {
+  public variableSort(a: Variable, b: Variable): number {
     let comp = 0;
     const aName = a.name.toLocaleLowerCase();
     const bName = b.name.toLocaleLowerCase();
@@ -206,27 +206,27 @@ export default class VarLoader extends React.Component<
   }
 
   @boundMethod
-  public updateFileVars(vars: Variable[]) {
+  public updateFileVars(vars: Variable[]): void {
     this.setState({
       fileVariables: vars,
-      variablesToShow: vars.sort(this.variableSort)
+      variablesToShow: vars.sort(this.variableSort),
     });
   }
 
   @boundMethod
-  public resetSearch() {
+  public resetSearch(): void {
     this.setState({
-      variablesToShow: this.state.fileVariables
+      variablesToShow: this.state.fileVariables,
     });
   }
 
   @boundMethod
-  public handleSearchChange(e: any) {
+  public handleSearchChange(e: any): void {
     const value = e.target.value;
 
     if (value.length < 1) {
       this.setState({
-        variablesToShow: this.state.fileVariables
+        variablesToShow: this.state.fileVariables,
       });
     }
 
@@ -236,7 +236,7 @@ export default class VarLoader extends React.Component<
     });
 
     const re = new RegExp(value, "i");
-    const isMatch = (result: string) => re.test(result);
+    const isMatch = (result: string): boolean => re.test(result);
 
     const searchResults = _.filter(targets, isMatch);
     const newVarsToShow = Array<Variable>();
@@ -248,7 +248,7 @@ export default class VarLoader extends React.Component<
       });
     });
     this.setState({
-      variablesToShow: newVarsToShow.sort(this.variableSort)
+      variablesToShow: newVarsToShow.sort(this.variableSort),
     });
   }
 
@@ -273,18 +273,18 @@ export default class VarLoader extends React.Component<
         <Modal isOpen={this.state.show} toggle={this.toggle} size="lg">
           <ModalHeader toggle={this.toggle}>Load Variable</ModalHeader>
           <ModalBody
-            className={/*@tag<var-loader-modal>*/ "var-loader-modal-vcdat"}
+            className={/* @tag<var-loader-modal>*/ "var-loader-modal-vcdat"}
           >
             <div
               style={noScroll}
-              className={/*@tag<var-loader-search>*/ "var-loader-search-vcdat"}
+              className={/* @tag<var-loader-search>*/ "var-loader-search-vcdat"}
             >
               <form>
                 <label>
                   Search:
                   <input
                     className={
-                      /*@tag<var-loader-search-input>*/ "var-loader-search-input-vcdat"
+                      /* @tag<var-loader-search-input>*/ "var-loader-search-input-vcdat"
                     }
                     type="text"
                     name="name"
@@ -296,7 +296,7 @@ export default class VarLoader extends React.Component<
             </div>
             <div
               style={modalOverflow}
-              className={/*@tag<var-loader-items>*/ "var-loader-items-vcdat"}
+              className={/* @tag<var-loader-items>*/ "var-loader-items-vcdat"}
             >
               {this.state.variablesToShow.length !== 0 &&
                 this.state.variablesToShow.map((item: Variable) => {
@@ -319,7 +319,7 @@ export default class VarLoader extends React.Component<
           <ModalFooter>
             <Button
               className={
-                /*@tag<var-loader-load-btn>*/ "var-loader-load-btn-vcdat"
+                /* @tag<var-loader-load-btn>*/ "var-loader-load-btn-vcdat"
               }
               outline={true}
               active={this.selections.length > 0}
