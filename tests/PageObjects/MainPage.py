@@ -50,8 +50,8 @@ class MainPage(ActionsPage):
             raise ValueError(
                 "Only the following names are valid: {}".format(self.TOP_MENUS)
             )
-
-        loc = "//div[@class='p-MenuBar-itemLabel'][contains(text(),'{n}')]".format(
+        loc = "//div[@id='jp-MainMenu']//div[contains"
+        loc += "(@class,'lm-MenuBar-itemLabel')][text()='{n}']".format(
             n=name
         )
         return self.locator(loc, "xpath", "{} Menu".format(name))
@@ -84,7 +84,8 @@ class MainPage(ActionsPage):
     def dialog_btn(self, text, descr=""):
         if descr == "":
             descr = "'{}' dialog button".format(text)
-        loc = "//div[@class='p-Widget jp-Dialog']//button/div[@class="
+        loc = "//div[contains(@class,'lm-Widget') and "
+        loc += "contains(@class,'jp-Dialog')]//button/div[@class="
         loc += "'jp-Dialog-buttonLabel'][contains(text(),'{}')]".format(text)
         return self.locator(loc, "xpath", descr)
 
@@ -105,13 +106,15 @@ class MainPage(ActionsPage):
         if descr == "":
             descr = name
 
-        parent = self.top_menu(parent)
-
-        loc = "//div[@class='p-Widget p-Menu p-MenuBar-menu']//li/div[@class="
-        loc += "'p-Menu-itemLabel'][contains(text(),'{n}')]".format(n=name)
-        return self.locator(loc, "xpath", descr, parent)
+        requires = self.top_menu(parent)
+        loc = "//div[contains(@class,'lm-Menu') and contains(@class,"
+        loc += "'lm-MenuBar-menu')]/ul/li/div[contains(@class,"
+        loc += "'lm-Menu-itemLabel')][text()='{n}']".format(n=name)
+        return self.locator(loc, "xpath", descr, requires)
 
     # Provides the locator for an item within a sub-menu. top_menu -> sub_menu -> item
+    # Note, the item name must match exactly.
+    # This means including: '…' character where applicable.
     def sub_menu_item(self, top_menu, sub_menu, item, descr=""):
         if descr == "":
             descr = item
@@ -120,9 +123,11 @@ class MainPage(ActionsPage):
             # Firefox needed steps to correctly click the element
             self.top_menu(top_menu).simple_click()
             self.top_menu_item(top_menu, sub_menu).move_to(10, 20).click()
+
         requires = self.top_menu_item(top_menu, sub_menu)
-        loc = "//div[@class='p-Widget p-Menu']//li/div[@class='p-Menu-itemLabel']"
-        loc += "[contains(text(),'{i}')]".format(i=item)
+        loc = "//div[contains(@class,'lm-Menu') and not(contains"
+        loc += "(@class,'lm-MenuBar-menu'))]/ul/li/div[contains"
+        loc += "(@class,'lm-Menu-itemLabel')][text()='{i}']".format(i=item)
         return self.locator(loc, "xpath", descr, requires)
 
     # ----------------------------- PAGE FUNCTIONS -----------------------------
@@ -130,7 +135,8 @@ class MainPage(ActionsPage):
     # Will drag the main split panel handle to the specified width. Returns True
     # if the adjustment was successful.
     def adjust_sidebar(self, width):
-        loc = "//*[@id='jp-main-split-panel']/div[contains(@class,'p-SplitPanel-handle')]"
+        loc = "//*[@id='jp-main-split-panel']/div"
+        loc += "[contains(@class,'lm-SplitPanel-handle')]"
         divider = self.locator(loc, "xpath", "Split Panel Bar").get()
         current_width = divider.get_attribute("style")
         # Will extract the 'left: 1234.234' value from string
@@ -167,7 +173,7 @@ class MainPage(ActionsPage):
 
     def rename_notebook(self, new_name):
         # Rename notebook
-        self.top_menu_item("File", "Rename").click().sleep(3)
+        self.top_menu_item("File", "Rename Notebook…").click().sleep(3)
         self.dialog_input("Rename").enter_text(
             "{}.ipynb".format(new_name)).press_enter().sleep(3)
         self.dialog_btn("Overwrite").attempt().click().sleep(3)
@@ -238,13 +244,13 @@ class MainPage(ActionsPage):
             print("...shutdown all kernels...")
             self.top_menu("Kernel").click()
             self.top_menu_item(
-                "Kernel", "Shut Down All Kernels", "Shutdown All Kernels Button"
+                "Kernel", "Shut Down All Kernels…", "Shutdown All Kernels Button"
             ).attempt().click()
             self.dialog_btn("Shut Down All").attempt().click().sleep(3)
         else:
             self.top_menu("Kernel").silent().click()
             self.top_menu_item(
-                "Kernel", "Shut Down All Kernels", "Shutdown All Kernels Button"
+                "Kernel", "Shut Down All Kernels…", "Shutdown All Kernels Button"
             ).silent().attempt().click()
             self.dialog_btn("Shut Down All").silent(
             ).attempt().click().sleep(3)

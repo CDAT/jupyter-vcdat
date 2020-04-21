@@ -84,7 +84,7 @@ class TestExportHTML(BaseTestCase):
         # File > Export as > Export as HTML
         debug_print('Click button to download as HTML.')
         self.main_page.sub_menu_item(
-            "File", "Export Notebook As", "Export Notebook to HTML").click().sleep(1)
+            "File", "Export Notebook As…", "Export Notebook to HTML").click().sleep(1)
         close_test(NOTEBOOK_NAME)
 
     def test_export_plot_html_via_nbconvert(self):

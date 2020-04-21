@@ -34,7 +34,7 @@ class FileBrowser(MainPage):
 
     # Provides locator for the small folder icon found in the browser breadcrumbs
     def folder_icon(self):
-        loc = "span.jp-BreadCrumbs-home[data-icon~='folder']"
+        loc = "span.jp-BreadCrumbs-home"
         requires = self.action(self.open_left_tab, "", "FileBrowser")
         return self.locator(loc, "css", "Folder Icon in FileBrowser", requires).needs_to_be("visible")
 
