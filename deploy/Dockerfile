@@ -20,4 +20,4 @@ RUN jupyter labextension install @jupyterlab/hub-extension
 
 # Our extension needs to be built from npm repo otherwise jupyter-lab
 # tries to write into image and shifter does not let us do this.
-RUN jupyter labextension install jupyter-vcdat@nightly
+RUN jupyter labextension install jupyter-vcdat@test
