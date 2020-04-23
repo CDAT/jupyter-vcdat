@@ -328,7 +328,7 @@ async function testChrome(
 
   testCmds = testCmds.concat(
     ...testGroups.map((testName: string) => {
-      return ` && python run_tests.py -H -v 2 tests/${testName}.py`;
+      return ` && python scripts/run_tests.py -H -v 2 tests/${testName}.py`;
     })
   );
   await shell(`${envSetup}${testCmds}`);
@@ -400,7 +400,7 @@ async function testFirefox(
 
   testCmds = testCmds.concat(
     ...testGroups.map((testName: string) => {
-      return ` && python run_tests.py -H -v 2 tests/${testName}.py`;
+      return ` && python scripts/run_tests.py -H -v 2 tests/${testName}.py`;
     })
   );
   await shell(`${envSetup}${testCmds}`);

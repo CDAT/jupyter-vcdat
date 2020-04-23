@@ -183,3 +183,6 @@ jupyter labextension install @jupyterlab/hub-extension
 npm install
 jupyter lab build
 jupyter-labextension install .
+
+# Success message
+echo Jupyter VCDAT has been successfully installed!

@@ -1,9 +1,10 @@
 import os
 import subprocess
+import utilities as u
 from string import Template
 
 # TEMPLATES LOCATION
-TEMPLATES_DIR = "/scripts/deploy_templates"
+TEMPLATES_DIR = "/deploy/deploy_templates"
 
 # Docker base image
 BASE_IMAGE = "nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest"
@@ -64,12 +65,6 @@ BASE_EXTENSIONS = [
 
 # EXTRA JupyterLab extensions (installed but not required)
 EXTRA_EXTENSIONS = []
-
-
-def get_main_dir():
-    output = subprocess.run(
-        ["git rev-parse --show-toplevel"], capture_output=True, text=True, shell=True)
-    return output.stdout.rstrip()
 
 
 def create_pip_commands(packages, pre=""):
@@ -229,5 +224,5 @@ def main():
 
 
 if __name__ == '__main__':
-    MAIN_DIR = get_main_dir()
+    MAIN_DIR = u.get_main_dir()
     main()
