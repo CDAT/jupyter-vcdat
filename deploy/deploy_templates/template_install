@@ -7,9 +7,6 @@
 # default logfile name
 FILENAME="jupyter-vcdat_logfile.txt"
 
-# base conda channels
-BASE_CHANNELS="$_base_channels"
-
 # dev conda channels to use
 DEV_CHANNELS="$_dev_channels"
 
@@ -32,7 +29,7 @@ VERBOSE=0
 INSTALL_MODE="USER"
 
 # conda channel and CONDA_PACKAGES to use
-CONDA_CHANNELS="$USER_CHANNELS $BASE_CHANNELS"
+CONDA_CHANNELS="$USER_CHANNELS"
 CONDA_PACKAGES=$BASE_CONDA_PKGS
 
 function usage() {

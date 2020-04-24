@@ -117,10 +117,10 @@ jobs:
     steps:
       - checkout
       - run: *check_vcdat_versions
-      #- run: *npm_publish
+      - run: *npm_publish
       - setup_remote_docker
       - run: *docker_publish
-      #- run: *conda_upload
+      - run: *conda_upload
 
   linux_chrome:
     docker:
@@ -170,6 +170,6 @@ workflows:
           requires:
             - linux_chrome
             - linux_firefox
-          #filters:
-          #  branches:
-          #    only: master
+          filters:
+            branches:
+              only: master

@@ -67,8 +67,7 @@ docker build -t cdat/vcdat:<new version> .
 
 - Test the docker image runs properly:
 ```bash
-docker run -p 9000:9000 -v /<Path to directory to use in testing>/:\
-/home/jovyan/testing/ -it cdat/vcdat:<new version> jupyter-lab --port=9000
+docker run -p 9000:9000 -v /<Path to directory to use in testing>/:/home/jovyan/testing/ -it cdat/vcdat:<new version> jupyter lab --port=9000
 ```
 Note: Within browser, go to: localhost:9000, and enter the jupyterlab token from the console into the token field. Then you should see jupyter-vcdat in browser
 
@@ -93,7 +92,7 @@ docker push cdat/vcdat:latest
 docker run -p 9000:9000 -v /<Path to directory to use in testing>/:\
 /home/jovyan/testing/ -it cdat/vcdat:local-branch jupyter-lab --port=9000
 ```
-Note: Within browser, go to: localhost:9000, and enter the jupyterlab token from the console into the token field. Then you should see jupyter-vcdat in browser
+Note: Within browser, go to: localhost:9000/lab, and enter the jupyterlab token from the console into the token field. Then you should see jupyter-vcdat in browser
 
 - After test is successful and image is running properly, you can publish to docker hub this way:
 ```bash

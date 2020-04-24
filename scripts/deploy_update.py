@@ -23,14 +23,11 @@ HOST_REQUIREMENTS = ["jupyterlab", "nodejs", "pip", "'python>=3.7'"]
 RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "jupyterlab", "nb_conda",
                     "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
 
-# base conda channels (always added)
-BASE_CHANNELS = "-c conda-forge"
-
 # dev conda channels (for developer deployment)
-DEV_CHANNELS = "-c cdat/label/nightly"
+DEV_CHANNELS = "-c cdat/label/nightly -c conda-forge"
 
 # user conda channels (for stable deployment)
-USER_CHANNELS = "-c cdat/label/nightly"
+USER_CHANNELS = "-c conda-forge -c cdat/label/v82"
 
 # channels used for conda upload (conda deployment)
 UPLOAD_CHANNELS = "-c cdat/label/nightly -c conda-forge -c cdat"
@@ -134,7 +131,7 @@ def create_circle_config(template_in, config_out):
 
 # Takes a template of the dockerfile and creates a new dockerfile with specified
 # installation steps
-def create_docker_script(template_in, docker_out):
+def create_docker_script(template_user, template_dev, user_out, dev_out):
 
     # Generate pip install commands
     _pip = create_pip_commands(BASE_PIP_PKGS, "RUN ")
@@ -143,15 +140,19 @@ def create_docker_script(template_in, docker_out):
     EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
     install_ext = create_extension_commands(EXTS, "RUN ")
 
-    CONDA_CHANNELS = BASE_CHANNELS + " " + USER_CHANNELS
     # Combine all settings into dictonary for template to use
-    data = {"_base_image": BASE_IMAGE, "_conda_channels": CONDA_CHANNELS,
+    data = {"_base_image": BASE_IMAGE, "_conda_channels": USER_CHANNELS,
             "_conda_pkgs": BASE_CONDA_PKGS, "_pip_install": _pip,
             "_install_extensions": install_ext}
 
-    # Create install file
-    update_template(template_in, docker_out, data)
+    # Create user docker file
+    update_template(template_user, user_out, data)
 
+    # Change to DEV channels for dev version
+    data['_conda_channels'] = DEV_CHANNELS
+
+    # Create dev docker file
+    update_template(template_dev, dev_out, data)
 
 # Takes a template of the installer script and creates a new install script with specified
 # conda channels and packages.
@@ -166,10 +167,10 @@ def create_install_script(template_in, installer_out):
     install_ext = create_extension_commands(EXTS)
 
     # Combine all settings into dictonary for template to use
-    data = {"_base_channels": BASE_CHANNELS, "_dev_channels": DEV_CHANNELS,
-            "_user_channels": USER_CHANNELS, "_base_conda_pkgs": BASE_CONDA_PKGS,
-            "_dev_conda_pkgs": DEV_CONDA_PKGS, "_base_pip_install": base_pip,
-            "_dev_pip_install": dev_pip, "_install_extensions": install_ext}
+    data = {"_dev_channels": DEV_CHANNELS, "_user_channels": USER_CHANNELS,
+            "_base_conda_pkgs": BASE_CONDA_PKGS, "_dev_conda_pkgs": DEV_CONDA_PKGS,
+            "_base_pip_install": base_pip, "_dev_pip_install": dev_pip,
+            "_install_extensions": install_ext}
 
     # Create install file
     update_template(template_in, installer_out, data)
@@ -208,9 +209,11 @@ def main():
     create_install_script(template_in, file_out)
 
     # Generate deploy/Dockerfile
-    template_in = "{}{}/template_docker".format(MAIN_DIR, TEMPLATES_DIR)
-    file_out = "{}/deploy/Dockerfile".format(MAIN_DIR)
-    create_docker_script(template_in, file_out)
+    template_user = "{}{}/template_docker".format(MAIN_DIR, TEMPLATES_DIR)
+    template_dev = "{}{}/template_dev_docker".format(MAIN_DIR, TEMPLATES_DIR)
+    user_out = "{}/deploy/Dockerfile".format(MAIN_DIR)
+    dev_out = "{}/deploy/DEV.Dockerfile".format(MAIN_DIR)
+    create_docker_script(template_user, template_dev, user_out, dev_out)
 
     # Generate recipe/build.sh
     template_in = "{}{}/template_build".format(MAIN_DIR, TEMPLATES_DIR)

@@ -1,6 +1,8 @@
 # This dockerfile will create a docker image for an official release
 FROM nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
 
+ADD local_package /home/jovyan
+
 # Install Conda packages
 ARG conda_channels="-c cdat/label/nightly -c conda-forge"
 ARG conda_packages="pip vcs cdms2 tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
@@ -20,4 +22,4 @@ RUN jupyter labextension install @jupyterlab/hub-extension
 
 # Our extension needs to be built from npm repo otherwise jupyter-lab
 # tries to write into image and shifter does not let us do this.
-RUN jupyter labextension install jupyter-vcdat@test
+RUN jupyter labextension install .

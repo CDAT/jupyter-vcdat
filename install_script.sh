@@ -7,14 +7,11 @@
 # default logfile name
 FILENAME="jupyter-vcdat_logfile.txt"
 
-# base conda channels
-BASE_CHANNELS="-c conda-forge"
-
 # dev conda channels to use
-DEV_CHANNELS="-c cdat/label/nightly"
+DEV_CHANNELS="-c cdat/label/nightly -c conda-forge"
 
 # user conda channels (stable)
-USER_CHANNELS="-c cdat/label/nightly"
+USER_CHANNELS="-c conda-forge -c cdat/label/v82"
 
 # base packages
 BASE_CONDA_PKGS="pip vcs cdms2 tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
@@ -32,7 +29,7 @@ VERBOSE=0
 INSTALL_MODE="USER"
 
 # conda channel and CONDA_PACKAGES to use
-CONDA_CHANNELS="$USER_CHANNELS $BASE_CHANNELS"
+CONDA_CHANNELS="$USER_CHANNELS"
 CONDA_PACKAGES=$BASE_CONDA_PKGS
 
 function usage() {
