@@ -11,10 +11,10 @@ FILENAME="jupyter-vcdat_logfile.txt"
 DEV_CHANNELS="-c cdat/label/nightly -c conda-forge"
 
 # user conda channels (stable)
-USER_CHANNELS="-c conda-forge -c cdat/label/v82"
+USER_CHANNELS="-c cdat/label/nightly -c conda-forge"
 
 # base packages
-BASE_CONDA_PKGS="pip vcs cdms2 tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS="pip vcs mesalib tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
 
 # dev and test packages
 DEV_CONDA_PKGS="testsrunner cdat_info"
@@ -171,10 +171,10 @@ if [ $INSTALL_MODE == "DEV" ]; then
 fi
 
 # Install extensions
-jupyter labextension install @jupyter-widgets/jupyterlab-manager
-jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
-jupyter labextension install jupyterlab-tutorial-extension
-jupyter labextension install @jupyterlab/hub-extension
+jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
+jupyter labextension install @jupyter-widgets/jupyterlab-sidecar --no-build
+jupyter labextension install jupyterlab-tutorial-extension --no-build
+jupyter labextension install @jupyterlab/hub-extension --no-build
 
 # Install jupyter-vcdat extension
 npm install

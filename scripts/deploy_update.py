@@ -1,5 +1,4 @@
 import os
-import subprocess
 import utilities as u
 from string import Template
 
@@ -27,7 +26,7 @@ RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "jupyterlab", "nb_conda
 DEV_CHANNELS = "-c cdat/label/nightly -c conda-forge"
 
 # user conda channels (for stable deployment)
-USER_CHANNELS = "-c conda-forge -c cdat/label/v82"
+USER_CHANNELS = "-c cdat/label/nightly -c conda-forge"
 
 # channels used for conda upload (conda deployment)
 UPLOAD_CHANNELS = "-c cdat/label/nightly -c conda-forge -c cdat"
@@ -36,7 +35,7 @@ UPLOAD_CHANNELS = "-c cdat/label/nightly -c conda-forge -c cdat"
 EXTRA_CHANNELS = "-c pcmdi/label/nightly"
 
 # base packages (always added)
-BASE_CONDA_PKGS = "pip vcs cdms2 tqdm nodejs 'python=3.7'"
+BASE_CONDA_PKGS = "pip vcs mesalib tqdm nodejs 'python=3.7'"
 BASE_CONDA_PKGS += " jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
 
 # extra packages ( Not included by default )
@@ -138,7 +137,7 @@ def create_docker_script(template_user, template_dev, user_out, dev_out):
 
     # Generate extension install commands
     EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
-    install_ext = create_extension_commands(EXTS, "RUN ")
+    install_ext = create_extension_commands(EXTS, "RUN ", post=" --no-build")
 
     # Combine all settings into dictonary for template to use
     data = {"_base_image": BASE_IMAGE, "_conda_channels": USER_CHANNELS,
@@ -156,6 +155,8 @@ def create_docker_script(template_user, template_dev, user_out, dev_out):
 
 # Takes a template of the installer script and creates a new install script with specified
 # conda channels and packages.
+
+
 def create_install_script(template_in, installer_out):
 
     # Generate pip install commands
@@ -164,7 +165,7 @@ def create_install_script(template_in, installer_out):
 
     # Generate extension install commands
     EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
-    install_ext = create_extension_commands(EXTS)
+    install_ext = create_extension_commands(EXTS, post=" --no-build")
 
     # Combine all settings into dictonary for template to use
     data = {"_dev_channels": DEV_CHANNELS, "_user_channels": USER_CHANNELS,
