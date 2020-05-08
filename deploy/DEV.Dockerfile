@@ -1,9 +1,8 @@
 # This dockerfile will create a docker image for an official release
 FROM nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
 
-ARG npm_version="nightly"
-
-# Copy sample data to use include in image
+# Get local packaged files to build extension from
+COPY local_package /home/jovyan
 COPY sample_data /home/jovyan
 
 # Install Conda packages
@@ -24,4 +23,6 @@ RUN jupyter labextension install @jupyterlab/hub-extension --no-build
 
 # Our extension needs to be built from npm repo otherwise jupyter-lab
 # tries to write into image and shifter does not let us do this.
-RUN jupyter labextension install jupyter-vcdat@${npm_version}
+USER root
+RUN jupyter labextension install .
+USER jovyan

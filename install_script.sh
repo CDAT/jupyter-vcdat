@@ -7,17 +7,14 @@
 # default logfile name
 FILENAME="jupyter-vcdat_logfile.txt"
 
-# base conda channels
-BASE_CHANNELS="-c conda-forge"
-
 # dev conda channels to use
-DEV_CHANNELS="-c cdat/label/nightly"
+DEV_CHANNELS="-c cdat/label/nightly -c conda-forge"
 
 # user conda channels (stable)
-USER_CHANNELS="-c cdat/label/nightly"
+USER_CHANNELS="-c cdat/label/nightly -c conda-forge"
 
 # base packages
-BASE_CONDA_PKGS="pip vcs cdms2 tqdm nodejs 'python=3.7' 'libnetcdf=4.7.3' 'jupyterlab=1.2' jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS="pip vcs mesalib tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
 
 # dev and test packages
 DEV_CONDA_PKGS="testsrunner cdat_info"
@@ -32,7 +29,7 @@ VERBOSE=0
 INSTALL_MODE="USER"
 
 # conda channel and CONDA_PACKAGES to use
-CONDA_CHANNELS="$USER_CHANNELS $BASE_CHANNELS"
+CONDA_CHANNELS="$USER_CHANNELS"
 CONDA_PACKAGES=$BASE_CONDA_PKGS
 
 function usage() {
@@ -168,18 +165,21 @@ python -m pip install sidecar || pip install sidecar
 
 # Install dev packages if needed
 if [ $INSTALL_MODE == "DEV" ]; then
+	python -m pip install flake8 || pip install flake8
 	python -m pip install selenium || pip install selenium
 	python -m pip install pyvirtualdisplay || pip install pyvirtualdisplay
 fi
 
 # Install extensions
-jupyter labextension install @jupyter-widgets/jupyterlab-manager
-jupyter labextension install @jupyter-widgets/jupyterlab-sidecar
-jupyter labextension install jupyterlab-tutorial-extension
-jupyter labextension install @jupyterlab/hub-extension
-jupyter labextension install jupyterlab-favorites
+jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
+jupyter labextension install @jupyter-widgets/jupyterlab-sidecar --no-build
+jupyter labextension install jupyterlab-tutorial-extension --no-build
+jupyter labextension install @jupyterlab/hub-extension --no-build
 
 # Install jupyter-vcdat extension
 npm install
 jupyter lab build
-jupyter-labextension install .
+jupyter labextension install .
+
+# Success message
+echo Jupyter VCDAT has been successfully installed!

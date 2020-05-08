@@ -12,7 +12,6 @@ aliases:
     name: setup_jupyter_vcdat
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-      conda activate base
       ./install_script.sh -v -d
 
   - &check_vcdat_versions
@@ -112,6 +111,9 @@ jobs:
   publish:
     docker:
       - image: $DOCKER_BASE_IMAGE
+        auth:
+          username: $DOCKER_USER  
+          password: $DOCKER_TOKEN2
     steps:
       - checkout
       - run: *check_vcdat_versions
@@ -135,6 +137,9 @@ jobs:
       - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
+      - store_artifacts:
+          path: tests/screenshots
+          destination: tests_chrome_screenshots
 
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload
@@ -154,6 +159,9 @@ jobs:
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html
+      - store_artifacts:
+          path: tests/screenshots
+          destination: tests_firefox_screenshots
 
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload

@@ -1,11 +1,9 @@
-# import glob
 import os
-# import pathlib
-import subprocess
+import utilities as u
 from string import Template
 
 # TEMPLATES LOCATION
-TEMPLATES_DIR = "/scripts/deploy_templates"
+TEMPLATES_DIR = "/deploy/deploy_templates"
 
 # Docker base image
 BASE_IMAGE = "nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest"
@@ -21,17 +19,14 @@ VCDAT_IMAGE_TAG = "cdat/vcdat"
 HOST_REQUIREMENTS = ["jupyterlab", "nodejs", "pip", "'python>=3.7'"]
 
 # Run requirements for conda package
-RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "'jupyterlab=1.2'", "nb_conda",
-                    "'libnetcdf=4.7.3'", "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
-
-# base conda channels (always added)
-BASE_CHANNELS = "-c conda-forge"
+RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "jupyterlab", "nb_conda",
+                    "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
 
 # dev conda channels (for developer deployment)
-DEV_CHANNELS = "-c cdat/label/nightly"
+DEV_CHANNELS = "-c cdat/label/nightly -c conda-forge"
 
 # user conda channels (for stable deployment)
-USER_CHANNELS = "-c cdat/label/nightly"
+USER_CHANNELS = "-c cdat/label/nightly -c conda-forge"
 
 # channels used for conda upload (conda deployment)
 UPLOAD_CHANNELS = "-c cdat/label/nightly -c conda-forge -c cdat"
@@ -40,8 +35,8 @@ UPLOAD_CHANNELS = "-c cdat/label/nightly -c conda-forge -c cdat"
 EXTRA_CHANNELS = "-c pcmdi/label/nightly"
 
 # base packages (always added)
-BASE_CONDA_PKGS = "pip vcs cdms2 tqdm nodejs 'python=3.7' 'libnetcdf=4.7.3'"
-BASE_CONDA_PKGS += " 'jupyterlab=1.2' jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS = "pip vcs mesalib tqdm nodejs 'python=3.7'"
+BASE_CONDA_PKGS += " jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
 
 # extra packages ( Not included by default )
 EXTRA_PACKAGES = "vcsaddons thermo cmor eofs windspharm autopep8 mesalib "
@@ -54,7 +49,7 @@ DEV_CONDA_PKGS = "testsrunner cdat_info"
 BASE_PIP_PKGS = ["sidecar"]
 
 # dev pip packages (required only for developer deployment)
-DEV_PIP_PKGS = ["selenium", "pyvirtualdisplay"]
+DEV_PIP_PKGS = ["flake8", "selenium", "pyvirtualdisplay"]
 
 # REQURIED JupyterLab extensions to install (not including Jupyter-VCDAT)
 BASE_EXTENSIONS = [
@@ -65,15 +60,7 @@ BASE_EXTENSIONS = [
 ]
 
 # EXTRA JupyterLab extensions (installed but not required)
-EXTRA_EXTENSIONS = [
-    "jupyterlab-favorites"
-]
-
-
-def get_main_dir():
-    output = subprocess.run(
-        ["git rev-parse --show-toplevel"], capture_output=True, text=True, shell=True)
-    return output.stdout.rstrip()
+EXTRA_EXTENSIONS = []
 
 
 def create_pip_commands(packages, pre=""):
@@ -143,27 +130,33 @@ def create_circle_config(template_in, config_out):
 
 # Takes a template of the dockerfile and creates a new dockerfile with specified
 # installation steps
-def create_docker_script(template_in, docker_out):
+def create_docker_script(template_user, template_dev, user_out, dev_out):
 
     # Generate pip install commands
     _pip = create_pip_commands(BASE_PIP_PKGS, "RUN ")
 
     # Generate extension install commands
     EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
-    install_ext = create_extension_commands(EXTS, "RUN ")
+    install_ext = create_extension_commands(EXTS, "RUN ", post=" --no-build")
 
-    CONDA_CHANNELS = BASE_CHANNELS + " " + USER_CHANNELS
     # Combine all settings into dictonary for template to use
-    data = {"_base_image": BASE_IMAGE, "_conda_channels": CONDA_CHANNELS,
+    data = {"_base_image": BASE_IMAGE, "_conda_channels": USER_CHANNELS,
             "_conda_pkgs": BASE_CONDA_PKGS, "_pip_install": _pip,
             "_install_extensions": install_ext}
 
-    # Create install file
-    update_template(template_in, docker_out, data)
+    # Create user docker file
+    update_template(template_user, user_out, data)
 
+    # Change to DEV channels for dev version
+    data['_conda_channels'] = DEV_CHANNELS
+
+    # Create dev docker file
+    update_template(template_dev, dev_out, data)
 
 # Takes a template of the installer script and creates a new install script with specified
 # conda channels and packages.
+
+
 def create_install_script(template_in, installer_out):
 
     # Generate pip install commands
@@ -172,13 +165,13 @@ def create_install_script(template_in, installer_out):
 
     # Generate extension install commands
     EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
-    install_ext = create_extension_commands(EXTS)
+    install_ext = create_extension_commands(EXTS, post=" --no-build")
 
     # Combine all settings into dictonary for template to use
-    data = {"_base_channels": BASE_CHANNELS, "_dev_channels": DEV_CHANNELS,
-            "_user_channels": USER_CHANNELS, "_base_conda_pkgs": BASE_CONDA_PKGS,
-            "_dev_conda_pkgs": DEV_CONDA_PKGS, "_base_pip_install": base_pip,
-            "_dev_pip_install": dev_pip, "_install_extensions": install_ext}
+    data = {"_dev_channels": DEV_CHANNELS, "_user_channels": USER_CHANNELS,
+            "_base_conda_pkgs": BASE_CONDA_PKGS, "_dev_conda_pkgs": DEV_CONDA_PKGS,
+            "_base_pip_install": base_pip, "_dev_pip_install": dev_pip,
+            "_install_extensions": install_ext}
 
     # Create install file
     update_template(template_in, installer_out, data)
@@ -217,9 +210,11 @@ def main():
     create_install_script(template_in, file_out)
 
     # Generate deploy/Dockerfile
-    template_in = "{}{}/template_docker".format(MAIN_DIR, TEMPLATES_DIR)
-    file_out = "{}/deploy/Dockerfile".format(MAIN_DIR)
-    create_docker_script(template_in, file_out)
+    template_user = "{}{}/template_docker".format(MAIN_DIR, TEMPLATES_DIR)
+    template_dev = "{}{}/template_dev_docker".format(MAIN_DIR, TEMPLATES_DIR)
+    user_out = "{}/deploy/Dockerfile".format(MAIN_DIR)
+    dev_out = "{}/deploy/DEV.Dockerfile".format(MAIN_DIR)
+    create_docker_script(template_user, template_dev, user_out, dev_out)
 
     # Generate recipe/build.sh
     template_in = "{}{}/template_build".format(MAIN_DIR, TEMPLATES_DIR)
@@ -233,5 +228,5 @@ def main():
 
 
 if __name__ == '__main__':
-    MAIN_DIR = get_main_dir()
+    MAIN_DIR = u.get_main_dir()
     main()

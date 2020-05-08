@@ -14,13 +14,13 @@ import {
   MAX_SLABS,
   REQUIRED_MODULES,
   VCDAT_VERSION,
-  VCDAT_VERSION_KEY
+  VCDAT_VERSION_KEY,
 } from "./constants";
 
 import {
   CHECK_MODULES_CMD,
   CHECK_SIDECAR_EXISTS_CMD,
-  getSidecarDisplayCommand
+  getSidecarDisplayCommand,
 } from "./PythonCommands";
 
 import NotebookUtilities from "./NotebookUtilities";
@@ -55,10 +55,9 @@ export default class CodeInjector {
   }
 
   @boundMethod
-  public async setNotebook(notebookPanel: NotebookPanel) {
+  public async setNotebook(notebookPanel: NotebookPanel): Promise<void> {
     if (notebookPanel) {
-      await notebookPanel.activated;
-      await notebookPanel.session.ready;
+      await notebookPanel.sessionContext.ready;
       this._notebookPanel = notebookPanel;
     } else {
       this._notebookPanel = null;
@@ -73,10 +72,7 @@ export default class CodeInjector {
    * @returns The index of where the cell was inserted
    */
   @boundMethod
-  public async injectImportsCode(
-    index: number = -1,
-    skip: boolean = false
-  ): Promise<number> {
+  public async injectImportsCode(index = -1, skip = false): Promise<number> {
     // Check if required modules are imported in notebook
     let cmd = "#These imports are added for vcdat.";
 
@@ -151,7 +147,7 @@ export default class CodeInjector {
   @boundMethod
   public async injectCanvasCode(index: number): Promise<number> {
     // Creates canvas(es)
-    const cmd: string = `#Create canvas
+    const cmd = `#Create canvas
 canvas = vcs.init(display_target='off')`;
 
     // Find the index where the canvas code is injected
@@ -204,7 +200,7 @@ canvas = vcs.init(display_target='off')`;
     deflate: boolean,
     deflateValue: number
   ): Promise<void> {
-    let cmd: string = ``;
+    let cmd = ``;
     if (shuffle) {
       cmd += `cdms2.setNetcdfShuffleFlag(1)\n`;
     }
@@ -305,14 +301,14 @@ canvas = vcs.init(display_target='off')`;
     newName: string,
     groupName: string,
     methodName: string
-  ) {
+  ): Promise<void> {
     // Exit if any parameter is empty string
     if (!newName || !groupName || !methodName) {
       throw new Error("One of the input parameters was empty.");
     }
 
     // Create the code to copy the graphics method
-    let cmd: string = `${newName}_${groupName} = `;
+    let cmd = `${newName}_${groupName} = `;
     cmd += `vcs.create${groupName}('${newName}',source='${methodName}')`;
 
     // Inject the code into the notebook cell
@@ -326,7 +322,7 @@ canvas = vcs.init(display_target='off')`;
   }
 
   @boundMethod
-  public async getGraphicMethod(group: string, name: string) {
+  public async getGraphicMethod(group: string, name: string): Promise<void> {
     const cmd: string =
       name.indexOf(group) < 0
         ? `${name}_${group} = vcs.get${group}('${name}')`
@@ -343,8 +339,8 @@ canvas = vcs.init(display_target='off')`;
   }
 
   @boundMethod
-  public async getTemplate(templateName: string) {
-    const cmd: string = `${templateName} = vcs.gettemplate('${templateName}')`;
+  public async getTemplate(templateName: string): Promise<void> {
+    const cmd = `${templateName} = vcs.gettemplate('${templateName}')`;
 
     // Inject the code into the notebook cell
     await this.inject(
@@ -357,7 +353,7 @@ canvas = vcs.init(display_target='off')`;
   }
 
   @boundMethod
-  public async deleteVariable(variable: Variable) {
+  public async deleteVariable(variable: Variable): Promise<void> {
     // inject the code to delete variable from notebook
     const cmd = `del ${variable.alias}`;
 
@@ -375,9 +371,12 @@ canvas = vcs.init(display_target='off')`;
   }
 
   @boundMethod
-  public async loadVariable(variable: Variable, newAlias?: string) {
+  public async loadVariable(
+    variable: Variable,
+    newAlias?: string
+  ): Promise<void> {
     // If the variable doesn't have a source listed, load as a derived variable
-    let isDerived: boolean = false;
+    let isDerived = false;
     if (!variable.sourceName) {
       isDerived = true;
     }
@@ -397,7 +396,7 @@ canvas = vcs.init(display_target='off')`;
           ? `${axis.name}=(${axis.first})`
           : `${axis.name}=(${axis.first}, ${axis.last})`;
       cmd += isDerived ? axisCmd : `, ${axisCmd}`;
-      for (let idx: number = 1; idx < axesCount; idx += 1) {
+      for (let idx = 1; idx < axesCount; idx += 1) {
         axis = variable.axisInfo[idx];
         cmd +=
           axis.first === axis.last
@@ -436,7 +435,7 @@ canvas = vcs.init(display_target='off')`;
       throw Error("Could not determine what file the variables are from.");
     }
 
-    let cmd: string = ``;
+    let cmd = ``;
     const newSelection = Array<string>();
     variables.forEach((variable: Variable) => {
       // Create code to load the variable into the notebook
@@ -481,7 +480,7 @@ canvas = vcs.init(display_target='off')`;
   }
 
   @boundMethod
-  public async clearPlot() {
+  public async clearPlot(): Promise<void> {
     await this.inject(
       "canvas.clear()",
       undefined,
@@ -543,7 +542,7 @@ canvas = vcs.init(display_target='off')`;
       templateParam = '"default"';
     }
 
-    let cmd: string = "from tqdm import tqdm_notebook\n";
+    let cmd = "from tqdm import tqdm_notebook\n";
     cmd += "from glob import glob\n";
     cmd += `pngpath = "vcdat_tmp"\n`;
     cmd += `outpath = "vcdat_animations"\n`;
@@ -579,7 +578,7 @@ canvas = vcs.init(display_target='off')`;
     }
     cmd += `    canvas.clear()\n`;
 
-    let indexPrefix: string = "";
+    let indexPrefix = "";
     for (let i = 0; i < axisIndex; i += 1) {
       indexPrefix += ":, ";
     }
@@ -631,7 +630,7 @@ canvas = vcs.init(display_target='off')`;
       templateParam = '"default"';
     }
 
-    let cmd: string = "";
+    let cmd = "";
     const sidecarReady: string = await Utilities.sendSimpleKernelRequest(
       this.notebookPanel,
       CHECK_SIDECAR_EXISTS_CMD
@@ -721,10 +720,10 @@ canvas = vcs.init(display_target='off')`;
    */
   @boundMethod
   private buildImportCommand(modules: string[]): string {
-    let cmd: string = "";
+    let cmd = "";
 
     // Import modules
-    modules.forEach(module => {
+    modules.forEach((module) => {
       cmd += `\nimport ${module}`;
     });
 
@@ -748,14 +747,14 @@ canvas = vcs.init(display_target='off')`;
 
     // Get the relative filepath to open the file
     const path = Utilities.getUpdatedPath(
-      this.notebookPanel.session.path,
+      this.notebookPanel.sessionContext.path,
       filePath
     );
 
     // Check that file can open before adding it as code
     if (await Utilities.tryFilePath(this.notebookPanel, path)) {
       // Add code to notebook
-      let newCode: string = `${BASE_DATA_READER_NAME} = cdms2.open('${path}')\n`;
+      let newCode = `${BASE_DATA_READER_NAME} = cdms2.open('${path}')\n`;
       newCode += `${code}\n${BASE_DATA_READER_NAME}.close()`;
       return newCode;
     }

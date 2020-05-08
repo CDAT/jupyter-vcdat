@@ -17,11 +17,11 @@ import {
   Form,
   FormGroup,
   Input,
-  Label
+  Label,
 } from "reactstrap";
 
 // Project Components
-import Variable from "./Variable";
+import Variable from ".././Variable";
 
 interface IPlotMenuProps {
   updatePlotOptions: (plotOptions: any) => void; // the method to call when the users wants to update the plot options
@@ -53,8 +53,8 @@ export default class PlotMenu extends React.Component<
       plotOptions: {
         animation: false,
         saveImg: false,
-        plotName: ""
-      }
+        plotName: "",
+      },
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
@@ -64,25 +64,25 @@ export default class PlotMenu extends React.Component<
   }
   public toggleMenu(): void {
     this.setState({
-      showMenu: !this.state.showMenu
+      showMenu: !this.state.showMenu,
     });
   }
   public toggleDropdown(): void {
     this.setState({
-      showDropdown: !this.state.showDropdown
+      showDropdown: !this.state.showDropdown,
     });
   }
   public setSelectedOption(option: string): void {
     this.setState({
       selectedDropdownOption: option,
-      showMenu: true
+      showMenu: true,
     });
   }
   public render(): JSX.Element {
     return (
       <div>
         <Card
-          onClick={() => {
+          onClick={(): void => {
             if (!this.state.showMenu) {
               this.setState({ showMenu: true });
             }
@@ -102,10 +102,10 @@ export default class PlotMenu extends React.Component<
                   {this.state.dropdownOptions.map((item: string) => {
                     return (
                       <DropdownItem
-                        onClick={() =>
+                        onClick={(): void =>
                           this.setState({
                             selectedDropdownOption: item,
-                            showMenu: true
+                            showMenu: true,
                           })
                         }
                         key={item}
@@ -132,22 +132,22 @@ export default class PlotMenu extends React.Component<
       showDialog({
         title: "Filename Required",
         body: msg,
-        buttons: [Dialog.okButton()]
+        buttons: [Dialog.okButton()],
       });
       this.setState({
-        validName: false
+        validName: false,
       });
     } else {
       this.props.updatePlotOptions(this.state.plotOptions);
       this.setState({
         showMenu: false,
-        optionsChanged: false
+        optionsChanged: false,
       });
     }
   }
   public selectFalse(): void {
     this.setState({
-      showMenu: false
+      showMenu: false,
     });
   }
   public plotOptions(): JSX.Element {
@@ -164,13 +164,13 @@ export default class PlotMenu extends React.Component<
                   type="radio"
                   name="radio1"
                   defaultChecked={true}
-                  onClick={() => {
-                    if (this.state.plotOptions.animation != false) {
+                  onClick={(): void => {
+                    if (this.state.plotOptions.animation !== false) {
                       const newPlotOptions = this.state.plotOptions;
                       newPlotOptions.animation = false;
                       this.setState({
                         plotOptions: newPlotOptions,
-                        optionsChanged: true
+                        optionsChanged: true,
                       });
                     }
                   }}
@@ -183,9 +183,9 @@ export default class PlotMenu extends React.Component<
                 <Input
                   type="radio"
                   name="radio1"
-                  onClick={() => {
+                  onClick={(): void => {
                     if (
-                      this.state.plotOptions.animation != true ||
+                      this.state.plotOptions.animation !== true ||
                       this.state.plotOptions.saveImg
                     ) {
                       const newPlotOptions = this.state.plotOptions;
@@ -193,7 +193,7 @@ export default class PlotMenu extends React.Component<
                       newPlotOptions.saveImg = true;
                       this.setState({
                         plotOptions: newPlotOptions,
-                        optionsChanged: true
+                        optionsChanged: true,
                       });
                     }
                   }}
@@ -206,13 +206,12 @@ export default class PlotMenu extends React.Component<
                 <Input
                   type="checkbox"
                   checked={this.state.plotOptions.saveImg}
-                  onChange={() => {}}
-                  onClick={() => {
+                  onClick={(): void => {
                     const newPlotOptions = this.state.plotOptions;
                     newPlotOptions.saveImg = !newPlotOptions.saveImg;
                     this.setState({
                       plotOptions: newPlotOptions,
-                      optionsChanged: true
+                      optionsChanged: true,
                     });
                   }}
                 />{" "}
@@ -225,12 +224,12 @@ export default class PlotMenu extends React.Component<
                   type="text"
                   className="plotNameInput"
                   placeholder="Plot Name"
-                  onChange={event => {
+                  onChange={(event): void => {
                     const newPlotOptions = this.state.plotOptions;
                     newPlotOptions.plotName = event.target.value;
                     this.setState({
                       plotOptions: newPlotOptions,
-                      optionsChanged: true
+                      optionsChanged: true,
                     });
                   }}
                 />

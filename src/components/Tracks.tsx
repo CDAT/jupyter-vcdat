@@ -3,7 +3,7 @@ import * as React from "react";
 import {
   GetHandleProps,
   GetTrackProps,
-  SliderItem
+  SliderItem,
 } from "react-compound-slider";
 
 // SEE: https://codesandbox.io/s/zl8nrlp9x
@@ -17,11 +17,11 @@ interface IHandleProps {
   getHandleProps: GetHandleProps;
 }
 
-// tslint:disable-next-line
+/* eslint-disable  react/prop-types */
 export const Handle: React.SFC<IHandleProps> = ({
   domain: [min, max],
   handle: { id, value, percent },
-  getHandleProps
+  getHandleProps,
 }) => (
   <div
     role="slider"
@@ -39,7 +39,7 @@ export const Handle: React.SFC<IHandleProps> = ({
       marginTop: "-6px",
       position: "absolute",
       width: 24,
-      zIndex: 2
+      zIndex: 2,
     }}
     {...getHandleProps(id)}
   />
@@ -58,7 +58,7 @@ interface ITrackProps {
 export const Track: React.SFC<ITrackProps> = ({
   source,
   target,
-  getTrackProps
+  getTrackProps,
 }) => (
   <div
     style={{
@@ -69,7 +69,7 @@ export const Track: React.SFC<ITrackProps> = ({
       left: `${source.percent}%`,
       position: "absolute",
       width: `${target.percent - source.percent}%`,
-      zIndex: 1
+      zIndex: 1,
     }}
     {...getTrackProps()}
   />
@@ -95,7 +95,7 @@ export const Tick: React.SFC<ITickProps> = ({ tick, count, value }) => (
         left: `${tick.percent}%`,
         marginTop: 14,
         position: "absolute",
-        width: 1
+        width: 1,
       }}
     />
     <div
@@ -106,7 +106,7 @@ export const Tick: React.SFC<ITickProps> = ({ tick, count, value }) => (
         marginTop: 22,
         position: "absolute",
         textAlign: "center",
-        width: `${100 / count}%`
+        width: `${100 / count}%`,
       }}
     >
       {value}

@@ -8,6 +8,7 @@ Locator object which will allow actions to be performed on an element while
 also ensuring the element requirements have been tried if element is not found
 the first time. Raises NoSuchElementException is attempt to locate fails
 """
+SCREENSHOT_DIR = "tests/screenshots/"
 
 
 class Locator(Actions):
@@ -26,7 +27,7 @@ class Locator(Actions):
     """--------------- Helper Functions ---------------"""
 
     def __save_screenshot__(self, name=""):
-        i = 0 # Value to add to filename to prevent overriding
+        i = 0  # Value to add to filename to prevent overriding
         if name == "" and self.description != "":
             name = "[{}]_not_found.png".format(self.description)
             while os.path.exists(name):
@@ -42,7 +43,10 @@ class Locator(Actions):
                 i += 1
                 name = "{}{}.png".format(name, i)
         try:
-            self.driver.save_screenshot(name)
+            # Save screenshot to directory
+            if not os.path.exists(SCREENSHOT_DIR):
+                os.makedirs(SCREENSHOT_DIR)
+            self.driver.save_screenshot(SCREENSHOT_DIR+name)
         except Exception:
             print("Screenshot could not be saved...")
 

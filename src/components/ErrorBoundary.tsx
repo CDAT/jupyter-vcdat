@@ -1,13 +1,18 @@
 import * as React from "react";
 
+interface IErrorProps {
+  children: React.ReactNode;
+}
+
 // An error boundary to catch errors without killing the UI
-export default class ErrorBoundary extends React.Component {
-  public static getDerivedStateFromError(error: any) {
+export default class ErrorBoundary extends React.Component<IErrorProps> {
+  public static getDerivedStateFromError(error: any): {} {
+    console.error(error);
     // Update state so the next render will show the fallback UI.
     return { hasError: true };
   }
 
-  constructor(props: any) {
+  constructor(props: IErrorProps) {
     super(props);
     this.state = { hasError: false };
   }
@@ -17,7 +22,7 @@ export default class ErrorBoundary extends React.Component {
     console.error(error, info);
   }
 
-  public render() {
+  public render(): React.ReactNode {
     return this.props.children;
   }
 }

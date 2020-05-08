@@ -4,6 +4,7 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { OUTPUT_RESULT_NAME } from "./constants";
 import { checkCDMS2FileOpens } from "./PythonCommands";
+import { ISessionOptions } from "@jupyterlab/services/lib/session/session";
 
 export default class Utilities {
   /**
@@ -57,7 +58,7 @@ export default class Utilities {
    * @param path The filename/path to remove extension from
    */
   public static removeFilename(path: string): string {
-    const regEx: RegExp = /[^\/]+$/;
+    const regEx = /[^\/]+$/;
     return path.replace(regEx, "");
   }
 
@@ -69,7 +70,7 @@ export default class Utilities {
    * @param target The directory path and filename to seek from source Ex: "dir3/dir1/file2"
    * @return string - Relative path (e.g. "../../style.css") from the source to target, or absolute path
    */
-  public static getUpdatedPath(source: string, target: string) {
+  public static getUpdatedPath(source: string, target: string): string {
     // Trim any whitespace that may exist in path
     const cleanSource: string = source.trim();
     const cleanTarget: string = target.trim();
@@ -87,9 +88,9 @@ export default class Utilities {
     const depth1: number = sourceArr.length;
     const depth2: number = targetArr.length;
     const maxCommon: number = Math.min(depth1, depth2);
-    let splitPos: number = 0;
+    let splitPos = 0;
 
-    for (let idx: number = 0; idx < maxCommon; idx += 1) {
+    for (let idx = 0; idx < maxCommon; idx += 1) {
       if (sourceArr[idx] === targetArr[idx]) {
         splitPos += 1;
       }
@@ -111,10 +112,7 @@ export default class Utilities {
    * (alpha numerical characters and underscore, and no numerical prefix)
    * Example (with extension removed): dir1/dir2/1file_12.sdf.ext -> file_12sdf
    */
-  public static createValidVarName(
-    name: string,
-    removeExt: boolean = true
-  ): string {
+  public static createValidVarName(name: string, removeExt = true): string {
     let newName: string = name;
     if (removeExt) {
       newName = Utilities.removeExtension(newName);
@@ -144,7 +142,7 @@ export default class Utilities {
     // Add item to help menu
     menu.helpMenu.menu.addItem({
       args: { text, url },
-      command: "help:open"
+      command: "help:open",
     });
   }
 
@@ -157,7 +155,7 @@ export default class Utilities {
     // Add item to help menu
     menu.helpMenu.menu.addItem({
       args,
-      command
+      command,
     });
   }
 
@@ -242,7 +240,7 @@ export default class Utilities {
   public static async sendSimpleKernelRequest(
     sessionSource: NotebookPanel | JupyterFrontEnd,
     code: string,
-    storeHistory: boolean = false
+    storeHistory = false
   ): Promise<string> {
     let result: any;
     if (sessionSource instanceof NotebookPanel) {
@@ -318,10 +316,10 @@ export default class Utilities {
     notebookPanel: NotebookPanel,
     runCode: string,
     userExpressions: any,
-    runSilent: boolean = false,
-    storeHistory: boolean = false,
-    allowStdIn: boolean = false,
-    stopOnError: boolean = false
+    runSilent = false,
+    storeHistory = false,
+    allowStdIn = false,
+    stopOnError = false
   ): Promise<any> {
     // Check notebook panel is ready
     if (notebookPanel === null) {
@@ -329,18 +327,19 @@ export default class Utilities {
     }
 
     // Wait for kernel to be ready before sending request
-    await notebookPanel.activated;
-    await notebookPanel.session.ready;
-    await notebookPanel.session.kernel.ready;
+    await notebookPanel.context.ready;
+    await notebookPanel.sessionContext.ready;
 
-    const message: KernelMessage.IShellMessage = await notebookPanel.session.kernel.requestExecute(
+    const message: KernelMessage.IShellMessage = await notebookPanel.sessionContext.session.kernel.requestExecute(
       {
+        /* eslint-disable  @typescript-eslint/camelcase */
         allow_stdin: allowStdIn,
         code: runCode,
         silent: runSilent,
         stop_on_error: stopOnError,
         store_history: storeHistory,
-        user_expressions: userExpressions
+        user_expressions: userExpressions,
+        /* eslint-enable  @typescript-eslint/camelcase */
       }
     ).done;
 
@@ -356,7 +355,7 @@ export default class Utilities {
       }
 
       // If response is not 'ok', throw contents as error, log code
-      const msg: string = `Code caused an error:\n${runCode}`;
+      const msg = `Code caused an error:\n${runCode}`;
       console.error(msg);
       throw content;
     }
@@ -400,26 +399,33 @@ export default class Utilities {
     app: JupyterFrontEnd,
     runCode: string,
     userExpressions: any,
-    runSilent: boolean = false,
-    storeHistory: boolean = false,
-    allowStdIn: boolean = false,
-    stopOnError: boolean = false
+    runSilent = false,
+    storeHistory = false,
+    allowStdIn = false,
+    stopOnError = false
   ): Promise<any> {
     // Use service manager, wait for it to be ready
     await app.serviceManager.sessions.ready;
 
     // Start session and wait for it to be ready
-    const session = await app.serviceManager.sessions.startNew({ path: "" });
-    await session.kernel.ready;
+    const options: ISessionOptions = {
+      path: "",
+      type: "",
+      name: "TempSession",
+    };
+
+    const session = await app.serviceManager.sessions.startNew(options);
 
     // Send message to kernel
     const message = await session.kernel.requestExecute({
+      /* eslint-disable  @typescript-eslint/camelcase */
       allow_stdin: allowStdIn,
       code: runCode,
       silent: runSilent,
       stop_on_error: stopOnError,
       store_history: storeHistory,
-      user_expressions: userExpressions
+      user_expressions: userExpressions,
+      /* eslint-enable  @typescript-eslint/camelcase */
     }).done;
 
     const content: any = message.content;
@@ -434,7 +440,7 @@ export default class Utilities {
       }
 
       // If response is not 'ok', throw contents as error, log code
-      const msg: string = `Code caused an error:\n${runCode}`;
+      const msg = `Code caused an error:\n${runCode}`;
       console.error(msg);
       throw content;
     }

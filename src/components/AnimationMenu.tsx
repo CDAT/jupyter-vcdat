@@ -38,7 +38,7 @@ export default class AnimationMenu extends React.Component<
       invertAxis: props.invertAxis ? props.invertAxis : false,
       rate: props.rate ? props.rate : 5,
       selectedAxisId: 0,
-      selectedVariables: Array<string>()
+      selectedVariables: Array<string>(),
     };
   }
   @boundMethod
@@ -56,23 +56,23 @@ export default class AnimationMenu extends React.Component<
     }
     this.setState({
       axisIds: axisNames,
-      selectedVariables: newSelection
+      selectedVariables: newSelection,
     });
   }
 
   @boundMethod
-  public updateRate(event: any) {
+  public updateRate(event: any): void {
     const newRate = event.currentTarget.value;
     this.setState({
-      rate: newRate
+      rate: newRate,
     });
     this.props.updateRate(newRate);
   }
   @boundMethod
-  public updateAxisId(event: any) {
+  public updateAxisId(event: any): void {
     const newId = event.currentTarget.value;
     this.setState({
-      selectedAxisId: newId
+      selectedAxisId: newId,
     });
     this.props.updateAxisId(newId);
   }
@@ -84,7 +84,7 @@ export default class AnimationMenu extends React.Component<
             <CustomInput
               type="switch"
               id={
-                /*@tag<graphics-animation-switch>*/ "graphics-animation-switch-vcdat"
+                /* @tag<graphics-animation-switch>*/ "graphics-animation-switch-vcdat"
               }
               name="animateSwitch"
               label="Animate"
@@ -104,7 +104,7 @@ export default class AnimationMenu extends React.Component<
                 <CustomInput
                   type="select"
                   id={
-                    /*@tag<vcsmenu-animate-select>*/ "vcsmenu-animate-select-vcdat"
+                    /* @tag<vcsmenu-animate-select>*/ "vcsmenu-animate-select-vcdat"
                   }
                   name="animation-menu-axis-select"
                   onClick={this.updateAxisId}

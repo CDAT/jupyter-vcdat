@@ -9,28 +9,28 @@ import {
   Modal,
   ModalBody,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
 } from "reactstrap";
-import { ISignal, Signal } from "@phosphor/signaling";
+import { ISignal, Signal } from "@lumino/signaling";
 import ColorFunctions from "../ColorFunctions";
 import { boundMethod } from "autobind-decorator";
 
-const INVALID_INPUT_MSG_DEFAULT: string =
+const INVALID_INPUT_MSG_DEFAULT =
   "The text entered is not valid. Please try again or cancel.";
 
-const OPTIONS_HEADER_DEFAULT: string = "Recently Used:";
+const OPTIONS_HEADER_DEFAULT = "Recently Used:";
 
-const START_COLOR: string = "#ff0000";
-const END_COLOR: string = "#702030";
+const START_COLOR = "#ff0000";
+const END_COLOR = "#702030";
 
 const listGroupStyle: React.CSSProperties = {
   margin: "10px",
   maxHeight: "250px",
-  overflowY: "auto"
+  overflowY: "auto",
 };
 
 const listGroupItemStyle: React.CSSProperties = {
-  overflowWrap: "break-word"
+  overflowWrap: "break-word",
 };
 
 interface IInputModalProps {
@@ -69,7 +69,7 @@ export default class InputModal extends React.Component<
       savedInput: this.props.inputOptions
         ? this.props.inputOptions
         : Array<string>(),
-      showSaved: this.props.inputOptions ? true : false
+      showSaved: this.props.inputOptions ? true : false,
     };
     this._savedChanged = new Signal<this, string[]>(this);
   }
@@ -92,7 +92,7 @@ export default class InputModal extends React.Component<
   public async reset(): Promise<void> {
     await this.setState({
       input: "",
-      isValid: this.props.isValid ? this.props.isValid("") : true
+      isValid: this.props.isValid ? this.props.isValid("") : true,
     });
   }
 
@@ -112,7 +112,7 @@ export default class InputModal extends React.Component<
         <ModalHeader>{this.props.title}</ModalHeader>
         <ModalBody
           className={
-            /*@tag<text-muted input-modal>*/ "text-muted input-modal-vcdat"
+            /* @tag<text-muted input-modal>*/ "text-muted input-modal-vcdat"
           }
         >
           {this.state.input === ""
@@ -124,7 +124,7 @@ export default class InputModal extends React.Component<
             : INVALID_INPUT_MSG_DEFAULT}
           <InputGroup>
             <Input
-              id={/*@tag<input-modal-input>*/ "input-modal-input-vcdat"}
+              id={/* @tag<input-modal-input>*/ "input-modal-input-vcdat"}
               onChange={this.handleUpdate}
               placeholder={this.props.placeHolder}
               value={this.state.input}
@@ -144,19 +144,19 @@ export default class InputModal extends React.Component<
             <ListGroup
               style={listGroupStyle}
               className={
-                /*@tag<input-modal-options-list>*/ "input-modal-options-list-vcdat"
+                /* @tag<input-modal-options-list>*/ "input-modal-options-list-vcdat"
               }
             >
               {this.props.inputListHeader
                 ? this.props.inputListHeader
                 : OPTIONS_HEADER_DEFAULT}
               {this.state.savedInput.map((item: string, idx: number) => {
-                const clickSavedInput = () => {
+                const clickSavedInput = (): void => {
                   this.handleClickSavedInput(item);
                 };
                 const deleteInput = (
                   event: React.MouseEvent<any, MouseEvent>
-                ) => {
+                ): void => {
                   event.stopPropagation();
                   this.deleteInput(idx);
                 };
@@ -184,7 +184,7 @@ export default class InputModal extends React.Component<
         </ModalBody>
         <ModalFooter>
           <Button
-            className={/*@tag<input-modal-btn>*/ "input-modal-btn-vcdat"}
+            className={/* @tag<input-modal-btn>*/ "input-modal-btn-vcdat"}
             outline={!this.state.input}
             color={this.state.isValid ? "info" : "danger"}
             onClick={this.hide}

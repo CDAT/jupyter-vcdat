@@ -4,7 +4,7 @@ import {
   Dropdown,
   DropdownItem,
   DropdownMenu,
-  DropdownToggle
+  DropdownToggle,
 } from "reactstrap";
 import { BASE_COLORMAPS } from "../constants";
 import { boundMethod } from "autobind-decorator";
@@ -13,7 +13,7 @@ const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
   maxHeight: "250px",
   overflow: "auto",
-  padding: "2px"
+  padding: "2px",
 };
 
 interface IColormapProps {
@@ -37,14 +37,14 @@ export default class ColormapEditor extends React.Component<
       colormapChanged: false,
       selectedColormap: "viridis",
       showDropdown: false,
-      showEdit: false
+      showEdit: false,
     };
   }
 
   @boundMethod
   public toggleDropdown(): void {
     this.setState({
-      showDropdown: !this.state.showDropdown
+      showDropdown: !this.state.showDropdown,
     });
   }
 
@@ -52,7 +52,7 @@ export default class ColormapEditor extends React.Component<
   public selectColormap(name: string): void {
     this.setState({
       colormapChanged: true,
-      selectedColormap: name
+      selectedColormap: name,
     });
     this.props.updateColormap(name);
   }
@@ -66,7 +66,7 @@ export default class ColormapEditor extends React.Component<
           toggle={this.toggleDropdown}
         >
           <DropdownToggle
-            className={/*@tag<colormap-dropdown>*/ "colormap-dropdown-vcdat"}
+            className={/* @tag<colormap-dropdown>*/ "colormap-dropdown-vcdat"}
             disabled={!this.props.plotReady}
             caret={true}
           >
@@ -77,13 +77,13 @@ export default class ColormapEditor extends React.Component<
           <DropdownMenu style={dropdownMenuStyle}>
             {Object.keys(BASE_COLORMAPS).map((value: string, index: number) => {
               const cmName = BASE_COLORMAPS[index];
-              const selectCM = () => {
+              const selectCM = (): void => {
                 this.selectColormap(cmName);
               };
               return (
                 <DropdownItem
                   className={
-                    /*@tag<colormap-dropdown-item>*/ "colormap-dropdown-item-vcdat"
+                    /* @tag<colormap-dropdown-item>*/ "colormap-dropdown-item-vcdat"
                   }
                   onClick={selectCM}
                   value={cmName}

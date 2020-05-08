@@ -12,7 +12,7 @@ import {
   Modal,
   ModalBody,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
 } from "reactstrap";
 
 // Project Components
@@ -68,61 +68,61 @@ export default class ExportPlotModal extends React.Component<
       plotUnits: "px",
       validateExportName: false,
       validateFileFormat: false,
-      width: ""
+      width: "",
     };
   }
 
   @boundMethod
-  public async toggleDimensionsDisplay() {
+  public async toggleDimensionsDisplay(): Promise<void> {
     if (!this.state.displayDimensions) {
       const dimensions = await this.props.getCanvasDimensions();
       this.setState({ height: dimensions.height, width: dimensions.width });
     }
-    this.setState(prevState => ({
-      displayDimensions: !prevState.displayDimensions
+    this.setState((prevState) => ({
+      displayDimensions: !prevState.displayDimensions,
     }));
   }
 
   @boundMethod
-  public toggleCaptureProvenance() {
-    this.setState(prevState => ({
-      captureProvenance: !prevState.captureProvenance
+  public toggleCaptureProvenance(): void {
+    this.setState((prevState) => ({
+      captureProvenance: !prevState.captureProvenance,
     }));
   }
 
   @boundMethod
-  public dismissFileFormatValidation() {
+  public dismissFileFormatValidation(): void {
     this.setState({ validateFileFormat: false });
   }
 
   @boundMethod
-  public dismissExportValidation() {
+  public dismissExportValidation(): void {
     this.setState({ validateExportName: false });
   }
 
   @boundMethod
-  public clearExportInfo() {
+  public clearExportInfo(): void {
     this.setState({
       captureProvenance: false,
       displayDimensions: false,
       plotName: "",
       validateExportName: false,
-      validateFileFormat: false
+      validateFileFormat: false,
     });
   }
 
   @boundMethod
-  public toggleModal() {
+  public toggleModal(): void {
     this.setState({
       plotName: "",
       validateExportName: false,
-      validateFileFormat: false
+      validateFileFormat: false,
     });
     this.props.toggle();
   }
 
   @boundMethod
-  public async save() {
+  public async save(): Promise<void> {
     let plotName = this.state.plotName;
 
     if (!plotName) {
@@ -144,7 +144,7 @@ export default class ExportPlotModal extends React.Component<
     if (Utilities.getExtension(plotName) === fileFormat) {
       plotName = Utilities.removeExtension(plotName);
       await this.setState({
-        plotName
+        plotName,
       });
     }
 
@@ -177,7 +177,7 @@ export default class ExportPlotModal extends React.Component<
 
   // ======= REACT COMPONENT FUNCTIONS =======
   @boundMethod
-  public onInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+  public onInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
     this.setState({ plotName: event.target.value });
   }
 
@@ -192,7 +192,7 @@ export default class ExportPlotModal extends React.Component<
   }
 
   @boundMethod
-  public onFmtRadioBtnClick(rSelected: ExportFormat) {
+  public onFmtRadioBtnClick(rSelected: ExportFormat): void {
     this.setState({ plotFileFormat: rSelected });
     if (rSelected === "png") {
       this.setState({ disableProvenance: false });
@@ -202,7 +202,7 @@ export default class ExportPlotModal extends React.Component<
   }
 
   @boundMethod
-  public onUnitRadioBtnClick(rSelected: ImageUnit) {
+  public onUnitRadioBtnClick(rSelected: ImageUnit): void {
     this.setState({ plotUnits: rSelected });
   }
 
@@ -213,10 +213,10 @@ export default class ExportPlotModal extends React.Component<
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.toggleModal}>
         <ModalHeader toggle={this.toggleModal}>Export Plot</ModalHeader>
-        <ModalBody className={/*@tag<export-modal>*/ "export-modal-vcdat"}>
+        <ModalBody className={/* @tag<export-modal>*/ "export-modal-vcdat"}>
           <Label>Name:</Label>
           <Input
-            className={/*@tag<export-name-input>*/ "export-name-input-vcdat"}
+            className={/* @tag<export-name-input>*/ "export-name-input-vcdat"}
             type="text"
             name="text"
             placeholder="Name"
@@ -244,7 +244,7 @@ export default class ExportPlotModal extends React.Component<
             <CustomInput
               type="switch"
               id={
-                /*@tag<export-dimension-switch>*/ "export-dimension-switch-vcdat"
+                /* @tag<export-dimension-switch>*/ "export-dimension-switch-vcdat"
               }
               name="dimensionsSwitch"
               label="Custom dimensions"
@@ -259,7 +259,7 @@ export default class ExportPlotModal extends React.Component<
                 <Label for="width">Width</Label>
                 <Input
                   className={
-                    /*@tag<export-width-input>*/ "export-width-input-vcdat"
+                    /* @tag<export-width-input>*/ "export-width-input-vcdat"
                   }
                   type="number"
                   name="width"
@@ -270,7 +270,7 @@ export default class ExportPlotModal extends React.Component<
                 <Label for="height">Height</Label>
                 <Input
                   className={
-                    /*@tag<export-height-input>*/ "export-height-input-vcdat"
+                    /* @tag<export-height-input>*/ "export-height-input-vcdat"
                   }
                   type="number"
                   name="height"
@@ -284,7 +284,7 @@ export default class ExportPlotModal extends React.Component<
           <br />
           <CustomInput
             id={
-              /*@tag<export-capture-provenance-switch>*/ "export-capture-provenance-switch-vcdat"
+              /* @tag<export-capture-provenance-switch>*/ "export-capture-provenance-switch-vcdat"
             }
             type="switch"
             name="customSwitch"
@@ -296,7 +296,7 @@ export default class ExportPlotModal extends React.Component<
         </ModalBody>
         <ModalFooter>
           <Button
-            className={/*@tag<export-button>*/ "export-button-vcdat"}
+            className={/* @tag<export-button>*/ "export-button-vcdat"}
             color="primary"
             onClick={this.save}
           >
@@ -304,7 +304,7 @@ export default class ExportPlotModal extends React.Component<
           </Button>{" "}
           <Button
             className={
-              /*@tag<export-cancel-button>*/ "export-cancel-button-vcdat"
+              /* @tag<export-cancel-button>*/ "export-cancel-button-vcdat"
             }
             color="secondary"
             onClick={this.toggleModal}
@@ -323,12 +323,12 @@ export default class ExportPlotModal extends React.Component<
     return (
       <ButtonGroup>
         {formats.map((format: ExportFormat) => {
-          const clickHandler = () => {
+          const clickHandler = (): void => {
             this.onFmtRadioBtnClick(format);
           };
           return (
             <Button
-              className={/*@tag<export-format-btn>*/ "export-format-btn-vcdat"}
+              className={/* @tag<export-format-btn>*/ "export-format-btn-vcdat"}
               key={format}
               color="primary"
               onClick={clickHandler}
@@ -350,12 +350,12 @@ export default class ExportPlotModal extends React.Component<
     return (
       <ButtonGroup>
         {units.map((unit: ImageUnit) => {
-          const clickHandler = () => {
+          const clickHandler = (): void => {
             this.onUnitRadioBtnClick(unit);
           };
           return (
             <Button
-              className={/*@tag<export-unit-btn>*/ "export-unit-btn-vcdat"}
+              className={/* @tag<export-unit-btn>*/ "export-unit-btn-vcdat"}
               key={unit}
               color="primary"
               onClick={clickHandler}

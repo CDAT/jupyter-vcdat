@@ -1,4 +1,4 @@
-import { ISettingRegistry } from "@jupyterlab/coreutils";
+import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { boundMethod } from "autobind-decorator";
 
 export class AppSettings {

@@ -1,7 +1,7 @@
 // Dependencies
 import { NotebookPanel } from "@jupyterlab/notebook";
-import { CommandRegistry } from "@phosphor/commands";
-import { ISignal } from "@phosphor/signaling";
+import { CommandRegistry } from "@lumino/commands";
+import { ISignal } from "@lumino/signaling";
 import * as React from "react";
 import { Alert, Button, Card, CardBody, Col, Row, Spinner } from "reactstrap";
 
@@ -12,7 +12,7 @@ import {
   EXTENSIONS,
   GRAPHICS_METHOD_KEY,
   PLOT_OPTIONS_KEY,
-  TEMPLATE_KEY
+  TEMPLATE_KEY,
 } from "../constants";
 import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
 import NotebookUtilities from "../NotebookUtilities";
@@ -30,22 +30,22 @@ import { AppSettings } from "../AppSettings";
 import { boundMethod } from "autobind-decorator";
 
 const btnStyle: React.CSSProperties = {
-  width: "100%"
+  width: "100%",
 };
 const centered: React.CSSProperties = {
-  margin: "auto"
+  margin: "auto",
 };
 
 const sidebarOverflow: React.CSSProperties = {
   height: "calc(100vh - 52px)",
   maxHeight: "100vh",
   minWidth: "370px",
-  overflow: "auto"
+  overflow: "auto",
 };
 
 // The defaults export size to use if the canvas dimensions weren't obtained
-const DEFAULT_WIDTH: string = "800";
-const DEFAULT_HEIGHT: string = "600";
+const DEFAULT_WIDTH = "800";
+const DEFAULT_HEIGHT = "600";
 
 interface IVCSMenuProps {
   application: JupyterFrontEnd;
@@ -122,7 +122,7 @@ export default class VCSMenu extends React.Component<
       selectedGMgroup: "",
       selectedTemplate: "",
       shouldAnimate: false,
-      variables: this.props.varTracker.variables
+      variables: this.props.varTracker.variables,
     };
     this.varMenuRef = (React as any).createRef();
     this.graphicsMenuRef = (React as any).createRef();
@@ -154,15 +154,15 @@ export default class VCSMenu extends React.Component<
 
   @boundMethod
   public async toggleAnimate(): Promise<void> {
-    const newAnimateState: boolean = !this.state.shouldAnimate;
+    const newAnimateState = !this.state.shouldAnimate;
     this.setState({
-      shouldAnimate: newAnimateState
+      shouldAnimate: newAnimateState,
     });
     // Turn off other options if animate is on
     if (newAnimateState) {
       this.setState({
         currentDisplayMode: DISPLAY_MODE.Notebook,
-        overlayMode: false
+        overlayMode: false,
       });
     }
     // Save selection to meta data
@@ -176,26 +176,26 @@ export default class VCSMenu extends React.Component<
   @boundMethod
   public updateAnimateAxisId(axis: number): void {
     this.setState({
-      animationAxisIndex: axis
+      animationAxisIndex: axis,
     });
   }
 
   @boundMethod
   public toggleAnimateAxisInvert(): void {
     this.setState({
-      animateAxisInvert: !this.state.animateAxisInvert
+      animateAxisInvert: !this.state.animateAxisInvert,
     });
   }
 
   @boundMethod
   public updateAnimateRate(rate: number): void {
     this.setState({
-      animationRate: rate
+      animationRate: rate,
     });
   }
 
   @boundMethod
-  public setPlotInfo(plotName: string, plotFormat: string) {
+  public setPlotInfo(plotName: string, plotFormat: string): void {
     this.setState({ plotName, plotFormat });
   }
 
@@ -245,7 +245,7 @@ export default class VCSMenu extends React.Component<
       [
         !this.state.overlayMode,
         this.state.currentDisplayMode,
-        this.state.shouldAnimate
+        this.state.shouldAnimate,
       ]
     );
   }
@@ -272,7 +272,7 @@ export default class VCSMenu extends React.Component<
   }
 
   @boundMethod
-  public saveNotebook() {
+  public saveNotebook(): void {
     // Save plot options to meta data
     NotebookUtilities.setMetaDataNow(
       this.state.notebookPanel,
@@ -280,7 +280,7 @@ export default class VCSMenu extends React.Component<
       [
         this.state.overlayMode,
         this.state.currentDisplayMode,
-        this.state.shouldAnimate
+        this.state.shouldAnimate,
       ]
     );
     NotebookUtilities.saveNotebook(this.state.notebookPanel);
@@ -297,7 +297,7 @@ export default class VCSMenu extends React.Component<
       selectedGM: "",
       selectedGMgroup: "",
       selectedTemplate: "",
-      shouldAnimate: false
+      shouldAnimate: false,
     });
   }
 
@@ -316,7 +316,7 @@ export default class VCSMenu extends React.Component<
         const dimensions: number[] = Utilities.strToArray(output);
         return {
           height: dimensions[1].toString(10),
-          width: dimensions[0].toString(10)
+          width: dimensions[0].toString(10),
         };
       }
       return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
@@ -343,7 +343,7 @@ export default class VCSMenu extends React.Component<
         currentDisplayMode: DISPLAY_MODE.Notebook,
         overlayMode: false,
         previousDisplayMode: DISPLAY_MODE.None,
-        shouldAnimate: false
+        shouldAnimate: false,
       });
       return;
     }
@@ -354,7 +354,7 @@ export default class VCSMenu extends React.Component<
         currentDisplayMode: DISPLAY_MODE.Notebook,
         overlayMode: false,
         previousDisplayMode: plotOptions[1],
-        shouldAnimate: true
+        shouldAnimate: true,
       });
     } else {
       // Set state based on meta data from notebook
@@ -362,7 +362,7 @@ export default class VCSMenu extends React.Component<
         currentDisplayMode: plotOptions[1],
         overlayMode: plotOptions[0],
         previousDisplayMode: this.state.currentDisplayMode,
-        shouldAnimate: false
+        shouldAnimate: false,
       });
     }
   }
@@ -380,7 +380,7 @@ export default class VCSMenu extends React.Component<
       this.graphicsMenuRef.resetGraphicsState();
       this.setState({
         selectedGM: "",
-        selectedGMgroup: ""
+        selectedGMgroup: "",
       });
       return;
     }
@@ -388,12 +388,12 @@ export default class VCSMenu extends React.Component<
     // Set state based on meta data from notebook
     this.setState({
       selectedGM: gmData[1],
-      selectedGMgroup: gmData[0]
+      selectedGMgroup: gmData[0],
     });
     this.graphicsMenuRef.setState({
       selectedGroup: gmData[0],
       selectedMethod: gmData[1],
-      tempGroup: gmData[0]
+      tempGroup: gmData[0],
     });
   }
 
@@ -412,10 +412,10 @@ export default class VCSMenu extends React.Component<
       return;
     }
     this.setState({
-      selectedTemplate: template
+      selectedTemplate: template,
     });
     this.templateMenuRef.setState({
-      selectedTemplate: template
+      selectedTemplate: template,
     });
   }
 
@@ -441,9 +441,9 @@ export default class VCSMenu extends React.Component<
     );
 
     // If successful, update the current state
-    await this.setState({
+    this.setState({
       selectedGM: newName,
-      selectedGMgroup: groupName
+      selectedGMgroup: groupName,
     });
 
     await this.props.refreshGraphicsList();
@@ -475,7 +475,7 @@ export default class VCSMenu extends React.Component<
     this.setState(
       {
         selectedGM: name,
-        selectedGMgroup: group
+        selectedGMgroup: group,
       },
       () => {
         if (this.state.colormapHasBeenChanged) {
@@ -492,10 +492,10 @@ export default class VCSMenu extends React.Component<
   }
 
   @boundMethod
-  public async updateColormap(colormapName: string) {
+  public async updateColormap(colormapName: string): Promise<void> {
     this.setState({
       colormapHasBeenChanged: true,
-      selectedColormap: colormapName
+      selectedColormap: colormapName,
     });
     await this.props.codeInjector.updateColormapName(
       this.state.selectedGM,
@@ -510,7 +510,7 @@ export default class VCSMenu extends React.Component<
     await this.props.codeInjector.getTemplate(templateName);
     // If successful, update the state
     this.setState({
-      selectedTemplate: templateName
+      selectedTemplate: templateName,
     });
     // Save selected graphics method to meta data
     NotebookUtilities.setMetaData(
@@ -585,7 +585,7 @@ export default class VCSMenu extends React.Component<
       updateColormap: this.updateColormap,
       updateGraphicsOptions: this.updateGraphicsOptions,
       varInfo: new Variable(),
-      varTracker: this.props.varTracker
+      varTracker: this.props.varTracker,
     };
     const varMenuProps = {
       codeInjector: this.props.codeInjector,
@@ -599,13 +599,13 @@ export default class VCSMenu extends React.Component<
       showInputModal: this.showInputModal,
       syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel,
-      varTracker: this.props.varTracker
+      varTracker: this.props.varTracker,
     };
     const templateMenuProps = {
       getTemplatesList: this.props.getTemplatesList,
       plotReady: this.state.plotReady,
       plotReadyChanged: this.props.plotReadyChanged,
-      updateTemplateOptions: this.updateTemplateOptions
+      updateTemplateOptions: this.updateTemplateOptions,
     };
     const exportPlotModalProps = {
       codeInjector: this.props.codeInjector,
@@ -616,7 +616,7 @@ export default class VCSMenu extends React.Component<
       notebookPanel: this.state.notebookPanel,
       setPlotInfo: this.setPlotInfo,
       showExportSuccessAlert: this.showExportSuccessAlert,
-      toggle: this.toggleModal
+      toggle: this.toggleModal,
     };
 
     const inputModalProps = {
@@ -633,19 +633,19 @@ export default class VCSMenu extends React.Component<
       message: "Enter the path and name of the file you wish to open.",
       onModalClose: this.props.prepareNotebookFromPath,
       placeHolder: "file_path/file.ext",
-      title: "Load Variables from Path"
+      title: "Load Variables from Path",
     };
 
     return (
       <Card style={{ ...centered, ...sidebarOverflow }}>
         <Card>
-          <CardBody className={/*@tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
+          <CardBody className={/* @tag<vcsmenu-main>*/ "vcsmenu-main-vcdat"}>
             <div style={centered}>
               <Row>
                 <Col sm={this.state.shouldAnimate ? 5 : 3}>
                   <Button
                     className={
-                      /*@tag<vcsmenu-plot-btn>*/ "vcsmenu-plot-btn-vcdat"
+                      /* @tag<vcsmenu-plot-btn>*/ "vcsmenu-plot-btn-vcdat"
                     }
                     type="button"
                     color={this.state.shouldAnimate ? "warning" : "primary"}
@@ -663,7 +663,7 @@ export default class VCSMenu extends React.Component<
                 >
                   <Button
                     className={
-                      /*@tag<vcsmenu-export-btn>*/ "vcsmenu-export-btn-vcdat"
+                      /* @tag<vcsmenu-export-btn>*/ "vcsmenu-export-btn-vcdat"
                     }
                     type="button"
                     color="primary"
@@ -682,7 +682,7 @@ export default class VCSMenu extends React.Component<
                 <Col sm={4}>
                   <Button
                     className={
-                      /*@tag<vcsmenu-clear-btn>*/ "vcsmenu-clear-btn-vcdat"
+                      /* @tag<vcsmenu-clear-btn>*/ "vcsmenu-clear-btn-vcdat"
                     }
                     type="button"
                     color="primary"
@@ -698,19 +698,22 @@ export default class VCSMenu extends React.Component<
             </div>
           </CardBody>
         </Card>
-        <VarMenu {...varMenuProps} ref={loader => (this.varMenuRef = loader)} />
+        <VarMenu
+          {...varMenuProps}
+          ref={(loader): VarMenu => (this.varMenuRef = loader)}
+        />
         <GraphicsMenu
           {...graphicsMenuProps}
-          ref={loader => (this.graphicsMenuRef = loader)}
+          ref={(loader): GraphicsMenu => (this.graphicsMenuRef = loader)}
         />
         <TemplateMenu
           {...templateMenuProps}
-          ref={loader => (this.templateMenuRef = loader)}
+          ref={(loader): TemplateMenu => (this.templateMenuRef = loader)}
         />
         <ExportPlotModal {...exportPlotModalProps} />
         <InputModal
           {...inputModalProps}
-          ref={loader => (this.filePathInputRef = loader)}
+          ref={(loader): InputModal => (this.filePathInputRef = loader)}
         />
         <div>
           <Alert
@@ -734,12 +737,18 @@ export default class VCSMenu extends React.Component<
   }
 
   @boundMethod
-  private handlePlotReadyChanged(sidebar: LeftSideBarWidget, value: boolean) {
+  private handlePlotReadyChanged(
+    sidebar: LeftSideBarWidget,
+    value: boolean
+  ): void {
     this.setState({ plotReady: value });
   }
 
   @boundMethod
-  private handlePlotExistsChanged(sidebar: LeftSideBarWidget, value: boolean) {
+  private handlePlotExistsChanged(
+    sidebar: LeftSideBarWidget,
+    value: boolean
+  ): void {
     this.setState({ plotExists: value });
   }
 
@@ -747,7 +756,7 @@ export default class VCSMenu extends React.Component<
   private handleVariablesChanged(
     varTracker: VariableTracker,
     variables: Variable[]
-  ) {
+  ): void {
     this.setState({ variables });
   }
 

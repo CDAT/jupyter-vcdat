@@ -1,10 +1,14 @@
 # This dockerfile will create a docker image for an official release
 FROM $_base_image
 
+ARG npm_version="nightly"
+
+# Copy sample data to use include in image
+COPY sample_data /home/jovyan
+
 # Install Conda packages
 ARG conda_channels="$_conda_channels"
 ARG conda_packages="$_conda_pkgs"
-RUN conda config --set remote_read_timeout_secs 120
 RUN conda config --set channel_priority strict
 RUN conda install --force -y ${conda_channels} ${conda_packages}
 RUN conda clean -y --all
@@ -17,4 +21,4 @@ $_install_extensions
 
 # Our extension needs to be built from npm repo otherwise jupyter-lab
 # tries to write into image and shifter does not let us do this.
-RUN jupyter labextension install jupyter-vcdat@nightly
+RUN jupyter labextension install jupyter-vcdat@${npm_version}

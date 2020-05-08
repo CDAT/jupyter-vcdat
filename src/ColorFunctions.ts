@@ -5,8 +5,8 @@ export default class ColorFunctions {
   }
 
   public static rgbToHexColorStr(RGB: [number, number, number]): string {
-    let str: string = "";
-    RGB.forEach(val => {
+    let str = "";
+    RGB.forEach((val) => {
       switch (true) {
         case val < 0:
           str += "00";
@@ -34,7 +34,7 @@ export default class ColorFunctions {
     return [
       parseInt(hexCol.substr(0, 2), 16),
       parseInt(hexCol.substr(2, 2), 16),
-      parseInt(hexCol.substr(4, 2), 16)
+      parseInt(hexCol.substr(4, 2), 16),
     ];
   }
 
@@ -79,7 +79,7 @@ export default class ColorFunctions {
     const colors: string[] = Array<string>();
     colors.push(firstCol);
 
-    for (let i: number = 1; i < numColors - 1; i += 1) {
+    for (let i = 1; i < numColors - 1; i += 1) {
       currColor[0] = startRGB[0] + interval[0] * i;
       currColor[1] = startRGB[1] + interval[1] * i;
       currColor[2] = startRGB[2] + interval[2] * i;

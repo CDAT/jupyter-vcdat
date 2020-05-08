@@ -11,7 +11,7 @@ import {
   Slider,
   SliderItem,
   Ticks,
-  Tracks
+  Tracks,
 } from "react-compound-slider";
 import { Handle, Tick, Track } from "./Tracks";
 import { boundMethod } from "autobind-decorator";
@@ -21,7 +21,7 @@ const sliderStyle: React.CSSProperties = {
   marginLeft: "5%",
   marginRight: "5%",
   position: "relative",
-  width: "90%"
+  width: "90%",
 };
 
 const railStyle: React.CSSProperties = {
@@ -30,13 +30,13 @@ const railStyle: React.CSSProperties = {
   cursor: "pointer",
   height: 14,
   position: "absolute",
-  width: "100%"
+  width: "100%",
 };
 
 const centered: React.CSSProperties = {
   margin: "auto",
   paddingBottom: "0.5em",
-  paddingTop: "0.5em"
+  paddingTop: "0.5em",
 };
 
 interface IDimensionSliderProps {
@@ -66,7 +66,7 @@ export default class DimensionSlider extends React.Component<
   IDimensionSliderState
 > {
   public singleValue: boolean; // Whether the slider range contains only a single value
-  public tickCount: number = 10; // The number of ticks to display for slider
+  public tickCount = 10; // The number of ticks to display for slider
   private domain: [number, number]; // The domain to use for the slider
   constructor(props: IDimensionSliderProps) {
     super(props);
@@ -95,17 +95,15 @@ export default class DimensionSlider extends React.Component<
           format = "YYYY-MM-DD HH:mm:ss";
           break;
       }
-      this.formatter = (data: any) => {
-        return moment(startTime, "YYYY-MM-DD")
-          .add(data, span)
-          .format(format);
+      this.formatter = (data: any): string => {
+        return moment(startTime, "YYYY-MM-DD").add(data, span).format(format);
       };
       this.formatter.bind(this);
     }
 
     // Calculate display tick values and values
     const lastIdx: number = pValues.length - 1;
-    let skipVal: number = 0;
+    let skipVal = 0;
 
     // Create default array of sequential values
     let tickVals: number[] = Array.from(Array(pValues.length).keys());
@@ -138,7 +136,7 @@ export default class DimensionSlider extends React.Component<
       first: idxFirst,
       last: idxLast,
       possibleValues: pValues,
-      tickValues: tickVals
+      tickValues: tickVals,
     };
   }
 
@@ -175,7 +173,7 @@ export default class DimensionSlider extends React.Component<
 
     this.setState({
       first: e[0],
-      last: e[1]
+      last: e[1],
     });
   }
 
@@ -188,7 +186,7 @@ export default class DimensionSlider extends React.Component<
       {
         first: this.state.possibleValues[e[0]],
         last: this.state.possibleValues[e[1]],
-        name: this.props.name
+        name: this.props.name,
       },
       this.props.varID
     );
@@ -198,7 +196,7 @@ export default class DimensionSlider extends React.Component<
     return (
       <div
         data-axisname={this.props.name}
-        className={/*@tag<dimension-slider>*/ "dimension-slider-vcdat"}
+        className={/* @tag<dimension-slider>*/ "dimension-slider-vcdat"}
       >
         {!this.singleValue && (
           <div className={"form-inline"}>
@@ -218,16 +216,16 @@ export default class DimensionSlider extends React.Component<
               values={[this.state.first, this.state.last]}
             >
               <Rail>
-                {({ getRailProps }) => (
+                {({ getRailProps }): JSX.Element => (
                   <div style={railStyle} {...getRailProps()} />
                 )}
               </Rail>
               <Handles>
-                {({ handles, getHandleProps }) => (
+                {({ handles, getHandleProps }): JSX.Element => (
                   <div
-                    className={/*@tag<slider-handles>*/ "slider-handles-vcdat"}
+                    className={/* @tag<slider-handles>*/ "slider-handles-vcdat"}
                   >
-                    {handles.map(handle => (
+                    {handles.map((handle) => (
                       <Handle
                         key={handle.id}
                         handle={handle}
@@ -239,9 +237,9 @@ export default class DimensionSlider extends React.Component<
                 )}
               </Handles>
               <Tracks left={false} right={false}>
-                {({ tracks, getTrackProps }) => (
+                {({ tracks, getTrackProps }): JSX.Element => (
                   <div
-                    className={/*@tag<slider-tracks>*/ "slider-tracks-vcdat"}
+                    className={/* @tag<slider-tracks>*/ "slider-tracks-vcdat"}
                   >
                     {tracks.map(({ id, source, target }) => (
                       <Track
@@ -255,8 +253,8 @@ export default class DimensionSlider extends React.Component<
                 )}
               </Tracks>
               <Ticks values={this.state.tickValues}>
-                {({ ticks }) => (
-                  <div className={/*@tag<slider-ticks>*/ "slider-ticks-vcdat"}>
+                {({ ticks }): JSX.Element => (
+                  <div className={/* @tag<slider-ticks>*/ "slider-ticks-vcdat"}>
                     {ticks.map((tick: SliderItem, idx: number) => (
                       <Tick
                         key={tick.id}

@@ -21,8 +21,8 @@ parser = argparse.ArgumentParser(description=desc)
 
 # Add argument options
 parser.add_argument('--log', '-l', help='<Optional> Specify the path where to save the log containing tag names, \
-                    values and thier locations.',
-                    default="tests/component_tags.txt")
+                    values and thier locations.', nargs="?",
+                    const="tests/component_tags.txt")
 parser.add_argument('--source', '-s', nargs='+',
                     help='<Required> The path of the file or files to update.', required=True)
 parser.add_argument(

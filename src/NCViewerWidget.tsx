@@ -1,5 +1,5 @@
 // Dependencies
-import { Widget } from "@phosphor/widgets";
+import { Widget } from "@lumino/widgets";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 
 export default class NCViewerWidget extends Widget {
