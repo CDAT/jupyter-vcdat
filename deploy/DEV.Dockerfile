@@ -8,7 +8,6 @@ COPY sample_data /home/jovyan
 # Install Conda packages
 ARG conda_channels="-c cdat/label/nightly -c conda-forge"
 ARG conda_packages="pip vcs mesalib tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
-RUN conda config --set remote_read_timeout_secs 120
 RUN conda config --set channel_priority strict
 RUN conda install --force -y ${conda_channels} ${conda_packages}
 RUN conda clean -y --all

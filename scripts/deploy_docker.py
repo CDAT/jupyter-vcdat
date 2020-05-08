@@ -4,7 +4,8 @@ import utilities as u
 MSG_LOCAL_BUILD = "Building a local NPM Package for extension build..."
 MSG_BUILDING_IMAGE = "Building Docker image with tag: {} ..."
 MSG_PUBLISH_IMAGE = "Publishing image to Docker Hub using tags: {}"
-MSG_USING_VERSION = "Using NPM package 'jupyter-vcdat@{}' for extension build..."
+MSG_USING_VERSION = ("Using NPM package 'jupyter-vcdat@{}' "
+                     "for extension build...")
 
 SHOW_PROGRESS = False
 SHOW_CMDS = False
@@ -13,36 +14,37 @@ SHOW_ALL = False
 
 def main():
     prog = "python deploy_docker.py "
-    descr = """This tool automates the process of building and deploying
-    Docker images of Jupyter-VCDAT."""
+    descr = ("This tool automates the process of building and deploying "
+             "Docker images of Jupyter-VCDAT.")
     parser = argparse.ArgumentParser(prog, None, descr)
     group = parser.add_mutually_exclusive_group()
     group2 = parser.add_argument_group()
 
     # Add argument options
     group.add_argument('--local', '-l', action="store_true",
-                       help="<Optional> Generate the image from local the \
-                        current directory instead of using an npm package.")
+                       help=("<Optional> Generate the image from local the"
+                             "current directory instead of using an npm package."))
     group.add_argument('--version', '-v', default="nightly",
-                       help="<Optional> The npm version of jupyter-vcdat to \
-                        use when building the image.")
+                       help=("<Optional> The npm version of jupyter-vcdat to "
+                             "use when building the image."))
     group2.description = "Publishing built image(s) to DockerHub:"
     group2.add_argument('--publish', '-p', nargs='+', metavar="version",
-                        help="<Optional> After the image is built, push it \
-                        to DockerHub using specified version(s).")
+                        help=("<Optional> After the image is built, push it "
+                              "to DockerHub using specified version(s)."))
     group2.add_argument('--repo', '-r', default="cdat/vcdat",
-                        help="<Optional> The docker repository to use when \
-                        publishing the docker image(s). Default: cdat/vcdat")
+                        help=("<Optional> The docker repository to use when "
+                              "publishing the docker image(s). Default: cdat/vcdat"))
     parser.add_argument('--status', '-s', type=int, choices=[0, 1, 2, 3],
-                        default=0, help="<Optional> Select amount of verbosity \
-                        to use when displaying deployment progress. Choices: \n\
-                        0: Do not print anything.\n\
-                        1: Print progress messages.\n\
-                        2: Print progress and commands.\n\
-                        3: Print progress, commands and shell output.\n")
+                        default=1, help=("<Optional> Select amount of verbosity"
+                                         " to use when displaying deployment progress. "
+                                         "Choices:\n0: Do not print anything.\n"
+                                         "1: Print progress messages.\n"
+                                         "2: Print progress and commands.\n"
+                                         "3: Print progress, commands and shell output.\n"))
     parser.add_argument('--run', nargs='?', const=9000, type=int,
-                        help="<Optional> Run the docker image after it is \
-                        built so it can be view in browser. Default port: 9000")
+                        help=("<Optional> Run the docker image after it is "
+                              "built so it can be view in browser. "
+                              "Default port: 9000"))
     parser.add_argument("tag", help="Tag to use for Docker image.")
 
     args = parser.parse_args()
@@ -130,7 +132,7 @@ def build_docker_image(local_npm, image, version):
     print_progress(MSG_BUILDING_IMAGE.format(image))
     try:
         LOCAL_PATH = "{}/deploy".format(MAIN_DIR)
-        CMD = "cd {} && docker build --no-cache -t {}".format(
+        CMD = "cd {} && docker build -t {}".format(
             LOCAL_PATH, image)
         if local_npm:
             CMD += " --pull -f DEV.Dockerfile ."

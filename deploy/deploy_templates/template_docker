@@ -9,7 +9,6 @@ COPY sample_data /home/jovyan
 # Install Conda packages
 ARG conda_channels="$_conda_channels"
 ARG conda_packages="$_conda_pkgs"
-RUN conda config --set remote_read_timeout_secs 120
 RUN conda config --set channel_priority strict
 RUN conda install --force -y ${conda_channels} ${conda_packages}
 RUN conda clean -y --all
