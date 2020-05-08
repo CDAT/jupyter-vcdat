@@ -137,6 +137,9 @@ jobs:
       - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
+      - store_artifacts:
+          path: tests/screenshots
+          destination: tests_chrome_screenshots
 
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload
@@ -156,6 +159,9 @@ jobs:
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html
+      - store_artifacts:
+          path: tests/screenshots
+          destination: tests_firefox_screenshots
 
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload
