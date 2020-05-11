@@ -3,6 +3,8 @@ FROM $_base_image
 
 # Get local packaged files to build extension from
 COPY local_package /home/jovyan
+
+# Include sample files for running tests
 COPY sample_data /home/jovyan
 
 # Install Conda packages
