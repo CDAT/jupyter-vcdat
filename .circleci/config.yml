@@ -101,7 +101,7 @@ aliases:
       echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
       echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
       docker pull $DOCKER_BASE_IMAGE
-      docker build --no-cache --tag=cdat/vcdat:test .
+      docker build --build-arg work_dir='$WORKDIR/' --no-cache --tag=cdat/vcdat:test .
       docker push cdat/vcdat:test
       docker logout
 
@@ -115,6 +115,7 @@ jobs:
       - checkout
       - run: *check_vcdat_versions
       #- run: *npm_publish
+      - setup_remote_docker
       - run: *docker_publish
       - run: *conda_upload
 

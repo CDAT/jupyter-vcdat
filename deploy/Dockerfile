@@ -2,9 +2,10 @@
 FROM nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
 
 ARG npm_version="nightly"
+ARG work_dir=""
 
 # Copy sample data to use include in image
-COPY sample_data /home/jovyan
+COPY ${work_dir}sample_data /home/jovyan
 
 # Install Conda packages
 ARG conda_channels="-c cdat/label/nightly -c conda-forge"
