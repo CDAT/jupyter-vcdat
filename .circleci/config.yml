@@ -73,8 +73,8 @@ aliases:
     command: |
       export REPO_DIR=`pwd`
       export PKG_NAME=jupyter-vcdat
-      export LABEL=nightly
-      export USER=cdat
+      export LABEL=experimental
+      export USER=downiec
       conda install conda-build anaconda-client
       conda config --set anaconda_upload no
       export CONDA_BLD_PATH=`pwd`/conda_build
@@ -101,10 +101,8 @@ aliases:
       echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
       echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
       docker pull $DOCKER_BASE_IMAGE
-      docker build --no-cache --tag=cdat/vcdat:nightly .
-      docker image tag cdat/vcdat:nightly cdat/vcdat:$LOCAL_VCDAT_VERSION
-      docker push cdat/vcdat:$LOCAL_VCDAT_VERSION
-      docker push cdat/vcdat:nightly
+      docker build --no-cache --tag=cdat/vcdat:test .
+      docker push cdat/vcdat:test
       docker logout
 
 jobs:
@@ -117,8 +115,11 @@ jobs:
     steps:
       - checkout
       - run: *check_vcdat_versions
-      - run: *npm_publish
+      #- run: *npm_publish
       - setup_remote_docker
+      - run:
+        name: Install Docker client
+        command: apk add docker-cli
       - run: *docker_publish
       - run: *conda_upload
 
@@ -170,12 +171,4 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_chrome
-      - linux_firefox
-      - publish:
-          requires:
-            - linux_chrome
-            - linux_firefox
-          filters:
-            branches:
-              only: master
+      - publish
