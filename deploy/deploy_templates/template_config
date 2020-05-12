@@ -110,16 +110,17 @@ aliases:
 jobs:
   publish:
     docker:
-      - image: $DOCKER_BASE_IMAGE
-        auth:
-          username: $DOCKER_USER  
-          password: $DOCKER_TOKEN2
+      - image: circleci/node:latest
+    environment:
+      WORKDIR: "publish"
     steps:
       - checkout
       - run: *check_vcdat_versions
       - run: *npm_publish
       - setup_remote_docker
       - run: *docker_publish
+      - run: *setup_miniconda
+      - run: *setup_jupyter_vcdat
       - run: *conda_upload
 
   linux_chrome:

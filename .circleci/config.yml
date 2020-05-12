@@ -75,6 +75,7 @@ aliases:
       export PKG_NAME=jupyter-vcdat
       export LABEL=experimental
       export USER=downiec
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda install conda-build anaconda-client
       conda config --set anaconda_upload no
       export CONDA_BLD_PATH=`pwd`/conda_build
