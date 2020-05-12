@@ -111,7 +111,7 @@ jobs:
       - run: *check_vcdat_versions
       #- run: *npm_publish
       - setup_remote_docker
-      - run: *docker_publish
+      #- run: *docker_publish
       - run: *setup_miniconda
       - run: *setup_jupyter_vcdat
       - run: *conda_upload
