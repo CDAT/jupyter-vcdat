@@ -79,12 +79,6 @@ aliases:
       conda install conda-build anaconda-client
       conda config --set anaconda_upload no
       export CONDA_BLD_PATH=`pwd`/conda_build
-      git clone https://github.com/cdat/conda-recipes
-      cd conda-recipes
-      export CONDA_RECIPES_REPO=`pwd`
-      ln -s $REPO_DIR .
-      cd $REPO_DIR
-      python $CONDA_RECIPES_REPO/prep_for_build.py -l $LOCAL_VCDAT_VERSION -b ${CIRCLE_BRANCH}
       conda build $CHANNELS recipe
       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2 --force
 
