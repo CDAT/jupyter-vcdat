@@ -113,7 +113,7 @@ jobs:
       - setup_remote_docker
       #- run: *docker_publish
       - run: *setup_miniconda
-      - run: *setup_jupyter_vcdat
+      #- run: *setup_jupyter_vcdat
       - run: *conda_upload
 
   linux_chrome:
