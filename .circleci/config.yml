@@ -113,6 +113,7 @@ jobs:
       WORKDIR: "publish"
     steps:
       - checkout
+      - run: *setup_miniconda
       - run: *check_vcdat_versions
       #- run: *npm_publish
       - setup_remote_docker
