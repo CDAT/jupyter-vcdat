@@ -77,6 +77,7 @@ aliases:
       export USER=downiec
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda install conda-build anaconda-client
+      conda activate base
       conda config --set anaconda_upload no
       export CONDA_BLD_PATH=`pwd`/conda_build
       conda build $CHANNELS recipe
