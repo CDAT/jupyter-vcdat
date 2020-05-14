@@ -71,6 +71,7 @@ aliases:
     environment:
       CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
+      export REPO_DIR=`pwd`
       export PKG_NAME=jupyter-vcdat
       export LABEL=experimental
       export USER=downiec
@@ -79,11 +80,14 @@ aliases:
       conda install conda-build anaconda-client
       conda config --set anaconda_upload no
       export CONDA_BLD_PATH=`pwd`/conda_build
+      git clone https://github.com/cdat/conda-recipes
+      cd conda-recipes
+      export CONDA_RECIPES_REPO=`pwd`
+      ln -s $REPO_DIR .
+      cd $REPO_DIR
+      python $CONDA_RECIPES_REPO/prep_for_build.py -l $LOCAL_VCDAT_VERSION -b ${CIRCLE_BRANCH}
       conda build $CHANNELS recipe
-      PKG_PATH=$CONDA_BLD_PATH/noarch/jupyter-vcdat-2.3.5_2020.05.12.12.36.45-py_0.tar.bz2
-      echo $PKG_PATH
-      ls /home/circleci/project/conda_build/noarch/
-      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $PKG_PATH --force
+      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`'%Y.%m.%d.%H.%M.%S'*`0.tar.bz2 --force
 
   - &npm_publish
     name: npm_publish
