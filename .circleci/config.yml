@@ -75,7 +75,7 @@ aliases:
       export PKG_NAME=jupyter-vcdat
       export LABEL=experimental
       export USER=downiec
-      export GIT_DESCRIBE_HASH=dev_update
+      export GIT_DESCRIBE_HASH=${CIRCLE_BRANCH}
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       conda install conda-build anaconda-client
@@ -88,7 +88,7 @@ aliases:
       cd $REPO_DIR
       python $CONDA_RECIPES_REPO/prep_for_build.py -l $LOCAL_VCDAT_VERSION -b ${CIRCLE_BRANCH}
       conda build $CHANNELS recipe
-      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`'%Y.%m.%d.%H.%M.%S'*`0.tar.bz2 --force
+      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date '%Y.%m.%d.%H.%M.%S'*`0.tar.bz2 --force
 
   - &npm_publish
     name: npm_publish
