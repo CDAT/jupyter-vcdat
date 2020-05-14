@@ -3,6 +3,8 @@ FROM nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
 
 # Get local packaged files to build extension from
 COPY local_package /home/jovyan
+
+# Include sample files for running tests
 COPY sample_data /home/jovyan
 
 # Install Conda packages

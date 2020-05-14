@@ -73,8 +73,8 @@ aliases:
     command: |
       export REPO_DIR=`pwd`
       export PKG_NAME=jupyter-vcdat
-      export LABEL=experimental
-      export USER=downiec
+      export LABEL=nightly
+      export USER=cdat
       export GIT_DESCRIBE_HASH=${CIRCLE_BRANCH}
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
@@ -89,7 +89,6 @@ aliases:
       python $CONDA_RECIPES_REPO/prep_for_build.py -l $LOCAL_VCDAT_VERSION -b ${CIRCLE_BRANCH}
       conda build $CHANNELS recipe
       BUILD_NAME=$CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2
-      echo $BUILD_NAME
       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $BUILD_NAME --force
 
   - &npm_publish
@@ -106,8 +105,10 @@ aliases:
       echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
       echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
       docker pull $DOCKER_BASE_IMAGE
-      docker build --build-arg work_dir='$WORKDIR/' --no-cache --tag=cdat/vcdat:test .
-      docker push cdat/vcdat:test
+      docker build --no-cache --tag=cdat/vcdat:nightly .
+      docker image tag cdat/vcdat:nightly cdat/vcdat:$LOCAL_VCDAT_VERSION
+      docker push cdat/vcdat:$LOCAL_VCDAT_VERSION
+      docker push cdat/vcdat:nightly
       docker logout
 
 jobs:
@@ -121,9 +122,8 @@ jobs:
       - run: *check_vcdat_versions
       #- run: *npm_publish
       - setup_remote_docker
-      #- run: *docker_publish
+      - run: *docker_publish
       - run: *setup_miniconda
-      #- run: *setup_jupyter_vcdat
       - run: *conda_upload
 
   linux_chrome:
