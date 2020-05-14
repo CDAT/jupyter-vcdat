@@ -3,7 +3,7 @@ package:
   version: 2.3.5_2020.05.12.12.36.45
 
 source:
-  git_rev: master
+  git_rev: dev_updates
   git_url: git://github.com/cdat/jupyter-vcdat.git
 
 build:
