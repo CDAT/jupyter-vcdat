@@ -1,6 +1,6 @@
 package:
   name: jupyter-vcdat
-  version: jupyter_vcdat_2.3.5_2020.05.12.12.36.45
+  version: 2.3.5_2020.05.12.12.36.45
 
 source:
   git_rev: master
