@@ -71,17 +71,19 @@ aliases:
     environment:
       CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
+      export PKG_NAME=jupyter-vcdat
+      export LABEL=experimental
+      export USER=downiec
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       conda install conda-build anaconda-client
       conda config --set anaconda_upload no
       export CONDA_BLD_PATH=`pwd`/conda_build
       conda build $CHANNELS recipe
-      export PKG_NAME=jupyter-vcdat-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2
-      echo $PKG_NAME
-      export LABEL=experimental
-      export USER=downiec
-      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME --force
+      PKG_PATH=$CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2
+      echo PKG_PATH
+      ls *.bz2
+      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $PKG_PATH --force
 
   - &npm_publish
     name: npm_publish
