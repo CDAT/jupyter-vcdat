@@ -75,6 +75,7 @@ aliases:
       export PKG_NAME=jupyter-vcdat
       export LABEL=experimental
       export USER=downiec
+      export GIT_DESCRIBE_HASH=dev_update
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       conda install conda-build anaconda-client
