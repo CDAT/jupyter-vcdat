@@ -81,8 +81,8 @@ aliases:
       export CONDA_BLD_PATH=`pwd`/conda_build
       conda build $CHANNELS recipe
       PKG_PATH=$CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2
-      echo PKG_PATH
-      ls *.bz2
+      echo $PKG_PATH
+      ls
       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $PKG_PATH --force
 
   - &npm_publish
