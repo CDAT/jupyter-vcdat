@@ -104,7 +104,7 @@ def update_template(template_in, file_out, data):
 def create_build_script(template_in, script_out):
 
     # Generate pip install commands
-    pip = SIDECAR_PIP
+    pip = f"pip install {SIDECAR_PIP}"
 
     # Generate extension install commands
     EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS
