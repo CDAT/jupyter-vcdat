@@ -1,34 +1,26 @@
 version: 2
 aliases:
+  #- &setup_miniconda
+  #  name: setup_miniconda
+  #  command: |
+  #    mkdir $WORKDIR
+  #    cd $WORKDIR
+  #    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O Miniconda3-latest-Linux-x86_64.sh
+  #    bash ./Miniconda3-latest-Linux-x86_64.sh -b -p miniconda
+
   - &setup_miniconda
     name: setup_miniconda
     command: |
-      mkdir $WORKDIR
-      cd $WORKDIR
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O Miniconda3-latest-Linux-x86_64.sh
-      bash ./Miniconda3-latest-Linux-x86_64.sh -b -p miniconda
+      mkdir -p workspace
+      git clone -b validateNightlyNew git@github.com:CDAT/cdat workspace/cdat
+      # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
+      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       ./install_script.sh -v -d
-
-  - &check_vcdat_versions
-    name: check_npm_version
-    command: |
-      LOCAL_VCDAT_VERSION=`node -pe "require('./package.json').version"`
-      NPM_VCDAT_VERSION=`npm view jupyter-vcdat@nightly version`
-      echo "export LOCAL_VCDAT_VERSION=$LOCAL_VCDAT_VERSION" >> $BASH_ENV
-      echo "export NPM_VCDAT_VERSION=$NPM_VCDAT_VERSION" >> $BASH_ENV
-      function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
-      if version_gt $LOCAL_VCDAT_VERSION $NPM_VCDAT_VERSION; then
-        echo "Version of $LOCAL_VCDAT_VERSION in the package.json looks good."
-      else
-        echo "Version $LOCAL_VCDAT_VERSION in package.json is not newer than npm version of $NPM_VCDAT_VERSION and will cause Publish job to fail."
-        echo "You should update version $LOCAL_VCDAT_VERSION in package.json to a version greater than $NPM_VCDAT_VERSION"
-        exit 1
-      fi
 
   - &run_jupyter_vcdat
     name: run_jupyter_vcdat
@@ -66,27 +58,52 @@ aliases:
       echo "*** $PY_VER test result: ${RESULT}"
       exit $RESULT
 
+  - &conda_rerender
+    name: conda_rerender
+    command: |
+      git clone https://github.com/CDAT/conda-recipes.git $WORKDIR/conda-recipes 
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate base
+      conda config --set anaconda_upload no
+      BUILD_SCRIPT="$WORKDIR/conda-recipes/build_tools/conda_build.py"
+      python $BUILD_SCRIPT -w $WORKDIR -l $LAST_STABLE -B 0 -p $PKG_NAME -b $CIRCLE_BRANCH --do_rerender
+
+  - &conda_build
+    name: conda_build
+    command: |
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate base
+      conda config --add channels conda-forge --force
+      conda config --add channels cdat/label/nightly --force
+      conda config --set channel_priority strict
+      BUILD_SCRIPT="$WORKDIR/conda-recipes/build_tools/conda_build.py"
+      python $BUILD_SCRIPT -w $WORKDIR -p $PKG_NAME --build_version $BUILD_VARIANT_VER --do_build
+
+  #- &conda_upload
+  #  name: conda_upload
+  #  command: |
+  #    if [[ $CIRCLE_BRANCH != "master" ]]; then
+  #      exit 0
+  #    fi
+  #    source $WORKDIR/miniconda/etc/profile.d/conda.sh
+  #    conda activate base
+  #    UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
+  #    anaconda $UPLOAD_OPTIONS $WORKDIR/miniconda/conda-bld/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+
   - &conda_upload
     name: conda_upload
     environment:
       CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
-      export REPO_DIR=`pwd`
       export PKG_NAME=jupyter-vcdat
-      export LABEL=nightly
-      export USER=cdat
-      export GIT_DESCRIBE_HASH=${CIRCLE_SHA1}
+      export LABEL=experimental
+      export USER=downiec
+      export CONDA_BLD_PATH=`pwd`/conda_build
+      ./tasks.sh make_meta_yaml $LOCAL_VCDAT_VERSION.`date +%Y.%m.%d.%H.%M` ${CIRCLE_SHA1} 0
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       conda install conda-build anaconda-client
       conda config --set anaconda_upload no
-      export CONDA_BLD_PATH=`pwd`/conda_build
-      git clone https://github.com/cdat/conda-recipes
-      cd conda-recipes
-      export CONDA_RECIPES_REPO=`pwd`
-      ln -s $REPO_DIR .
-      cd $REPO_DIR
-      python $CONDA_RECIPES_REPO/prep_for_build.py -l $LOCAL_VCDAT_VERSION -b ${CIRCLE_BRANCH}
       conda build $CHANNELS recipe
       BUILD_NAME=$CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2
       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $BUILD_NAME --force
@@ -119,10 +136,10 @@ jobs:
       WORKDIR: "publish"
     steps:
       - checkout
-      - run: *check_vcdat_versions
-      - run: *npm_publish
+      - run: ./tasks.sh check_version
+      #- run: *npm_publish
       - setup_remote_docker
-      - run: *docker_publish
+      #- run: *docker_publish
       - run: *setup_miniconda
       - run: *conda_upload
 
@@ -174,12 +191,6 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_chrome
-      - linux_firefox
-      - publish:
-          requires:
-            - linux_chrome
-            - linux_firefox
-          filters:
-            branches:
-              only: master
+      #- linux_chrome
+      #- linux_firefox
+      - publish

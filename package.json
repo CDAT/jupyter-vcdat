@@ -1,6 +1,6 @@
 {
   "name": "jupyter-vcdat",
-  "version": "2.3.5",
+  "version": "2.3.4",
   "description": "A vCDAT extension for JupyterLab.",
   "keywords": [
     "jupyter",
@@ -29,6 +29,7 @@
     "clean": "rimraf lib",
     "watch": "tsc -w",
     "task": "ts-node ./tasksfile.ts",
+    "tsk": "python ./scripts/dev_tasks.py",
     "link": "jupyter labextension link . --nobuild",
     "prepare": "npm run clean && npm run build",
     "scss-watch": "node-sass --watch style/scss -o style/css",

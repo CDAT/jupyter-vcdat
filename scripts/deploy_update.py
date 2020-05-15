@@ -180,8 +180,9 @@ def create_install_script(template_in, installer_out):
     os.chmod(installer_out, 0o777)
 
 
-# Takes a template of the meta.yaml.in and creates new one in recipe folder
-def create_meta_yaml(template_in, yaml_out):
+# Takes a template of the meta.yaml and creates new one in recipe folder
+def create_meta_yaml(version, branch, build):
+    MAIN_DIR = u.get_main_dir()
 
     # Generate meta.yaml.in requirements
     host_reqs = ""
@@ -192,9 +193,13 @@ def create_meta_yaml(template_in, yaml_out):
         run_reqs += "\n    - {}".format(req)
 
     # Combine all settings into dictonary for template to use
-    data = {"_host_reqs": host_reqs, "_run_reqs": run_reqs}
+    data = {"_version": version, "_git_branch": branch,
+            "_build_num": build, "_host_reqs": host_reqs,
+            "_run_reqs": run_reqs}
 
-    # Create install file
+    # Generate recipe/meta.yaml
+    template_in = "{}{}/template_meta_yaml".format(MAIN_DIR, TEMPLATES_DIR)
+    yaml_out = "{}/recipe/meta.yaml".format(MAIN_DIR)
     update_template(template_in, yaml_out, data)
 
 
@@ -225,7 +230,7 @@ def main():
     # Generate recipe/meta.yaml.in
     template_in = "{}{}/template_meta_yaml".format(MAIN_DIR, TEMPLATES_DIR)
     file_out = "{}/recipe/meta.yaml.in".format(MAIN_DIR)
-    create_meta_yaml(template_in, file_out)
+    create_meta_yaml(template_in, file_out, version, branch, build)
 
 
 if __name__ == '__main__':

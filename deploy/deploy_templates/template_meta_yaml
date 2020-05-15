@@ -1,13 +1,13 @@
 package:
   name: jupyter-vcdat
-  version: @VERSION@
+  version: $_version
 
 source:
-  git_rev: @UVCDAT_BRANCH@
+  git_rev: $_git_branch
   git_url: https://github.com/cdat/jupyter-vcdat.git
 
 build:
-  number: @BUILD_NUMBER@
+  number: $_build_num
   noarch: python
 
 requirements:

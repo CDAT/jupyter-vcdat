@@ -80,7 +80,7 @@ def get_main_dir():
 @Memoize
 def list_test_files():
     test_files = []
-    for test_file in glob.glob("{}/tests/test*.py".format(get_main_dir())):
+    for test_file in glob.glob(f"{get_main_dir()}/tests/test*.py"):
         test_name = os.path.basename(test_file)
         test_files.append(test_name)
     return test_files
@@ -138,7 +138,7 @@ def get_publish_version(tag=None):
 
 def get_local_version():
     try:
-        return run_cmd('node -pe \"require(\'./package.json\').version\"')
+        return run_cmd(f'node -pe \"require(\'{get_main_dir()}/package.json\').version\"')
     except Exception as e:
         print(e)
         return ''
