@@ -75,7 +75,7 @@ aliases:
       export PKG_NAME=jupyter-vcdat
       export LABEL=nightly
       export USER=cdat
-      export GIT_DESCRIBE_HASH=${CIRCLE_BRANCH}
+      export GIT_DESCRIBE_HASH=${CIRCLE_SHA1}
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       conda install conda-build anaconda-client

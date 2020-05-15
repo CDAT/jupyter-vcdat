@@ -75,7 +75,7 @@ aliases:
       export PKG_NAME=jupyter-vcdat
       export LABEL=nightly
       export USER=cdat
-      export GIT_DESCRIBE_HASH=${CIRCLE_BRANCH}
+      export GIT_DESCRIBE_HASH=${CIRCLE_SHA1}
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       conda install conda-build anaconda-client
@@ -120,7 +120,7 @@ jobs:
     steps:
       - checkout
       - run: *check_vcdat_versions
-      #- run: *npm_publish
+      - run: *npm_publish
       - setup_remote_docker
       - run: *docker_publish
       - run: *setup_miniconda
@@ -174,4 +174,12 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - publish
+      - linux_chrome
+      - linux_firefox
+      - publish:
+          requires:
+            - linux_chrome
+            - linux_firefox
+          filters:
+            branches:
+              only: master
