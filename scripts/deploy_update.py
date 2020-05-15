@@ -62,6 +62,12 @@ BASE_EXTENSIONS = [
 # EXTRA JupyterLab extensions (installed but not required)
 EXTRA_EXTENSIONS = []
 
+# This is the sidecar package being used by build.sh
+# Link comes from here: https://pypi.org/project/sidecar/#files
+SIDECAR_PIP = ("https://files.pythonhosted.org/packages/55/a4/"
+               "6c81cc08e5a307e692659fdc3a9a1a031d173a4c79d053"
+               "9cbd20e357fa75/sidecar-0.4.0-py2.py3-none-any.whl")
+
 
 def create_pip_commands(packages, pre=""):
     c = ""
@@ -96,14 +102,9 @@ def update_template(template_in, file_out, data):
 
 # Takes a template of the build.sh used by conda recipe with specified ext.
 def create_build_script(template_in, script_out):
-    # This was the sidecar package being used by build.sh
-    # Should be updated if possible
-    sidecar_pip = "https://files.pythonhosted.org/packages\
-/e9/29/1a8ba5daffc63f883f23fc2012a5beeea320fe57e8c\
-681ab4b11de30da7a/sidecar-0.3.0-py2.py3-none-any.whl"
 
     # Generate pip install commands
-    pip = "pip install {}".format(sidecar_pip)
+    pip = f"pip install {SIDECAR_PIP}"
 
     # Generate extension install commands
     EXTS = BASE_EXTENSIONS + EXTRA_EXTENSIONS

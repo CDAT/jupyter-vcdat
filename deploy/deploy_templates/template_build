@@ -4,3 +4,4 @@ $_pip
 $_install_ext
 npm install
 jupyter lab build
+jupyter labextension install jupyter-vcdat@nightly

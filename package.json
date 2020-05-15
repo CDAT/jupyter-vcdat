@@ -1,6 +1,6 @@
 {
   "name": "jupyter-vcdat",
-  "version": "2.3.4",
+  "version": "2.3.5",
   "description": "A vCDAT extension for JupyterLab.",
   "keywords": [
     "jupyter",
@@ -35,7 +35,7 @@
     "scss": "node-sass style/scss -o style/css"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": [
+    "**/*.{js,ts,tsx}": [
       "eslint --fix",
       "npx prettier --write",
       "git add"

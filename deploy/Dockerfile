@@ -3,9 +3,6 @@ FROM nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
 
 ARG npm_version="nightly"
 
-# Copy sample data to use include in image
-COPY sample_data /home/jovyan
-
 # Install Conda packages
 ARG conda_channels="-c cdat/label/nightly -c conda-forge"
 ARG conda_packages="pip vcs mesalib tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"

@@ -3,9 +3,6 @@ FROM $_base_image
 
 ARG npm_version="nightly"
 
-# Copy sample data to use include in image
-COPY sample_data /home/jovyan
-
 # Install Conda packages
 ARG conda_channels="$_conda_channels"
 ARG conda_packages="$_conda_pkgs"
