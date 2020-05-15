@@ -183,4 +183,4 @@ jupyter labextension install .
 
 # Success message
 echo Jupyter VCDAT has been successfully installed!
-echo To run: conda activate ${REQUESTED_ENV_NAME} && jupyter lab
+echo "To run: conda activate ${REQUESTED_ENV_NAME} && jupyter lab"
