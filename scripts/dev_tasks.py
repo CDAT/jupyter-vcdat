@@ -1,9 +1,11 @@
+import sys
 import argparse
 import utilities as u
 
 
 TASK_DATA_FILE = "scripts/task_config.json"
 MAIN_DIR = u.get_main_dir()
+
 
 def get_task_data(key):
     return u.read_json_item(TASK_DATA_FILE, [key])
@@ -16,7 +18,10 @@ def set_task_data(key, value):
 def make_meta_yaml(version, branch, build):
     cmd = ("python -c \"import deploy_update as du;"
            f"du.create_meta_yaml('{version}','{branch}','{build}')\"")
-    u.run_cmd(cmd)
+    try:
+        u.run_cmd(cmd)
+    except Exception:
+        sys.exit(1)
 
 
 def check_version():
@@ -31,14 +36,14 @@ def check_version():
             print(f"Version {LOCAL_V} in the package.json looks good!")
         else:
             print(f"Version {LOCAL_V} in package.json is not newer "
-            f"than npm version of {NPM_V} and will cause publish job to fail. "
-            f"\nYou should update version {LOCAL_V} in package.json "
-            f"to a version greater than {NPM_V}")
-            u.run_cmd("exit 1")
+                  f"than npm version of {NPM_V} and will cause publish job to fail. "
+                  f". You should update version {LOCAL_V} in package.json "
+                  f"to a version greater than {NPM_V}")
+            sys.exit(1)
     else:
         print(("Version values could not be compared:"
-        f" Local: {LOCAL_V}, NPM: {NPM_V}"))
-        u.run_cmd("exit 1")
+               f" Local: {LOCAL_V}, NPM: {NPM_V}"))
+        sys.exit(1)
 
 
 # Runs the test suite using specified test names

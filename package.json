@@ -29,7 +29,6 @@
     "clean": "rimraf lib",
     "watch": "tsc -w",
     "task": "ts-node ./tasksfile.ts",
-    "tsk": "python ./scripts/dev_tasks.py",
     "link": "jupyter labextension link . --nobuild",
     "prepare": "npm run clean && npm run build",
     "scss-watch": "node-sass --watch style/scss -o style/css",
@@ -41,13 +40,13 @@
       "npx prettier --write",
       "git add"
     ],
-    "*.py": [
+    "tests/**/*.py": [
       "flake8 --show-source --statistics --ignore=F999,F405,E121,E123,E126,E226,E24,E402,E704,W504 --max-line-length=120 *.py"
     ]
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npx task checkVersion && tsc --noEmit && lint-staged"
+      "pre-commit": "./tasks.sh check_version && tsc --noEmit && lint-staged"
     }
   },
   "dependencies": {
