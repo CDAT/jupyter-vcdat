@@ -137,7 +137,7 @@ jobs:
     steps:
       - checkout
       - run: echo `python --version`
-      - run: ./tasks.py check_version
+      - run: ./tasks.sh check_version
       #- run: *npm_publish
       - setup_remote_docker
       #- run: *docker_publish
