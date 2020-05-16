@@ -16,8 +16,8 @@ def set_task_data(key, value):
 
 
 def make_meta_yaml(version, branch, build):
-    cmd = ("python -c \"import deploy_update as du;"
-           f"du.create_meta_yaml('{version}','{branch}','{build}')\"")
+    cmd = ("python -c \"import deploy_update as du;du.create_meta_yaml('"
+           "{}','{}','{}')\"".format(version, branch, build))
     try:
         u.run_cmd(cmd)
     except Exception:
