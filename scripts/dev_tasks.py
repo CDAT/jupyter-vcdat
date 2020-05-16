@@ -32,17 +32,17 @@ def check_version():
         L_V = u.version_tuple(LOCAL_V)
         N_V = u.version_tuple(NPM_V)
         if L_V > N_V:
-            print(f"Remote version: {NPM_V}\nLocal version: {LOCAL_V}")
-            print(f"Version {LOCAL_V} in the package.json looks good!")
+            print("Remote version: {}\nLocal version: {}".format(NPM_V, LOCAL_V))
+            print("Version {} in the package.json looks good!".format(LOCAL_V))
         else:
-            print(f"Version {LOCAL_V} in package.json is not newer "
-                  f"than npm version of {NPM_V} and will cause publish job to fail. "
-                  f". You should update version {LOCAL_V} in package.json "
-                  f"to a version greater than {NPM_V}")
+            print(("Version {LV} in package.json is not newer "
+                   "than npm version of {NV} and will cause publish job to fail."
+                   " You should update version {LV} in package.json "
+                   "to a version greater than {NV}").format(LV=LOCAL_V, NV=NPM_V))
             sys.exit(1)
     else:
         print(("Version values could not be compared:"
-               f" Local: {LOCAL_V}, NPM: {NPM_V}"))
+               " Local: {}, NPM: {}").format(LOCAL_V, NPM_V))
         sys.exit(1)
 
 
