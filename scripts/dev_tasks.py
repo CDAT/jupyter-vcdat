@@ -147,7 +147,7 @@ def print_tasks():
 
 def run_task(name, args):
     if name not in AVAILABLE_TASKS.keys():
-        raise(Exception(f"The task '{name}' could not be found."))
+        raise(Exception("The task '{}' could not be found.".format(name)))
     else:
         if name == "list":
             print_tasks()
