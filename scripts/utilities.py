@@ -80,7 +80,7 @@ def get_main_dir():
 @Memoize
 def list_test_files():
     test_files = []
-    for test_file in glob.glob(f"{get_main_dir()}/tests/test*.py"):
+    for test_file in glob.glob("{}/tests/test*.py".format(get_main_dir())):
         test_name = os.path.basename(test_file)
         test_files.append(test_name)
     return test_files
