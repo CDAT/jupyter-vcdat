@@ -137,8 +137,11 @@ jobs:
     steps:
       - checkout
       - run: *setup_miniconda
+      - run: source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      - run: conda activate base
       - run: echo `python --version`
       - run: echo `python3 --version`
+      - run: conda install -c conda-forge 'python=3.7'
       - run: ./tasks.sh check_version
       #- run: *npm_publish
       - setup_remote_docker
