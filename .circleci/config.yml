@@ -136,12 +136,13 @@ jobs:
       WORKDIR: "publish"
     steps:
       - checkout
+      - run: *setup_miniconda
       - run: echo `python --version`
+      - run: echo `python3 --version`
       - run: ./tasks.sh check_version
       #- run: *npm_publish
       - setup_remote_docker
       #- run: *docker_publish
-      - run: *setup_miniconda
       - run: *conda_upload
 
   linux_chrome:
