@@ -139,20 +139,6 @@ aliases:
       docker logout
 
 jobs:
-  publish:
-    docker:
-      - image: circleci/node:latest
-    environment:
-      WORKDIR: "publish"
-    steps:
-      - checkout
-      - run: *check_vcdat_versions
-      - run: *npm_publish
-      - setup_remote_docker
-      - run: *docker_publish
-      - run: *setup_miniconda
-      - run: *conda_upload
-
   linux_setup:
     machine:
       image: circleci/classic:latest
@@ -173,6 +159,20 @@ jobs:
           root: .
           paths:
             - linux_build
+
+  publish:
+    docker:
+      - image: circleci/node:latest
+    environment:
+      WORKDIR: "publish"
+    steps:
+      - checkout
+      - run: *check_vcdat_versions
+      - run: *npm_publish
+      - setup_remote_docker
+      - run: *docker_publish
+      - run: *setup_miniconda
+      - run: *conda_upload
 
   linux_chrome:
     docker:
@@ -235,11 +235,11 @@ workflows:
     jobs:
       - linux_setup
       - linux_chrome:
-        requires:
-          - linux_setup
+          requires:
+            - linux_setup
       - linux_firefox:
-        requires:
-          - linux_setup
+          requires:
+            - linux_setup
       - publish:
           requires:
             - linux_chrome
