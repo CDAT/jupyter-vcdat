@@ -34,7 +34,6 @@ aliases:
       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
       make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifcat_dir=$PWD/artifacts conda_env_name=$CIRCLE_JOB
 
-
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
     command: |
@@ -83,9 +82,9 @@ aliases:
       BROWSER_BINARY: "/usr/bin/firefox"
       BROWSER_DRIVER: "/usr/bin/geckodriver"
     command: |
-        source $WORKDIR/miniconda/etc/profile.d/conda.sh
-        conda activate base
-        make run-tests-firefox conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate base
+      make run-tests-firefox conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
 
   - &conda_env_export
     name: conda_env_expprt
@@ -153,27 +152,27 @@ jobs:
       - run: *docker_publish
       - run: *setup_miniconda
       - run: *conda_upload
-  
+
   linux_setup:
     machine:
-        image: circleci/classic:latest
+      image: circleci/classic:latest
     environment:
-        WORKDIR: /home/circleci/project/linux_build
-        PKG_NAME: "jupyter-vcdat"
-        REPO_NAME: "jupyter-vcdat"
-        LAST_STABLE: "8.2"
-        BUILD_VARIANT_VER: "noarch"
+      WORKDIR: /home/circleci/project/linux_build
+      PKG_NAME: "jupyter-vcdat"
+      REPO_NAME: "jupyter-vcdat"
+      LAST_STABLE: "8.2"
+      BUILD_VARIANT_VER: "noarch"
     steps:
-        - checkout
-        - run: *setup_miniconda
-        - run: *conda_rerender
-        - run: *conda_build
-        - store_artifacts:
-            path: artifacts
-        - persist_to_workspace:
-            root: .
-            paths:
-                - linux_build
+      - checkout
+      - run: *setup_miniconda
+      - run: *conda_rerender
+      - run: *conda_build
+      - store_artifacts:
+          path: artifacts
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_build
 
   linux_chrome:
     docker:
@@ -240,7 +239,7 @@ workflows:
           - linux_setup
       - linux_firefox:
         requires:
-        - linux_setup
+          - linux_setup
       - publish:
           requires:
             - linux_chrome
