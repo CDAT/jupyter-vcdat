@@ -189,7 +189,7 @@ jobs:
       - run: *setup_run_tests
       #- run: *setup_jupyter_vcdat
       - store_artifacts:
-        path: artifacts
+          path: artifacts
       - run: *conda_env_export
       - run: *run_jupyter_vcdat
       - run: sleep 15
@@ -214,7 +214,7 @@ jobs:
       - run: *setup_miniconda
       - run: *setup_run_tests
       - store_artifacts:
-        path: artifacts
+          path: artifacts
       - run: *conda_env_export
       - run: *run_jupyter_vcdat
       - run: sleep 15
