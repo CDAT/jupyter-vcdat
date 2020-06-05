@@ -188,7 +188,7 @@ jobs:
     steps:
       - checkout
       - run: *setup_miniconda
-      - run: *setup_jupyter_vcdat
+      - run: *setup_run_tests
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_firefox
