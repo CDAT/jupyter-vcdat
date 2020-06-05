@@ -8,6 +8,32 @@ aliases:
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O Miniconda3-latest-Linux-x86_64.sh
       bash ./Miniconda3-latest-Linux-x86_64.sh -b -p miniconda
 
+  - &conda_rerender
+    name: conda_rerender
+    command: |
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate base
+      make conda-rerender conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR last_stable=$LAST_STABLE branch=$CIRCLE_BRANCH
+
+  - &conda_build
+    name: conda_build
+    command: |
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate base
+      make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifcat_dir=$PWD/artifacts copy_conda_package=1
+
+  - &setup_run_tests
+    name: setup_run_tests
+    environment:
+      PKGS: "testsrunner cdat_info "
+      CHANNELS: "-c cdat/label/nightly -c conda-forge"
+    command: |
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate base
+      make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
+      make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifcat_dir=$PWD/artifacts conda_env_name=$CIRCLE_JOB
+
+
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
     command: |
@@ -46,11 +72,8 @@ aliases:
       BROWSER_DRIVER: "/usr/bin/chromedriver"
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-      conda activate jupyter-vcdat
-      npx task test -v --ready --chrome
-      RESULT=$?
-      echo "*** $PY_VER test result: ${RESULT}"
-      exit $RESULT
+      conda activate base
+      make run-tests-chrome conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
 
   - &run_tests_with_firefox
     name: run_tests_with_firefox
@@ -59,12 +82,16 @@ aliases:
       BROWSER_BINARY: "/usr/bin/firefox"
       BROWSER_DRIVER: "/usr/bin/geckodriver"
     command: |
+        source $WORKDIR/miniconda/etc/profile.d/conda.sh
+        conda activate base
+        make run-tests-firefox conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
+
+  - &conda_env_export
+    name: conda_env_expprt
+    command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-      conda activate jupyter-vcdat
-      npx task test -v --ready --firefox
-      RESULT=$?
-      echo "*** $PY_VER test result: ${RESULT}"
-      exit $RESULT
+      conda activate base
+      make conda-list conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
 
   - &conda_upload
     name: conda_upload
@@ -131,10 +158,15 @@ jobs:
       - image: selenium/node-chrome
     environment:
       WORKDIR: "linux_chrome"
+      PKG_NAME: "jupyter-vcdat"
+      ENV_NAME: "test_vcdat"
+      CONDA_PY_VER: "python>=3.6,<3.7"
+      LIBNETCDF: "libnetcdf=*=nompi_*"
     steps:
       - checkout
       - run: *setup_miniconda
-      - run: *setup_jupyter_vcdat
+      - run: *setup_run_tests
+      #- run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_chrome
