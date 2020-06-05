@@ -153,6 +153,27 @@ jobs:
       - run: *docker_publish
       - run: *setup_miniconda
       - run: *conda_upload
+  
+  linux_setup:
+    machine:
+        image: circleci/classic:latest
+    environment:
+        WORKDIR: /home/circleci/project/linux_build
+        PKG_NAME: "jupyter-vcdat"
+        REPO_NAME: "jupyter-vcdat"
+        LAST_STABLE: "8.2"
+        BUILD_VARIANT_VER: "noarch"
+    steps:
+        - checkout
+        - run: *setup_miniconda
+        - run: *conda_rerender
+        - run: *conda_build
+        - store_artifacts:
+            path: artifacts
+        - persist_to_workspace:
+            root: .
+            paths:
+                - linux_build
 
   linux_chrome:
     docker:
@@ -168,6 +189,9 @@ jobs:
       - run: *setup_miniconda
       - run: *setup_run_tests
       #- run: *setup_jupyter_vcdat
+      - store_artifacts:
+        path: artifacts
+      - run: *conda_env_export
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_chrome
@@ -190,6 +214,9 @@ jobs:
       - checkout
       - run: *setup_miniconda
       - run: *setup_run_tests
+      - store_artifacts:
+        path: artifacts
+      - run: *conda_env_export
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_firefox
@@ -207,8 +234,13 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_chrome
-      - linux_firefox
+      - linux_setup
+      - linux_chrome:
+        requires:
+          - linux_setup
+      - linux_firefox:
+        requires:
+        - linux_setup
       - publish:
           requires:
             - linux_chrome
