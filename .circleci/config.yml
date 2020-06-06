@@ -32,7 +32,7 @@ aliases:
       conda activate base
       ls
       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
-      make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifcat_dir=$PWD/artifacts conda_env_name=$CIRCLE_JOB
+      make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=$PWD/artifacts conda_env_name=$CIRCLE_JOB
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -95,28 +95,39 @@ aliases:
 
   - &conda_upload
     name: conda_upload
-    environment:
-      CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
-      export REPO_DIR=`pwd`
-      export PKG_NAME=jupyter-vcdat
-      export LABEL=nightly
-      export USER=cdat
-      export GIT_DESCRIBE_HASH=${CIRCLE_SHA1}
+      if [[ $CIRCLE_BRANCH != "master" ]]; then
+        exit 0
+      fi
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
-      conda install conda-build anaconda-client
-      conda config --set anaconda_upload no
-      export CONDA_BLD_PATH=`pwd`/conda_build
-      git clone https://github.com/cdat/conda-recipes
-      cd conda-recipes
-      export CONDA_RECIPES_REPO=`pwd`
-      ln -s $REPO_DIR .
-      cd $REPO_DIR
-      python $CONDA_RECIPES_REPO/prep_for_build.py -l $LOCAL_VCDAT_VERSION -b ${CIRCLE_BRANCH}
-      conda build $CHANNELS recipe
-      BUILD_NAME=$CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2
-      anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $BUILD_NAME --force
+      make conda-upload conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME conda_upload_token=$CONDA_UPLOAD_TOKEN user=$USER label=$LABEL
+
+
+  # - &conda_upload
+  #   name: conda_upload
+  #   environment:
+  #     CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
+  #   command: |
+  #     export REPO_DIR=`pwd`
+  #     export PKG_NAME=jupyter-vcdat
+  #     export LABEL=nightly
+  #     export USER=cdat
+  #     export GIT_DESCRIBE_HASH=${CIRCLE_SHA1}
+  #     source $WORKDIR/miniconda/etc/profile.d/conda.sh
+  #     conda activate base
+  #     conda install conda-build anaconda-client
+  #     conda config --set anaconda_upload no
+  #     export CONDA_BLD_PATH=`pwd`/conda_build
+  #     git clone https://github.com/cdat/conda-recipes
+  #     cd conda-recipes
+  #     export CONDA_RECIPES_REPO=`pwd`
+  #     ln -s $REPO_DIR .
+  #     cd $REPO_DIR
+  #     python $CONDA_RECIPES_REPO/prep_for_build.py -l $LOCAL_VCDAT_VERSION -b ${CIRCLE_BRANCH}
+  #     conda build $CHANNELS recipe
+  #     BUILD_NAME=$CONDA_BLD_PATH/noarch/$PKG_NAME-$LOCAL_VCDAT_VERSION.`date +%Y*`0.tar.bz2
+  #     anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $BUILD_NAME --force
 
   - &npm_publish
     name: npm_publish
