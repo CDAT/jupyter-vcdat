@@ -196,6 +196,8 @@ jobs:
       LIBNETCDF: "libnetcdf=*=nompi_*"
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run: *setup_run_tests
       #- run: *setup_jupyter_vcdat
       - store_artifacts:
@@ -221,6 +223,8 @@ jobs:
       WORKDIR: "linux_firefox"
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run: *setup_run_tests
       - store_artifacts:
           path: artifacts
