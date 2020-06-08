@@ -48,11 +48,9 @@ else
 endif
 
 setup-tests:
-	ls
 	source $(conda_activate) base; conda create -y -n $(conda_env) --use-local \
 		$(foreach x,$(extra_channels),-c $(x)) $(pkg_name) $(foreach x,$(test_pkgs),"$(x)") \
 		$(foreach x,$(pkgs),"$(x)") $(foreach x,$(extra_pkgs),"$(x)")
-	ls
 
 conda-rerender: setup-build 
 	python $(workdir)/$(build_script) -w $(workdir) -l $(last_stable) -B 0 -p $(pkg_name) \

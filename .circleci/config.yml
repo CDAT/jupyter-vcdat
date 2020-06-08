@@ -189,7 +189,7 @@ jobs:
     docker:
       - image: selenium/node-chrome
     environment:
-      WORKDIR: "linux_build"
+      WORKDIR: "/home/circleci/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
       ENV_NAME: "test_vcdat"
       CONDA_PY_VER: "python>=3.6,<3.7"
@@ -198,7 +198,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: ls -al
+      - run: pwd && ls -al
       - run: *setup_run_tests
       #- run: *setup_jupyter_vcdat
       - store_artifacts:
@@ -221,7 +221,7 @@ jobs:
     docker:
       - image: selenium/node-firefox
     environment:
-      WORKDIR: "linux_build"
+      WORKDIR: "/home/circleci/project/linux_build"
     steps:
       - checkout
       - attach_workspace:
