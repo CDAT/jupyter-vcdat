@@ -29,7 +29,7 @@ aliases:
       CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
       ls
-      ls seluser
+      ls linux_build
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
