@@ -29,7 +29,8 @@ aliases:
       CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
       ls
-      ls $WORKDIR
+      ls /home/
+      ls /home/circleci/
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
@@ -190,7 +191,7 @@ jobs:
     docker:
       - image: selenium/node-chrome
     environment:
-      WORKDIR: "/home/circleci/jupyter-vcdat/linux_build"
+      WORKDIR: "/home/circleci/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
       ENV_NAME: "test_vcdat"
       CONDA_PY_VER: "python>=3.6,<3.7"
@@ -222,7 +223,7 @@ jobs:
     docker:
       - image: selenium/node-firefox
     environment:
-      WORKDIR: "/home/circleci/jupyter-vcdat/linux_build"
+      WORKDIR: "/home/circleci/project/linux_build"
     steps:
       - checkout
       - attach_workspace:
