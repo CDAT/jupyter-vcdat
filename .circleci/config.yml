@@ -189,7 +189,7 @@ jobs:
     docker:
       - image: selenium/node-chrome
     environment:
-      WORKDIR: "linux_chrome"
+      WORKDIR: "linux_build"
       PKG_NAME: "jupyter-vcdat"
       ENV_NAME: "test_vcdat"
       CONDA_PY_VER: "python>=3.6,<3.7"
@@ -220,7 +220,7 @@ jobs:
     docker:
       - image: selenium/node-firefox
     environment:
-      WORKDIR: "linux_firefox"
+      WORKDIR: "linux_build"
     steps:
       - checkout
       - attach_workspace:
