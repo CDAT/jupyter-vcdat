@@ -154,7 +154,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: /home/circleci/project/linux_build
+      WORKDIR: /home/seluser/project/linux_build
       PKG_NAME: "jupyter-vcdat"
       REPO_NAME: "jupyter-vcdat"
       LAST_STABLE: "8.2"
@@ -189,7 +189,7 @@ jobs:
     docker:
       - image: selenium/node-chrome
     environment:
-      WORKDIR: "/home/circleci/project/linux_build"
+      WORKDIR: "/home/seluser/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
       ENV_NAME: "test_vcdat"
       CONDA_PY_VER: "python>=3.6,<3.7"
@@ -221,7 +221,7 @@ jobs:
     docker:
       - image: selenium/node-firefox
     environment:
-      WORKDIR: "/home/circleci/project/linux_build"
+      WORKDIR: "/home/seluser/project/linux_build"
     steps:
       - checkout
       - attach_workspace:
