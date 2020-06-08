@@ -198,6 +198,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+      - run: ls -al
       - run: *setup_run_tests
       #- run: *setup_jupyter_vcdat
       - store_artifacts:
