@@ -173,7 +173,7 @@ jobs:
   #           - linux_build
 
   linux_chrome:
-    docker:
+    machine:
       - image: selenium/node-chrome
     environment:
       WORKDIR: "/home/seluser/project/linux_build"
@@ -210,7 +210,7 @@ jobs:
       #- run: *conda_upload
 
   linux_firefox:
-    docker:
+    machine:
       - image: circleci/classic:latest
     environment:
       WORKDIR: /home/seluser/project/linux_build
