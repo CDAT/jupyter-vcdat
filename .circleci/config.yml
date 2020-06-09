@@ -174,9 +174,9 @@ jobs:
 
   linux_chrome:
     machine:
-      image: selenium/node-chrome
+      image: circleci/classic:latest
     environment:
-      WORKDIR: "/home/seluser/project/linux_build"
+      WORKDIR: "/home/circleci/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
       REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "test_vcdat"
@@ -213,7 +213,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: /home/seluser/project/linux_build
+      WORKDIR: /home/circleci/project/linux_build
       PKG_NAME: "jupyter-vcdat"
       REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "test_vcdat"
