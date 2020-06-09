@@ -184,7 +184,6 @@ jobs:
       LIBNETCDF: "libnetcdf=*=nompi_*"
       BUILD_VARIANT_VER: "noarch"
       LAST_STABLE: "8.2"
-    working_directory: /home/seluser/project/
     steps:
       - checkout
       - run: *setup_miniconda
@@ -212,7 +211,7 @@ jobs:
 
   linux_firefox:
     docker:
-      - image: selenium/node-firefox
+      - image: circleci/classic:latest
     environment:
       WORKDIR: /home/seluser/project/linux_build
       PKG_NAME: "jupyter-vcdat"
@@ -222,7 +221,6 @@ jobs:
       LIBNETCDF: "libnetcdf=*=nompi_*"
       BUILD_VARIANT_VER: "noarch"
       LAST_STABLE: "8.2"
-    working_directory: /home/seluser/project/
     steps:
       - checkout
       - run: *setup_miniconda
