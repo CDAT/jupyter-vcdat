@@ -33,8 +33,8 @@ aliases:
       ls $WORKDIR/miniconda/bin/
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
-      make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
-      make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=$PWD/artifacts conda_env_name=$CIRCLE_JOB
+      make setup-tests conda="$WORKDIR/miniconda/bin/conda" conda_env="$ENV_NAME" extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
+      make conda-dump-env conda="$WORKDIR/miniconda/bin/conda" conda_env="$ENV_NAME" artifact_dir="$PWD/artifacts conda_env_name=$CIRCLE_JOB"
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -105,7 +105,6 @@ aliases:
       conda activate base
       make conda-upload conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME conda_upload_token=$CONDA_UPLOAD_TOKEN user=$USER label=$LABEL
 
-
   # - &conda_upload
   #   name: conda_upload
   #   environment:
@@ -152,57 +151,44 @@ aliases:
       docker logout
 
 jobs:
-  linux_setup:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: "/home/circleci/project/linux_build"
-      PKG_NAME: "jupyter-vcdat"
-      REPO_NAME: "jupyter-vcdat"
-      LAST_STABLE: "8.2"
-      BUILD_VARIANT_VER: "noarch"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *conda_rerender
-      - run: *conda_build
-      - store_artifacts:
-          path: artifacts
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_build
-
-  publish:
-    docker:
-      - image: circleci/node:latest
-    environment:
-      WORKDIR: "publish"
-    steps:
-      - checkout
-      - run: *check_vcdat_versions
-      - run: *npm_publish
-      - setup_remote_docker
-      - run: *docker_publish
-      - run: *setup_miniconda
-      - run: *conda_upload
+  # linux_setup:
+  #   machine:
+  #     image: selenium/node-chrome
+  #   environment:
+  #     WORKDIR: "/home/circleci/project/linux_build"
+  #     PKG_NAME: "jupyter-vcdat"
+  #     REPO_NAME: "jupyter-vcdat"
+  #     LAST_STABLE: "8.2"
+  #     BUILD_VARIANT_VER: "noarch"
+  #   steps:
+  #     - checkout
+  #     - run: *setup_miniconda
+  #     - run: *conda_rerender
+  #     - run: *conda_build
+  #     - store_artifacts:
+  #         path: artifacts
+  #     - persist_to_workspace:
+  #         root: .
+  #         paths:
+  #           - linux_build
 
   linux_chrome:
     docker:
       - image: selenium/node-chrome
     environment:
-      WORKDIR: "linux_build"
+      WORKDIR: "/home/circleci/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
+      REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "test_vcdat"
       CONDA_PY_VER: "python>=3.6,<3.7"
       LIBNETCDF: "libnetcdf=*=nompi_*"
+      BUILD_VARIANT_VER: "noarch"
+      LAST_STABLE: "8.2"
     steps:
       - checkout
-      - attach_workspace:
-          at: .
-      - run: pwd && ls -al
-      - run: *setup_run_tests
-      #- run: *setup_jupyter_vcdat
+      - run: *setup_miniconda
+      - run: *conda_rerender
+      - run: *conda_build
       - store_artifacts:
           path: artifacts
       - run: *conda_env_export
@@ -223,12 +209,19 @@ jobs:
     docker:
       - image: selenium/node-firefox
     environment:
-      WORKDIR: "linux_build"
+      WORKDIR: "/home/circleci/project/linux_build"
+      PKG_NAME: "jupyter-vcdat"
+      REPO_NAME: "jupyter-vcdat"
+      ENV_NAME: "test_vcdat"
+      CONDA_PY_VER: "python>=3.6,<3.7"
+      LIBNETCDF: "libnetcdf=*=nompi_*"
+      BUILD_VARIANT_VER: "noarch"
+      LAST_STABLE: "8.2"
     steps:
       - checkout
-      - attach_workspace:
-          at: .
-      - run: *setup_run_tests
+      - run: *setup_miniconda
+      - run: *conda_rerender
+      - run: *conda_build
       - store_artifacts:
           path: artifacts
       - run: *conda_env_export
@@ -245,17 +238,26 @@ jobs:
       # Uncomment below to upload directly to conda without merging to master
       #- run: *conda_upload
 
+  publish:
+    docker:
+      - image: circleci/node:latest
+    environment:
+      WORKDIR: "publish"
+    steps:
+      - checkout
+      - run: *check_vcdat_versions
+      - run: *npm_publish
+      - setup_remote_docker
+      - run: *docker_publish
+      - run: *setup_miniconda
+      - run: *conda_upload
+
 workflows:
   version: 2
   jupyter_vcdat:
     jobs:
-      - linux_setup
-      - linux_chrome:
-          requires:
-            - linux_setup
-      - linux_firefox:
-          requires:
-            - linux_setup
+      - linux_chrome
+      - linux_firefox
       - publish:
           requires:
             - linux_chrome
