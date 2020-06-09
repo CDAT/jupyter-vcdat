@@ -191,6 +191,10 @@ jobs:
       - run: *conda_build
       - store_artifacts:
           path: artifacts
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_build
       - run: *conda_env_export
       - run: *run_jupyter_vcdat
       - run: sleep 15
