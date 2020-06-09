@@ -174,7 +174,7 @@ jobs:
 
   linux_chrome:
     machine:
-      - image: selenium/node-chrome
+      image: selenium/node-chrome
     environment:
       WORKDIR: "/home/seluser/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
