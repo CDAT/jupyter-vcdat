@@ -211,7 +211,7 @@ jobs:
 
   linux_firefox:
     machine:
-      - image: circleci/classic:latest
+      image: circleci/classic:latest
     environment:
       WORKDIR: /home/seluser/project/linux_build
       PKG_NAME: "jupyter-vcdat"
