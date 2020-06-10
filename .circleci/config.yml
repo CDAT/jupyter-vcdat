@@ -1,5 +1,13 @@
 version: 2
 aliases:
+
+  - &setup_build_tools
+    name: setup_build_tools
+    command: |
+      sudo apt-get update && 
+      sudo apt-get install make
+      sudo apt-get install git-all
+
   - &setup_miniconda
     name: setup_miniconda
     command: |
@@ -183,7 +191,7 @@ jobs:
       LAST_STABLE: "8.2"
     steps:
       - checkout
-      - run: sudo apt-get update && sudo apt-get install make
+      - run: *setup_build_tools
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
@@ -222,6 +230,7 @@ jobs:
       LAST_STABLE: "8.2"
     steps:
       - checkout
+      - run: *setup_build_tools
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
