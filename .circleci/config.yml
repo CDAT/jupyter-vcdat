@@ -28,7 +28,6 @@ aliases:
       PKGS: "testsrunner cdat_info "
       CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
-      apt-get update && apt-get install make
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
@@ -184,6 +183,7 @@ jobs:
       LAST_STABLE: "8.2"
     steps:
       - checkout
+      - run: apt-get update && apt-get install make
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
