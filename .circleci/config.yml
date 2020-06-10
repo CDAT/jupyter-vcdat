@@ -3,7 +3,7 @@ aliases:
   - &setup_miniconda
     name: setup_miniconda
     command: |
-      mkdir -p $WORKDIR
+      mkdir $WORKDIR
       cd $WORKDIR
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O Miniconda3-latest-Linux-x86_64.sh
       bash ./Miniconda3-latest-Linux-x86_64.sh -b -p miniconda
@@ -13,8 +13,6 @@ aliases:
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
-      echo 'export WORKDIR=/home/seluser/project' >> $BASH_ENV
-      source $BASH_ENV
       make conda-rerender conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR last_stable=$LAST_STABLE branch=$CIRCLE_BRANCH
 
   - &conda_build
@@ -22,8 +20,6 @@ aliases:
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
-      echo 'export WORKDIR=/home/seluser/project/workdir' >> $BASH_ENV
-      source $BASH_ENV
       make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifcat_dir=$PWD/artifacts copy_conda_package=1
 
   - &setup_run_tests
@@ -34,8 +30,6 @@ aliases:
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
-      echo 'export WORKDIR=/home/seluser/project/workdir' >> $BASH_ENV
-      source $BASH_ENV
       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
       make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=$PWD/artifacts conda_env_name=$CIRCLE_JOB
 
@@ -189,6 +183,7 @@ jobs:
       LAST_STABLE: "8.2"
     steps:
       - checkout
+      - run: sudo apt-get update && sudo apt-get install make
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
@@ -227,7 +222,6 @@ jobs:
       LAST_STABLE: "8.2"
     steps:
       - checkout
-      #- run: echo 'export WORKDIR=/home/seluser/project/workdir' >> $BASH_ENV
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
