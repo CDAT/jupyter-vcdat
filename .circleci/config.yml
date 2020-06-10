@@ -28,9 +28,7 @@ aliases:
       PKGS: "testsrunner cdat_info "
       CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
-      ls linux_build/miniconda/etc/profile.d/
-      ls $WORKDIR/miniconda/
-      ls $WORKDIR/miniconda/bin/
+      apt-get update && apt-get install make
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
@@ -176,7 +174,7 @@ jobs:
     docker:
       image: selenium/node-chrome
     environment:
-      WORKDIR: "/home/circleci/project/linux_build"
+      WORKDIR: "/home/seluser/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
       REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "test_vcdat"
@@ -211,10 +209,10 @@ jobs:
       #- run: *conda_upload
 
   linux_firefox:
-    machine:
-      image: circleci/classic:latest
+    docker:
+      image: selenium/node-chrome
     environment:
-      WORKDIR: /home/circleci/project/linux_build
+      WORKDIR: /home/seluser/project/linux_build
       PKG_NAME: "jupyter-vcdat"
       REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "test_vcdat"
