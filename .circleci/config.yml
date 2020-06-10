@@ -196,6 +196,7 @@ jobs:
           paths:
             - linux_build
       - run: *conda_env_export
+      - run: *setup_run_tests
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_chrome
@@ -229,6 +230,7 @@ jobs:
       - store_artifacts:
           path: artifacts
       - run: *conda_env_export
+      - run: *setup_run_tests
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_firefox
