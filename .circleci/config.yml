@@ -183,7 +183,6 @@ jobs:
       LAST_STABLE: "8.2"
     steps:
       - checkout
-      - run: sudo apt-get update && apt-get install make
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
@@ -222,6 +221,7 @@ jobs:
       LAST_STABLE: "8.2"
     steps:
       - checkout
+      - run: echo 'export WORKDIR=/home/seluser/project/workdir' >> $BASH_ENV
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
