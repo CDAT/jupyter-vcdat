@@ -152,7 +152,7 @@ aliases:
 
 jobs:
   # linux_setup:
-  #   machine:
+  #   docker:
   #     image: selenium/node-chrome
   #   environment:
   #     WORKDIR: "/home/circleci/project/linux_build"
@@ -173,8 +173,8 @@ jobs:
   #           - linux_build
 
   linux_chrome:
-    machine:
-      image: circleci/classic:latest
+    docker:
+      image: selenium/node-chrome
     environment:
       WORKDIR: "/home/circleci/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
@@ -189,8 +189,6 @@ jobs:
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
-      - store_artifacts:
-          path: artifacts
       # - persist_to_workspace:
       #     root: .
       #     paths:
@@ -200,6 +198,8 @@ jobs:
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_chrome
+      - store_artifacts:
+          path: artifacts
       - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
