@@ -172,7 +172,7 @@ jobs:
 
   linux_chrome:
     docker:
-      image: selenium/node-chrome
+      - image: selenium/node-chrome
     environment:
       WORKDIR: "/home/seluser/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
@@ -210,7 +210,7 @@ jobs:
 
   linux_firefox:
     docker:
-      image: selenium/node-chrome
+      - image: selenium/node-chrome
     environment:
       WORKDIR: /home/seluser/project/linux_build
       PKG_NAME: "jupyter-vcdat"
@@ -225,13 +225,13 @@ jobs:
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
-      - store_artifacts:
-          path: artifacts
       - run: *conda_env_export
       - run: *setup_run_tests
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_firefox
+      - store_artifacts:
+          path: artifacts
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html
