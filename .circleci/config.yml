@@ -81,6 +81,9 @@ aliases:
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       make run-tests-chrome conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
+      RESULT=$?
+      echo "*** $PY_VER test result: ${RESULT}"
+      exit $RESULT
 
   - &run_tests_with_firefox
     name: run_tests_with_firefox
@@ -92,6 +95,9 @@ aliases:
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
       make run-tests-firefox conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
+      RESULT=$?
+      echo "*** $PY_VER test result: ${RESULT}"
+      exit $RESULT
 
   - &conda_env_export
     name: conda_env_expprt
@@ -185,7 +191,7 @@ jobs:
       PKG_NAME: "jupyter-vcdat"
       REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "jupyter-vcdat"
-      CONDA_PY_VER: "python>=3.6,<3.7"
+      CONDA_PY_VER: "python>=3.7,<3.8"
       LIBNETCDF: "libnetcdf=*=nompi_*"
       BUILD_VARIANT_VER: "noarch"
       LAST_STABLE: "8.2"
@@ -224,7 +230,7 @@ jobs:
       PKG_NAME: "jupyter-vcdat"
       REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "jupyter-vcdat"
-      CONDA_PY_VER: "python>=3.6,<3.7"
+      CONDA_PY_VER: "python>=3.7,<3.8"
       LIBNETCDF: "libnetcdf=*=nompi_*"
       BUILD_VARIANT_VER: "noarch"
       LAST_STABLE: "8.2"

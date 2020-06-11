@@ -10,6 +10,7 @@ class JupyterUtils(TestUtils):
         super(JupyterUtils, self).__init__()
         output = subprocess.run(
             ["git rev-parse --show-toplevel"],
+            capture_output=True,
             text=True,
             shell=True,
         )
