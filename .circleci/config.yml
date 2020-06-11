@@ -184,7 +184,7 @@ jobs:
       WORKDIR: "/home/seluser/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
       REPO_NAME: "jupyter-vcdat"
-      ENV_NAME: "test_vcdat"
+      ENV_NAME: "jupyter-vcdat"
       CONDA_PY_VER: "python>=3.6,<3.7"
       LIBNETCDF: "libnetcdf=*=nompi_*"
       BUILD_VARIANT_VER: "noarch"
@@ -223,7 +223,7 @@ jobs:
       WORKDIR: /home/seluser/project/linux_build
       PKG_NAME: "jupyter-vcdat"
       REPO_NAME: "jupyter-vcdat"
-      ENV_NAME: "test_vcdat"
+      ENV_NAME: "jupyter-vcdat"
       CONDA_PY_VER: "python>=3.6,<3.7"
       LIBNETCDF: "libnetcdf=*=nompi_*"
       BUILD_VARIANT_VER: "noarch"

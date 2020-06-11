@@ -75,7 +75,7 @@ conda-dump-env:
 	source $(conda_activate) $(conda_env); conda list --explicit > $(artifact_dir)/$(conda_env_filename).txt
 
 run-tests-chrome:
-	source $(conda_activate) $(conda_env); npx task -v --ready --chrome
+	source $(conda_activate) $(conda_env); python scripts/run_tests.py -n 4 -H -v 2
 
 run-tests-firefox:
 	source $(conda_activate) $(conda_env); npx task -v --ready --firefox
