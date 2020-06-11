@@ -69,7 +69,6 @@ aliases:
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate jupyter-vcdat
       cd $WORKDIR
-      npm run build
       jlpm run build
       conda list
       jupyter lab --ip='127.0.0.1'
