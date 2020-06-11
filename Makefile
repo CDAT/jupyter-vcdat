@@ -9,7 +9,7 @@ pkg_name = jupyter-vcdat
 build_script = conda-recipes/build_tools/conda_build.py
 
 test_pkgs = testsrunner matplotlib image-compare nbformat ipywidgets \
-				selenium nb_conda nb_conda_kernels coverage coveralls
+				pyvirtualdisplay selenium nb_conda nb_conda_kernels coverage coveralls
 ifeq ($(os),Linux)
 pkgs = "mesalib=18.3.1"
 else
@@ -78,4 +78,4 @@ run-tests-chrome:
 	source $(conda_activate) $(conda_env); python scripts/run_tests.py -n 4 -H -v 2
 
 run-tests-firefox:
-	source $(conda_activate) $(conda_env); npx task -v --ready --firefox
+	source $(conda_activate) $(conda_env); python scripts/run_tests.py -n 4 -H -v 2
