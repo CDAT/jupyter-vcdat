@@ -218,7 +218,7 @@ jobs:
 
   linux_firefox:
     docker:
-      - image: selenium/node-chrome
+      - image: selenium/node-firefox
     environment:
       WORKDIR: /home/seluser/project/linux_build
       PKG_NAME: "jupyter-vcdat"

@@ -9,7 +9,7 @@ pkg_name = jupyter-vcdat
 build_script = conda-recipes/build_tools/conda_build.py
 
 test_pkgs = testsrunner matplotlib image-compare nbformat ipywidgets \
-						nb_conda nb_conda_kernels coverage coveralls
+				selenium nb_conda nb_conda_kernels coverage coveralls
 ifeq ($(os),Linux)
 pkgs = "mesalib=18.3.1"
 else
