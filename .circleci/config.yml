@@ -5,6 +5,7 @@ aliases:
     name: setup_build_tools
     command: |
       sudo apt-get update
+      sudo apt-get install git
       sudo apt-get install make
 
   - &setup_miniconda
