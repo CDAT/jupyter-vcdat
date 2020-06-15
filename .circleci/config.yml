@@ -68,8 +68,7 @@ aliases:
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate jupyter-vcdat
-      cd $WORKDIR
-      jupyter lab build --dev-build=False --minimize=False
+      jupyter lab build
       conda list
       jupyter lab --ip='127.0.0.1'
     background: true
@@ -81,7 +80,7 @@ aliases:
       BROWSER_DRIVER: "/usr/bin/chromedriver"
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-      conda activate base
+      conda activate jupyter-vcdat
       make run-tests-chrome conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
@@ -95,7 +94,7 @@ aliases:
       BROWSER_DRIVER: "/usr/bin/geckodriver"
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-      conda activate base
+      conda activate jupyter-vcdat
       make run-tests-firefox conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
