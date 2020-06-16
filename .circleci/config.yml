@@ -81,6 +81,9 @@ aliases:
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate jupyter-vcdat
+      cd $WORKDIR/jupyter-vcdat
+      jupyter lab build
+      jupyter lab --ip='127.0.0.1'
       make run-tests-chrome conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
