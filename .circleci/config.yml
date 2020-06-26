@@ -240,9 +240,9 @@ jobs:
       - run: *conda_rerender
       - run: *conda_build
       - persist_to_workspace:
-        root: .
-        paths:
-          - linux_build
+          root: .
+          paths:
+            - linux_build
       - run: *conda_env_export
       - run: *setup_run_tests
       - run: *run_jupyter_vcdat
