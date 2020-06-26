@@ -28,7 +28,7 @@ aliases:
     command: |
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate base
-      make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifcat_dir=$PWD/artifacts copy_conda_package=1
+      make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/artifacts copy_conda_package=1
 
   - &setup_run_tests
     name: setup_run_tests
