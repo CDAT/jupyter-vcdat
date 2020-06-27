@@ -40,6 +40,9 @@ aliases:
       conda activate base
       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF"
       make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=$PWD/artifacts conda_env_name=$CIRCLE_JOB
+      conda activate jupyter-vcdat
+      cd $WORKDIR/jupyter-vcdat
+      jupyter lab build
 
   - &setup_jupyter_vcdat
     name: setup_jupyter_vcdat
@@ -69,7 +72,6 @@ aliases:
       source $WORKDIR/miniconda/etc/profile.d/conda.sh
       conda activate jupyter-vcdat
       cd $WORKDIR/jupyter-vcdat
-      jupyter lab build --dev-build=False --minimize=False
       jupyter lab --ip='127.0.0.1'
     background: true
 
@@ -79,6 +81,8 @@ aliases:
       BROWSER_TYPE: "chrome"
       BROWSER_DRIVER: "/usr/bin/chromedriver"
     command: |
+      source $WORKDIR/miniconda/etc/profile.d/conda.sh
+      conda activate jupyter-vcdat
       make run-tests-chrome conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME
       RESULT=$?
       echo "*** $PY_VER test result: ${RESULT}"
@@ -200,10 +204,6 @@ jobs:
       - run: *setup_miniconda
       - run: *conda_rerender
       - run: *conda_build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_build
       - run: *conda_env_export
       - run: *setup_run_tests
       - run: *run_jupyter_vcdat
