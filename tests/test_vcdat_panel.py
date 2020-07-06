@@ -18,7 +18,7 @@ class TestVcdatPanel(BaseTestCase):
 
         # Create notebook and sync it with vcdat
         NOTEBOOK = "test_colormap_options"
-        vcdat_panel.sync_new_notebook(NOTEBOOK)
+        vcdat_panel.sync_new_notebook(NOTEBOOK).sleep(5)
 
         # Select a graphics option first
         vcdat_panel.plot_type_btn().needs_to_be("enabled").click()
