@@ -20,7 +20,7 @@ class TestMainPage(BaseTestCase):
 
         # Create the notebook
         NOTEBOOK = "test_create_notebook"
-        self.main_page.create_notebook(NOTEBOOK).sleep(2)
+        self.main_page.create_notebook(NOTEBOOK)
         self.main_page.remove_notebook(NOTEBOOK)
 
     def test_left_tabs(self):
