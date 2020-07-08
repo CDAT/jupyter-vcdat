@@ -189,6 +189,7 @@ jobs:
     environment:
       WORKDIR: "/home/circleci/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
+      ENV_NAME: "jupyter-vcdat"
       LIBNETCDF: "libnetcdf=*=nompi_*"
       REPO_NAME: "jupyter-vcdat"
       LAST_STABLE: "8.2"
