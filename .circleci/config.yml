@@ -289,10 +289,10 @@ workflows:
   jupyter_vcdat:
     jobs:
       - linux_setup
-      - linux_chrome
+      - linux_chrome:
           requires:
             - linux_setup
-      - linux_firefox
+      - linux_firefox:
           requires:
             - linux_setup
       - publish:
