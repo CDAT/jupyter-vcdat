@@ -1,4 +1,22 @@
 version: 2
+
+# parameters:
+#   pkg_name:
+#      type: string
+#      default: "jupyter-vcdat"
+#   repo_name:
+#      type: string
+#      default: "jupyter-vcdat"
+#   last_stable:
+#      type: string
+#      default: "2.3.5"
+#   label:
+#      type: string
+#      default: "nightly"
+#   env_name:
+#      type: string
+#      default: "jupyter-vcdat"
+
 aliases:
 
   - &setup_build_tools
@@ -44,11 +62,11 @@ aliases:
       cd $WORKDIR/jupyter-vcdat
       jupyter lab build
 
-  - &setup_jupyter_vcdat
-    name: setup_jupyter_vcdat
-    command: |
-      source $WORKDIR/miniconda/etc/profile.d/conda.sh
-      ./install_script.sh -v -d
+  # - &setup_jupyter_vcdat
+  #   name: setup_jupyter_vcdat
+  #   command: |
+  #     source $WORKDIR/miniconda/etc/profile.d/conda.sh
+  #     ./install_script.sh -v -d
 
   - &check_vcdat_versions
     name: check_npm_version
@@ -165,52 +183,48 @@ aliases:
       docker logout
 
 jobs:
-  # linux_setup:
-  #   docker:
-  #     image: selenium/node-chrome
-  #   environment:
-  #     WORKDIR: "/home/circleci/project/linux_build"
-  #     PKG_NAME: "jupyter-vcdat"
-  #     REPO_NAME: "jupyter-vcdat"
-  #     LAST_STABLE: "8.2"
-  #     BUILD_VARIANT_VER: "noarch"
-  #   steps:
-  #     - checkout
-  #     - run: *setup_miniconda
-  #     - run: *conda_rerender
-  #     - run: *conda_build
-  #     - store_artifacts:
-  #         path: artifacts
-  #     - persist_to_workspace:
-  #         root: .
-  #         paths:
-  #           - linux_build
+    linux_setup:
+      docker:
+        image: selenium/node-browsers
+      environment:
+        WORKDIR: "/home/circleci/project/linux_build"
+        PKG_NAME: "jupyter-vcdat"
+        LIBNETCDF: "libnetcdf=*=nompi_*"
+        REPO_NAME: "jupyter-vcdat"
+        LAST_STABLE: "8.2"
+        CONDA_PY_VER: "python>=3.7,<3.8"
+        BUILD_VARIANT_VER: "noarch"
+      steps:
+        - checkout
+        - run: *setup_build_tools
+        - run: *setup_miniconda
+        - run: *conda_rerender
+        - run: *conda_build
+        - run: *conda_env_export
+        - run: *setup_run_tests
+        - store_artifacts:
+            path: artifacts
+        - persist_to_workspace:
+            root: .
+            paths:
+              - linux_build
 
   linux_chrome:
     docker:
-      - image: selenium/node-chrome
+      - image: selenium/node-browsers
     environment:
       WORKDIR: "/home/seluser/project/linux_build"
-      PKG_NAME: "jupyter-vcdat"
-      REPO_NAME: "jupyter-vcdat"
+      #PKG_NAME: "jupyter-vcdat"
+      #REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "jupyter-vcdat"
-      CONDA_PY_VER: "python>=3.7,<3.8"
-      LIBNETCDF: "libnetcdf=*=nompi_*"
-      BUILD_VARIANT_VER: "noarch"
-      LAST_STABLE: "8.2"
+      #CONDA_PY_VER: "python>=3.7,<3.8"
+      #LIBNETCDF: "libnetcdf=*=nompi_*"
+      #BUILD_VARIANT_VER: "noarch"
+      #LAST_STABLE: "8.2"
     steps:
-      - checkout
-      - run: *setup_build_tools
-      - run: *setup_miniconda
-      - run: *conda_rerender
-      - run: *conda_build
-      - run: *conda_env_export
-      - run: *setup_run_tests
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_chrome
-      - store_artifacts:
-          path: artifacts
       - store_artifacts:
           path: tests_html
           destination: tests_chrome_html
@@ -223,29 +237,29 @@ jobs:
 
   linux_firefox:
     docker:
-      - image: selenium/node-firefox
+      - image: selenium/node-browsers
     environment:
       WORKDIR: /home/seluser/project/linux_build
-      PKG_NAME: "jupyter-vcdat"
-      REPO_NAME: "jupyter-vcdat"
+      # PKG_NAME: "jupyter-vcdat"
+      # REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "jupyter-vcdat"
-      CONDA_PY_VER: "python>=3.7,<3.8"
-      LIBNETCDF: "libnetcdf=*=nompi_*"
-      BUILD_VARIANT_VER: "noarch"
-      LAST_STABLE: "8.2"
+      # CONDA_PY_VER: "python>=3.7,<3.8"
+      # LIBNETCDF: "libnetcdf=*=nompi_*"
+      # BUILD_VARIANT_VER: "noarch"
+      # LAST_STABLE: "8.2"
     steps:
       - checkout
-      - run: *setup_build_tools
-      - run: *setup_miniconda
-      - run: *conda_rerender
-      - run: *conda_build
-      - run: *conda_env_export
-      - run: *setup_run_tests
+      # - run: *setup_build_tools
+      # - run: *setup_miniconda
+      # - run: *conda_rerender
+      # - run: *conda_build
+      # - run: *conda_env_export
+      # - run: *setup_run_tests
       - run: *run_jupyter_vcdat
       - run: sleep 15
       - run: *run_tests_with_firefox
-      - store_artifacts:
-          path: artifacts
+      # - store_artifacts:
+      #     path: artifacts
       - store_artifacts:
           path: tests_html
           destination: tests_firefox_html
@@ -274,8 +288,13 @@ workflows:
   version: 2
   jupyter_vcdat:
     jobs:
+      - linux_setup
       - linux_chrome
+          requires:
+            - linux_setup
       - linux_firefox
+          requires:
+            - linux_setup
       - publish:
           requires:
             - linux_chrome
