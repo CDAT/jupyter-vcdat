@@ -237,9 +237,9 @@ jobs:
 
   linux_firefox:
     docker:
-      - image: selenium/node-browsers
+      - image: circleci/node:latest-browsers
     environment:
-      WORKDIR: /home/seluser/project/linux_build
+      WORKDIR: /home/circleci/project/linux_build
       # PKG_NAME: "jupyter-vcdat"
       # REPO_NAME: "jupyter-vcdat"
       ENV_NAME: "jupyter-vcdat"
