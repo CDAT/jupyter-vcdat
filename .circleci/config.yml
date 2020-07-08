@@ -185,7 +185,7 @@ aliases:
 jobs:
   linux_setup:
     docker:
-      - image: selenium/node-browsers
+      - image: circleci/node:latest-browsers
     environment:
       WORKDIR: "/home/circleci/project/linux_build"
       PKG_NAME: "jupyter-vcdat"
@@ -211,7 +211,7 @@ jobs:
 
   linux_chrome:
     docker:
-      - image: selenium/node-browsers
+      - image: circleci/node:latest-browsers
     environment:
       WORKDIR: "/home/seluser/project/linux_build"
       #PKG_NAME: "jupyter-vcdat"
