@@ -15,5 +15,5 @@
     "strictNullChecks": false,
     "types": []
   },
-  "include": ["src/*"]
+  "include": ["src/**/*"]
 }

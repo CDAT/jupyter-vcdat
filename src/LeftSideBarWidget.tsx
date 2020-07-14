@@ -13,12 +13,12 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 // Project Components
-import CellUtilities from "./CellUtilities";
-import CodeInjector from "./CodeInjector";
+import CellUtilities from "./modules/Utilities/CellUtilities";
+import CodeInjector from "./modules/CodeInjector";
 import ErrorBoundary from "./components/ErrorBoundary";
-import PopUpModal from "./components/PopUpModal";
-import Variable from "./Variable";
-import VCSMenu from "./components/VCSMenu";
+import PopUpModal from "./components/modals/PopUpModal";
+import Variable from "./modules/types/Variable";
+import VCSMenu from "./components/menus/VCSMenu";
 import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
@@ -30,20 +30,20 @@ import {
   OLD_VCDAT_VERSION,
   VCDAT_VERSION,
   VCDAT_VERSION_KEY,
-} from "./constants";
-import NotebookUtilities from "./NotebookUtilities";
-import Utilities from "./Utilities";
-import VariableTracker from "./VariableTracker";
+} from "./modules/constants";
+import NotebookUtilities from "./modules/Utilities/NotebookUtilities";
+import Utilities from "./modules/Utilities/Utilities";
+import VariableTracker from "./modules/VariableTracker";
 import {
   CHECK_PLOT_EXIST_CMD,
   CHECK_VCS_CMD,
   REFRESH_GRAPHICS_CMD,
   REFRESH_TEMPLATES_CMD,
-} from "./PythonCommands";
-import AboutVCDAT from "./components/AboutVCDAT";
+} from "./modules/PythonCommands";
+import AboutVCDAT from "./components/modals/AboutVCDAT";
 import { ICellModel } from "@jupyterlab/cells";
 import { IIterator } from "@lumino/algorithm";
-import { AppSettings } from "./AppSettings";
+import { AppSettings } from "./modules/AppSettings";
 import { boundMethod } from "autobind-decorator";
 
 /**
@@ -184,7 +184,7 @@ export default class LeftSideBarWidget extends Widget {
     });
 
     // Add command that displays the 'About' dialog
-    app.commands.addCommand("vcdat-show-about", {
+    this.commands.addCommand("vcdat-show-about", {
       caption: "See the VCDAT about page.",
       execute: () => {
         this.aboutRef.show();

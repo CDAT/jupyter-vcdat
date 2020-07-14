@@ -12,7 +12,7 @@ import {
 } from "reactstrap";
 import { ISignal } from "@lumino/signaling";
 
-import LeftSideBarWidget from "../LeftSideBarWidget";
+import LeftSideBarWidget from "./../../LeftSideBarWidget";
 import { boundMethod } from "autobind-decorator";
 
 const dropdownMenuStype: React.CSSProperties = {

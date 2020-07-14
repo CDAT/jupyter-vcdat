@@ -2,8 +2,8 @@ import { MainMenu } from "@jupyterlab/mainmenu";
 import { KernelMessage } from "@jupyterlab/services";
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
-import { OUTPUT_RESULT_NAME } from "./constants";
-import { checkCDMS2FileOpens } from "./PythonCommands";
+import { OUTPUT_RESULT_NAME } from "../constants";
+import { checkCDMS2FileOpens } from "../PythonCommands";
 import { ISessionOptions } from "@jupyterlab/services/lib/session/session";
 
 export default class Utilities {

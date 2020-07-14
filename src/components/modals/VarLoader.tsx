@@ -8,11 +8,11 @@ import { ISignal, Signal } from "@lumino/signaling";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 // Project Components
-import AxisInfo from "../AxisInfo";
-import VarCard from "./VarCard";
-import Variable from "../Variable";
-import VariableTracker from "../VariableTracker";
-import NotebookUtilities from "../NotebookUtilities";
+import AxisInfo from "../../modules/types/AxisInfo";
+import VarCard from "../VarCard";
+import Variable from "../../modules/types/Variable";
+import VariableTracker from "../../modules/VariableTracker";
+import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
 import { boundMethod } from "autobind-decorator";
 
 const modalOverflow: React.CSSProperties = {

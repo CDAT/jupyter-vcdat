@@ -2,9 +2,9 @@
 import { NotebookPanel } from "@jupyterlab/notebook";
 
 // Project Components
-import CellUtilities from "./CellUtilities";
-import AxisInfo from "./AxisInfo";
-import Variable from "./Variable";
+import CellUtilities from "./Utilities/CellUtilities";
+import AxisInfo from "./types/AxisInfo";
+import Variable from "./types/Variable";
 import VariableTracker from "./VariableTracker";
 import {
   BASE_DATA_READER_NAME,
@@ -23,9 +23,9 @@ import {
   getSidecarDisplayCommand,
 } from "./PythonCommands";
 
-import NotebookUtilities from "./NotebookUtilities";
-import Utilities from "./Utilities";
-import { ExportFormat, ImageUnit } from "./types";
+import NotebookUtilities from "./Utilities/NotebookUtilities";
+import Utilities from "./Utilities/Utilities";
+import { ExportFormat, ImageUnit } from "./types/types";
 import { boundMethod } from "autobind-decorator";
 
 /**

@@ -6,7 +6,7 @@ import {
   DropdownMenu,
   DropdownToggle,
 } from "reactstrap";
-import { BASE_COLORMAPS } from "../constants";
+import { BASE_COLORMAPS } from "../../modules/constants";
 import { boundMethod } from "autobind-decorator";
 
 const dropdownMenuStyle: React.CSSProperties = {

@@ -16,10 +16,10 @@ import {
 } from "reactstrap";
 
 // Project Components
-import { checkForExportedFileCommand } from "../PythonCommands";
-import CodeInjector from "../CodeInjector";
-import Utilities from "../Utilities";
-import { ExportFormat, ImageUnit } from "../types";
+import { checkForExportedFileCommand } from "../../modules/PythonCommands";
+import CodeInjector from "../../modules/CodeInjector";
+import Utilities from "../../modules/Utilities/Utilities";
+import { ExportFormat, ImageUnit } from "../../modules/types/types";
 import { boundMethod } from "autobind-decorator";
 
 interface IExportPlotModalProps {

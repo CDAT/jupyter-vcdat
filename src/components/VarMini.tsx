@@ -20,14 +20,14 @@ import {
 } from "reactstrap";
 
 // Project Components
-import CodeInjector from "../CodeInjector";
-import Utilities from "../Utilities";
-import AxisInfo from "../AxisInfo";
+import CodeInjector from "../modules/CodeInjector";
+import Utilities from "../modules/Utilities/Utilities";
+import AxisInfo from "../modules/types/AxisInfo";
 import DimensionSlider from "./DimensionSlider";
-import Variable from "../Variable";
-import NotebookUtilities from "../NotebookUtilities";
-import { checkForExportedFileCommand } from "../PythonCommands";
-import VariableTracker from "../VariableTracker";
+import Variable from "../modules/types/Variable";
+import NotebookUtilities from "../modules/Utilities/NotebookUtilities";
+import { checkForExportedFileCommand } from "../modules/PythonCommands";
+import VariableTracker from "../modules/VariableTracker";
 import { boundMethod } from "autobind-decorator";
 
 const axisStyle: React.CSSProperties = {

@@ -15,12 +15,12 @@ import {
 } from "reactstrap";
 
 // Project Components
-import CodeInjector from "../CodeInjector";
-import ColorFunctions from "../ColorFunctions";
-import Variable from "../Variable";
-import VarLoader from "./VarLoader";
-import VarMini from "./VarMini";
-import VariableTracker from "../VariableTracker";
+import CodeInjector from "../../modules/CodeInjector";
+import ColorFunctions from "../../modules/utilities/ColorFunctions";
+import Variable from "../../modules/types/Variable";
+import VarLoader from "../modals/VarLoader";
+import VarMini from "../VarMini";
+import VariableTracker from "../../modules/VariableTracker";
 import { boundMethod } from "autobind-decorator";
 
 const varButtonStyle: React.CSSProperties = {

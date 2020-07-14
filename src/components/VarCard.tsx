@@ -16,11 +16,11 @@ import {
 } from "reactstrap";
 
 // Project Components
-import NotebookUtilities from "../NotebookUtilities";
-import AxisInfo from "../AxisInfo";
+import NotebookUtilities from "../modules/Utilities/NotebookUtilities";
+import AxisInfo from "../modules/types/AxisInfo";
 import DimensionSlider from "./DimensionSlider";
-import Variable from "../Variable";
-import VarLoader from "./VarLoader";
+import Variable from "../modules/types/Variable";
+import VarLoader from "./modals/VarLoader";
 import { boundMethod } from "autobind-decorator";
 
 const cardStyle: React.CSSProperties = {

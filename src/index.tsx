@@ -26,13 +26,17 @@ import {
 
 // Project Components
 import "../style/css/index.css";
-import { EXTENSIONS, GETTING_STARTED, REPLACEMENT_STEPS } from "./constants";
+import {
+  EXTENSIONS,
+  GETTING_STARTED,
+  REPLACEMENT_STEPS,
+} from "./modules/constants";
 import NCViewerWidget from "./NCViewerWidget";
-import NotebookUtilities from "./NotebookUtilities";
+import NotebookUtilities from "./modules/Utilities/NotebookUtilities";
 import LeftSideBarWidget from "./LeftSideBarWidget";
-import Utilities from "./Utilities";
+import Utilities from "./modules/Utilities/Utilities";
 import { Step } from "react-joyride";
-import { AppSettings } from "./AppSettings";
+import { AppSettings } from "./modules/AppSettings";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";

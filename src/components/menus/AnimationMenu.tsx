@@ -3,7 +3,7 @@ import * as React from "react";
 import { Col, CustomInput, Input, Label, Row } from "reactstrap";
 
 // Project Components
-import VariableTracker from "../VariableTracker";
+import VariableTracker from "../../modules/VariableTracker";
 import { boundMethod } from "autobind-decorator";
 
 interface IAnimationMenuProps {

@@ -6,27 +6,27 @@ import * as React from "react";
 import { Alert, Button, Card, CardBody, Col, Row, Spinner } from "reactstrap";
 
 // Project Components
-import CodeInjector from "../CodeInjector";
+import CodeInjector from "../../modules/CodeInjector";
 import {
   DISPLAY_MODE,
   EXTENSIONS,
   GRAPHICS_METHOD_KEY,
   PLOT_OPTIONS_KEY,
   TEMPLATE_KEY,
-} from "../constants";
-import { CANVAS_DIMENSIONS_CMD } from "../PythonCommands";
-import NotebookUtilities from "../NotebookUtilities";
-import ExportPlotModal from "./ExportPlotModal";
+} from "../../modules/constants";
+import { CANVAS_DIMENSIONS_CMD } from "../../modules/PythonCommands";
+import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
+import ExportPlotModal from "../modals/ExportPlotModal";
 import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
-import Variable from "../Variable";
+import Variable from "../../modules/types/Variable";
 import VarMenu from "./VarMenu";
-import InputModal from "./InputModal";
-import VariableTracker from "../VariableTracker";
-import Utilities from "../Utilities";
-import LeftSideBarWidget from "../LeftSideBarWidget";
+import InputModal from "../modals/InputModal";
+import VariableTracker from "../../modules/VariableTracker";
+import Utilities from "../../modules/Utilities/Utilities";
+import LeftSideBarWidget from "../../LeftSideBarWidget";
 import { JupyterFrontEnd } from "@jupyterlab/application";
-import { AppSettings } from "../AppSettings";
+import { AppSettings } from "../../modules/AppSettings";
 import { boundMethod } from "autobind-decorator";
 
 const btnStyle: React.CSSProperties = {

@@ -15,10 +15,10 @@ import {
   getFileVarsCommand,
   REFRESH_VAR_CMD,
 } from "./PythonCommands";
-import Utilities from "./Utilities";
-import NotebookUtilities from "./NotebookUtilities";
-import Variable from "./Variable";
-import AxisInfo from "./AxisInfo";
+import Utilities from "./Utilities/Utilities";
+import NotebookUtilities from "./Utilities/NotebookUtilities";
+import Variable from "./types/Variable";
+import AxisInfo from "./types/AxisInfo";
 import { boundMethod } from "autobind-decorator";
 
 export default class VariableTracker {

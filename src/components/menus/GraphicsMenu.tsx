@@ -25,12 +25,12 @@ import {
 } from "reactstrap";
 
 // Project Components
-import NotebookUtilities from "../NotebookUtilities";
-import LeftSideBarWidget from "../LeftSideBarWidget";
-import ColormapEditor from "./ColormapEditor";
-import VariableTracker from "../VariableTracker";
+import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
+import LeftSideBarWidget from "../../LeftSideBarWidget";
+import ColormapEditor from "./ColormapMenu";
+import VariableTracker from "../../modules/VariableTracker";
 import AnimationMenu from "./AnimationMenu";
-import { DISPLAY_MODE } from "../constants";
+import { DISPLAY_MODE } from "../../modules/constants";
 import { boundMethod } from "autobind-decorator";
 
 const dropdownMenuStyle: React.CSSProperties = {
