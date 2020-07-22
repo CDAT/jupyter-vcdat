@@ -1,6 +1,6 @@
 {
   "name": "jupyter-vcdat",
-  "version": "2.3.5",
+  "version": "2.4.0",
   "description": "A vCDAT extension for JupyterLab.",
   "keywords": [
     "jupyter",

@@ -39,7 +39,7 @@ const copyrightStyling: React.CSSProperties = {
 };
 
 const iconStyling: React.CSSProperties = {
-  backgroundImage: `url(${require("../../style/icons/cdat_icon_colored.png")})`,
+  backgroundImage: `url(${require("../../../style/icons/cdat_icon_colored.png")})`,
   backgroundSize: "100px",
   height: "100px",
   width: "100px",

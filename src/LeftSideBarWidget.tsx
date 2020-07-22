@@ -95,7 +95,7 @@ export default class LeftSideBarWidget extends Widget {
   private application: JupyterFrontEnd; // The JupyterLab application object
   private vcsMenuRef: VCSMenu; // the LeftSidebar component
   private loadingModalRef: PopUpModal;
-  private aboutRef: AboutVCDAT;
+  public aboutRef: AboutVCDAT;
   private graphicsMethods: any; // The current available graphics methods
   private templatesList: string[]; // The list of current templates
   private codeInjector: CodeInjector; // The code injector object which is responsible for injecting code into notebooks
@@ -177,20 +177,20 @@ export default class LeftSideBarWidget extends Widget {
     );
 
     // Add command to refresh the filebrowser
-    this.commands.addCommand("vcdat:refresh-browser", {
+    /* this.commands.addCommand("vcdat:refresh-browser", {
       execute: (): void => {
         this.commands.execute("filebrowser:go-to-path", { path: "." });
       },
-    });
+    }); */
 
     // Add command that displays the 'About' dialog
-    this.commands.addCommand("vcdat-show-about", {
+    /* this.commands.addCommand("vcdat-show-about", {
       caption: "See the VCDAT about page.",
       execute: () => {
         this.aboutRef.show();
       },
       label: "About VCDAT",
-    });
+    }); */
   }
 
   // =======PROPS FUNCTIONS=======

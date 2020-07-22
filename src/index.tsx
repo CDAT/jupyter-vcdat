@@ -37,6 +37,11 @@ import LeftSideBarWidget from "./LeftSideBarWidget";
 import Utilities from "./modules/Utilities/Utilities";
 import { Step } from "react-joyride";
 import { AppSettings } from "./modules/AppSettings";
+import LabControl, { NOTEBOOK_STATE } from "./modules/LabControl";
+import AboutModal from "./components/modals/AboutModal";
+import AboutVCDAT from "./components/modals/AboutVCDAT";
+import ActionLibrary from "./modules/ActionLibrary";
+import VariableTracker from "./modules/VariableTracker";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";
@@ -78,11 +83,56 @@ function activate(
   shell = app.shell;
   mainMenu = menu;
 
+  // Testing LabControl
+  LabControl.initialize(app, labShell, menu, settings, tracker).then(
+    async (labControl: LabControl) => {
+      console.log(labControl);
+      labControl.addCommand(
+        "test-vcdat-command",
+        (name: string) => {
+          window.alert(`Hello ${name}!`);
+        },
+        "Hello World Test"
+      );
+      labControl.addCommand("vcdat:refresh-browser", (): void => {
+        labControl.commands.execute("filebrowser:go-to-path", { path: "." });
+      });
+      labControl.addCommand(
+        "vcdat-show-about",
+        (aboutRef: AboutVCDAT) => {
+          aboutRef.show();
+        },
+        "About VCDAT",
+        "See the VCDAT about page."
+      );
+
+      labControl.helpMenuItem("test-vcdat-command", "Bob");
+
+      const rightbar = new LeftSideBarWidget(
+        app,
+        labShell,
+        tracker,
+        labControl.settings
+      );
+      rightbar.id = /* @tag<left-side-bar>*/ "right-side-bar-vcdat";
+      rightbar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
+      rightbar.title.closable = true;
+      labControl.attachWidget(rightbar, "right");
+      labControl.helpMenuItem("vcdat-show-about", rightbar.aboutRef);
+
+      const library: ActionLibrary = await ActionLibrary.initialize(
+        labControl,
+        new VariableTracker()
+      );
+    }
+  );
+
   const factory = new NCViewerFactory({
     defaultFor: [FILETYPE],
     fileTypes: [FILETYPE],
     name: FACTORY_NAME,
     readOnly: true,
+    defaultRendered: [FILETYPE],
   });
 
   const ft: DocumentRegistry.IFileType = {
