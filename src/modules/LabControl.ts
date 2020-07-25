@@ -37,7 +37,7 @@ export interface IControlState {
  * to interact with the underlying Jupyter Lab. It to be initialized within the
  * 'activate' function at the start of the extension. Any actions to the Jupyter
  * Lab environment should be performed using this class. To allow objects access
- * to these functions, you must call the 'getInstance()' function.
+ * to these functions, you must access the 'instance' function.
  */
 export default class LabControl {
   private static _instance: LabControl;
@@ -49,16 +49,12 @@ export default class LabControl {
   private _settings: AppSettings;
   private _nbTracker: NotebookTracker;
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  // private contructor(): void {}
-
   /** Provide handle to the LabControl instance. */
-  get instance(): LabControl {
+  static getInstance(): LabControl {
     // Return the full instance only if it's initialized
     if (LabControl._initialized) {
       return LabControl._instance;
     }
-    // Prevent access to instance if it's not initialized.
     throw Error(
       `${LabControl.name} is not initialized. Must initialize first.`
     );
@@ -91,37 +87,36 @@ export default class LabControl {
     const loadedSettings = await settings.load(extensionID);
     lab._settings = new AppSettings(loadedSettings);
     LabControl._initialized = true;
-
     return lab;
   }
 
   get state(): IControlState {
-    return this.instance._state;
+    return LabControl.getInstance()._state;
   }
 
   set state(newState: IControlState) {
-    this.instance._state = newState;
+    LabControl.getInstance()._state = newState;
   }
 
   get commands(): CommandRegistry {
-    return this.instance._app.commands;
+    return LabControl.getInstance()._app.commands;
   }
 
   get settings(): AppSettings {
-    return this.instance._settings;
+    return LabControl.getInstance()._settings;
   }
 
   get shell(): LabShell {
-    return this.instance._shell;
+    return LabControl.getInstance()._shell;
   }
 
   get menu(): MainMenu {
-    return this.instance._menu;
+    return LabControl.getInstance()._menu;
   }
 
   get notebookPanel(): NotebookPanel {
-    if (this.instance._nbTracker.currentWidget) {
-      return this.instance._nbTracker.currentWidget;
+    if (LabControl.getInstance()._nbTracker.currentWidget) {
+      return LabControl.getInstance()._nbTracker.currentWidget;
     } else {
       return null;
     }
@@ -165,7 +160,7 @@ export default class LabControl {
   }
 
   // Add item to help menu
-  public helpMenuItem(commandID: string, args: {}): void {
+  public helpMenuItem(commandID: string, args?: {}): void {
     this.menu.helpMenu.menu.addItem({
       args,
       command: commandID,
@@ -191,8 +186,12 @@ export default class LabControl {
       throw Error("No notebook, code injection cancelled.");
     }
     try {
-      const idx: number =
-        index || this.notebookPanel.content.model.cells.length - 1;
+      let idx: number = index;
+
+      if (!idx || idx < 0) {
+        idx = this.notebookPanel.content.model.cells.length - 1;
+      }
+
       const [newIdx, result]: [
         number,
         string
@@ -205,7 +204,7 @@ export default class LabControl {
       this.notebookPanel.content.activeCellIndex = newIdx + 1;
       return [newIdx, result];
     } catch (error) {
-      throw error;
+      throw new Error(error);
     }
   }
 }

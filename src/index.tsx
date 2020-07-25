@@ -40,7 +40,7 @@ import { AppSettings } from "./modules/AppSettings";
 import LabControl, { NOTEBOOK_STATE } from "./modules/LabControl";
 import AboutModal from "./components/modals/AboutModal";
 import AboutVCDAT from "./components/modals/AboutVCDAT";
-import ActionLibrary from "./modules/ActionLibrary";
+import AppControl from "./modules/AppControl";
 import VariableTracker from "./modules/VariableTracker";
 
 const FILETYPE = "NetCDF";
@@ -86,11 +86,15 @@ function activate(
   // Testing LabControl
   LabControl.initialize(app, labShell, menu, settings, tracker).then(
     async (labControl: LabControl) => {
-      console.log(labControl);
+      const appControl: AppControl = await AppControl.initialize(
+        labControl,
+        new VariableTracker()
+      );
+
       labControl.addCommand(
         "test-vcdat-command",
         (name: string) => {
-          window.alert(`Hello ${name}!`);
+          console.log(appControl.insertHelloWorld(name));
         },
         "Hello World Test"
       );
@@ -105,8 +109,17 @@ function activate(
         "About VCDAT",
         "See the VCDAT about page."
       );
+      labControl.addCommand(
+        "test-raw-command",
+        () => {
+          console.log(appControl.badCommand());
+        },
+        "Raw Command Test"
+      );
 
       labControl.helpMenuItem("test-vcdat-command", "Bob");
+
+      labControl.helpMenuItem("test-raw-command");
 
       const rightbar = new LeftSideBarWidget(
         app,
@@ -119,11 +132,6 @@ function activate(
       rightbar.title.closable = true;
       labControl.attachWidget(rightbar, "right");
       labControl.helpMenuItem("vcdat-show-about", rightbar.aboutRef);
-
-      const library: ActionLibrary = await ActionLibrary.initialize(
-        labControl,
-        new VariableTracker()
-      );
     }
   );
 
