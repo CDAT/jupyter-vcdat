@@ -120,14 +120,12 @@ export default class AppControl {
   }
 
   @AppControl.codeInjection
-  public insertHelloWorld(name: string): string {
-    AppControl._instance.runIndex = -1;
-    return `print('Hello ${name}')`;
-  }
-
-  @AppControl.codeInjection
-  public badCommand(): string {
-    AppControl._instance.runIndex = 0;
-    return "This is bad code.";
+  public injectCode(code: string, index?: number): string {
+    if (index && index >= 0) {
+      this.runIndex = index;
+      return code;
+    }
+    this.runIndex = -1;
+    return code;
   }
 }

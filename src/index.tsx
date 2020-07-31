@@ -37,8 +37,7 @@ import LeftSideBarWidget from "./LeftSideBarWidget";
 import Utilities from "./modules/Utilities/Utilities";
 import { Step } from "react-joyride";
 import { AppSettings } from "./modules/AppSettings";
-import LabControl, { NOTEBOOK_STATE } from "./modules/LabControl";
-import AboutModal from "./components/modals/AboutModal";
+import LabControl from "./modules/LabControl";
 import AboutVCDAT from "./components/modals/AboutVCDAT";
 import AppControl from "./modules/AppControl";
 import VariableTracker from "./modules/VariableTracker";
@@ -94,9 +93,9 @@ function activate(
       labControl.addCommand(
         "test-vcdat-command",
         (name: string) => {
-          console.log(appControl.insertHelloWorld(name));
+          console.log(appControl.injectCode(`Hello ${name}`));
         },
-        "Hello World Test"
+        "Hello Test"
       );
       labControl.addCommand("vcdat:refresh-browser", (): void => {
         labControl.commands.execute("filebrowser:go-to-path", { path: "." });
@@ -112,7 +111,9 @@ function activate(
       labControl.addCommand(
         "test-raw-command",
         () => {
-          console.log(appControl.badCommand());
+          console.log(
+            appControl.injectCode("print('Raw Command')\nBad command.")
+          );
         },
         "Raw Command Test"
       );
@@ -132,6 +133,8 @@ function activate(
       rightbar.title.closable = true;
       labControl.attachWidget(rightbar, "right");
       labControl.helpMenuItem("vcdat-show-about", rightbar.aboutRef);
+      await labControl.createNotebook();
+      console.log(appControl.injectCode("print(1+2+0)"));
     }
   );
 

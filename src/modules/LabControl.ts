@@ -146,11 +146,21 @@ export default class LabControl {
     });
   }
 
+  /**
+   * @description Creates a new JupyterLab notebook for use by the application
+   * @returns Promise<NotebookPanel> - A promise containing the notebook panel object that was created (if successful).
+   */
   public async createNotebook(): Promise<NotebookPanel> {
-    const newNotebookPanel: NotebookPanel = await NotebookUtilities.createNewNotebook(
-      this.commands
+    const notebook: NotebookPanel = await this.commands.execute(
+      "notebook:create-new",
+      {
+        activate: true,
+        path: "",
+        preferredLanguage: "",
+      }
     );
-    return newNotebookPanel;
+    await notebook.sessionContext.ready;
+    return notebook;
   }
 
   public activateCurrentNotebook(): void {
@@ -183,7 +193,8 @@ export default class LabControl {
    */
   public async inject(code: string, index?: number): Promise<[number, string]> {
     if (this.notebookPanel === null) {
-      throw Error("No notebook, code injection cancelled.");
+      console.error("No notebook, code injection cancelled.");
+      return null;
     }
     try {
       let idx: number = index;
