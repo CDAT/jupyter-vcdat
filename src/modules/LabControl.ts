@@ -6,8 +6,8 @@ import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { AppSettings } from "./AppSettings";
 import { Widget } from "@lumino/widgets";
 import { CommandRegistry } from "@lumino/commands";
-import NotebookUtilities from "./Utilities/NotebookUtilities";
-import CellUtilities from "./Utilities/CellUtilities";
+import NotebookUtilities from "./utils/NotebookUtilities";
+import CellUtilities from "./utils/CellUtilities";
 
 const extensionID = "jupyter-vcdat:extension";
 type shellArea = "top" | "left" | "right" | "main" | "bottom" | "header";

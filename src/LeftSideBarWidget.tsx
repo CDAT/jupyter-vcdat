@@ -11,9 +11,10 @@ import { CommandRegistry } from "@lumino/commands";
 import { Widget } from "@lumino/widgets";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { Provider, useDispatch, useSelector } from "react-redux";
 
 // Project Components
-import CellUtilities from "./modules/Utilities/CellUtilities";
+import CellUtilities from "./modules/utils/CellUtilities";
 import CodeInjector from "./modules/CodeInjector";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PopUpModal from "./components/modals/PopUpModal";
@@ -31,8 +32,8 @@ import {
   VCDAT_VERSION,
   VCDAT_VERSION_KEY,
 } from "./modules/constants";
-import NotebookUtilities from "./modules/Utilities/NotebookUtilities";
-import Utilities from "./modules/Utilities/Utilities";
+import NotebookUtilities from "./modules/utils/NotebookUtilities";
+import Utilities from "./modules/utils/Utilities";
 import VariableTracker from "./modules/VariableTracker";
 import {
   CHECK_PLOT_EXIST_CMD,
@@ -45,11 +46,18 @@ import { ICellModel } from "@jupyterlab/cells";
 import { IIterator } from "@lumino/algorithm";
 import { AppSettings } from "./modules/AppSettings";
 import { boundMethod } from "autobind-decorator";
+import configureStore from "./modules/redux/store/index";
+import { setCurrentNotebook } from "./modules/redux/actions";
+import { IState } from "./modules/redux/types";
+
+// Experimental
+// const store = configureStore();
+// const dispatch = useDispatch();
 
 /**
  * This is the main component for the vcdat extension.
  */
-export default class LeftSideBarWidget extends Widget {
+export class LeftSideBarWidget extends Widget {
   // =======GETTERS AND SETTERS=======
   public get plotReady(): boolean {
     return (
@@ -83,6 +91,8 @@ export default class LeftSideBarWidget extends Widget {
   }
 
   public get notebookPanel(): NotebookPanel {
+    // Experimental
+    // console.log(useSelector((state: IState) => state.notebookState.notebook));
     return this._notebookPanel;
   }
 
@@ -139,39 +149,43 @@ export default class LeftSideBarWidget extends Widget {
     this.vcsMenuRef = (React as any).createRef();
     this.loadingModalRef = (React as any).createRef();
     this.aboutRef = (React as any).createRef();
+    const store = configureStore();
     ReactDOM.render(
       <ErrorBoundary>
-        <VCSMenu
-          appSettings={this.appSettings}
-          application={this.application}
-          ref={(loader): VCSMenu => (this.vcsMenuRef = loader)}
-          commands={this.commands}
-          codeInjector={this.codeInjector}
-          varTracker={this.varTracker}
-          plotReady={this.plotReady}
-          plotReadyChanged={this.plotReadyChanged}
-          plotExists={this.plotExists}
-          plotExistsChanged={this.plotExistsChanged}
-          setPlotExists={this.setPlotExists}
-          syncNotebook={this.syncNotebook}
-          getGraphicsList={this.getGraphics}
-          getTemplatesList={this.getTemplates}
-          refreshGraphicsList={this.refreshGraphicsList}
-          notebookPanel={this._notebookPanel}
-          updateNotebookPanel={this.recognizeNotebookPanel}
-          openSidecarPanel={this.setSidecarPanel}
-          prepareNotebookFromPath={this.prepareNotebookPanel}
-        />
-        <PopUpModal
-          title="Notice"
-          message="Loading CDAT core modules. Please wait..."
-          btnText="OK"
-          ref={(loader): PopUpModal => (this.loadingModalRef = loader)}
-        />
-        <AboutVCDAT
-          version={this.appSettings.getVersion()}
-          ref={(loader): AboutVCDAT => (this.aboutRef = loader)}
-        />
+        <Provider store={store}>
+          <VCSMenu
+            appSettings={this.appSettings}
+            application={this.application}
+            ref={(loader): VCSMenu => (this.vcsMenuRef = loader)}
+            commands={this.commands}
+            codeInjector={this.codeInjector}
+            varTracker={this.varTracker}
+            plotReady={this.plotReady}
+            plotReadyChanged={this.plotReadyChanged}
+            plotExists={this.plotExists}
+            plotExistsChanged={this.plotExistsChanged}
+            setPlotExists={this.setPlotExists}
+            syncNotebook={this.syncNotebook}
+            getGraphicsList={this.getGraphics}
+            getTemplatesList={this.getTemplates}
+            refreshGraphicsList={this.refreshGraphicsList}
+            notebookPanel={this._notebookPanel}
+            updateNotebookPanel={this.recognizeNotebookPanel}
+            openSidecarPanel={this.setSidecarPanel}
+            prepareNotebookFromPath={this.prepareNotebookPanel}
+          />
+          <PopUpModal
+            title="Notice"
+            message="Loading CDAT core modules. Please wait..."
+            btnText="OK"
+            ref={(loader): PopUpModal => (this.loadingModalRef = loader)}
+          />
+          <AboutVCDAT
+            version={this.appSettings.getVersion()}
+            notebookID="Squanch"
+            ref={(loader): AboutVCDAT => (this.aboutRef = loader)}
+          />
+        </Provider>
       </ErrorBoundary>,
       this.div
     );
@@ -247,6 +261,9 @@ export default class LeftSideBarWidget extends Widget {
 
       // Update current notebook
       this._notebookPanel = notebookPanel;
+
+      // Experimental
+      /* dispatch(setCurrentNotebook(notebookPanel)); */
 
       await this.vcsMenuRef.setState({
         notebookPanel,

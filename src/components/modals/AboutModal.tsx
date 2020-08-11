@@ -9,6 +9,8 @@ import {
   ModalHeader,
   Row,
 } from "reactstrap";
+import { connect, useSelector } from "react-redux";
+import { IState } from "../../modules/redux/types";
 
 interface IAboutProps {
   version: string;
@@ -46,7 +48,7 @@ const iconStyling: React.CSSProperties = {
 
 const YEAR: number = new Date().getFullYear();
 
-export default function AboutVCDAT(props: IAboutProps): JSX.Element {
+export const AboutVCDAT = (props: IAboutProps): JSX.Element => {
   const [open, setOpen] = useState(false);
 
   const show = (): void => {
@@ -83,11 +85,14 @@ export default function AboutVCDAT(props: IAboutProps): JSX.Element {
                   <span
                     className={/* @tag<about-version>*/ "about-version-vcdat"}
                   >
-                    {props.version}
+                    {useSelector(
+                      (state: IState) => state.notebookState.notebook.id
+                    )}
                   </span>
                 </h4>
               </Col>
             </Row>
+            <Row>Squanch</Row>
           </Col>
         </Row>
       </ModalHeader>
@@ -144,4 +149,4 @@ export default function AboutVCDAT(props: IAboutProps): JSX.Element {
       </ModalFooter>
     </Modal>
   );
-}
+};

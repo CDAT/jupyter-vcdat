@@ -18,7 +18,7 @@ import {
 // Project Components
 import { checkForExportedFileCommand } from "../../modules/PythonCommands";
 import CodeInjector from "../../modules/CodeInjector";
-import Utilities from "../../modules/Utilities/Utilities";
+import Utilities from "../../modules/utils/Utilities";
 import { ExportFormat, ImageUnit } from "../../modules/types/types";
 import { boundMethod } from "autobind-decorator";
 

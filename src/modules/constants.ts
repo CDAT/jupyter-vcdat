@@ -225,9 +225,9 @@ export enum NOTEBOOK_STATE {
 // export type DisplayMode = "notebook" | "sidecar" | "not_set";
 
 export enum DISPLAY_MODE {
-  Notebook,
-  Sidecar,
-  None,
+  Notebook = "notebook",
+  Sidecar = "sidecar",
+  None = "none",
 }
 
 // Note: Using reactHtmlParser function, tutorial steps can be rendered as HTML

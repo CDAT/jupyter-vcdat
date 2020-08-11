@@ -2,7 +2,7 @@
 import { NotebookPanel } from "@jupyterlab/notebook";
 
 // Project Components
-import CellUtilities from "./Utilities/CellUtilities";
+import CellUtilities from "./utils/CellUtilities";
 import AxisInfo from "./types/AxisInfo";
 import Variable from "./types/Variable";
 import VariableTracker from "./VariableTracker";
@@ -23,8 +23,8 @@ import {
   getSidecarDisplayCommand,
 } from "./PythonCommands";
 
-import NotebookUtilities from "./Utilities/NotebookUtilities";
-import Utilities from "./Utilities/Utilities";
+import NotebookUtilities from "./utils/NotebookUtilities";
+import Utilities from "./utils/Utilities";
 import { ExportFormat, ImageUnit } from "./types/types";
 import { boundMethod } from "autobind-decorator";
 

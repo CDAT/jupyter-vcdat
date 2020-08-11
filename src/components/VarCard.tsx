@@ -16,12 +16,14 @@ import {
 } from "reactstrap";
 
 // Project Components
-import NotebookUtilities from "../modules/Utilities/NotebookUtilities";
+import NotebookUtilities from "../modules/utils/NotebookUtilities";
 import AxisInfo from "../modules/types/AxisInfo";
 import DimensionSlider from "./DimensionSlider";
 import Variable from "../modules/types/Variable";
 import VarLoader from "./modals/VarLoader";
 import { boundMethod } from "autobind-decorator";
+import { useSelector } from "react-redux";
+import { IState } from "../modules/redux/types";
 
 const cardStyle: React.CSSProperties = {
   margin: ".5em",

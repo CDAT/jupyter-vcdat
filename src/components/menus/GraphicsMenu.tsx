@@ -25,8 +25,8 @@ import {
 } from "reactstrap";
 
 // Project Components
-import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
-import LeftSideBarWidget from "../../LeftSideBarWidget";
+import NotebookUtilities from "../../modules/utils/NotebookUtilities";
+import { LeftSideBarWidget } from "../../LeftSideBarWidget";
 import ColormapEditor from "./ColormapMenu";
 import VariableTracker from "../../modules/VariableTracker";
 import AnimationMenu from "./AnimationMenu";

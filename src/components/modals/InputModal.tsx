@@ -12,7 +12,7 @@ import {
   ModalHeader,
 } from "reactstrap";
 import { ISignal, Signal } from "@lumino/signaling";
-import ColorFunctions from "../../modules/utilities/ColorFunctions";
+import ColorFunctions from "../../modules/utils/ColorFunctions";
 import { boundMethod } from "autobind-decorator";
 
 const INVALID_INPUT_MSG_DEFAULT =

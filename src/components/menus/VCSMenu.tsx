@@ -3,6 +3,7 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 import { CommandRegistry } from "@lumino/commands";
 import { ISignal } from "@lumino/signaling";
 import * as React from "react";
+import { useDispatch } from "react-redux";
 import { Alert, Button, Card, CardBody, Col, Row, Spinner } from "reactstrap";
 
 // Project Components
@@ -13,18 +14,19 @@ import {
   GRAPHICS_METHOD_KEY,
   PLOT_OPTIONS_KEY,
   TEMPLATE_KEY,
+  NOTEBOOK_STATE,
 } from "../../modules/constants";
 import { CANVAS_DIMENSIONS_CMD } from "../../modules/PythonCommands";
-import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
+import NotebookUtilities from "../../modules/utils/NotebookUtilities";
 import ExportPlotModal from "../modals/ExportPlotModal";
 import GraphicsMenu from "./GraphicsMenu";
 import TemplateMenu from "./TemplateMenu";
 import Variable from "../../modules/types/Variable";
-import VarMenu from "./VarMenu";
+import VarMenu, { VarMenuComp } from "./VarMenu";
 import InputModal from "../modals/InputModal";
 import VariableTracker from "../../modules/VariableTracker";
-import Utilities from "../../modules/Utilities/Utilities";
-import LeftSideBarWidget from "../../LeftSideBarWidget";
+import Utilities from "../../modules/utils/Utilities";
+import { LeftSideBarWidget } from "../../LeftSideBarWidget";
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { AppSettings } from "../../modules/AppSettings";
 import { boundMethod } from "autobind-decorator";
@@ -42,6 +44,9 @@ const sidebarOverflow: React.CSSProperties = {
   minWidth: "370px",
   overflow: "auto",
 };
+
+// Experimental
+// const dispatch = useDispatch();
 
 // The defaults export size to use if the canvas dimensions weren't obtained
 const DEFAULT_WIDTH = "800";
@@ -95,7 +100,7 @@ export default class VCSMenu extends React.Component<
   IVCSMenuProps,
   IVCSMenuState
 > {
-  public varMenuRef: VarMenu;
+  public varMenuRef: VarMenuComp;
   public graphicsMenuRef: GraphicsMenu;
   public templateMenuRef: TemplateMenu;
   public filePathInputRef: InputModal;
@@ -133,6 +138,9 @@ export default class VCSMenu extends React.Component<
     if (this.props.openSidecarPanel) {
       this.props.openSidecarPanel(false);
     }
+
+    // Experimental
+    // dispatch(setDisplayMode(DISPLAY_MODE.Notebook));
   }
 
   public componentDidMount(): void {
@@ -600,6 +608,9 @@ export default class VCSMenu extends React.Component<
       syncNotebook: this.props.syncNotebook,
       updateNotebook: this.props.updateNotebookPanel,
       varTracker: this.props.varTracker,
+      // Experimental
+      handleDisplay: undefined as any,
+      displayMode: DISPLAY_MODE.None,
     };
     const templateMenuProps = {
       getTemplatesList: this.props.getTemplatesList,
@@ -700,7 +711,7 @@ export default class VCSMenu extends React.Component<
         </Card>
         <VarMenu
           {...varMenuProps}
-          ref={(loader): VarMenu => (this.varMenuRef = loader)}
+          ref={(loader): VarMenuComp => (this.varMenuRef = loader)}
         />
         <GraphicsMenu
           {...graphicsMenuProps}

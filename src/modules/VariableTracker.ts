@@ -15,8 +15,8 @@ import {
   getFileVarsCommand,
   REFRESH_VAR_CMD,
 } from "./PythonCommands";
-import Utilities from "./Utilities/Utilities";
-import NotebookUtilities from "./Utilities/NotebookUtilities";
+import Utilities from "./utils/Utilities";
+import NotebookUtilities from "./utils/NotebookUtilities";
 import Variable from "./types/Variable";
 import AxisInfo from "./types/AxisInfo";
 import { boundMethod } from "autobind-decorator";

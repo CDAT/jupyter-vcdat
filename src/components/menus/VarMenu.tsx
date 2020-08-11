@@ -1,5 +1,6 @@
 // Dependencies
 import * as React from "react";
+import { connect, MapStateToProps, MapDispatchToProps } from "react-redux";
 import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Button,
@@ -16,12 +17,15 @@ import {
 
 // Project Components
 import CodeInjector from "../../modules/CodeInjector";
-import ColorFunctions from "../../modules/utilities/ColorFunctions";
+import ColorFunctions from "../../modules/utils/ColorFunctions";
 import Variable from "../../modules/types/Variable";
 import VarLoader from "../modals/VarLoader";
 import VarMini from "../VarMini";
 import VariableTracker from "../../modules/VariableTracker";
 import { boundMethod } from "autobind-decorator";
+import { IState } from "../../modules/redux/types";
+import { setDisplayMode } from "../../modules/redux/actions";
+import { DISPLAY_MODE } from "../../modules/constants";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em",
@@ -44,6 +48,10 @@ interface IVarMenuProps {
   showExportSuccessAlert: () => void;
   showInputModal: () => void;
   notebookPanel: NotebookPanel;
+
+  // Experimental
+  handleDisplay: (mode: DISPLAY_MODE) => void;
+  displayMode: DISPLAY_MODE;
 }
 
 interface IVarMenuState {
@@ -52,10 +60,7 @@ interface IVarMenuState {
   selectedVariables: string[]; // the names of the variables the user has selected
 }
 
-export default class VarMenu extends React.Component<
-  IVarMenuProps,
-  IVarMenuState
-> {
+export class VarMenuComp extends React.Component<IVarMenuProps, IVarMenuState> {
   public varLoaderRef: VarLoader;
   constructor(props: IVarMenuProps) {
     super(props);
@@ -102,6 +107,7 @@ export default class VarMenu extends React.Component<
   @boundMethod
   public async launchFilebrowser(): Promise<void> {
     await this.props.commands.execute("filebrowser:activate");
+    this.props.handleDisplay(DISPLAY_MODE.Sidecar);
   }
 
   /**
@@ -286,3 +292,35 @@ export default class VarMenu extends React.Component<
     this.setState({ variables });
   }
 }
+
+const mapStateToProps = (
+  state: IState,
+  ownProps: IVarMenuProps
+): IVarMenuProps => {
+  console.log(state);
+  return {
+    ...ownProps,
+    notebookPanel: state.notebookState.notebook,
+    displayMode: state.displayMode,
+  };
+};
+
+const mapDispatchToProps = (
+  dispatch: any,
+  ownProps: IVarMenuProps
+): IVarMenuProps => ({
+  ...ownProps,
+  handleDisplay: (display: DISPLAY_MODE): void => {
+    console.log(ownProps.displayMode);
+    if (display === DISPLAY_MODE.Notebook || display === DISPLAY_MODE.None) {
+      dispatch(setDisplayMode(DISPLAY_MODE.Sidecar));
+      console.log("first");
+    } else {
+      dispatch(setDisplayMode(DISPLAY_MODE.Notebook));
+      console.log("second");
+    }
+  },
+});
+
+const VarMenu = connect(mapStateToProps, mapDispatchToProps)(VarMenuComp);
+export default VarMenu;

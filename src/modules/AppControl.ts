@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import LabControl from "./LabControl";
 import VariableTracker from "./VariableTracker";
-import NotebookUtilities from "./Utilities/NotebookUtilities";
+import NotebookUtilities from "./utils/NotebookUtilities";
 
 /**
  * Specifies the states of the Jupyterlab main area tab/notebook

@@ -12,7 +12,7 @@ import AxisInfo from "../../modules/types/AxisInfo";
 import VarCard from "../VarCard";
 import Variable from "../../modules/types/Variable";
 import VariableTracker from "../../modules/VariableTracker";
-import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
+import NotebookUtilities from "../../modules/utils/NotebookUtilities";
 import { boundMethod } from "autobind-decorator";
 
 const modalOverflow: React.CSSProperties = {

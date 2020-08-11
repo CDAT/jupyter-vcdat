@@ -10,9 +10,14 @@ import {
   Row,
 } from "reactstrap";
 import { boundMethod } from "autobind-decorator";
+import { connect } from "react-redux";
+import { IState } from "../../modules/redux/types";
+import { setDisplayMode } from "../../modules/redux/actions";
+import { DISPLAY_MODE } from "../../modules/constants";
 
 interface IAboutProps {
   version: string;
+  notebookID: string;
 }
 
 interface IAboutState {
@@ -46,11 +51,7 @@ const iconStyling: React.CSSProperties = {
 };
 
 const YEAR: number = new Date().getFullYear();
-
-export default class AboutVCDAT extends React.Component<
-  IAboutProps,
-  IAboutState
-> {
+class AboutVCDATComp extends React.Component<IAboutProps, IAboutState> {
   constructor(props: IAboutProps) {
     super(props);
     this.state = {
@@ -65,7 +66,13 @@ export default class AboutVCDAT extends React.Component<
 
   @boundMethod
   public async hide(): Promise<void> {
+    this.onTestClick(DISPLAY_MODE.Notebook);
     this.setState({ modalOpen: false });
+  }
+
+  @boundMethod
+  public onTestClick(mode: DISPLAY_MODE): void {
+    console.log(this.props.notebookID);
   }
 
   @boundMethod
@@ -106,6 +113,7 @@ export default class AboutVCDAT extends React.Component<
                   </h4>
                 </Col>
               </Row>
+              <Row>{this.props.notebookID}</Row>
             </Col>
           </Row>
         </ModalHeader>
@@ -164,3 +172,21 @@ export default class AboutVCDAT extends React.Component<
     );
   }
 }
+
+const mapStateToProps = (state: IState, ownProps: IAboutProps): IAboutProps => {
+  return {
+    notebookID: state.displayMode.toString(),
+    version: ownProps.version,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    onTestClick: (mode: DISPLAY_MODE) => {
+      dispatch(setDisplayMode(mode));
+    },
+  };
+};
+
+const AboutVCDAT = connect(mapStateToProps, mapDispatchToProps)(AboutVCDATComp);
+export default AboutVCDATComp;

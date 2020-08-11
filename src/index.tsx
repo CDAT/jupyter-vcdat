@@ -32,9 +32,9 @@ import {
   REPLACEMENT_STEPS,
 } from "./modules/constants";
 import NCViewerWidget from "./NCViewerWidget";
-import NotebookUtilities from "./modules/Utilities/NotebookUtilities";
-import LeftSideBarWidget from "./LeftSideBarWidget";
-import Utilities from "./modules/Utilities/Utilities";
+import NotebookUtilities from "./modules/utils/NotebookUtilities";
+import { LeftSideBarWidget } from "./LeftSideBarWidget";
+import Utilities from "./modules/utils/Utilities";
 import { Step } from "react-joyride";
 import { AppSettings } from "./modules/AppSettings";
 import LabControl from "./modules/LabControl";
@@ -100,14 +100,7 @@ function activate(
       labControl.addCommand("vcdat:refresh-browser", (): void => {
         labControl.commands.execute("filebrowser:go-to-path", { path: "." });
       });
-      labControl.addCommand(
-        "vcdat-show-about",
-        (aboutRef: AboutVCDAT) => {
-          aboutRef.show();
-        },
-        "About VCDAT",
-        "See the VCDAT about page."
-      );
+
       labControl.addCommand(
         "test-raw-command",
         () => {
@@ -132,8 +125,16 @@ function activate(
       rightbar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
       rightbar.title.closable = true;
       labControl.attachWidget(rightbar, "right");
-      labControl.helpMenuItem("vcdat-show-about", rightbar.aboutRef);
-      await labControl.createNotebook();
+      labControl.helpMenuItem("vcdat-show-about");
+      labControl.addCommand(
+        "vcdat-show-about",
+        () => {
+          rightbar.aboutRef.show();
+        },
+        "About VCDAT",
+        "See the VCDAT about page."
+      );
+      // await labControl.createNotebook();
       console.log(appControl.injectCode("print(1+2+0)"));
     }
   );

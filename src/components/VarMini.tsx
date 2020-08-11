@@ -21,11 +21,11 @@ import {
 
 // Project Components
 import CodeInjector from "../modules/CodeInjector";
-import Utilities from "../modules/Utilities/Utilities";
+import Utilities from "../modules/utils/Utilities";
 import AxisInfo from "../modules/types/AxisInfo";
 import DimensionSlider from "./DimensionSlider";
 import Variable from "../modules/types/Variable";
-import NotebookUtilities from "../modules/Utilities/NotebookUtilities";
+import NotebookUtilities from "../modules/utils/NotebookUtilities";
 import { checkForExportedFileCommand } from "../modules/PythonCommands";
 import VariableTracker from "../modules/VariableTracker";
 import { boundMethod } from "autobind-decorator";
