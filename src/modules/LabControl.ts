@@ -1,13 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import { JupyterFrontEnd, LabShell } from "@jupyterlab/application";
 import { MainMenu } from "@jupyterlab/mainmenu";
-import { NotebookTracker, Notebook, NotebookPanel } from "@jupyterlab/notebook";
+import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { AppSettings } from "./AppSettings";
 import { Widget } from "@lumino/widgets";
 import { CommandRegistry } from "@lumino/commands";
-import NotebookUtilities from "./Utilities/NotebookUtilities";
 import CellUtilities from "./Utilities/CellUtilities";
+import Utilities from "./Utilities/Utilities";
 
 const extensionID = "jupyter-vcdat:extension";
 type shellArea = "top" | "left" | "right" | "main" | "bottom" | "header";
@@ -217,5 +217,67 @@ export default class LabControl {
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  public async runBackendCode(
+    code: string,
+    storeHistory?: boolean
+  ): Promise<string> {
+    const result: string = await Utilities.sendSimpleKernelRequest(
+      this.notebookPanel,
+      code,
+      storeHistory
+    );
+    return result;
+  }
+
+  public async setMetaData(
+    key: string,
+    value: any,
+    save = false
+  ): Promise<any> {
+    if (!this.notebookPanel) {
+      throw new Error(
+        "The notebook is null or undefined. No meta data available."
+      );
+    }
+    const oldVal = this.notebookPanel.model.metadata.set(key, value);
+    if (save) {
+      await this.notebookPanel.context.ready;
+      this.notebookPanel.context.save();
+    }
+    return oldVal;
+  }
+
+  public async getMetaDataSafe(key: string): Promise<any> {
+    if (!this.notebookPanel) {
+      throw new Error(
+        "The notebook is null or undefined. No meta data available."
+      );
+    }
+    // Wait for session to load in notebook
+    await this.notebookPanel.sessionContext.ready;
+    if (
+      this.notebookPanel.model &&
+      this.notebookPanel.model.metadata.has(key)
+    ) {
+      return this.notebookPanel.model.metadata.get(key);
+    }
+    return null;
+  }
+
+  public getMetaData(key: string): any {
+    if (!this.notebookPanel) {
+      throw new Error(
+        "The notebook is null or undefined. No meta data available."
+      );
+    }
+    if (
+      this.notebookPanel.model &&
+      this.notebookPanel.model.metadata.has(key)
+    ) {
+      return this.notebookPanel.model.metadata.get(key);
+    }
+    return null;
   }
 }

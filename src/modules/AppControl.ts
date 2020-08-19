@@ -2,6 +2,7 @@
 import LabControl from "./LabControl";
 import VariableTracker from "./VariableTracker";
 import NotebookUtilities from "./Utilities/NotebookUtilities";
+import CodeInjector from "./CodeInjector";
 
 /**
  * Specifies the states of the Jupyterlab main area tab/notebook
@@ -35,6 +36,7 @@ export default class AppControl {
   private _state: IAppState;
   private _lab: LabControl;
   private _varTracker: VariableTracker;
+  private _codeInjector: CodeInjector;
 
   /** Provide handle to the LabControl instance. */
   static getInstance(): AppControl {
@@ -47,18 +49,16 @@ export default class AppControl {
     );
   }
 
-  public static async initialize(
-    labControl: LabControl,
-    varTracker: VariableTracker
-  ): Promise<AppControl> {
+  public static async initialize(labControl: LabControl): Promise<AppControl> {
     // Create singleton instance
     const library = new AppControl();
     AppControl._instance = library;
     AppControl._initialized = false;
 
     // Update the instance objects
-    library._lab = LabControl.getInstance();
-    library._varTracker = varTracker;
+    library._lab = labControl;
+    library._varTracker = new VariableTracker();
+    library._codeInjector = new CodeInjector(library._varTracker);
     library._state = {
       kernels: [],
       runIndex: 0,
@@ -70,14 +70,32 @@ export default class AppControl {
     return library;
   }
 
+  get labControl(): LabControl {
+    return AppControl._instance._lab;
+  }
+
+  get varTracker(): VariableTracker {
+    return AppControl._instance._varTracker;
+  }
+
+  get codeInjector(): CodeInjector {
+    return AppControl._instance._codeInjector;
+  }
+
   get state(): IAppState {
     return AppControl._instance._state;
   }
 
+  /**
+   * Get index of the notebook cell where code will be injected/run.
+   */
   get runIndex(): number {
     return this.state.runIndex;
   }
 
+  /**
+   * Set index of the notebook cell where code will be injected/run.
+   */
   set runIndex(index: number) {
     this.state.runIndex = index;
   }
@@ -86,7 +104,8 @@ export default class AppControl {
    * This is a decorator that causes a function to inject code into the
    * notebook cell at the current runIndex, assuming a notebook is open.
    * The function must return a string (the code to inject).
-   * If no notebook is open, injection will not be run.
+   * If no notebook is open, injection action will not occur.
+   * This will throw an error and log the info to console if injection fails.
    */
   public static codeInjection(
     target: AppControl,
@@ -119,11 +138,19 @@ export default class AppControl {
     };
   }
 
+  /**
+   * This is a generic code injection function which will run specified code
+   * in the cell at specified index. Note that this uses the codeInjection
+   * decorator to actually run the injection.
+   * @param code A string of code to inject in the cell.
+   * @param index The index of the cell to inject code into.
+   * Index of -1 will inject code in last notebook cell (default)
+   */
   @AppControl.codeInjection
   public injectCode(code: string, index?: number): string {
     if (index && index >= 0) {
-      this.runIndex = index;
-      return code;
+      this.runIndex = index; // Set the run index to specified index
+      return code; // Return the code to inject for code inject action
     }
     this.runIndex = -1;
     return code;

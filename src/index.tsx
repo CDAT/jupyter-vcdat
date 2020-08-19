@@ -1,4 +1,6 @@
 // Dependencies
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -38,7 +40,7 @@ import Utilities from "./modules/Utilities/Utilities";
 import { Step } from "react-joyride";
 import { AppSettings } from "./modules/AppSettings";
 import LabControl from "./modules/LabControl";
-import AboutVCDAT from "./components/modals/AboutVCDAT";
+import AboutModal from "./components/modals/NEW_AboutPopup";
 import AppControl from "./modules/AppControl";
 import VariableTracker from "./modules/VariableTracker";
 
@@ -85,9 +87,13 @@ function activate(
   // Testing LabControl
   LabControl.initialize(app, labShell, menu, settings, tracker).then(
     async (labControl: LabControl) => {
-      const appControl: AppControl = await AppControl.initialize(
-        labControl,
-        new VariableTracker()
+      const appControl: AppControl = await AppControl.initialize(labControl);
+
+      const rightbar = new LeftSideBarWidget(
+        app,
+        labShell,
+        tracker,
+        labControl.settings
       );
 
       labControl.addCommand(
@@ -102,8 +108,10 @@ function activate(
       });
       labControl.addCommand(
         "vcdat-show-about",
-        (aboutRef: AboutVCDAT) => {
-          aboutRef.show();
+        (widget: LeftSideBarWidget) => {
+          console.log(widget);
+          widget.showModal = true;
+          console.log(widget.showModal);
         },
         "About VCDAT",
         "See the VCDAT about page."
@@ -121,20 +129,12 @@ function activate(
       labControl.helpMenuItem("test-vcdat-command", "Bob");
 
       labControl.helpMenuItem("test-raw-command");
+      labControl.helpMenuItem("vcdat-show-about", rightbar);
 
-      const rightbar = new LeftSideBarWidget(
-        app,
-        labShell,
-        tracker,
-        labControl.settings
-      );
       rightbar.id = /* @tag<left-side-bar>*/ "right-side-bar-vcdat";
       rightbar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
       rightbar.title.closable = true;
       labControl.attachWidget(rightbar, "right");
-      labControl.helpMenuItem("vcdat-show-about", rightbar.aboutRef);
-      await labControl.createNotebook();
-      console.log(appControl.injectCode("print(1+2+0)"));
     }
   );
 
@@ -182,7 +182,7 @@ function activate(
   // and all the widgets have been added to the notebooktracker
   app.restored
     .then(() => {
-      Utilities.addHelpMenuItem(mainMenu, {}, "vcdat-show-about");
+      // Utilities.addHelpMenuItem(mainMenu, {}, "vcdat-show-about");
       Utilities.addHelpReference(
         mainMenu,
         "VCS Basic Tutorial",

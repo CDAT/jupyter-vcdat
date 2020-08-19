@@ -10,8 +10,23 @@ import {
   Row,
 } from "reactstrap";
 
+export const useModal = () => {
+  const [isShowing, setIsShowing] = useState(false);
+
+  function toggle() {
+    setIsShowing(!isShowing);
+  }
+
+  return {
+    isShowing,
+    toggle,
+  };
+};
+
 interface IAboutProps {
   version: string;
+  isShowing: boolean;
+  toggle: () => void;
 }
 
 interface IAboutState {
@@ -47,7 +62,8 @@ const iconStyling: React.CSSProperties = {
 const YEAR: number = new Date().getFullYear();
 
 export default function AboutVCDAT(props: IAboutProps): JSX.Element {
-  const [open, setOpen] = useState(false);
+  console.log("Rendering about modal...");
+  /* const [open, setOpen] = useState(true);
 
   const show = (): void => {
     setOpen(true);
@@ -55,14 +71,20 @@ export default function AboutVCDAT(props: IAboutProps): JSX.Element {
 
   const hide = (): void => {
     setOpen(false);
+    console.log("Hiding");
   };
 
   const toggle = (): void => {
     setOpen(!open);
-  };
+  };*/
 
   return (
-    <Modal style={{ ...modalStyling }} isOpen={open} toggle={toggle} size="lg">
+    <Modal
+      style={{ ...modalStyling }}
+      isOpen={props.isShowing}
+      toggle={props.toggle}
+      size="lg"
+    >
       <ModalHeader
         className={/* @tag<about-modal-header>*/ "about-modal-header-vcdat"}
       >
@@ -135,7 +157,7 @@ export default function AboutVCDAT(props: IAboutProps): JSX.Element {
               }
               outline={true}
               color="primary"
-              onClick={hide}
+              onClick={props.toggle}
             >
               Dismiss
             </Button>

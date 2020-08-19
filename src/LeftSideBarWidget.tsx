@@ -41,6 +41,7 @@ import {
   REFRESH_TEMPLATES_CMD,
 } from "./modules/PythonCommands";
 import AboutVCDAT from "./components/modals/AboutVCDAT";
+import AboutModal, { useModal } from "./components/modals/NEW_AboutPopup";
 import { ICellModel } from "@jupyterlab/cells";
 import { IIterator } from "@lumino/algorithm";
 import { AppSettings } from "./modules/AppSettings";
@@ -108,6 +109,10 @@ export default class LeftSideBarWidget extends Widget {
   private _state: NOTEBOOK_STATE; // Keeps track of the current state of the notebook in the sidebar widget
   private preparing: boolean; // Whether the notebook is currently being prepared
   private activeSidecarOnRight: boolean;
+  private aboutModalState: any;
+  public showModal: boolean;
+  public isShowing: boolean;
+  public toggle: () => void;
 
   constructor(
     app: JupyterFrontEnd,
@@ -138,7 +143,12 @@ export default class LeftSideBarWidget extends Widget {
     this._plotExists = false;
     this.vcsMenuRef = (React as any).createRef();
     this.loadingModalRef = (React as any).createRef();
-    this.aboutRef = (React as any).createRef();
+    // this.aboutRef = (React as any).createRef();
+    // const { isShowing, toggle } = useModal();
+    this.showModal = false;
+    this.toggle = (): void => {
+      this.showModal = !this.showModal;
+    };
     ReactDOM.render(
       <ErrorBoundary>
         <VCSMenu
@@ -168,9 +178,14 @@ export default class LeftSideBarWidget extends Widget {
           btnText="OK"
           ref={(loader): PopUpModal => (this.loadingModalRef = loader)}
         />
-        <AboutVCDAT
+        {/* <AboutVCDAT
           version={this.appSettings.getVersion()}
           ref={(loader): AboutVCDAT => (this.aboutRef = loader)}
+        /> */}
+        <AboutModal
+          version="Bacon"
+          isShowing={this.showModal}
+          toggle={this.toggle}
         />
       </ErrorBoundary>,
       this.div
