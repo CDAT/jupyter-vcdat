@@ -93,7 +93,8 @@ function activate(
       labControl.addCommand(
         "test-vcdat-command",
         (name: string) => {
-          console.log(appControl.injectCode(`Hello ${name}`));
+          // console.log(appControl.injectCode(`Hello ${name}`));
+          appControl.state.shouldAnimate = true;
         },
         "Hello Test"
       );
@@ -111,9 +112,10 @@ function activate(
       labControl.addCommand(
         "test-raw-command",
         () => {
-          console.log(
+          /* console.log(
             appControl.injectCode("print('Raw Command')\nBad command.")
-          );
+          );*/
+          rightbar.toggleTopButtons();
         },
         "Raw Command Test"
       );
@@ -122,7 +124,7 @@ function activate(
 
       labControl.helpMenuItem("test-raw-command");
       labControl.helpMenuItem("vcdat-show-about");
-      labControl.attachWidget(rightbar, "right");
+      labControl.attachWidget(rightbar, "left");
       labControl.shell.activateById(rightbar.id);
     }
   );
@@ -158,7 +160,7 @@ function activate(
         sidebar.title.closable = true;
 
         // Attach it to the left side of main area
-        shell.add(sidebar, "left");
+        shell.add(sidebar, "right");
 
         // Activate the widget
         shell.activateById(sidebar.id);

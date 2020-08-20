@@ -3,7 +3,6 @@ import LabControl from "./LabControl";
 import VariableTracker from "./VariableTracker";
 import NotebookUtilities from "./Utilities/NotebookUtilities";
 import CodeInjector from "./CodeInjector";
-import React from "react";
 
 /**
  * Specifies the states of the Jupyterlab main area tab/notebook
@@ -32,29 +31,8 @@ interface IAppState {
   shouldAnimate: boolean;
 }
 
-type ActionType = {
-  type: "reset" | "showAbout" | "hideAbout";
-};
-
 interface IState {
   aboutOpen: boolean;
-}
-
-const initialState: IState = {
-  aboutOpen: false,
-};
-
-function reducer(state: IState, action: ActionType) {
-  switch (action.type) {
-    case "reset":
-      return initialState;
-    case "hideAbout":
-      return { aboutOpen: false };
-    case "showAbout":
-      return { aboutOpen: true };
-    default:
-      return state;
-  }
 }
 
 /**
