@@ -1,4 +1,6 @@
 // Dependencies
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -32,21 +34,21 @@ import {
   REPLACEMENT_STEPS,
 } from "./modules/constants";
 import NCViewerWidget from "./NCViewerWidget";
+import NotebookUtilities from "./modules/Utilities/NotebookUtilities";
 import LeftSideBarWidget from "./LeftSideBarWidget";
 import Utilities from "./modules/Utilities/Utilities";
 import { Step } from "react-joyride";
 import { AppSettings } from "./modules/AppSettings";
 import LabControl from "./modules/LabControl";
+import AboutModal from "./components/modals/NEW_AboutPopup";
 import AppControl from "./modules/AppControl";
-import VCDATWidget from "./VCDATWidget";
-import NotebookUtilities from "./modules/Utilities/NotebookUtilities";
+import VariableTracker from "./modules/VariableTracker";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";
 
 // Declare the widget variables
 let sidebar: LeftSideBarWidget; // The sidebar widget of the app
-let rightbar: VCDATWidget;
 let shell: JupyterFrontEnd.IShell;
 let mainMenu: MainMenu;
 
@@ -87,8 +89,12 @@ function activate(
     async (labControl: LabControl) => {
       const appControl: AppControl = await AppControl.initialize(labControl);
 
-      rightbar = new VCDATWidget("sidebar-vcdat");
-      rightbar.id = /* @tag<left-side-bar>*/ "left-sidebar-vcdat";
+      const rightbar = new LeftSideBarWidget(
+        app,
+        labShell,
+        tracker,
+        labControl.settings
+      );
 
       labControl.addCommand(
         "test-vcdat-command",
@@ -102,8 +108,10 @@ function activate(
       });
       labControl.addCommand(
         "vcdat-show-about",
-        () => {
-          rightbar.showAbout();
+        (widget: LeftSideBarWidget) => {
+          console.log(widget);
+          widget.showModal = true;
+          console.log(widget.showModal);
         },
         "About VCDAT",
         "See the VCDAT about page."
@@ -121,9 +129,12 @@ function activate(
       labControl.helpMenuItem("test-vcdat-command", "Bob");
 
       labControl.helpMenuItem("test-raw-command");
-      labControl.helpMenuItem("vcdat-show-about");
+      labControl.helpMenuItem("vcdat-show-about", rightbar);
+
+      rightbar.id = /* @tag<left-side-bar>*/ "right-side-bar-vcdat";
+      rightbar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
+      rightbar.title.closable = true;
       labControl.attachWidget(rightbar, "right");
-      labControl.shell.activateById(rightbar.id);
     }
   );
 
@@ -147,7 +158,6 @@ function activate(
   app.docRegistry.addWidgetFactory(factory);
 
   // Creates the left side bar widget once the app has fully started
-
   app.started
     .then(() => {
       settings.load("jupyter-vcdat:extension").then((loadedSettings) => {
@@ -203,6 +213,8 @@ function activate(
       vcdatIntro.options.styles.backgroundColor = "#fcffff";
       vcdatIntro.options.styles.primaryColor = "#084f44";
       initializeTutorial(vcdatIntro, GETTING_STARTED, updateIntroTutorial);
+
+      sidebar.initialize();
     })
     .catch((error) => {
       console.error(error);

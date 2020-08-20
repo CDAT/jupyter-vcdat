@@ -3,6 +3,7 @@ import LabControl from "./LabControl";
 import VariableTracker from "./VariableTracker";
 import NotebookUtilities from "./Utilities/NotebookUtilities";
 import CodeInjector from "./CodeInjector";
+import React from "react";
 
 /**
  * Specifies the states of the Jupyterlab main area tab/notebook
@@ -23,8 +24,37 @@ export enum NOTEBOOK_STATE {
  * be injected. 0 injects cell at top of notebook, -1 injects at bottom.
  */
 interface IAppState {
+  showAbout: boolean;
   kernels: string[];
   runIndex: number;
+  plotReady: boolean;
+  plotExists: boolean;
+  shouldAnimate: boolean;
+}
+
+type ActionType = {
+  type: "reset" | "showAbout" | "hideAbout";
+};
+
+interface IState {
+  aboutOpen: boolean;
+}
+
+const initialState: IState = {
+  aboutOpen: false,
+};
+
+function reducer(state: IState, action: ActionType) {
+  switch (action.type) {
+    case "reset":
+      return initialState;
+    case "hideAbout":
+      return { aboutOpen: false };
+    case "showAbout":
+      return { aboutOpen: true };
+    default:
+      return state;
+  }
 }
 
 /**
@@ -62,6 +92,10 @@ export default class AppControl {
     library._state = {
       kernels: [],
       runIndex: 0,
+      plotReady: false,
+      plotExists: false,
+      shouldAnimate: false,
+      showAbout: false,
     };
 
     // Wait for the app to get started before loading settings
@@ -98,6 +132,11 @@ export default class AppControl {
    */
   set runIndex(index: number) {
     this.state.runIndex = index;
+  }
+
+  public setAbout(show: boolean): void {
+    console.log(`Set about: ${show}`);
+    this.state.showAbout = show;
   }
 
   /**

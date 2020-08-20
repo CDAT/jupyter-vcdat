@@ -1,6 +1,5 @@
 // Dependencies
 import * as React from "react";
-import { NotebookPanel } from "@jupyterlab/notebook";
 import {
   Button,
   ButtonGroup,

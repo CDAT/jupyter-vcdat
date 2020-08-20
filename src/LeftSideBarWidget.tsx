@@ -41,7 +41,7 @@ import {
   REFRESH_TEMPLATES_CMD,
 } from "./modules/PythonCommands";
 import AboutVCDAT from "./components/modals/AboutVCDAT";
-import AboutModal, { useModal } from "./components/modals/NEW_AboutPopup";
+import AboutModal from "./components/modals/NEW_AboutPopup";
 import { ICellModel } from "@jupyterlab/cells";
 import { IIterator } from "@lumino/algorithm";
 import { AppSettings } from "./modules/AppSettings";
@@ -178,14 +178,9 @@ export default class LeftSideBarWidget extends Widget {
           btnText="OK"
           ref={(loader): PopUpModal => (this.loadingModalRef = loader)}
         />
-        {/* <AboutVCDAT
+        <AboutVCDAT
           version={this.appSettings.getVersion()}
           ref={(loader): AboutVCDAT => (this.aboutRef = loader)}
-        /> */}
-        <AboutModal
-          version="Bacon"
-          isShowing={this.showModal}
-          toggle={this.toggle}
         />
       </ErrorBoundary>,
       this.div
