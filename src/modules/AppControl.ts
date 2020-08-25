@@ -3,6 +3,7 @@ import LabControl from "./LabControl";
 import VariableTracker from "./VariableTracker";
 import NotebookUtilities from "./Utilities/NotebookUtilities";
 import CodeInjector from "./CodeInjector";
+import { DISPLAY_MODE } from "./constants";
 
 /**
  * Specifies the states of the Jupyterlab main area tab/notebook
@@ -23,11 +24,12 @@ export enum NOTEBOOK_STATE {
  * be injected. 0 injects cell at top of notebook, -1 injects at bottom.
  */
 interface IAppState {
-  showAbout: boolean;
+  currentDisplayMode: DISPLAY_MODE;
   kernels: string[];
   runIndex: number;
   plotReady: boolean;
   plotExists: boolean;
+  overlayPlot: boolean;
   shouldAnimate: boolean;
 }
 
@@ -72,8 +74,9 @@ export default class AppControl {
       runIndex: 0,
       plotReady: false,
       plotExists: false,
+      overlayPlot: false,
+      currentDisplayMode: DISPLAY_MODE.Notebook,
       shouldAnimate: false,
-      showAbout: false,
     };
 
     // Wait for the app to get started before loading settings
@@ -112,11 +115,6 @@ export default class AppControl {
     this.state.runIndex = index;
   }
 
-  public setAbout(show: boolean): void {
-    console.log(`Set about: ${show}`);
-    this.state.showAbout = show;
-  }
-
   /**
    * This is a decorator that causes a function to inject code into the
    * notebook cell at the current runIndex, assuming a notebook is open.
@@ -125,7 +123,7 @@ export default class AppControl {
    * This will throw an error and log the info to console if injection fails.
    */
   public static codeInjection(
-    target: AppControl,
+    target: any,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ): void {

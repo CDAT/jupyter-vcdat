@@ -46,6 +46,7 @@ import { ICellModel } from "@jupyterlab/cells";
 import { IIterator } from "@lumino/algorithm";
 import { AppSettings } from "./modules/AppSettings";
 import { boundMethod } from "autobind-decorator";
+import MainMenu, { IMainMenuProps } from "./components/menus/NEW_MainMenu";
 
 /**
  * This is the main component for the vcdat extension.
@@ -149,9 +150,22 @@ export default class LeftSideBarWidget extends Widget {
     this.toggle = (): void => {
       this.showModal = !this.showModal;
     };
+
+    const mainMenuProps: IMainMenuProps = {
+      showInputModal: () => {
+        console.log("Supposed to open file path input");
+      },
+      syncNotebook: (): boolean => {
+        return false;
+      },
+      updateNotebookPanel: async (): Promise<void> => {
+        console.log("Update the notebook!");
+      },
+    };
+
     ReactDOM.render(
       <ErrorBoundary>
-        <VCSMenu
+        {/* <VCSMenu
           appSettings={this.appSettings}
           application={this.application}
           ref={(loader): VCSMenu => (this.vcsMenuRef = loader)}
@@ -171,7 +185,8 @@ export default class LeftSideBarWidget extends Widget {
           updateNotebookPanel={this.recognizeNotebookPanel}
           openSidecarPanel={this.setSidecarPanel}
           prepareNotebookFromPath={this.prepareNotebookPanel}
-        />
+        /> */}
+        <MainMenu {...mainMenuProps} />
         <PopUpModal
           title="Notice"
           message="Loading CDAT core modules. Please wait..."

@@ -102,6 +102,10 @@ export default class LabControl {
     return LabControl.getInstance()._app.commands;
   }
 
+  get frontEnd(): JupyterFrontEnd {
+    return LabControl.getInstance()._app;
+  }
+
   get settings(): AppSettings {
     return LabControl.getInstance()._settings;
   }

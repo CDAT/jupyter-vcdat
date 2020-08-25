@@ -82,53 +82,6 @@ function activate(
   shell = app.shell;
   mainMenu = menu;
 
-  // Testing LabControl
-  LabControl.initialize(app, labShell, menu, settings, tracker).then(
-    async (labControl: LabControl) => {
-      const appControl: AppControl = await AppControl.initialize(labControl);
-
-      rightbar = new VCDATWidget("sidebar-vcdat");
-      rightbar.id = /* @tag<left-side-bar>*/ "left-sidebar-vcdat";
-
-      labControl.addCommand(
-        "test-vcdat-command",
-        (name: string) => {
-          // console.log(appControl.injectCode(`Hello ${name}`));
-          appControl.state.shouldAnimate = true;
-        },
-        "Hello Test"
-      );
-      labControl.addCommand("vcdat:refresh-browser", (): void => {
-        labControl.commands.execute("filebrowser:go-to-path", { path: "." });
-      });
-      labControl.addCommand(
-        "vcdat-show-about",
-        () => {
-          rightbar.showAbout();
-        },
-        "About VCDAT",
-        "See the VCDAT about page."
-      );
-      labControl.addCommand(
-        "test-raw-command",
-        () => {
-          /* console.log(
-            appControl.injectCode("print('Raw Command')\nBad command.")
-          );*/
-          rightbar.toggleTopButtons();
-        },
-        "Raw Command Test"
-      );
-
-      labControl.helpMenuItem("test-vcdat-command", "Bob");
-
-      labControl.helpMenuItem("test-raw-command");
-      labControl.helpMenuItem("vcdat-show-about");
-      labControl.attachWidget(rightbar, "left");
-      labControl.shell.activateById(rightbar.id);
-    }
-  );
-
   const factory = new NCViewerFactory({
     defaultFor: [FILETYPE],
     fileTypes: [FILETYPE],
@@ -148,27 +101,65 @@ function activate(
   app.docRegistry.addFileType(ft);
   app.docRegistry.addWidgetFactory(factory);
 
+  // Testing LabControl
+  LabControl.initialize(app, labShell, menu, settings, tracker).then(
+    async (labControl: LabControl) => {
+      const appControl: AppControl = await AppControl.initialize(labControl);
+      // const appSettings: AppSettings = labControl.settings;
+      rightbar = new VCDATWidget("left-sidebar-vcdat");
+      rightbar.id = /* @tag<left-side-bar>*/ "left-side-bar-vcdat";
+      rightbar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
+      rightbar.title.closable = true;
+
+      labControl.addCommand(
+        "test-vcdat-command",
+        (name: string) => {
+          console.log(appControl.injectCode(`print("Hello ${name}")`));
+        },
+        "Hello Test"
+      );
+      labControl.addCommand("vcdat:refresh-browser", (): void => {
+        labControl.commands.execute("filebrowser:go-to-path", {
+          path: ".",
+        });
+      });
+      labControl.addCommand(
+        "vcdat-show-about",
+        () => {
+          rightbar.showAbout();
+        },
+        "About VCDAT",
+        "See the VCDAT about page."
+      );
+
+      labControl.helpMenuItem("test-vcdat-command", "Billy");
+      labControl.helpMenuItem("vcdat-show-about");
+      labControl.attachWidget(rightbar, "left");
+      labControl.shell.activateById(rightbar.id);
+    }
+  );
+
   // Creates the left side bar widget once the app has fully started
 
-  app.started
-    .then(() => {
-      settings.load("jupyter-vcdat:extension").then((loadedSettings) => {
-        const appSettings: AppSettings = new AppSettings(loadedSettings);
-        sidebar = new LeftSideBarWidget(app, labShell, tracker, appSettings);
-        sidebar.id = /* @tag<left-side-bar>*/ "left-side-bar-vcdat";
-        sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
-        sidebar.title.closable = true;
+  // app.started
+  //   .then(() => {
+  //     settings.load("jupyter-vcdat:extension").then((loadedSettings) => {
+  //       const appSettings: AppSettings = new AppSettings(loadedSettings);
+  //       sidebar = new LeftSideBarWidget(app, labShell, tracker, appSettings);
+  //       sidebar.id = /* @tag<left-side-bar>*/ "left-side-bar-vcdat";
+  //       sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
+  //       sidebar.title.closable = true;
 
-        // Attach it to the left side of main area
-        shell.add(sidebar, "right");
+  //       // Attach it to the left side of main area
+  //       shell.add(sidebar, "right");
 
-        // Activate the widget
-        shell.activateById(sidebar.id);
-      });
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+  //       // Activate the widget
+  //       shell.activateById(sidebar.id);
+  //     });
+  //   })
+  //   .catch((error) => {
+  //     console.error(error);
+  //   });
 
   // Initializes the sidebar widget once the application shell has been restored
   // and all the widgets have been added to the notebooktracker
@@ -280,15 +271,15 @@ export class NCViewerFactory extends ABCWidgetFactory<
     const content = new NCViewerWidget(context);
     const ncWidget = new DocumentWidget({ content, context });
 
-    if (sidebar === null || context === null) {
+    if (rightbar === null || context === null) {
       return;
     }
 
     // Activate sidebar widget
-    shell.activateById(sidebar.id);
+    shell.activateById(rightbar.id);
 
     // Prepare the notebook for code injection
-    sidebar.prepareNotebookPanel(context.sessionContext.path).catch((error) => {
+    /* sidebar.prepareNotebookPanel(context.sessionContext.path).catch((error) => {
       if (error.status === "error") {
         NotebookUtilities.showMessage(error.ename, error.evalue);
       } else if (error.message) {
@@ -299,7 +290,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
           "An error occurred when preparing the notebook."
         );
       }
-    });
+    });*/
 
     return ncWidget;
   }
