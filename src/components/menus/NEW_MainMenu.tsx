@@ -89,8 +89,7 @@ const MainMenu = (props: IMainMenuProps): JSX.Element => {
           title="Notice"
           message="Loading CDAT core modules. Please wait..."
           btnText="OK"
-          ref={(loader): PopUpModal => (this.loadingModalRef = loader)}
-        />*/
+          ref={(loader): PopUpModal => (this.loadingModalRef = loader)} /> */
   );
 };
 

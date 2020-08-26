@@ -11,10 +11,10 @@ import {
   Row,
 } from "reactstrap";
 import { useModal } from "../../modules/contexts/ModalContext";
+import { ABOUT_VCDAT_MODAL } from "../../modules/constants";
 
 interface IAboutProps {
   version: string;
-  modalID: string;
 }
 
 const modalStyling: React.CSSProperties = {
@@ -53,13 +53,13 @@ const AboutPopup = (props: IAboutProps): JSX.Element => {
   };
 
   const toggle = (): void => {
-    modalDispatch({ type: "toggleModal", modalID: props.modalID });
+    modalDispatch({ type: "toggleModal", modalID: ABOUT_VCDAT_MODAL });
   };
 
   return (
     <Modal
       style={{ ...modalStyling }}
-      isOpen={modalState.modalOpen === props.modalID}
+      isOpen={modalState.modalOpen === ABOUT_VCDAT_MODAL}
       toggle={toggle}
       size="lg"
     >

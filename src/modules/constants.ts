@@ -21,6 +21,10 @@ export const EXTENSIONS: string[] = [
   ".cdf",
 ];
 
+export const ABOUT_VCDAT_MODAL = "About-VCDAT-Modal";
+export const FILE_PATH_INPUT_MODAL = "File-Path-Input-Modal";
+export const INITIAL_POPUP_MODAL = "Initial-PopUp-Modal";
+
 export const OUTPUT_RESULT_NAME = "_private_vcdat_output";
 export const FILE_PATH_KEY = "vcdat_file_path";
 export const IMPORT_CELL_KEY = "vcdat_imports";

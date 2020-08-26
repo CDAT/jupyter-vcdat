@@ -105,11 +105,7 @@ function activate(
   LabControl.initialize(app, labShell, menu, settings, tracker).then(
     async (labControl: LabControl) => {
       const appControl: AppControl = await AppControl.initialize(labControl);
-      // const appSettings: AppSettings = labControl.settings;
       rightbar = new VCDATWidget("left-sidebar-vcdat");
-      rightbar.id = /* @tag<left-side-bar>*/ "left-side-bar-vcdat";
-      rightbar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
-      rightbar.title.closable = true;
 
       labControl.addCommand(
         "test-vcdat-command",
@@ -131,35 +127,29 @@ function activate(
         "About VCDAT",
         "See the VCDAT about page."
       );
+      labControl.addCommand(
+        "show-file-input",
+        () => {
+          rightbar.showFilePathInput();
+        },
+        "File Input"
+      );
+      labControl.addCommand(
+        "show-message-popup",
+        () => {
+          rightbar.showMessagePopup();
+        },
+        "Loading Message"
+      );
 
       labControl.helpMenuItem("test-vcdat-command", "Billy");
       labControl.helpMenuItem("vcdat-show-about");
+      labControl.helpMenuItem("show-file-input");
+      labControl.helpMenuItem("show-message-popup");
       labControl.attachWidget(rightbar, "left");
       labControl.shell.activateById(rightbar.id);
     }
   );
-
-  // Creates the left side bar widget once the app has fully started
-
-  // app.started
-  //   .then(() => {
-  //     settings.load("jupyter-vcdat:extension").then((loadedSettings) => {
-  //       const appSettings: AppSettings = new AppSettings(loadedSettings);
-  //       sidebar = new LeftSideBarWidget(app, labShell, tracker, appSettings);
-  //       sidebar.id = /* @tag<left-side-bar>*/ "left-side-bar-vcdat";
-  //       sidebar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
-  //       sidebar.title.closable = true;
-
-  //       // Attach it to the left side of main area
-  //       shell.add(sidebar, "right");
-
-  //       // Activate the widget
-  //       shell.activateById(sidebar.id);
-  //     });
-  //   })
-  //   .catch((error) => {
-  //     console.error(error);
-  //   });
 
   // Initializes the sidebar widget once the application shell has been restored
   // and all the widgets have been added to the notebooktracker
@@ -237,7 +227,6 @@ function shouldModifyStep(index: number): boolean {
     }
     return false;
   }
-
   return false;
 }
 

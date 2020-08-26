@@ -8,8 +8,10 @@ type Dispatch = (action: Action) => void;
 type ModalProviderProps = { children: React.ReactNode };
 
 interface IModalProviderRef {
-  state: State;
-  dispatch: Dispatch;
+  showModal: (modalID: string) => void;
+  hideModal: () => void;
+  toggleModal: (modalID: string) => void;
+  isOpen: (modalID: string) => boolean;
 }
 
 type State = {
@@ -53,8 +55,25 @@ const ModalProvider = forwardRef(
     ref: Ref<IModalProviderRef>
   ): JSX.Element => {
     const [state, dispatch] = React.useReducer(appReducer, initialState);
+    const showModal = (modal: string): void => {
+      dispatch({ type: "showModal", modalID: modal });
+    };
+    const hideModal = (): void => {
+      dispatch({ type: "hideModal" });
+    };
+    const toggleModal = (modal: string): void => {
+      dispatch({ type: "toggleModal", modalID: modal });
+    };
+    const isOpen = (modalID: string): boolean => {
+      return state.modalOpen === modalID;
+    };
 
-    useImperativeHandle(ref, () => ({ state, dispatch }));
+    useImperativeHandle(ref, () => ({
+      showModal,
+      hideModal,
+      toggleModal,
+      isOpen,
+    }));
 
     return (
       <ModalStateContext.Provider value={state}>

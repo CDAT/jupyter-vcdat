@@ -32,24 +32,38 @@ const listGroupItemStyle: React.CSSProperties = {
   overflowWrap: "break-word",
 };
 
-interface IInputModalProps {
+/**
+ * acceptText: Text show on the accept button.
+ * cancelText: Text shown on the cancel button.
+ * message: Inital status message to show above the input.
+ * modalID: String id to give this modal for show/hide/toggle functionality.
+ * placeHolder: Message to show inside input when it's empty.
+ * title: Title text for the modal.
+ * onModalClose: Function is called when the input modal is closed.
+ * onSavedOptionsChanged: Function is called when input is saved or deleted.
+ * inputListHeader (Optional): Header text shown above the option list.
+ * inputOptions (Optional): Default option(s) added when modal is initialized.
+ * invalidInputMessage (Optional): Text to show above input when entry is invalid.
+ * isValid (Optional): Function to use for validating the input.
+ * sanitizer (Optional): Function to use to clean user input and limit what can be entered in the field.
+ */
+export interface IInputModalProps {
   acceptText: string;
   cancelText: string;
   message: string;
-  onModalClose: (input: string, savedInput: string[]) => void;
-  onSavedOptionsChanged: (savedInput: string[]) => void;
+  modalID: string;
   placeHolder: string;
   title: string;
+  onModalClose: (input: string, savedInput: string[]) => void;
+  onSavedOptionsChanged: (savedInput: string[]) => void;
   inputListHeader?: string;
   inputOptions?: string[];
   invalidInputMessage?: string;
   isValid?: (input: string) => boolean;
   sanitizer?: (input: string) => string;
-  modalID: string;
 }
 
 interface IInputModalState {
-  // modalOpen: boolean; // Whether a modal is currently open
   input: string; // The current string input in the modal
   savedInput: string[]; // The list of input options aviailable
   showSaved: boolean; // Whether to show a list of saved input
@@ -58,13 +72,18 @@ interface IInputModalState {
 
 const InputModal = (props: IInputModalProps): JSX.Element => {
   const [modalState, modalDispatch] = useModal();
+  const [state, setState] = useState<IInputModalState>({
+    input: "",
+    isValid: true,
+    savedInput: props.inputOptions ? props.inputOptions : Array<string>(),
+    showSaved: props.inputOptions ? true : false,
+  });
 
   const hide = (): void => {
     modalDispatch({ type: "hideModal" });
     if (state.isValid) {
       props.onModalClose(state.input, state.savedInput);
     }
-
     setState({ ...state, input: "" });
   };
 
@@ -76,16 +95,9 @@ const InputModal = (props: IInputModalProps): JSX.Element => {
     setState({
       ...state,
       input: "",
-      isValid: props.isValid ? props.isValid("") : true,
+      isValid: true,
     });
   };
-
-  const [state, setState] = useState<IInputModalState>({
-    input: "",
-    isValid: props.isValid ? props.isValid("") : true,
-    savedInput: props.inputOptions ? props.inputOptions : Array<string>(),
-    showSaved: props.inputOptions ? true : false,
-  });
 
   const saveInput = (): void => {
     const newList: string[] = state.savedInput;
@@ -122,17 +134,21 @@ const InputModal = (props: IInputModalProps): JSX.Element => {
       newInput = props.sanitizer(newInput);
     }
 
-    // Validat input if necessary
+    // Check validation state
+    let valid = true;
     if (props.isValid) {
-      setState({ ...state, isValid: props.isValid(newInput) });
-    } else {
-      setState({ ...state, isValid: true });
+      valid = props.isValid(newInput);
     }
 
-    // Update current input state
-    setState({ ...state, input: newInput });
+    // Update current state
+    setState({
+      ...state,
+      isValid: valid,
+      input: newInput,
+    });
   };
 
+  // Handle input entry steps
   const handleUpdate = (event: React.ChangeEvent<HTMLInputElement>): void => {
     event.persist();
     const start: number = event.target.selectionStart;
@@ -146,6 +162,14 @@ const InputModal = (props: IInputModalProps): JSX.Element => {
     START_COLOR,
     END_COLOR
   );
+
+  let statusMessage = "";
+  if (state.input === "") {
+    statusMessage = props.message;
+  } else if (!state.isValid) {
+    statusMessage = props.invalidInputMessage || INVALID_INPUT_MSG_DEFAULT;
+  }
+
   return (
     <Modal
       isOpen={modalState.modalOpen === props.modalID}
@@ -159,13 +183,7 @@ const InputModal = (props: IInputModalProps): JSX.Element => {
           /* @tag<text-muted input-modal>*/ "text-muted input-modal-vcdat"
         }
       >
-        {state.input === ""
-          ? props.message
-          : state.isValid
-          ? ""
-          : props.invalidInputMessage
-          ? props.invalidInputMessage
-          : INVALID_INPUT_MSG_DEFAULT}
+        {statusMessage}
         <InputGroup>
           <Input
             id={/* @tag<input-modal-input>*/ "input-modal-input-vcdat"}

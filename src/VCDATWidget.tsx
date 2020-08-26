@@ -11,8 +11,15 @@ import { AppProvider } from "./modules/contexts/AppContext";
 import LabControl from "./modules/LabControl";
 import AppControl from "./modules/AppControl";
 import Utilities from "./modules/Utilities/Utilities";
-import { EXTENSIONS } from "./modules/constants";
-import InputModal from "./components/modals/NEW_InputModal";
+import {
+  EXTENSIONS,
+  FILE_PATH_INPUT_MODAL,
+  ABOUT_VCDAT_MODAL,
+  INITIAL_POPUP_MODAL,
+} from "./modules/constants";
+import InputModal, {
+  IInputModalProps,
+} from "./components/modals/NEW_InputModal";
 import ExportPlotModal from "./components/modals/ExportPlotModal";
 import {
   ModalProvider,
@@ -34,28 +41,34 @@ export default class VCDATWidget extends Widget {
     this.div = document.createElement("div");
     this.div.id = rootID;
     this.node.appendChild(this.div);
+    this.id = /* @tag<left-side-bar>*/ "left-side-bar-vcdat";
+    this.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
+    this.title.closable = true;
     const modalProviderRef: Ref<IModalProviderRef> = React.createRef();
     const app: AppControl = AppControl.getInstance();
 
     this.showFilePathInput = (): void => {
-      modalProviderRef.current.dispatch({
+      /* modalProviderRef.current.dispatch({
         type: "showModal",
         modalID: "filePathInput",
-      });
+      });*/
+      modalProviderRef.current.showModal(FILE_PATH_INPUT_MODAL);
     };
 
     this.showAbout = (): void => {
-      modalProviderRef.current.dispatch({
+      /* modalProviderRef.current.dispatch({
         type: "showModal",
         modalID: "AboutModal",
-      });
+      });*/
+      modalProviderRef.current.showModal(ABOUT_VCDAT_MODAL);
     };
 
     this.showMessagePopup = (): void => {
-      modalProviderRef.current.dispatch({
+      /* modalProviderRef.current.dispatch({
         type: "showModal",
         modalID: "loadingCoreModules",
-      });
+      });*/
+      modalProviderRef.current.showModal(INITIAL_POPUP_MODAL);
     };
 
     const mainMenuProps: IMainMenuProps = {
@@ -98,7 +111,7 @@ export default class VCDATWidget extends Widget {
     const inputModalProps = {
       acceptText: "Open File",
       cancelText: "Cancel",
-      modalID: "filePathInput",
+      modalID: FILE_PATH_INPUT_MODAL,
       inputListHeader: "Saved File Paths",
       inputOptions: app.labControl.settings.getSavedPaths(),
       invalidInputMessage:
@@ -127,17 +140,16 @@ export default class VCDATWidget extends Widget {
         <AppProvider>
           <MainMenu {...mainMenuProps} />
           <ModalProvider ref={modalProviderRef}>
-            <ExportPlotModal {...exportPlotModalProps} />
+            {/* <ExportPlotModal {...exportPlotModalProps} />*/}
             <InputModal {...inputModalProps} />
             <PopUpModal
               title="Notice"
               message="Loading CDAT core modules. Please wait..."
               btnText="OK"
-              modalID="loadingCoreModules"
+              modalID={INITIAL_POPUP_MODAL}
             />
             <AboutPopup
               version={LabControl.getInstance().settings.getVersion()}
-              modalID="AboutModal"
             />
           </ModalProvider>
         </AppProvider>
