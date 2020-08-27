@@ -1,13 +1,19 @@
 /* eslint-disable no-underscore-dangle */
 import { JupyterFrontEnd, LabShell } from "@jupyterlab/application";
 import { MainMenu } from "@jupyterlab/mainmenu";
-import { NotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
+import {
+  NotebookTracker,
+  NotebookPanel,
+  NotebookActions,
+  Notebook,
+} from "@jupyterlab/notebook";
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { AppSettings } from "./AppSettings";
 import { Widget } from "@lumino/widgets";
 import { CommandRegistry } from "@lumino/commands";
 import CellUtilities from "./Utilities/CellUtilities";
 import Utilities from "./Utilities/Utilities";
+import { Cell } from "@jupyterlab/cells";
 
 const extensionID = "jupyter-vcdat:extension";
 type shellArea = "top" | "left" | "right" | "main" | "bottom" | "header";
@@ -124,6 +130,30 @@ export default class LabControl {
     } else {
       return null;
     }
+  }
+
+  get notebookTracker(): NotebookTracker {
+    return LabControl.getInstance()._nbTracker;
+  }
+
+  public notebookChangedConnect(
+    callback: (tracker: NotebookTracker, panel: NotebookPanel) => void
+  ): void {
+    LabControl.getInstance()._nbTracker.currentChanged.connect(callback);
+  }
+
+  public notebookChangedDisconnect(
+    callback: (tracker: NotebookTracker, panel: NotebookPanel) => void
+  ): void {
+    LabControl.getInstance()._nbTracker.currentChanged.disconnect(callback);
+  }
+
+  public notebookCellRunConnect(callback: () => void): void {
+    NotebookActions.executed.connect(callback);
+  }
+
+  public notebookCellRunDisconnect(callback: () => void): void {
+    NotebookActions.executed.disconnect(callback);
   }
 
   public addCommand(

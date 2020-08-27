@@ -45,8 +45,7 @@ const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";
 
 // Declare the widget variables
-let sidebar: LeftSideBarWidget; // The sidebar widget of the app
-let rightbar: VCDATWidget;
+let mainWidget: VCDATWidget;
 let shell: JupyterFrontEnd.IShell;
 let mainMenu: MainMenu;
 
@@ -105,15 +104,9 @@ function activate(
   LabControl.initialize(app, labShell, menu, settings, tracker).then(
     async (labControl: LabControl) => {
       const appControl: AppControl = await AppControl.initialize(labControl);
-      rightbar = new VCDATWidget("left-sidebar-vcdat");
+      mainWidget = new VCDATWidget("main-widget-vcdat", appControl);
 
-      labControl.addCommand(
-        "test-vcdat-command",
-        (name: string) => {
-          console.log(appControl.injectCode(`print("Hello ${name}")`));
-        },
-        "Hello Test"
-      );
+      /*
       labControl.addCommand("vcdat:refresh-browser", (): void => {
         labControl.commands.execute("filebrowser:go-to-path", {
           path: ".",
@@ -122,7 +115,7 @@ function activate(
       labControl.addCommand(
         "vcdat-show-about",
         () => {
-          rightbar.showAbout();
+          mainWidget.showAbout();
         },
         "About VCDAT",
         "See the VCDAT about page."
@@ -130,14 +123,14 @@ function activate(
       labControl.addCommand(
         "show-file-input",
         () => {
-          rightbar.showFilePathInput();
+          mainWidget.showFilePathInput();
         },
         "File Input"
       );
       labControl.addCommand(
         "show-message-popup",
         () => {
-          rightbar.showMessagePopup();
+          mainWidget.showMessagePopup();
         },
         "Loading Message"
       );
@@ -146,8 +139,9 @@ function activate(
       labControl.helpMenuItem("vcdat-show-about");
       labControl.helpMenuItem("show-file-input");
       labControl.helpMenuItem("show-message-popup");
-      labControl.attachWidget(rightbar, "left");
-      labControl.shell.activateById(rightbar.id);
+      */
+      labControl.attachWidget(mainWidget, "left");
+      labControl.shell.activateById(mainWidget.id);
     }
   );
 
@@ -260,12 +254,12 @@ export class NCViewerFactory extends ABCWidgetFactory<
     const content = new NCViewerWidget(context);
     const ncWidget = new DocumentWidget({ content, context });
 
-    if (rightbar === null || context === null) {
+    if (mainWidget === null || context === null) {
       return;
     }
 
     // Activate sidebar widget
-    shell.activateById(rightbar.id);
+    shell.activateById(mainWidget.id);
 
     // Prepare the notebook for code injection
     /* sidebar.prepareNotebookPanel(context.sessionContext.path).catch((error) => {

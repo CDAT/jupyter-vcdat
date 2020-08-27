@@ -1,36 +1,46 @@
 import React, { forwardRef, useImperativeHandle, Ref } from "react";
 
 type Action =
-  | { type: "showModal"; modalID: string }
-  | { type: "hideModal" }
-  | { type: "toggleModal"; modalID: string };
+  | { type: "show"; id: string }
+  | { type: "hide" }
+  | { type: "toggle"; modalID: string };
+type State = { modalOpen: string | null };
 type Dispatch = (action: Action) => void;
+
 type ModalProviderProps = { children: React.ReactNode };
 
 interface IModalProviderRef {
-  showModal: (modalID: string) => void;
-  hideModal: () => void;
-  toggleModal: (modalID: string) => void;
-  isOpen: (modalID: string) => boolean;
+  state: State;
+  dispatch: Dispatch;
 }
-
-type State = {
-  modalOpen: string | null;
-};
 
 const initialState: State = {
   modalOpen: null,
 };
 
-function appReducer(state: State, action: Action): State {
+// Action creator
+const ModalAction = {
+  show: (id: string): Action => {
+    return { type: "show", id };
+  },
+  hide: (): Action => {
+    return { type: "hide" };
+  },
+  toggle: (id: string): Action => {
+    return { type: "show", id };
+  },
+};
+
+// Reducer
+function modalReducer(state: State, action: Action): State {
   switch (action.type) {
-    case "showModal": {
-      return { ...state, modalOpen: action.modalID };
+    case "show": {
+      return { ...state, modalOpen: action.id };
     }
-    case "hideModal": {
+    case "hide": {
       return { ...state, modalOpen: "none" };
     }
-    case "toggleModal": {
+    case "toggle": {
       if (state.modalOpen === "none") {
         return { ...state, modalOpen: action.modalID };
       } else {
@@ -43,6 +53,7 @@ function appReducer(state: State, action: Action): State {
   }
 }
 
+// Create state and dispatch contexts
 const ModalStateContext = React.createContext<State | undefined>(undefined);
 const ModalDispatchContext = React.createContext<Dispatch | undefined>(
   undefined
@@ -54,26 +65,10 @@ const ModalProvider = forwardRef(
     { children }: ModalProviderProps,
     ref: Ref<IModalProviderRef>
   ): JSX.Element => {
-    const [state, dispatch] = React.useReducer(appReducer, initialState);
-    const showModal = (modal: string): void => {
-      dispatch({ type: "showModal", modalID: modal });
-    };
-    const hideModal = (): void => {
-      dispatch({ type: "hideModal" });
-    };
-    const toggleModal = (modal: string): void => {
-      dispatch({ type: "toggleModal", modalID: modal });
-    };
-    const isOpen = (modalID: string): boolean => {
-      return state.modalOpen === modalID;
-    };
+    const [state, dispatch] = React.useReducer(modalReducer, initialState);
 
-    useImperativeHandle(ref, () => ({
-      showModal,
-      hideModal,
-      toggleModal,
-      isOpen,
-    }));
+    // Provides functions to the component's ref for use outside component
+    useImperativeHandle(ref, () => ({ state, dispatch }));
 
     return (
       <ModalStateContext.Provider value={state}>
@@ -88,7 +83,7 @@ const ModalProvider = forwardRef(
 function useModalState(): State {
   const context = React.useContext(ModalStateContext);
   if (context === undefined) {
-    throw new Error("useAppState must be used within AppProvider");
+    throw new Error("useModalState must be used within ModalProvider");
   }
   return context;
 }
@@ -96,7 +91,7 @@ function useModalState(): State {
 function useModalDispatch(): Dispatch {
   const context = React.useContext(ModalDispatchContext);
   if (context === undefined) {
-    throw new Error("useAppDispatch must be used within a AppProvider");
+    throw new Error("useModalDispatch must be used within a ModalProvider");
   }
   return context;
 }
@@ -105,4 +100,4 @@ function useModal(): [State, Dispatch] {
   return [useModalState(), useModalDispatch()];
 }
 
-export { ModalProvider, IModalProviderRef, useModal, Action };
+export { ModalProvider, useModal, ModalAction, IModalProviderRef };

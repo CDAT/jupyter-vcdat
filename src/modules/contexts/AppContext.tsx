@@ -1,20 +1,26 @@
-import React, { forwardRef, useImperativeHandle, Ref } from "react";
+import React, { forwardRef, Ref, useImperativeHandle } from "react";
+import { ModalProvider, IModalProviderRef } from "./ModalContext";
 
 type Action = { type: "reset" };
+type State = { overlayMode: boolean };
 type Dispatch = (action: Action) => void;
+
 type AppProviderProps = { children: React.ReactNode };
 
 interface IAppProviderRef {
   state: State;
   dispatch: Dispatch;
+  modalRef: React.RefObject<IModalProviderRef>;
 }
-
-type State = {
-  overlayMode: boolean;
-};
 
 const initialState: State = {
   overlayMode: false,
+};
+
+const AppAction = {
+  reset: (): Action => {
+    return { type: "reset" };
+  },
 };
 
 function appReducer(state: State, action: Action): State {
@@ -36,18 +42,20 @@ const AppProvider = forwardRef(
   ({ children }: AppProviderProps, ref: Ref<IAppProviderRef>): JSX.Element => {
     const [state, dispatch] = React.useReducer(appReducer, initialState);
 
-    useImperativeHandle(ref, () => ({ state, dispatch }));
+    const modalRef = React.createRef<IModalProviderRef>();
+
+    // Provides functions to the component's ref for use outside component
+    useImperativeHandle(ref, () => ({ state, dispatch, modalRef }));
 
     return (
       <AppStateContext.Provider value={state}>
         <AppDispatchContext.Provider value={dispatch}>
-          {children}
+          <ModalProvider ref={modalRef}>{children}</ModalProvider>
         </AppDispatchContext.Provider>
       </AppStateContext.Provider>
     );
   }
 );
-
 function useAppState(): State {
   const context = React.useContext(AppStateContext);
   if (context === undefined) {
@@ -68,4 +76,4 @@ function useApp(): [State, Dispatch] {
   return [useAppState(), useAppDispatch()];
 }
 
-export { AppProvider, IAppProviderRef, useApp, Action };
+export { AppProvider, useApp, AppAction, IAppProviderRef };

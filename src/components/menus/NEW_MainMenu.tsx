@@ -1,15 +1,23 @@
 // Dependencies
-import React from "react";
+import React, { useRef } from "react";
 import AppControl from "../../modules/AppControl";
 
 // Components
 import TopButtons from "./NEW_TopButtons";
-import { Alert, Spinner, Card } from "reactstrap";
+import { Alert, Spinner, Card, Button } from "reactstrap";
 import VarMenu from "./NEW_VarMenu";
 import GraphicsMenu from "./NEW_GraphicsMenu";
 import TemplateMenu from "./NEW_TemplateMenu";
 import { PLOT_OPTIONS_KEY } from "../../modules/constants";
 import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
+import {
+  ModalProvider,
+  IModalProviderRef,
+  ModalAction,
+  useModal,
+} from "../../modules/contexts/ModalContext";
+import PopUpModal from "../modals/NEW_PopUpModal";
+import { VCDAT_MODALS } from "../../VCDATWidget";
 
 const btnStyle: React.CSSProperties = {
   width: "100%",
@@ -33,6 +41,8 @@ export interface IMainMenuProps {
 
 const MainMenu = (props: IMainMenuProps): JSX.Element => {
   const app: AppControl = AppControl.getInstance();
+
+  const [state, dispatch] = useModal();
 
   const varMenuProps = {
     codeInjector: app.codeInjector,
@@ -65,9 +75,19 @@ const MainMenu = (props: IMainMenuProps): JSX.Element => {
     varTracker: app.varTracker,
   };
 
+  const testClick = (): void => {
+    dispatch(ModalAction.show("TestPopup"));
+  };
+
+  const testOpenAbout = (): void => {
+    dispatch(ModalAction.show(VCDAT_MODALS.About));
+  };
+
   return (
     <Card style={{ ...centered, ...sidebarOverflow }}>
       <TopButtons app={app} />
+      <Button onClick={testClick}>Testit</Button>
+      <Button onClick={testOpenAbout}>Open About</Button>
       <VarMenu {...varMenuProps} />
       {/* <GraphicsMenu {...graphicsMenuProps} />*/}
       {/* <TemplateMenu {...templateMenuProps} />*/}
@@ -84,12 +104,13 @@ const MainMenu = (props: IMainMenuProps): JSX.Element => {
           }
         </Alert>
       </div>
+      <PopUpModal
+        modalID="TestPopup"
+        title="Test"
+        message="Testing..."
+        btnText="OK"
+      />
     </Card>
-    /* <PopUpModal
-          title="Notice"
-          message="Loading CDAT core modules. Please wait..."
-          btnText="OK"
-          ref={(loader): PopUpModal => (this.loadingModalRef = loader)} /> */
   );
 };
 

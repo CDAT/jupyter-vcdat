@@ -1,78 +1,59 @@
 // Dependencies
 import { Widget } from "@lumino/widgets";
-import React, { Ref } from "react";
+import React from "react";
 import * as ReactDOM from "react-dom";
 
 // Project Components
 import ErrorBoundary from "./components/ErrorBoundary";
 import MainMenu, { IMainMenuProps } from "./components/menus/NEW_MainMenu";
 import AboutPopup from "./components/modals/NEW_AboutPopup";
-import { AppProvider } from "./modules/contexts/AppContext";
+import { AppProvider, IAppProviderRef } from "./modules/contexts/AppContext";
 import LabControl from "./modules/LabControl";
 import AppControl from "./modules/AppControl";
 import Utilities from "./modules/Utilities/Utilities";
-import {
-  EXTENSIONS,
-  FILE_PATH_INPUT_MODAL,
-  ABOUT_VCDAT_MODAL,
-  INITIAL_POPUP_MODAL,
-} from "./modules/constants";
-import InputModal, {
-  IInputModalProps,
-} from "./components/modals/NEW_InputModal";
+import { EXTENSIONS } from "./modules/constants";
+import InputModal from "./components/modals/NEW_InputModal";
 import ExportPlotModal from "./components/modals/ExportPlotModal";
-import {
-  ModalProvider,
-  IModalProviderRef,
-} from "./modules/contexts/ModalContext";
+import { ModalAction } from "./modules/contexts/ModalContext";
 import PopUpModal from "./components/modals/NEW_PopUpModal";
+
+/**
+ * This lists out the modal dialogs used by vcdat with their unique IDs.
+ * Use the ids to open and close the appropriate modal.
+ */
+export enum VCDAT_MODALS {
+  About = "about-modal-vcdat",
+  FilePathInput = "file-path-input-modal-vcdat",
+  LoadingModulesNotice = "loading-modules-notice-vcdat",
+}
 
 /**
  * This is the main component for the vcdat extension.
  */
 export default class VCDATWidget extends Widget {
+  public app: AppControl;
   public div: HTMLDivElement; // The div container for this widget
-  public showAbout: () => void;
-  public showFilePathInput: () => void;
-  public showMessagePopup: () => void;
+  public appRef: React.RefObject<IAppProviderRef>;
 
-  constructor(rootID: string) {
+  constructor(rootID: string, app: AppControl) {
     super();
+    this.app = app;
     this.div = document.createElement("div");
     this.div.id = rootID;
     this.node.appendChild(this.div);
     this.id = /* @tag<left-side-bar>*/ "left-side-bar-vcdat";
     this.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
     this.title.closable = true;
-    const modalProviderRef: Ref<IModalProviderRef> = React.createRef();
-    const app: AppControl = AppControl.getInstance();
+    this.appRef = React.createRef();
 
-    this.showFilePathInput = (): void => {
-      /* modalProviderRef.current.dispatch({
-        type: "showModal",
-        modalID: "filePathInput",
-      });*/
-      modalProviderRef.current.showModal(FILE_PATH_INPUT_MODAL);
-    };
-
-    this.showAbout = (): void => {
-      /* modalProviderRef.current.dispatch({
-        type: "showModal",
-        modalID: "AboutModal",
-      });*/
-      modalProviderRef.current.showModal(ABOUT_VCDAT_MODAL);
-    };
-
-    this.showMessagePopup = (): void => {
-      /* modalProviderRef.current.dispatch({
-        type: "showModal",
-        modalID: "loadingCoreModules",
-      });*/
-      modalProviderRef.current.showModal(INITIAL_POPUP_MODAL);
-    };
+    this.createCommands();
 
     const mainMenuProps: IMainMenuProps = {
-      showInputModal: this.showFilePathInput,
+      showInputModal: () => {
+        this.appRef.current.modalRef.current.dispatch(
+          ModalAction.show(VCDAT_MODALS.FilePathInput)
+        );
+      },
       syncNotebook: (): boolean => {
         return false;
       },
@@ -111,7 +92,7 @@ export default class VCDATWidget extends Widget {
     const inputModalProps = {
       acceptText: "Open File",
       cancelText: "Cancel",
-      modalID: FILE_PATH_INPUT_MODAL,
+      modalID: VCDAT_MODALS.FilePathInput,
       inputListHeader: "Saved File Paths",
       inputOptions: app.labControl.settings.getSavedPaths(),
       invalidInputMessage:
@@ -137,24 +118,68 @@ export default class VCDATWidget extends Widget {
 
     ReactDOM.render(
       <ErrorBoundary>
-        <AppProvider>
+        <AppProvider ref={this.appRef}>
           <MainMenu {...mainMenuProps} />
-          <ModalProvider ref={modalProviderRef}>
-            {/* <ExportPlotModal {...exportPlotModalProps} />*/}
-            <InputModal {...inputModalProps} />
-            <PopUpModal
-              title="Notice"
-              message="Loading CDAT core modules. Please wait..."
-              btnText="OK"
-              modalID={INITIAL_POPUP_MODAL}
-            />
-            <AboutPopup
-              version={LabControl.getInstance().settings.getVersion()}
-            />
-          </ModalProvider>
+          {/* <ExportPlotModal {...exportPlotModalProps} />*/}
+          <InputModal {...inputModalProps} />
+          <PopUpModal
+            title="Notice"
+            message="Loading CDAT core modules. Please wait..."
+            btnText="OK"
+            modalID={VCDAT_MODALS.LoadingModulesNotice}
+          />
+          <AboutPopup
+            modalID={VCDAT_MODALS.About}
+            version={LabControl.getInstance().settings.getVersion()}
+          />
         </AppProvider>
       </ErrorBoundary>,
       this.div
     );
+  }
+
+  private createCommands(): void {
+    const labControl: LabControl = this.app.labControl;
+    labControl.addCommand("vcdat:refresh-browser", (): void => {
+      labControl.commands.execute("filebrowser:go-to-path", {
+        path: ".",
+      });
+    });
+
+    // Add 'About' page access in help menu
+    labControl.addCommand(
+      "vcdat-show-about",
+      () => {
+        this.appRef.current.modalRef.current.dispatch(
+          ModalAction.show(VCDAT_MODALS.About)
+        );
+      },
+      "About VCDAT",
+      "See the VCDAT about page."
+    );
+    labControl.helpMenuItem("vcdat-show-about");
+
+    // Test commands
+    labControl.addCommand(
+      "show-file-input",
+      () => {
+        this.appRef.current.modalRef.current.dispatch(
+          ModalAction.show(VCDAT_MODALS.FilePathInput)
+        );
+      },
+      "File Input"
+    );
+    labControl.helpMenuItem("show-file-input");
+
+    labControl.addCommand(
+      "show-message-popup",
+      () => {
+        this.appRef.current.modalRef.current.dispatch(
+          ModalAction.show(VCDAT_MODALS.LoadingModulesNotice)
+        );
+      },
+      "Loading Message"
+    );
+    labControl.helpMenuItem("show-message-popup");
   }
 }

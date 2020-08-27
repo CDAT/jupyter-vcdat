@@ -10,11 +10,11 @@ import {
   ModalHeader,
   Row,
 } from "reactstrap";
-import { useModal } from "../../modules/contexts/ModalContext";
-import { ABOUT_VCDAT_MODAL } from "../../modules/constants";
+import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
 
 interface IAboutProps {
   version: string;
+  modalID: string;
 }
 
 const modalStyling: React.CSSProperties = {
@@ -49,17 +49,17 @@ const AboutPopup = (props: IAboutProps): JSX.Element => {
   const [modalState, modalDispatch] = useModal();
 
   const hide = (): void => {
-    modalDispatch({ type: "hideModal" });
+    modalDispatch(ModalAction.hide());
   };
 
   const toggle = (): void => {
-    modalDispatch({ type: "toggleModal", modalID: ABOUT_VCDAT_MODAL });
+    modalDispatch(ModalAction.toggle(props.modalID));
   };
 
   return (
     <Modal
       style={{ ...modalStyling }}
-      isOpen={modalState.modalOpen === ABOUT_VCDAT_MODAL}
+      isOpen={modalState.modalOpen === props.modalID}
       toggle={toggle}
       size="lg"
     >
