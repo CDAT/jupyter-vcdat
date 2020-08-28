@@ -14,7 +14,6 @@ import Utilities from "./modules/Utilities/Utilities";
 import { EXTENSIONS } from "./modules/constants";
 import InputModal from "./components/modals/NEW_InputModal";
 import ExportPlotModal from "./components/modals/ExportPlotModal";
-import { ModalAction } from "./modules/contexts/ModalContext";
 import PopUpModal from "./components/modals/NEW_PopUpModal";
 
 /**
@@ -50,9 +49,7 @@ export default class VCDATWidget extends Widget {
 
     const mainMenuProps: IMainMenuProps = {
       showInputModal: () => {
-        this.appRef.current.modalRef.current.dispatch(
-          ModalAction.show(VCDAT_MODALS.FilePathInput)
-        );
+        this.appRef.current.showModal(VCDAT_MODALS.FilePathInput);
       },
       syncNotebook: (): boolean => {
         return false;
@@ -150,9 +147,7 @@ export default class VCDATWidget extends Widget {
     labControl.addCommand(
       "vcdat-show-about",
       () => {
-        this.appRef.current.modalRef.current.dispatch(
-          ModalAction.show(VCDAT_MODALS.About)
-        );
+        this.appRef.current.showModal(VCDAT_MODALS.About);
       },
       "About VCDAT",
       "See the VCDAT about page."
@@ -163,9 +158,7 @@ export default class VCDATWidget extends Widget {
     labControl.addCommand(
       "show-file-input",
       () => {
-        this.appRef.current.modalRef.current.dispatch(
-          ModalAction.show(VCDAT_MODALS.FilePathInput)
-        );
+        this.appRef.current.showModal(VCDAT_MODALS.FilePathInput);
       },
       "File Input"
     );
@@ -174,9 +167,7 @@ export default class VCDATWidget extends Widget {
     labControl.addCommand(
       "show-message-popup",
       () => {
-        this.appRef.current.modalRef.current.dispatch(
-          ModalAction.show(VCDAT_MODALS.LoadingModulesNotice)
-        );
+        this.appRef.current.showModal(VCDAT_MODALS.LoadingModulesNotice);
       },
       "Loading Message"
     );

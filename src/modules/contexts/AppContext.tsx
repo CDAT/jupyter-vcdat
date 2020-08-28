@@ -1,8 +1,32 @@
 import React, { forwardRef, Ref, useImperativeHandle } from "react";
-import { ModalProvider, IModalProviderRef } from "./ModalContext";
+import { ModalProvider, IModalProviderRef, ModalAction } from "./ModalContext";
+import { PlotProvider } from "./PlotContext";
+import {
+  DISPLAY_MODE,
+  BASE_COLORMAPS,
+  BASE_GRAPHICS,
+  BASE_TEMPLATES,
+} from "../constants";
 
-type Action = { type: "reset" };
-type State = { overlayMode: boolean };
+type Action =
+  | { type: "reset" }
+  | { type: "setDisplayMode"; value: DISPLAY_MODE }
+  | { type: "setSidecarToRight"; value: boolean }
+  | { type: "setColormaps"; value: string[] }
+  | { type: "setGraphicsMethods"; value: { [dataName: string]: string[] } }
+  | { type: "setTemplates"; value: string[] }
+  | { type: "setPlotExists"; value: boolean }
+  | { type: "setPlotReady"; value: boolean };
+
+type State = {
+  displayMode: DISPLAY_MODE;
+  sidecarToRight: boolean;
+  colormaps: string[];
+  graphicsMethods: { [dataName: string]: string[] };
+  templates: string[];
+  plotExists: boolean;
+  plotReady: boolean;
+};
 type Dispatch = (action: Action) => void;
 
 type AppProviderProps = { children: React.ReactNode };
@@ -10,11 +34,19 @@ type AppProviderProps = { children: React.ReactNode };
 interface IAppProviderRef {
   state: State;
   dispatch: Dispatch;
-  modalRef: React.RefObject<IModalProviderRef>;
+  showModal: (id: string) => void;
+  hideModal: () => void;
+  toggleModal: (id: string) => void;
 }
 
 const initialState: State = {
-  overlayMode: false,
+  displayMode: DISPLAY_MODE.Notebook,
+  sidecarToRight: true,
+  colormaps: BASE_COLORMAPS,
+  graphicsMethods: BASE_GRAPHICS,
+  templates: BASE_TEMPLATES,
+  plotExists: false,
+  plotReady: false,
 };
 
 const AppAction = {
@@ -27,6 +59,27 @@ function appReducer(state: State, action: Action): State {
   switch (action.type) {
     case "reset": {
       return initialState;
+    }
+    case "setColormaps": {
+      return { ...state, colormaps: action.value };
+    }
+    case "setDisplayMode": {
+      return { ...state, displayMode: action.value };
+    }
+    case "setGraphicsMethods": {
+      return { ...state, graphicsMethods: action.value };
+    }
+    case "setPlotExists": {
+      return { ...state, plotExists: action.value };
+    }
+    case "setPlotReady": {
+      return { ...state, plotReady: action.value };
+    }
+    case "setSidecarToRight": {
+      return { ...state, sidecarToRight: action.value };
+    }
+    case "setTemplates": {
+      return { ...state, templates: action.value };
     }
     default: {
       return state;
@@ -44,13 +97,33 @@ const AppProvider = forwardRef(
 
     const modalRef = React.createRef<IModalProviderRef>();
 
+    const showModal = (id: string): void => {
+      modalRef.current.dispatch(ModalAction.show(id));
+    };
+
+    const hideModal = (): void => {
+      modalRef.current.dispatch(ModalAction.hide());
+    };
+
+    const toggleModal = (id: string): void => {
+      modalRef.current.dispatch(ModalAction.toggle(id));
+    };
+
     // Provides functions to the component's ref for use outside component
-    useImperativeHandle(ref, () => ({ state, dispatch, modalRef }));
+    useImperativeHandle(ref, () => ({
+      state,
+      dispatch,
+      showModal,
+      hideModal,
+      toggleModal,
+    }));
 
     return (
       <AppStateContext.Provider value={state}>
         <AppDispatchContext.Provider value={dispatch}>
-          <ModalProvider ref={modalRef}>{children}</ModalProvider>
+          <PlotProvider>
+            <ModalProvider ref={modalRef}>{children}</ModalProvider>
+          </PlotProvider>
         </AppDispatchContext.Provider>
       </AppStateContext.Provider>
     );

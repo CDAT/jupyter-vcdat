@@ -120,7 +120,7 @@ export const BASE_GRAPHICS: { [dataName: string]: string[] } = {
   ],
 };
 
-export const BASE_COLORMAPS = [
+export const BASE_COLORMAPS: string[] = [
   "AMIP",
   "NCAR",
   "bl_to_darkred",

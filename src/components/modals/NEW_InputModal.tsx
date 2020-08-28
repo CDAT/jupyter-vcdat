@@ -251,7 +251,9 @@ const InputModal = (props: IInputModalProps): JSX.Element => {
           color={state.isValid ? "info" : "danger"}
           onClick={hide}
         >
-          {state.isValid ? props.acceptText : props.cancelText}
+          {state.isValid && state.input !== ""
+            ? props.acceptText
+            : props.cancelText}
         </Button>
       </ModalFooter>
     </Modal>

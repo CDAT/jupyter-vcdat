@@ -165,7 +165,7 @@ export default class LeftSideBarWidget extends Widget {
 
     ReactDOM.render(
       <ErrorBoundary>
-        {/* <VCSMenu
+        <VCSMenu
           appSettings={this.appSettings}
           application={this.application}
           ref={(loader): VCSMenu => (this.vcsMenuRef = loader)}
@@ -185,7 +185,7 @@ export default class LeftSideBarWidget extends Widget {
           updateNotebookPanel={this.recognizeNotebookPanel}
           openSidecarPanel={this.setSidecarPanel}
           prepareNotebookFromPath={this.prepareNotebookPanel}
-        /> */}
+        />
         <MainMenu {...mainMenuProps} />
         <PopUpModal
           title="Notice"

@@ -1,9 +1,10 @@
 import React, { forwardRef, useImperativeHandle, Ref } from "react";
 
 type Action =
-  | { type: "show"; id: string }
+  | { type: "show"; modalID: string }
   | { type: "hide" }
   | { type: "toggle"; modalID: string };
+
 type State = { modalOpen: string | null };
 type Dispatch = (action: Action) => void;
 
@@ -21,13 +22,13 @@ const initialState: State = {
 // Action creator
 const ModalAction = {
   show: (id: string): Action => {
-    return { type: "show", id };
+    return { type: "show", modalID: id };
   },
   hide: (): Action => {
     return { type: "hide" };
   },
   toggle: (id: string): Action => {
-    return { type: "show", id };
+    return { type: "show", modalID: id };
   },
 };
 
@@ -35,7 +36,7 @@ const ModalAction = {
 function modalReducer(state: State, action: Action): State {
   switch (action.type) {
     case "show": {
-      return { ...state, modalOpen: action.id };
+      return { ...state, modalOpen: action.modalID };
     }
     case "hide": {
       return { ...state, modalOpen: "none" };
