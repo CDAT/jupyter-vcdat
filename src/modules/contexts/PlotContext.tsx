@@ -3,9 +3,7 @@ import React from "react";
 type Action =
   | { type: "reset" }
   | { type: "setAnimateAxisInvert"; value: boolean }
-  | { type: "setExportSuccessAlert"; value: boolean }
   | { type: "setOverlayMode"; value: boolean }
-  | { type: "setSavePlotAlert"; value: boolean }
   | { type: "setShouldAnimate"; value: boolean }
   | { type: "setAnimationAxisIndex"; value: number }
   | { type: "setAnimationRate"; value: number }
@@ -20,11 +18,9 @@ type State = {
   animateAxisInvert: boolean;
   animationAxisIndex: number;
   animationRate: number;
-  exportSuccessAlert: boolean;
   overlayMode: boolean;
   plotFormat: string;
   plotName: string;
-  savePlotAlert: boolean;
   selectedColormap: string;
   selectedGM: string;
   selectedGMgroup: string;
@@ -39,11 +35,9 @@ const initialState: State = {
   animateAxisInvert: false,
   animationAxisIndex: 0,
   animationRate: 5,
-  exportSuccessAlert: false,
   overlayMode: false,
   plotFormat: "",
   plotName: "",
-  savePlotAlert: false,
   selectedColormap: "",
   selectedGM: "",
   selectedGMgroup: "",
@@ -54,6 +48,36 @@ const initialState: State = {
 const PlotAction = {
   reset: (): Action => {
     return { type: "reset" };
+  },
+  selectColormap: (colormap: string): Action => {
+    return { type: "selectColormap", value: colormap };
+  },
+  selectGM: (graphicMethod: string): Action => {
+    return { type: "selectGM", value: graphicMethod };
+  },
+  selectGMGroup: (gmGroup: string): Action => {
+    return { type: "selectGMGroup", value: gmGroup };
+  },
+  selectTemplate: (template: string): Action => {
+    return { type: "selectTemplate", value: template };
+  },
+  setAnimateAxisInvert: (value: boolean): Action => {
+    return { type: "setAnimateAxisInvert", value };
+  },
+  setAnimationAxisIndex: (index: number): Action => {
+    return { type: "setAnimationAxisIndex", value: index };
+  },
+  setAnimationRate: (rate: number): Action => {
+    return { type: "setAnimationRate", value: rate };
+  },
+  setPlotName: (name: string): Action => {
+    return { type: "setPlotName", value: name };
+  },
+  setOverlayMode: (overlayOn: boolean): Action => {
+    return { type: "setOverlayMode", value: overlayOn };
+  },
+  setPlotFormat: (format: string): Action => {
+    return { type: "setPlotFormat", value: format };
   },
 };
 
@@ -82,9 +106,6 @@ function plotReducer(state: State, action: Action): State {
     }
     case "setAnimationRate": {
       return { ...state, animationRate: action.value };
-    }
-    case "setExportSuccessAlert": {
-      return { ...state, exportSuccessAlert: action.value };
     }
     case "setPlotName": {
       return { ...state, plotName: action.value };

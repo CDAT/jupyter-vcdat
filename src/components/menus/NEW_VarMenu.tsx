@@ -1,5 +1,5 @@
 // Dependencies
-import * as React from "react";
+import React, { useState } from "react";
 import {
   Button,
   ButtonGroup,
@@ -16,11 +16,16 @@ import {
 // Project Components
 import ColorFunctions from "../../modules/utilities/ColorFunctions";
 import Variable from "../../modules/types/Variable";
-import VarLoader from "../modals/VarLoader";
-import VarMini from "../VarMini";
-import { boundMethod } from "autobind-decorator";
+import VarLoader from "../modals/NEW_VarLoader";
+import { VarMini } from "../NEW_VarMini";
 import AppControl from "../../modules/AppControl";
-import VariableTracker from "../../modules/VariableTracker";
+import {
+  useVariable,
+  VariableAction,
+} from "../../modules/contexts/VariableContext";
+import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
+import { VCDAT_MODALS } from "../../VCDATWidget";
+import { useApp } from "../../modules/contexts/AppContext";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em",
@@ -35,251 +40,178 @@ interface IVarMenuProps {
   updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
   syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
   setPlotInfo: (plotName: string, plotFormat: string) => void;
-  exportAlerts: () => void;
-  dismissSavePlotSpinnerAlert: () => void;
-  showExportSuccessAlert: () => void;
-  showInputModal: () => void;
 }
 
 interface IVarMenuState {
   modalOpen: boolean; // Whether a modal is currently open
-  variables: Variable[]; // all variables for list (derived and loaded)
-  selectedVariables: string[]; // the names of the variables the user has selected
 }
 
-export default class VarMenu extends React.Component<
-  IVarMenuProps,
-  IVarMenuState
-> {
-  public varLoaderRef: VarLoader;
-  private _app: AppControl;
-  constructor(props: IVarMenuProps) {
-    super(props);
-    this._app = AppControl.getInstance();
-    this.varLoaderRef = (React as any).createRef();
-    this.state = {
-      modalOpen: false,
-      selectedVariables: this._app.varTracker.selectedVariables,
-      variables: this._app.varTracker.variables,
-    };
-  }
+const VarMenu = (props: IVarMenuProps) => {
+  const app: AppControl = AppControl.getInstance();
 
-  public componentDidMount(): void {
-    this._app.varTracker.selectedVariablesChanged.connect(
-      this.handleSelectionChanged
-    );
-    this._app.varTracker.variablesChanged.connect(this.handleVariablesChanged);
-  }
+  const [varState, varDispatch] = useVariable();
+  const [modalState, modalDispatch] = useModal();
 
-  public componentWillUnmount(): void {
-    this._app.varTracker.selectedVariablesChanged.disconnect(
-      this.handleSelectionChanged
-    );
-    this._app.varTracker.variablesChanged.disconnect(
-      this.handleVariablesChanged
-    );
-  }
+  const [state, setState] = useState<IVarMenuState>({
+    modalOpen: false,
+  });
 
-  @boundMethod
-  public isSelected(varID: string): boolean {
-    return this.state.selectedVariables.indexOf(varID) >= 0;
-  }
+  const isSelected = (varID: string): boolean => {
+    return varState.selectedVariables.indexOf(varID) >= 0;
+  };
 
   /**
    * @description launches the notebooks filebrowser so the user can select a data file
    */
-  @boundMethod
-  public async launchFilepathModal(): Promise<void> {
-    this.props.showInputModal();
-  }
+  const launchFilepathModal = async (): Promise<void> => {
+    modalDispatch(ModalAction.show(VCDAT_MODALS.FilePathInput));
+  };
 
   /**
    * @description launches the notebooks filebrowser so the user can select a data file
    */
-  @boundMethod
-  public async launchFilebrowser(): Promise<void> {
-    await this._app.labControl.commands.execute("filebrowser:activate");
-  }
+  const launchFilebrowser = async (): Promise<void> => {
+    await app.labControl.commands.execute("filebrowser:activate");
+  };
 
   /**
    * @description toggles the varLoaders menu
    */
-  @boundMethod
-  public async launchVarLoader(fileVariables: Variable[]): Promise<void> {
-    // Reset the varloader
-    await this.varLoaderRef.reset();
-    // Update state to show launcher with variables
-    this.varLoaderRef.setState({
-      show: true,
-    });
-    this.varLoaderRef.updateFileVars(fileVariables);
-  }
+  const launchVarLoader = async (fileVariables: Variable[]): Promise<void> => {
+    varDispatch(VariableAction.setFileVariables(fileVariables));
+    modalDispatch(ModalAction.show(VCDAT_MODALS.VarLoader));
+  };
 
-  @boundMethod
-  public async reloadVariable(
+  const reloadVariable = async (
     variable: Variable,
     newAlias?: string
-  ): Promise<void> {
-    await this._app.codeInjector.loadVariable(variable, newAlias);
-    this._app.varTracker.addVariable(variable);
-    this._app.varTracker.selectedVariables = newAlias
-      ? [newAlias]
-      : [variable.varID];
-    await this._app.varTracker.saveMetaData();
-  }
+  ): Promise<void> => {
+    await app.codeInjector.loadVariable(variable, newAlias);
+    app.varTracker.addVariable(variable);
+    app.varTracker.selectedVariables = newAlias ? [newAlias] : [variable.varID];
+    await app.varTracker.saveMetaData();
+  };
 
-  @boundMethod
-  public varAliasExists(alias: string): boolean {
-    return this._app.varTracker.findVariableByAlias(alias)[0] >= 0;
-  }
+  const varAliasExists = (alias: string): boolean => {
+    return app.varTracker.findVariableByAlias(alias)[0] >= 0;
+  };
 
-  @boundMethod
-  public getOrder(varID: string): number {
-    if (this.state.selectedVariables.length === 0) {
+  const getOrder = (varID: string): number => {
+    if (varState.selectedVariables.length === 0) {
       return -1;
     }
-    return this.state.selectedVariables.indexOf(varID) + 1;
-  }
+    return varState.selectedVariables.indexOf(varID) + 1;
+  };
 
-  @boundMethod
-  public setModalState(newState: boolean): void {
-    this.setState({ modalOpen: newState });
-  }
+  const setModalState = (newState: boolean): void => {
+    setState({ ...state, modalOpen: newState });
+  };
 
-  public render(): JSX.Element {
-    const colors: string[] = ColorFunctions.createGradient(
-      this.state.selectedVariables.length,
-      "#28a745",
-      "#17a2b8"
-    );
+  const colors: string[] = ColorFunctions.createGradient(
+    varState.selectedVariables.length,
+    "#28a745",
+    "#17a2b8"
+  );
 
-    return (
-      <div>
-        <Card>
-          <CardBody className={/* @tag<varmenu-main>*/ "varmenu-main-vcdat"}>
-            <CardTitle>Load Variable Options</CardTitle>
-            <CardSubtitle>
-              <Row>
+  return (
+    <div>
+      <Card>
+        <CardBody className={/* @tag<varmenu-main>*/ "varmenu-main-vcdat"}>
+          <CardTitle>Load Variable Options</CardTitle>
+          <CardSubtitle>
+            <Row>
+              <Col>
+                <ButtonGroup style={{ minWidth: "155px" }}>
+                  <Button
+                    className={
+                      /* @tag<varmenu-load-variables-file-btn>*/ "varmenu-load-variables-file-btn-vcdat"
+                    }
+                    color="info"
+                    onClick={launchFilebrowser}
+                    style={varButtonStyle}
+                    title="Load variables from a file in the file browser."
+                  >
+                    File
+                  </Button>
+                  <Button
+                    className={
+                      /* @tag<varmenu-load-variables-path-btn>*/ "varmenu-load-variables-path-btn-vcdat"
+                    }
+                    color="info"
+                    onClick={launchFilepathModal}
+                    style={varButtonStyle}
+                    title="Load variables using from a file specified by path."
+                  >
+                    Path
+                  </Button>
+                </ButtonGroup>
+              </Col>
+              {props.syncNotebook() && (
                 <Col>
-                  <ButtonGroup style={{ minWidth: "155px" }}>
-                    <Button
-                      className={
-                        /* @tag<varmenu-load-variables-file-btn>*/ "varmenu-load-variables-file-btn-vcdat"
-                      }
-                      color="info"
-                      onClick={this.launchFilebrowser}
-                      style={varButtonStyle}
-                      title="Load variables from a file in the file browser."
-                    >
-                      File
-                    </Button>
-                    <Button
-                      className={
-                        /* @tag<varmenu-load-variables-path-btn>*/ "varmenu-load-variables-path-btn-vcdat"
-                      }
-                      color="info"
-                      onClick={this.launchFilepathModal}
-                      style={varButtonStyle}
-                      title="Load variables using from a file specified by path."
-                    >
-                      Path
-                    </Button>
-                  </ButtonGroup>
+                  <Button
+                    className={
+                      /* @tag<varmenu-sync-btn>*/ "varmenu-sync-btn-vcdat"
+                    }
+                    color="info"
+                    onClick={props.updateNotebook}
+                    style={varButtonStyle}
+                    title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
+                  >
+                    Sync Notebook
+                  </Button>
                 </Col>
-                {this.props.syncNotebook() && (
-                  <Col>
-                    <Button
-                      className={
-                        /* @tag<varmenu-sync-btn>*/ "varmenu-sync-btn-vcdat"
-                      }
-                      color="info"
-                      onClick={this.props.updateNotebook}
-                      style={varButtonStyle}
-                      title="Prepare and synchronize the currently open notebook for use with vCDAT 2.0"
-                    >
-                      Sync Notebook
-                    </Button>
-                  </Col>
-                )}
-              </Row>
-            </CardSubtitle>
-            {this.state.variables.length > 0 && (
-              <ListGroup
-                className={/* @tag<varmenu-varlist>*/ "varmenu-varlist-vcdat"}
-                style={formOverflow}
-              >
-                {this.state.variables.map((item: Variable, idx: number) => {
-                  const toggleSelection = (): void => {
-                    if (this.state.modalOpen) {
-                      return;
-                    }
-                    if (this.isSelected(item.varID)) {
-                      this._app.varTracker.deselectVariable(item.varID);
-                    } else {
-                      this._app.varTracker.selectVariable(item.varID);
-                    }
-                  };
-                  return (
-                    <ListGroupItem
-                      key={`${item.varID}${idx}`}
-                      onClick={toggleSelection}
-                    >
-                      <VarMini
-                        modalOpen={this.setModalState}
-                        varAliasExists={this.varAliasExists}
-                        varSelectionChanged={
-                          this._app.varTracker.selectedVariablesChanged
-                        }
-                        reload={this.reloadVariable}
-                        copyVariable={this._app.varTracker.copyVariable}
-                        selectVariable={this._app.varTracker.selectVariable}
-                        deleteVariable={this._app.codeInjector.deleteVariable}
-                        buttonColor={colors[this.getOrder(item.varID) - 1]}
-                        allowReload={true}
-                        selected={this.isSelected(item.varID)}
-                        isSelected={this.isSelected}
-                        selectOrder={this.getOrder(item.varID)}
-                        variable={item}
-                        codeInjector={this._app.codeInjector}
-                        setPlotInfo={this.props.setPlotInfo}
-                        exportAlerts={this.props.exportAlerts}
-                        dismissSavePlotSpinnerAlert={
-                          this.props.dismissSavePlotSpinnerAlert
-                        }
-                        showExportSuccessAlert={
-                          this.props.showExportSuccessAlert
-                        }
-                        notebookPanel={this._app.labControl.notebookPanel}
-                      />
-                    </ListGroupItem>
-                  );
-                })}
-              </ListGroup>
-            )}
-          </CardBody>
-        </Card>
-        <VarLoader
-          varTracker={this._app.varTracker}
-          loadSelectedVariables={this._app.codeInjector.loadMultipleVariables}
-          ref={(loader: VarLoader): VarLoader => (this.varLoaderRef = loader)}
-        />
-      </div>
-    );
-  }
+              )}
+            </Row>
+          </CardSubtitle>
+          {varState.variables.length > 0 && (
+            <ListGroup
+              className={/* @tag<varmenu-varlist>*/ "varmenu-varlist-vcdat"}
+              style={formOverflow}
+            >
+              {varState.variables.map((item: Variable, idx: number) => {
+                const toggleSelection = (): void => {
+                  if (state.modalOpen) {
+                    return;
+                  }
+                  if (isSelected(item.varID)) {
+                    varDispatch(VariableAction.deselectVariable(item.varID));
+                    // app.varTracker.deselectVariable(item.varID);
+                  } else {
+                    varDispatch(VariableAction.selectVariable(item.varID));
+                    // app.varTracker.selectVariable(item.varID);
+                  }
+                };
+                return (
+                  <ListGroupItem
+                    key={`${item.varID}${idx}`}
+                    onClick={toggleSelection}
+                  >
+                    <VarMini
+                      modalOpen={setModalState}
+                      varAliasExists={varAliasExists}
+                      reload={reloadVariable}
+                      buttonColor={colors[getOrder(item.varID) - 1]}
+                      allowReload={true}
+                      selected={isSelected(item.varID)}
+                      isSelected={isSelected}
+                      selectOrder={getOrder(item.varID)}
+                      variable={item}
+                      setPlotInfo={props.setPlotInfo}
+                    />
+                  </ListGroupItem>
+                );
+              })}
+            </ListGroup>
+          )}
+        </CardBody>
+      </Card>
+      <VarLoader
+        modalID={VCDAT_MODALS.VarLoader}
+        varTracker={app.varTracker}
+        loadSelectedVariables={app.codeInjector.loadMultipleVariables}
+      />
+    </div>
+  );
+};
 
-  @boundMethod
-  private handleSelectionChanged(
-    varTracker: VariableTracker,
-    newSelection: string[]
-  ): void {
-    this.setState({ selectedVariables: newSelection });
-  }
-
-  @boundMethod
-  private handleVariablesChanged(
-    varTracker: VariableTracker,
-    variables: Variable[]
-  ): void {
-    this.setState({ variables });
-  }
-}
+export { VarMenu };

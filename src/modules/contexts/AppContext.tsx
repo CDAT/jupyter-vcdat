@@ -7,9 +7,12 @@ import {
   BASE_GRAPHICS,
   BASE_TEMPLATES,
 } from "../constants";
+import { VariableProvider } from "./VariableContext";
 
 type Action =
   | { type: "reset" }
+  | { type: "setSavePlotAlert"; value: boolean }
+  | { type: "setExportSuccessAlert"; value: boolean }
   | { type: "setDisplayMode"; value: DISPLAY_MODE }
   | { type: "setSidecarToRight"; value: boolean }
   | { type: "setColormaps"; value: string[] }
@@ -19,6 +22,8 @@ type Action =
   | { type: "setPlotReady"; value: boolean };
 
 type State = {
+  savePlotAlert: boolean;
+  exportSuccessAlert: boolean;
   displayMode: DISPLAY_MODE;
   sidecarToRight: boolean;
   colormaps: string[];
@@ -40,6 +45,8 @@ interface IAppProviderRef {
 }
 
 const initialState: State = {
+  exportSuccessAlert: false,
+  savePlotAlert: false,
   displayMode: DISPLAY_MODE.Notebook,
   sidecarToRight: true,
   colormaps: BASE_COLORMAPS,
@@ -52,6 +59,33 @@ const initialState: State = {
 const AppAction = {
   reset: (): Action => {
     return { type: "reset" };
+  },
+  setExportSuccessAlert: (value: boolean): Action => {
+    return { type: "setExportSuccessAlert", value };
+  },
+  setSavePlotAlert: (value: boolean): Action => {
+    return { type: "setSavePlotAlert", value };
+  },
+  setDisplayMode: (mode: DISPLAY_MODE): Action => {
+    return { type: "setDisplayMode", value: mode };
+  },
+  setSidecarToRight: (sidecarToRight: boolean): Action => {
+    return { type: "setSidecarToRight", value: sidecarToRight };
+  },
+  setColormaps: (colormaps: string[]): Action => {
+    return { type: "setColormaps", value: colormaps };
+  },
+  setGraphicsMethods: (methods: { [dataName: string]: string[] }): Action => {
+    return { type: "setGraphicsMethods", value: methods };
+  },
+  setTemplates: (templates: string[]): Action => {
+    return { type: "setTemplates", value: templates };
+  },
+  setPlotExist: (plotExists: boolean): Action => {
+    return { type: "setPlotExists", value: plotExists };
+  },
+  setPlotReady: (plotReady: boolean): Action => {
+    return { type: "setPlotReady", value: plotReady };
   },
 };
 
@@ -66,6 +100,9 @@ function appReducer(state: State, action: Action): State {
     case "setDisplayMode": {
       return { ...state, displayMode: action.value };
     }
+    case "setExportSuccessAlert": {
+      return { ...state, exportSuccessAlert: action.value };
+    }
     case "setGraphicsMethods": {
       return { ...state, graphicsMethods: action.value };
     }
@@ -74,6 +111,9 @@ function appReducer(state: State, action: Action): State {
     }
     case "setPlotReady": {
       return { ...state, plotReady: action.value };
+    }
+    case "setSavePlotAlert": {
+      return { ...state, savePlotAlert: action.value };
     }
     case "setSidecarToRight": {
       return { ...state, sidecarToRight: action.value };
@@ -121,9 +161,11 @@ const AppProvider = forwardRef(
     return (
       <AppStateContext.Provider value={state}>
         <AppDispatchContext.Provider value={dispatch}>
-          <PlotProvider>
-            <ModalProvider ref={modalRef}>{children}</ModalProvider>
-          </PlotProvider>
+          <VariableProvider>
+            <PlotProvider>
+              <ModalProvider ref={modalRef}>{children}</ModalProvider>
+            </PlotProvider>
+          </VariableProvider>
         </AppDispatchContext.Provider>
       </AppStateContext.Provider>
     );

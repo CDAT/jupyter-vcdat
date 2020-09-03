@@ -32,14 +32,11 @@ import {
   REPLACEMENT_STEPS,
 } from "./modules/constants";
 import NCViewerWidget from "./NCViewerWidget";
-import LeftSideBarWidget from "./LeftSideBarWidget";
 import Utilities from "./modules/Utilities/Utilities";
 import { Step } from "react-joyride";
-import { AppSettings } from "./modules/AppSettings";
 import LabControl from "./modules/LabControl";
 import AppControl from "./modules/AppControl";
 import VCDATWidget from "./VCDATWidget";
-import NotebookUtilities from "./modules/Utilities/NotebookUtilities";
 
 const FILETYPE = "NetCDF";
 const FACTORY_NAME = "vcdat";

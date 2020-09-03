@@ -5,7 +5,7 @@ import * as ReactDOM from "react-dom";
 
 // Project Components
 import ErrorBoundary from "./components/ErrorBoundary";
-import MainMenu, { IMainMenuProps } from "./components/menus/NEW_MainMenu";
+import { MainMenu, IMainMenuProps } from "./components/menus/NEW_MainMenu";
 import AboutPopup from "./components/modals/NEW_AboutPopup";
 import { AppProvider, IAppProviderRef } from "./modules/contexts/AppContext";
 import LabControl from "./modules/LabControl";
@@ -13,7 +13,7 @@ import AppControl from "./modules/AppControl";
 import Utilities from "./modules/Utilities/Utilities";
 import { EXTENSIONS } from "./modules/constants";
 import InputModal from "./components/modals/NEW_InputModal";
-import ExportPlotModal from "./components/modals/ExportPlotModal";
+import ExportPlotModal from "./components/modals/NEW_ExportPlotModal";
 import PopUpModal from "./components/modals/NEW_PopUpModal";
 
 /**
@@ -22,7 +22,9 @@ import PopUpModal from "./components/modals/NEW_PopUpModal";
  */
 export enum VCDAT_MODALS {
   About = "about-modal-vcdat",
+  ExportPlot = "export-plot-modal-vcdat",
   FilePathInput = "file-path-input-modal-vcdat",
+  VarLoader = "var-loader-modal-vcdat",
   LoadingModulesNotice = "loading-modules-notice-vcdat",
 }
 
@@ -48,9 +50,6 @@ export default class VCDATWidget extends Widget {
     this.createCommands();
 
     const mainMenuProps: IMainMenuProps = {
-      showInputModal: () => {
-        this.appRef.current.showModal(VCDAT_MODALS.FilePathInput);
-      },
       syncNotebook: (): boolean => {
         return false;
       },
@@ -60,29 +59,16 @@ export default class VCDATWidget extends Widget {
     };
 
     const exportPlotModalProps = {
-      codeInjector: app.codeInjector,
-      dismissSavePlotSpinnerAlert: (): void => {
-        console.log("dismiss spinner");
-      },
-      exportAlerts: (): void => {
-        console.log("export alerts");
-      },
+      app,
+      modalID: VCDAT_MODALS.ExportPlot,
       getCanvasDimensions: async (): Promise<{
         height: string;
         width: string;
       }> => {
         return { height: "345px", width: "700px" };
       },
-      isOpen: false,
-      notebookPanel: app.labControl.notebookPanel,
       setPlotInfo: (plotname: string, plotFormat: string) => {
         console.log(`Plot name: ${plotname}`, `Plot format: ${plotFormat}`);
-      },
-      showExportSuccessAlert: (): void => {
-        console.log("Export success!");
-      },
-      toggle: () => {
-        console.log("Toggle the export modal");
       },
     };
 
@@ -117,7 +103,7 @@ export default class VCDATWidget extends Widget {
       <ErrorBoundary>
         <AppProvider ref={this.appRef}>
           <MainMenu {...mainMenuProps} />
-          {/* <ExportPlotModal {...exportPlotModalProps} />*/}
+          <ExportPlotModal {...exportPlotModalProps} />
           <InputModal {...inputModalProps} />
           <PopUpModal
             title="Notice"
@@ -172,5 +158,23 @@ export default class VCDATWidget extends Widget {
       "Loading Message"
     );
     labControl.helpMenuItem("show-message-popup");
+
+    labControl.addCommand(
+      "show-export-plot-popup",
+      () => {
+        this.appRef.current.showModal(VCDAT_MODALS.ExportPlot);
+      },
+      "Export Plot"
+    );
+    labControl.helpMenuItem("show-export-plot-popup");
+
+    labControl.addCommand(
+      "show-var-loader",
+      () => {
+        this.appRef.current.showModal(VCDAT_MODALS.VarLoader);
+      },
+      "Var Loader"
+    );
+    labControl.helpMenuItem("show-var-loader");
   }
 }

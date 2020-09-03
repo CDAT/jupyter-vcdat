@@ -28,7 +28,7 @@ const ModalAction = {
     return { type: "hide" };
   },
   toggle: (id: string): Action => {
-    return { type: "show", modalID: id };
+    return { type: "toggle", modalID: id };
   },
 };
 
