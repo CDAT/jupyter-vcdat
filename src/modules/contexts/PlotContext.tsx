@@ -1,12 +1,16 @@
 import React from "react";
+import { DISPLAY_MODE } from "../constants";
 
 type Action =
   | { type: "reset" }
   | { type: "setAnimateAxisInvert"; value: boolean }
+  | { type: "setDisplayMode"; value: DISPLAY_MODE }
   | { type: "setOverlayMode"; value: boolean }
   | { type: "setShouldAnimate"; value: boolean }
   | { type: "setAnimationAxisIndex"; value: number }
   | { type: "setAnimationRate"; value: number }
+  | { type: "setPlotExists"; value: boolean }
+  | { type: "setPlotReady"; value: boolean }
   | { type: "setPlotFormat"; value: string }
   | { type: "setPlotName"; value: string }
   | { type: "selectColormap"; value: string }
@@ -18,9 +22,13 @@ type State = {
   animateAxisInvert: boolean;
   animationAxisIndex: number;
   animationRate: number;
+  plotExists: boolean;
+  previousDisplayMode: DISPLAY_MODE;
+  currentDisplayMode: DISPLAY_MODE;
   overlayMode: boolean;
   plotFormat: string;
   plotName: string;
+  plotReady: boolean;
   selectedColormap: string;
   selectedGM: string;
   selectedGMgroup: string;
@@ -35,9 +43,13 @@ const initialState: State = {
   animateAxisInvert: false,
   animationAxisIndex: 0,
   animationRate: 5,
+  previousDisplayMode: DISPLAY_MODE.None,
+  currentDisplayMode: DISPLAY_MODE.Notebook,
   overlayMode: false,
+  plotExists: false,
   plotFormat: "",
   plotName: "",
+  plotReady: false,
   selectedColormap: "",
   selectedGM: "",
   selectedGMgroup: "",
@@ -51,6 +63,9 @@ const PlotAction = {
   },
   selectColormap: (colormap: string): Action => {
     return { type: "selectColormap", value: colormap };
+  },
+  setDisplayMode: (displayMode: DISPLAY_MODE): Action => {
+    return { type: "setDisplayMode", value: displayMode };
   },
   selectGM: (graphicMethod: string): Action => {
     return { type: "selectGM", value: graphicMethod };
@@ -70,8 +85,14 @@ const PlotAction = {
   setAnimationRate: (rate: number): Action => {
     return { type: "setAnimationRate", value: rate };
   },
+  setPlotExist: (plotExists: boolean): Action => {
+    return { type: "setPlotExists", value: plotExists };
+  },
   setPlotName: (name: string): Action => {
     return { type: "setPlotName", value: name };
+  },
+  setPlotReady: (plotReady: boolean): Action => {
+    return { type: "setPlotReady", value: plotReady };
   },
   setOverlayMode: (overlayOn: boolean): Action => {
     return { type: "setOverlayMode", value: overlayOn };
@@ -88,6 +109,13 @@ function plotReducer(state: State, action: Action): State {
     }
     case "selectColormap": {
       return { ...state, selectedColormap: action.value };
+    }
+    case "setDisplayMode": {
+      return {
+        ...state,
+        previousDisplayMode: state.currentDisplayMode,
+        currentDisplayMode: action.value,
+      };
     }
     case "selectGM": {
       return { ...state, selectedGM: action.value };
@@ -107,8 +135,14 @@ function plotReducer(state: State, action: Action): State {
     case "setAnimationRate": {
       return { ...state, animationRate: action.value };
     }
+    case "setPlotExists": {
+      return { ...state, plotExists: action.value };
+    }
     case "setPlotName": {
       return { ...state, plotName: action.value };
+    }
+    case "setPlotReady": {
+      return { ...state, plotReady: action.value };
     }
     case "setOverlayMode": {
       return { ...state, overlayMode: action.value };

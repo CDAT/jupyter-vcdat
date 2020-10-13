@@ -48,7 +48,7 @@ const TemplateMenu = (props: ITemplateMenuProps): JSX.Element => {
                 className={
                   /* @tag<template-dropdown>*/ "template-dropdown-vcdat"
                 }
-                disabled={!appState.plotReady}
+                disabled={!plotState.plotReady}
                 caret={true}
               >
                 {dropDownTitle}

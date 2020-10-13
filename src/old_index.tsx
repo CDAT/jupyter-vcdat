@@ -87,13 +87,17 @@ function activate(
   // Testing LabControl
   LabControl.initialize(app, labShell, menu, settings, tracker).then(
     async (labControl: LabControl) => {
-      const appControl: AppControl = await AppControl.initialize(labControl);
-
       const rightbar = new LeftSideBarWidget(
         app,
         labShell,
         tracker,
         labControl.settings
+      );
+
+      const appControl: AppControl = await AppControl.initialize(
+        labControl,
+        tutorialManager,
+        null
       );
 
       labControl.addCommand(
@@ -126,10 +130,10 @@ function activate(
         "Raw Command Test"
       );
 
-      labControl.helpMenuItem("test-vcdat-command", "Bob");
+      labControl.addHelpMenuItem("test-vcdat-command", "Bob");
 
-      labControl.helpMenuItem("test-raw-command");
-      labControl.helpMenuItem("vcdat-show-about", rightbar);
+      labControl.addHelpMenuItem("test-raw-command");
+      labControl.addHelpMenuItem("vcdat-show-about", rightbar);
 
       rightbar.id = /* @tag<left-side-bar>*/ "right-side-bar-vcdat";
       rightbar.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";

@@ -100,16 +100,16 @@ const InputModal = (props: IInputModalProps): JSX.Element => {
   };
 
   const saveInput = (): void => {
-    const newList: string[] = state.savedInput;
-    setState({ ...state, savedInput: [state.input].concat(newList) });
-    props.onSavedOptionsChanged(state.savedInput);
+    const newList: string[] = [state.input].concat(state.savedInput);
+    setState({ ...state, savedInput: newList });
+    props.onSavedOptionsChanged(newList);
   };
 
   const deleteInput = (index: number): void => {
     const newList: string[] = state.savedInput;
     newList.splice(index, 1);
     setState({ ...state, savedInput: newList });
-    props.onSavedOptionsChanged(state.savedInput);
+    props.onSavedOptionsChanged(newList);
   };
 
   const handleClickSavedInput = (savedInput: string): void => {

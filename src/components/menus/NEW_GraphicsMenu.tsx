@@ -26,12 +26,12 @@ import {
 
 // Project Components
 import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
-import LeftSideBarWidget from "../../LeftSideBarWidget";
 import ColormapEditor from "./ColormapMenu";
-import VariableTracker from "../../modules/VariableTracker";
-import AnimationMenu from "./AnimationMenu";
+import VariableTracker from "../../modules/NEW_VariableTracker";
+import AnimationMenu from "./NEW_AnimationMenu";
 import { DISPLAY_MODE } from "../../modules/constants";
 import { boundMethod } from "autobind-decorator";
+import VCDATWidget from "../../VCDATWidget";
 
 const dropdownMenuStyle: React.CSSProperties = {
   marginTop: "5px",
@@ -46,7 +46,7 @@ const listItemStyle: React.CSSProperties = {
 
 interface IGraphicsMenuProps {
   plotReady: boolean;
-  plotReadyChanged: ISignal<LeftSideBarWidget, boolean>;
+  plotReadyChanged: ISignal<VCDATWidget, boolean>;
   getGraphicsList: () => any; // a method that gets the current list of graphics methods
   // a method to call when the user has selected their desired graphics method
   updateGraphicsOptions: (group: string, name: string) => Promise<void>;
@@ -423,10 +423,7 @@ export default class GraphicsMenu extends React.Component<
 
   // ======= REACT COMPONENT HANDLERS =======
   @boundMethod
-  private handlePlotReadyChanged(
-    sidebar: LeftSideBarWidget,
-    value: boolean
-  ): void {
+  private handlePlotReadyChanged(sidebar: VCDATWidget, value: boolean): void {
     this.setState({ plotReady: value });
   }
 

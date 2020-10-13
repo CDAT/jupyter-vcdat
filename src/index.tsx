@@ -18,22 +18,12 @@ import {
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
 
 import { IMainMenu, MainMenu } from "@jupyterlab/mainmenu";
-import {
-  ITutorial,
-  ITutorialManager,
-  TutorialDefault,
-} from "jupyterlab-tutorial";
+import { ITutorialManager } from "jupyterlab-tutorial";
 
 // Project Components
 import "../style/css/index.css";
-import {
-  EXTENSIONS,
-  GETTING_STARTED,
-  REPLACEMENT_STEPS,
-} from "./modules/constants";
+import { EXTENSIONS } from "./modules/constants";
 import NCViewerWidget from "./NCViewerWidget";
-import Utilities from "./modules/Utilities/Utilities";
-import { Step } from "react-joyride";
 import LabControl from "./modules/LabControl";
 import AppControl from "./modules/AppControl";
 import VCDATWidget from "./VCDATWidget";
@@ -44,7 +34,6 @@ const FACTORY_NAME = "vcdat";
 // Declare the widget variables
 let mainWidget: VCDATWidget;
 let shell: JupyterFrontEnd.IShell;
-let mainMenu: MainMenu;
 
 /**
  * Initialization data for the jupyter-vcdat extension.
@@ -76,7 +65,6 @@ function activate(
   settings: ISettingRegistry
 ): void {
   shell = app.shell;
-  mainMenu = menu;
 
   const factory = new NCViewerFactory({
     defaultFor: [FILETYPE],
@@ -100,143 +88,13 @@ function activate(
   // Testing LabControl
   LabControl.initialize(app, labShell, menu, settings, tracker).then(
     async (labControl: LabControl) => {
-      const appControl: AppControl = await AppControl.initialize(labControl);
-      mainWidget = new VCDATWidget("main-widget-vcdat", appControl);
+      // Create VCDAT widget, then pass it to app control
+      mainWidget = new VCDATWidget("main-widget-vcdat");
 
-      /*
-      labControl.addCommand("vcdat:refresh-browser", (): void => {
-        labControl.commands.execute("filebrowser:go-to-path", {
-          path: ".",
-        });
-      });
-      labControl.addCommand(
-        "vcdat-show-about",
-        () => {
-          mainWidget.showAbout();
-        },
-        "About VCDAT",
-        "See the VCDAT about page."
-      );
-      labControl.addCommand(
-        "show-file-input",
-        () => {
-          mainWidget.showFilePathInput();
-        },
-        "File Input"
-      );
-      labControl.addCommand(
-        "show-message-popup",
-        () => {
-          mainWidget.showMessagePopup();
-        },
-        "Loading Message"
-      );
-
-      labControl.helpMenuItem("test-vcdat-command", "Billy");
-      labControl.helpMenuItem("vcdat-show-about");
-      labControl.helpMenuItem("show-file-input");
-      labControl.helpMenuItem("show-message-popup");
-      */
-      labControl.attachWidget(mainWidget, "left");
-      labControl.shell.activateById(mainWidget.id);
+      // Once lab control is initialized, create the app control
+      await AppControl.initialize(labControl, tutorialManager, mainWidget);
     }
   );
-
-  // Initializes the sidebar widget once the application shell has been restored
-  // and all the widgets have been added to the notebooktracker
-  app.restored
-    .then(() => {
-      // Utilities.addHelpMenuItem(mainMenu, {}, "vcdat-show-about");
-      Utilities.addHelpReference(
-        mainMenu,
-        "VCS Basic Tutorial",
-        "https://cdat.llnl.gov/Jupyter-notebooks/vcs/VCS_Basics/VCS_Basics.html"
-      );
-      Utilities.addHelpReference(
-        mainMenu,
-        "CDMS Reference",
-        "https://cdms.readthedocs.io/en/latest/"
-      );
-
-      mainMenu.helpMenu.menu.addItem({ type: "separator" });
-
-      // Create a jupyterlab intro tutorial
-      const jupyterlabIntro: ITutorial = tutorialManager.createTutorial(
-        "jp_intro",
-        "Jupyterlab Tutorial: Intro",
-        true
-      );
-      jupyterlabIntro.steps = TutorialDefault.steps;
-
-      const vcdatIntro: ITutorial = tutorialManager.createTutorial(
-        "vcdat_intro",
-        `VCDAT Tutorial: Introduction`,
-        true
-      );
-
-      vcdatIntro.options.styles.backgroundColor = "#fcffff";
-      vcdatIntro.options.styles.primaryColor = "#084f44";
-      initializeTutorial(vcdatIntro, GETTING_STARTED, updateIntroTutorial);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}
-
-function initializeTutorial(
-  tutorial: ITutorial,
-  steps: Step[],
-  handler: (tutorial: ITutorial) => void
-): void {
-  tutorial.steps = Utilities.deepCopy(steps);
-
-  function clickListenerOn(t: ITutorial): void {
-    shell.node.onclick = (): void => {
-      handler(t);
-    };
-  }
-  function clickListenerOff(): void {
-    shell.node.onclick = null;
-  }
-
-  function stepChangedHandler(t: ITutorial): void {
-    handler(t);
-  }
-
-  tutorial.started.connect(clickListenerOn);
-  tutorial.finished.connect(clickListenerOff);
-  tutorial.skipped.connect(clickListenerOff);
-  tutorial.stepChanged.connect(stepChangedHandler);
-}
-
-// Function that returns true if a step needs to be replaced
-function shouldModifyStep(index: number): boolean {
-  if (index === 1) {
-    const element: Element = shell.node.querySelector("#left-side-bar-vcdat");
-    if (element.classList.contains("p-mod-hidden")) {
-      return true;
-    }
-    return false;
-  }
-  return false;
-}
-
-function getStepForIndex(index: number, alternate: boolean): Step {
-  const mapping = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  if (alternate) {
-    return Utilities.deepCopy(REPLACEMENT_STEPS[mapping[index]]);
-  }
-  return Utilities.deepCopy(GETTING_STARTED[index]);
-}
-
-function updateIntroTutorial(tutorial: ITutorial): void {
-  if (tutorial.currentStepIndex >= 0) {
-    const newStep: Step = getStepForIndex(
-      tutorial.currentStepIndex,
-      shouldModifyStep(tutorial.currentStepIndex)
-    );
-    tutorial.replaceStep(tutorial.currentStepIndex, newStep);
-  }
 }
 
 /**
@@ -258,6 +116,7 @@ export class NCViewerFactory extends ABCWidgetFactory<
     // Activate sidebar widget
     shell.activateById(mainWidget.id);
 
+    AppControl.getInstance().prepareNotebookPanel(context.sessionContext.path);
     // Prepare the notebook for code injection
     /* sidebar.prepareNotebookPanel(context.sessionContext.path).catch((error) => {
       if (error.status === "error") {

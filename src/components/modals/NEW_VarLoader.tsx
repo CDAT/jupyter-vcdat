@@ -7,10 +7,9 @@ import * as _ from "lodash";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 // Project Components
-import AxisInfo from "../../modules/types/AxisInfo";
 import VarCard from "../NEW_VarCard";
 import Variable from "../../modules/types/Variable";
-import VariableTracker from "../../modules/VariableTracker";
+import VariableTracker from "../../modules/NEW_VariableTracker";
 import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
 import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
 import {

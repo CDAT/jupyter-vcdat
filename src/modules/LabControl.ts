@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { JupyterFrontEnd, LabShell } from "@jupyterlab/application";
+import { Cell, ICellModel } from "@jupyterlab/cells";
 import { MainMenu } from "@jupyterlab/mainmenu";
 import {
   NotebookTracker,
@@ -13,30 +14,9 @@ import { Widget } from "@lumino/widgets";
 import { CommandRegistry } from "@lumino/commands";
 import CellUtilities from "./Utilities/CellUtilities";
 import Utilities from "./Utilities/Utilities";
-import { Cell } from "@jupyterlab/cells";
 
 const extensionID = "jupyter-vcdat:extension";
 type shellArea = "top" | "left" | "right" | "main" | "bottom" | "header";
-
-/**
- * Specifies the states of the Jupyterlab main area tab/notebook
- */
-export enum NOTEBOOK_STATE {
-  Unknown, // The current state of the notebook is unknown and should be updated.
-  NoOpenNotebook, // JupyterLab has no notebook opened
-  InactiveNotebook, // No notebook is currently active, but one or more are open
-  ActiveNotebook, // There's an active notebook, but needs imports
-  InitialCellsReady, // Has imports cell, but they need to be run
-  VCSReady, // The notebook is ready for code injection
-}
-
-/**
- * Tracks the state of the Control for JupyterLab
- */
-export interface IControlState {
-  notebookState: NOTEBOOK_STATE;
-  errorLogging: boolean;
-}
 
 /**
  * This class is meant to provide a simplified interface for the extension
@@ -48,12 +28,12 @@ export interface IControlState {
 export default class LabControl {
   private static _instance: LabControl;
   private static _initialized: boolean;
-  private _state: IControlState;
   private _app: JupyterFrontEnd;
   private _shell: LabShell;
   private _menu: MainMenu;
   private _settings: AppSettings;
   private _nbTracker: NotebookTracker;
+  private _notebookPanel: NotebookPanel;
 
   /** Provide handle to the LabControl instance. */
   static getInstance(): LabControl {
@@ -83,25 +63,18 @@ export default class LabControl {
     lab._shell = labShell;
     lab._menu = mainMenu;
     lab._nbTracker = notebookTracker;
-    lab._state = {
-      notebookState: NOTEBOOK_STATE.Unknown,
-      errorLogging: true,
-    };
 
     // Wait for the app to get started before loading settings
     await lab._app.started;
     const loadedSettings = await settings.load(extensionID);
     lab._settings = new AppSettings(loadedSettings);
+
+    // Set notebook and connect handlers
+    lab._notebookPanel = notebookTracker.currentWidget;
+    lab.connectHandlers();
+
     LabControl._initialized = true;
     return lab;
-  }
-
-  get state(): IControlState {
-    return LabControl.getInstance()._state;
-  }
-
-  set state(newState: IControlState) {
-    LabControl.getInstance()._state = newState;
   }
 
   get commands(): CommandRegistry {
@@ -124,38 +97,69 @@ export default class LabControl {
     return LabControl.getInstance()._menu;
   }
 
-  get notebookPanel(): NotebookPanel {
-    if (LabControl.getInstance()._nbTracker.currentWidget) {
-      return LabControl.getInstance()._nbTracker.currentWidget;
-    } else {
-      return null;
-    }
-  }
-
   get notebookTracker(): NotebookTracker {
     return LabControl.getInstance()._nbTracker;
   }
 
-  public notebookChangedConnect(
-    callback: (tracker: NotebookTracker, panel: NotebookPanel) => void
-  ): void {
-    LabControl.getInstance()._nbTracker.currentChanged.connect(callback);
+  get notebookPanel(): NotebookPanel {
+    return LabControl.getInstance()._notebookPanel;
   }
 
-  public notebookChangedDisconnect(
-    callback: (tracker: NotebookTracker, panel: NotebookPanel) => void
-  ): void {
-    LabControl.getInstance()._nbTracker.currentChanged.disconnect(callback);
+  // Handlers
+  private connectHandlers(): void {
+    if (LabControl._instance._notebookPanel) {
+      LabControl._instance._notebookPanel.disposed.connect(
+        LabControl._instance.handleNotebookDisposed
+      );
+    }
+    NotebookActions.executed.connect(LabControl._instance.handleCellRun);
+    LabControl._instance._nbTracker.currentChanged.connect(
+      LabControl._instance.handleNotebookChanged
+    );
   }
 
-  public notebookCellRunConnect(callback: () => void): void {
-    NotebookActions.executed.connect(callback);
+  private async handleNotebookChanged(
+    tracker: NotebookTracker,
+    notebookPanel: NotebookPanel
+  ): Promise<void> {
+    // Disconnect previous handlers
+    if (LabControl._instance.notebookPanel) {
+      LabControl._instance.notebookPanel.disposed.disconnect(
+        LabControl._instance.handleNotebookDisposed
+      );
+    }
+    LabControl._instance._notebookPanel = notebookPanel;
+    if (notebookPanel) {
+      notebookPanel.disposed.connect(
+        LabControl._instance.handleNotebookDisposed
+      );
+    }
+    console.log("Notebook changed!");
+    console.log(notebookPanel);
   }
 
-  public notebookCellRunDisconnect(callback: () => void): void {
-    NotebookActions.executed.disconnect(callback);
+  private async handleNotebookDisposed(
+    notebookPanel: NotebookPanel
+  ): Promise<void> {
+    notebookPanel.disposed.disconnect(
+      LabControl._instance.handleNotebookDisposed
+    );
+    console.log("Notebook closed!");
+    console.log(notebookPanel);
   }
 
+  private async handleCellRun(
+    slot: any,
+    args: {
+      notebook: Notebook;
+      cell: Cell;
+    }
+  ): Promise<void> {
+    console.log("Code was executed!");
+    console.log(args);
+  }
+
+  // Methods
   public addCommand(
     commandID: string,
     execute: (args: any) => void,
@@ -184,12 +188,12 @@ export default class LabControl {
    * @description Creates a new JupyterLab notebook for use by the application
    * @returns Promise<NotebookPanel> - A promise containing the notebook panel object that was created (if successful).
    */
-  public async createNotebook(): Promise<NotebookPanel> {
+  public async createNotebook(path?: string): Promise<NotebookPanel> {
     const notebook: NotebookPanel = await this.commands.execute(
       "notebook:create-new",
       {
         activate: true,
-        path: "",
+        path,
         preferredLanguage: "",
       }
     );
@@ -204,10 +208,19 @@ export default class LabControl {
   }
 
   // Add item to help menu
-  public helpMenuItem(commandID: string, args?: {}): void {
-    this.menu.helpMenu.menu.addItem({
+  public addHelpMenuItem(commandID: string, args?: {}): void {
+    LabControl._instance.menu.helpMenu.menu.addItem({
       args,
       command: commandID,
+    });
+  }
+
+  // Adds a link in the help menu
+  public addHelpReference(text: string, url: string): void {
+    // Add item to help menu
+    LabControl._instance.menu.helpMenu.menu.addItem({
+      args: { text, url },
+      command: "help:open",
     });
   }
 
@@ -257,8 +270,9 @@ export default class LabControl {
     code: string,
     storeHistory?: boolean
   ): Promise<string> {
+    const sessionSource = this.notebookPanel || this._app;
     const result: string = await Utilities.sendSimpleKernelRequest(
-      this.notebookPanel,
+      sessionSource,
       code,
       storeHistory
     );
@@ -313,5 +327,20 @@ export default class LabControl {
       return this.notebookPanel.model.metadata.get(key);
     }
     return null;
+  }
+
+  public findCellWithMetaKey(key: string): [number, ICellModel] {
+    if (!this.notebookPanel) {
+      throw new Error("Notebook was null!");
+    }
+    const cells = this.notebookPanel.model.cells;
+    let cell: ICellModel;
+    for (let idx = 0; idx < cells.length; idx += 1) {
+      cell = cells.get(idx);
+      if (cell.metadata.has(key)) {
+        return [idx, cell];
+      }
+    }
+    return [-1, null];
   }
 }

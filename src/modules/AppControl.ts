@@ -1,9 +1,25 @@
 /* eslint-disable no-underscore-dangle */
 import LabControl from "./LabControl";
-import VariableTracker from "./VariableTracker";
+import VariableTracker from "./NEW_VariableTracker";
 import NotebookUtilities from "./Utilities/NotebookUtilities";
-import CodeInjector from "./CodeInjector";
-import { DISPLAY_MODE } from "./constants";
+import CodeInjector from "./NEW_CodeInjector";
+import {
+  CANVAS_CELL_KEY,
+  GETTING_STARTED,
+  IMPORT_CELL_KEY,
+  VCDAT_VERSION,
+  VCDAT_VERSION_KEY,
+} from "./constants";
+import { NotebookPanel } from "@jupyterlab/notebook";
+import { checkCDMS2FileOpens } from "./PythonCommands";
+import Variable from "./types/Variable";
+import VCDATWidget, { VCDAT_MODALS } from "../VCDATWidget";
+import CellUtilities from "./Utilities/CellUtilities";
+import {
+  ITutorial,
+  ITutorialManager,
+  TutorialDefault,
+} from "jupyterlab-tutorial";
 
 /**
  * Specifies the states of the Jupyterlab main area tab/notebook
@@ -24,13 +40,11 @@ export enum NOTEBOOK_STATE {
  * be injected. 0 injects cell at top of notebook, -1 injects at bottom.
  */
 interface IAppState {
-  currentDisplayMode: DISPLAY_MODE;
   kernels: string[];
   runIndex: number;
-  plotReady: boolean;
-  plotExists: boolean;
-  overlayPlot: boolean;
-  shouldAnimate: boolean;
+  preparing: boolean;
+  notebookState: NOTEBOOK_STATE;
+  errorLogging: boolean;
 }
 
 interface IState {
@@ -43,8 +57,10 @@ interface IState {
 export default class AppControl {
   private static _instance: AppControl;
   private static _initialized: boolean;
+  private _appWidget: VCDATWidget;
   private _state: IAppState;
   private _lab: LabControl;
+  private _tutorials: ITutorialManager;
   private _varTracker: VariableTracker;
   private _codeInjector: CodeInjector;
 
@@ -59,7 +75,11 @@ export default class AppControl {
     );
   }
 
-  public static async initialize(labControl: LabControl): Promise<AppControl> {
+  public static async initialize(
+    labControl: LabControl,
+    tutorialManager: ITutorialManager,
+    mainWidget: VCDATWidget
+  ): Promise<AppControl> {
     // Create singleton instance
     const library = new AppControl();
     AppControl._instance = library;
@@ -67,22 +87,39 @@ export default class AppControl {
 
     // Update the instance objects
     library._lab = labControl;
+    library._tutorials = tutorialManager;
+    library._appWidget = mainWidget;
     library._varTracker = new VariableTracker();
-    library._codeInjector = new CodeInjector(library._varTracker);
+    library._codeInjector = new CodeInjector(library);
+
+    // Set initial state
     library._state = {
       kernels: [],
       runIndex: 0,
-      plotReady: false,
-      plotExists: false,
-      overlayPlot: false,
-      currentDisplayMode: DISPLAY_MODE.Notebook,
-      shouldAnimate: false,
+      preparing: false,
+      notebookState: NOTEBOOK_STATE.Unknown,
+      errorLogging: true,
     };
 
     // Wait for the app to get started before loading settings
     AppControl._initialized = true;
 
+    // Main widget can now be initialized
+    library._appWidget.initialize();
+
+    // Attach main widget once app is restored
+    await labControl.frontEnd.restored;
+    // Add menu links and commands
+    library.createTutorials();
+    library.createCommands();
+    labControl.attachWidget(mainWidget, "left");
+    labControl.shell.activateById(mainWidget.id);
+
     return library;
+  }
+
+  get mainWidget(): VCDATWidget {
+    return AppControl._instance._appWidget;
   }
 
   get labControl(): LabControl {
@@ -115,6 +152,356 @@ export default class AppControl {
     this.state.runIndex = index;
   }
 
+  get notebookPanel(): NotebookPanel {
+    return this.labControl.notebookPanel;
+  }
+
+  public createTutorials(): void {
+    // Create a jupyterlab intro tutorial
+    const jupyterlabIntro: ITutorial = this._tutorials.createTutorial(
+      "jp_intro",
+      "Jupyterlab Tutorial: Intro",
+      true
+    );
+    jupyterlabIntro.steps = TutorialDefault.steps;
+
+    const vcdatIntro: ITutorial = this._tutorials.createTutorial(
+      "vcdat_intro",
+      `VCDAT Tutorial: Introduction`,
+      true
+    );
+    LabControl.getInstance().menu.helpMenu.menu.addItem({ type: "separator" });
+    vcdatIntro.steps = GETTING_STARTED;
+    vcdatIntro.options.styles.backgroundColor = "#fcffff";
+    vcdatIntro.options.styles.primaryColor = "#084f44";
+  }
+
+  public createCommands(): void {
+    const labControl: LabControl = LabControl.getInstance();
+    labControl.addHelpReference(
+      "VCS Basic Tutorial",
+      "https://cdat.llnl.gov/Jupyter-notebooks/vcs/VCS_Basics/VCS_Basics.html"
+    );
+    labControl.addHelpReference(
+      "CDMS Reference",
+      "https://cdms.readthedocs.io/en/latest/"
+    );
+    labControl.menu.helpMenu.menu.addItem({ type: "separator" });
+
+    labControl.addCommand("vcdat:refresh-browser", (): void => {
+      labControl.commands.execute("filebrowser:go-to-path", {
+        path: ".",
+      });
+    });
+
+    // Add 'About' page access in help menu
+    labControl.addCommand(
+      "vcdat-show-about",
+      () => {
+        this._appWidget.appRef.current.showModal(VCDAT_MODALS.About);
+      },
+      "About VCDAT",
+      "See the VCDAT about page."
+    );
+    labControl.addHelpMenuItem("vcdat-show-about");
+
+    // Test commands
+    labControl.addCommand(
+      "show-file-input",
+      () => {
+        this.mainWidget.appRef.current.showModal(VCDAT_MODALS.FilePathInput);
+      },
+      "File Input"
+    );
+    labControl.addHelpMenuItem("show-file-input");
+
+    labControl.addCommand(
+      "show-message-popup",
+      () => {
+        this.mainWidget.appRef.current.showModal(
+          VCDAT_MODALS.LoadingModulesNotice
+        );
+      },
+      "Loading Message"
+    );
+    labControl.addHelpMenuItem("show-message-popup");
+
+    labControl.addCommand(
+      "show-export-plot-popup",
+      () => {
+        this.mainWidget.appRef.current.showModal(VCDAT_MODALS.ExportPlot);
+      },
+      "Export Plot"
+    );
+    labControl.addHelpMenuItem("show-export-plot-popup");
+
+    labControl.addCommand(
+      "dispose-notebook",
+      () => {
+        this.labControl.notebookPanel.dispose();
+      },
+      "Dispose"
+    );
+    labControl.addHelpMenuItem("dispose-notebook");
+  }
+
+  public async getNotebookPanel(): Promise<NotebookPanel> {
+    if (this.notebookPanel) {
+      return this.notebookPanel;
+    }
+
+    const newNotebookPanel: NotebookPanel = await this.labControl.createNotebook();
+
+    await this.updateNotebookState();
+
+    // Save the new notebook's version to its meta data
+    this.labControl.setMetaData(VCDAT_VERSION_KEY, VCDAT_VERSION);
+
+    // Update notebook state
+    this.state.notebookState = NOTEBOOK_STATE.ActiveNotebook;
+
+    return newNotebookPanel;
+  }
+
+  /*
+  public async setNotebookPanel(notebookPanel: NotebookPanel): Promise<void> {
+    try {
+      // Exit early if no change needed
+      if (this.notebookPanel === notebookPanel) {
+        // Update current state
+        await this.updateNotebookState();
+        return;
+      }
+
+      // Disconnect handlers from previous notebook_panel (if exists)
+      if (this.notebookPanel) {
+        // NotebookActions.executed.disconnect(this.handleNotebookCellRun);
+        this._notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
+      }
+
+      // Update current notebook
+      this._notebookPanel = notebookPanel;
+
+      await this.vcsMenuRef.setState({
+        notebookPanel,
+      });
+
+      // Update notebook state
+      await this.updateNotebookState();
+
+      // Update notebook in code injection manager
+      await this.codeInjector.setNotebook(notebookPanel);
+      await this.varTracker.setNotebook(notebookPanel);
+
+      // Reset the UI components
+      await this.vcsMenuRef.resetState();
+
+      // Check if notebook is ready for vcs, and prepare it if so
+      if (
+        this.state === NOTEBOOK_STATE.VCSReady ||
+        this.state === NOTEBOOK_STATE.InitialCellsReady
+      ) {
+        // Run cells to make notebook vcs ready
+        if (this.state === NOTEBOOK_STATE.InitialCellsReady) {
+          // Run the imports cell
+          const idx = CellUtilities.findCellWithMetaKey(
+            this._notebookPanel,
+            IMPORT_CELL_KEY
+          )[0];
+          if (idx >= 0) {
+            await CellUtilities.runCellAtIndex(this._notebookPanel, idx);
+            // select next cell
+            this.notebookPanel.content.activeCellIndex = idx + 1;
+            // Update kernel list to identify this kernel is ready
+            this.kernels.push(
+              this.notebookPanel.sessionContext.session.kernel.id
+            );
+            // Update state
+            this.state = NOTEBOOK_STATE.VCSReady;
+          } else {
+            this.state = NOTEBOOK_STATE.ActiveNotebook;
+            // Leave notebook alone if its not vcs ready, refresh var list for UI
+            await this.varTracker.refreshVariables();
+            this.varTracker.currentFile = "";
+            this.setPlotExists(false);
+            return;
+          }
+        }
+
+        // Update the selected graphics method, variable list, templates and loaded variables
+        await this.refreshGraphicsList();
+        await this.refreshTemplatesList();
+        await this.varTracker.refreshVariables();
+
+        this.vcsMenuRef.getPlotOptions();
+        this.vcsMenuRef.getGraphicsSelections();
+        this.vcsMenuRef.getTemplateSelection();
+
+        // Update whether a plot exists
+        const plotExists = await this.checkPlotExists();
+        this.setPlotExists(plotExists);
+
+        // Connect signals for the notebook
+        this.notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
+      } else {
+        // Leave notebook alone if its not vcs ready, refresh var list for UI
+        await this.varTracker.refreshVariables();
+
+        this.varTracker.currentFile = "";
+        this.setPlotExists(false);
+      }
+    } catch (error) {
+      if (error.status === "error") {
+        NotebookUtilities.showMessage(error.ename, error.evalue);
+      } else if (error.message) {
+        NotebookUtilities.showMessage("Error", error.message);
+      } else {
+        NotebookUtilities.showMessage(
+          "Error",
+          "An error occurred when setting the notebook panel."
+        );
+      }
+    }
+  }*/
+
+  public async updateNotebookState(): Promise<void> {
+    try {
+      // Check whether there is a notebook opened
+      if (this.labControl.notebookTracker.size > 0) {
+        // Check if notebook is active widget
+        if (
+          this.labControl.notebookTracker.currentWidget instanceof NotebookPanel
+        ) {
+          // Ensure notebook session is ready before checking for metadata
+          await this.labControl.notebookPanel.sessionContext.ready;
+          // Check if there is a kernel listed as vcsReady
+          if (
+            this.state.kernels.length > 0 &&
+            this.state.kernels.indexOf(
+              this.notebookPanel.sessionContext.session.kernel.id
+            ) >= 0
+          ) {
+            // Ready kernel identified, so the notebook is ready for injection
+            this.state.notebookState = NOTEBOOK_STATE.VCSReady;
+          } else {
+            // Search for a cell containing the imports key
+            const importKeyFound: boolean =
+              CellUtilities.findCellWithMetaKey(
+                this.notebookPanel,
+                IMPORT_CELL_KEY
+              )[0] >= 0;
+
+            // Search for a cell containing the canvas variables key
+            const canvasKeyFound =
+              CellUtilities.findCellWithMetaKey(
+                this.notebookPanel,
+                CANVAS_CELL_KEY
+              )[0] >= 0;
+
+            this.state.notebookState =
+              importKeyFound && canvasKeyFound
+                ? NOTEBOOK_STATE.InitialCellsReady
+                : NOTEBOOK_STATE.ActiveNotebook;
+          }
+        } else {
+          // No notebook is currently open
+          this.state.notebookState = NOTEBOOK_STATE.InactiveNotebook;
+        }
+      } else {
+        // No notebook is open (tracker was empty)
+        this.state.notebookState = NOTEBOOK_STATE.NoOpenNotebook;
+      }
+    } catch (error) {
+      this.state.notebookState = NOTEBOOK_STATE.Unknown;
+    }
+  }
+
+  public async prepareNotebookPanel(currentFile: string): Promise<void> {
+    if (!currentFile) {
+      return;
+    }
+
+    this.state.preparing = true;
+
+    try {
+      // Check the file can be opened with cdms2
+      if (!(await this.tryFilePath(currentFile))) {
+        NotebookUtilities.showMessage(
+          "Notice",
+          "The file could not be opened. Check the path is valid."
+        );
+        console.error(`File could not be opened: ${currentFile}`);
+        return;
+      }
+
+      // Set the current file
+      this.varTracker.currentFile = currentFile;
+
+      // Grab a notebook panel
+      await this.getNotebookPanel();
+
+      // Show load screen
+      this.mainWidget.appRef.current.showModal(
+        VCDAT_MODALS.LoadingModulesNotice
+      );
+
+      // Inject the imports
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      let currentIdx = 0;
+      currentIdx = await this.codeInjector.injectImportsCode(-1, true);
+
+      // Open the variable launcher modal
+      const fileVars: Variable[] = await this.varTracker.getFileVariables(
+        currentFile
+      );
+
+      // Stop load screen
+      this.mainWidget.appRef.current.hideModal();
+
+      // Inject canvas(es)
+      currentIdx = await this.codeInjector.injectCanvasCode(currentIdx + 1);
+
+      // Select last cell in notebook
+      this.notebookPanel.content.activeCellIndex =
+        this.notebookPanel.content.model.cells.length - 1;
+
+      // Update kernel list to identify this kernel is ready
+      this.state.kernels.push(
+        this.notebookPanel.sessionContext.session.kernel.id
+      );
+
+      // Save the notebook to preserve the cell metadata, update state
+      this.state.notebookState = NOTEBOOK_STATE.VCSReady;
+
+      // Save the notebook
+      await NotebookUtilities.saveNotebook(this.notebookPanel);
+
+      // Activate current notebook
+      this.labControl.activateCurrentNotebook();
+
+      // this._notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
+    } catch (error) {
+      throw error;
+    } finally {
+      this.state.preparing = false;
+    }
+  }
+
+  public async tryFilePath(filePath: string): Promise<boolean> {
+    try {
+      const result = await this.labControl.runBackendCode(
+        checkCDMS2FileOpens(filePath),
+        false
+      );
+
+      return result === "True";
+    } catch (error) {
+      console.error(error);
+    }
+
+    return false;
+  }
+
   /**
    * This is a decorator that causes a function to inject code into the
    * notebook cell at the current runIndex, assuming a notebook is open.
@@ -133,15 +520,15 @@ export default class AppControl {
     ): Promise<[number, string]> {
       const result: string = await originalMethod.apply(this, args);
       console.log(
-        `Index run: ${AppControl._instance.runIndex}\nResult: ${result}`
+        `Index run: ${AppControl.getInstance().runIndex}\nResult: ${result}`
       );
       try {
         return await LabControl.getInstance().inject(
           result,
-          AppControl._instance.runIndex
+          AppControl.getInstance().runIndex
         );
       } catch (error) {
-        if (LabControl.getInstance().state.errorLogging) {
+        if (AppControl.getInstance().state.errorLogging) {
           const argStr = args && args.length > 0 ? `(${args})` : "()";
           const message = `Code Run Error. Function Call: ${propertyKey}${argStr}\n\
           Code Injected: ${result}\nOriginal ${error.stack}`;

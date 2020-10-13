@@ -21,11 +21,11 @@ import { ExportFormat, ImageUnit } from "../../modules/types/types";
 import AppControl from "../../modules/AppControl";
 import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
 import { useApp, AppAction } from "../../modules/contexts/AppContext";
+import { usePlot, PlotAction } from "../../modules/contexts/PlotContext";
 
 interface IExportPlotModalProps {
   app: AppControl;
   modalID: string;
-  setPlotInfo: (plotName: string, plotFormat: string) => void;
   // a method that gets the current plot dimensions
   getCanvasDimensions: () => Promise<{ width: string; height: string }>;
 }
@@ -46,6 +46,7 @@ interface IExportPlotModalState {
 const ExportPlotModal = (props: IExportPlotModalProps): JSX.Element => {
   const [modalState, modalDispatch] = useModal();
   const [appState, appDispatch] = useApp();
+  const [plotState, plotDispatch] = usePlot();
 
   const [state, setState] = useState<IExportPlotModalState>({
     captureProvenance: false,
@@ -132,7 +133,9 @@ const ExportPlotModal = (props: IExportPlotModalProps): JSX.Element => {
       setState({ ...state, plotName });
     }
 
-    props.setPlotInfo(state.plotName, state.plotFileFormat);
+    plotDispatch(PlotAction.setPlotName(state.plotName));
+    plotDispatch(PlotAction.setPlotFormat(state.plotFileFormat));
+
     appDispatch(AppAction.setSavePlotAlert(true));
     await props.app.codeInjector.exportPlot(
       state.plotFileFormat,

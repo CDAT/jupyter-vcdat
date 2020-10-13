@@ -4,17 +4,24 @@ import AppControl from "../../modules/AppControl";
 
 // Components
 import TopButtons from "./NEW_TopButtons";
-import { Alert, Spinner, Card, Button } from "reactstrap";
+import { Alert, Spinner, Card } from "reactstrap";
 import { VarMenu } from "./NEW_VarMenu";
-import GraphicsMenu from "./NEW_GraphicsMenu";
 import TemplateMenu from "./NEW_TemplateMenu";
-import { PLOT_OPTIONS_KEY } from "../../modules/constants";
-import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
 import { VCDAT_MODALS } from "../../VCDATWidget";
 import VarLoader from "../modals/NEW_VarLoader";
-import { usePlot, PlotAction } from "../../modules/contexts/PlotContext";
+import { usePlot } from "../../modules/contexts/PlotContext";
 import { useApp, AppAction } from "../../modules/contexts/AppContext";
-import { useModal } from "../../modules/contexts/ModalContext";
+import {
+  useVariable,
+  VariableAction,
+} from "../../modules/contexts/VariableContext";
+import { ModalAction, useModal } from "../../modules/contexts/ModalContext";
+import Variable from "../../modules/types/Variable";
+import { EXTENSIONS } from "../../modules/constants";
+import LabControl from "../../modules/LabControl";
+import Utilities from "../../modules/Utilities/Utilities";
+import InputModal from "../modals/InputModal";
+import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
 
 export enum MAIN_ALERTS {
   exportSuccess = "showExportSuccessAlert",
@@ -47,12 +54,36 @@ interface IMainMenuState {
 
 const MainMenu = (props: IMainMenuProps): JSX.Element => {
   const app: AppControl = AppControl.getInstance();
+  const [varState, varDispatch] = useVariable();
   const [plotState, plotDispatch] = usePlot();
   const [appState, appDispatch] = useApp();
+  const [modalState, modalDispatch] = useModal();
 
   const [state, setState] = useState<IMainMenuState>({
     showTemplateDropdown: false,
   });
+
+  /**
+   * @description toggles the varLoaders menu
+   */
+  const launchVarLoader = async (filePath: string): Promise<void> => {
+    // Open the variable launcher modal
+    const fileVars: Variable[] = await app.varTracker.getFileVariables(
+      filePath
+    );
+    if (fileVars.length > 0) {
+      console.log(fileVars);
+      varDispatch(VariableAction.setFileVariables(fileVars));
+      modalDispatch(ModalAction.show(VCDAT_MODALS.VarLoader));
+    } else {
+      NotebookUtilities.showMessage(
+        "Notice",
+        "No variables could be loaded from the file."
+      );
+      app.varTracker.currentFile = "";
+      return;
+    }
+  };
 
   const toggleSavePlotAlert = (): void => {
     appDispatch(AppAction.setSavePlotAlert(false));
@@ -64,24 +95,37 @@ const MainMenu = (props: IMainMenuProps): JSX.Element => {
   };
 
   const varMenuProps = {
-    // codeInjector: app.codeInjector,
-    // commands: app.labControl.commands,
-    // notebookPanel: app.labControl.notebookPanel,
-    /* saveNotebook: (): void => {
-      // Save plot options to meta data
-      app.labControl.setMetaData(PLOT_OPTIONS_KEY, [
-        app.state.overlayPlot,
-        app.state.currentDisplayMode,
-        app.state.shouldAnimate,
-      ]);
-      NotebookUtilities.saveNotebook(app.labControl.notebookPanel);
-    }, */
-    setPlotInfo: (plotname: string, plotFormat: string) => {
-      console.log(`Plot name: ${plotname}`, `Plot format: ${plotFormat}`);
-    },
     syncNotebook: props.syncNotebook,
     updateNotebook: props.updateNotebookPanel,
     varTracker: app.varTracker,
+  };
+
+  const filePathModalProps = {
+    acceptText: "Open File",
+    cancelText: "Cancel",
+    modalID: VCDAT_MODALS.FilePathInput,
+    inputListHeader: "Saved File Paths",
+    inputOptions: app.labControl.settings.getSavedPaths(),
+    invalidInputMessage:
+      "The path entered is not valid. Make sure it contains an appropriate filename.",
+    isValid: (input: string): boolean => {
+      const ext: string = Utilities.getExtension(input);
+      return input.length > 0 && EXTENSIONS.indexOf(`.${ext}`) >= 0;
+    },
+    message: "Enter the path and name of the file you wish to open.",
+    onModalClose: (input: string, savedInput: string[]): void => {
+      console.log(
+        "Input modal closed:",
+        `Input: ${input}`,
+        `Saved Paths: ${savedInput}`
+      );
+      launchVarLoader(input);
+    },
+    onSavedOptionsChanged: async (savedPaths: string[]): Promise<void> => {
+      await LabControl.getInstance().settings.setSavedPaths(savedPaths);
+    },
+    placeHolder: "file_path/file.ext",
+    title: "Load Variables from Path",
   };
 
   return (
@@ -112,6 +156,7 @@ const MainMenu = (props: IMainMenuProps): JSX.Element => {
           {`Exported ${plotState.plotName}.${plotState.plotFormat}`}
         </Alert>
       </div>
+      <InputModal {...filePathModalProps} />
       <VarLoader
         modalID={VCDAT_MODALS.VarLoader}
         varTracker={app.varTracker}

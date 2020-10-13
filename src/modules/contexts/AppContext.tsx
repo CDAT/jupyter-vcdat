@@ -1,36 +1,25 @@
 import React, { forwardRef, Ref, useImperativeHandle } from "react";
 import { ModalProvider, IModalProviderRef, ModalAction } from "./ModalContext";
 import { PlotProvider } from "./PlotContext";
-import {
-  DISPLAY_MODE,
-  BASE_COLORMAPS,
-  BASE_GRAPHICS,
-  BASE_TEMPLATES,
-} from "../constants";
+import { BASE_COLORMAPS, BASE_GRAPHICS, BASE_TEMPLATES } from "../constants";
 import { VariableProvider } from "./VariableContext";
 
 type Action =
   | { type: "reset" }
   | { type: "setSavePlotAlert"; value: boolean }
   | { type: "setExportSuccessAlert"; value: boolean }
-  | { type: "setDisplayMode"; value: DISPLAY_MODE }
   | { type: "setSidecarToRight"; value: boolean }
   | { type: "setColormaps"; value: string[] }
   | { type: "setGraphicsMethods"; value: { [dataName: string]: string[] } }
-  | { type: "setTemplates"; value: string[] }
-  | { type: "setPlotExists"; value: boolean }
-  | { type: "setPlotReady"; value: boolean };
+  | { type: "setTemplates"; value: string[] };
 
 type State = {
   savePlotAlert: boolean;
   exportSuccessAlert: boolean;
-  displayMode: DISPLAY_MODE;
   sidecarToRight: boolean;
   colormaps: string[];
   graphicsMethods: { [dataName: string]: string[] };
   templates: string[];
-  plotExists: boolean;
-  plotReady: boolean;
 };
 type Dispatch = (action: Action) => void;
 
@@ -47,13 +36,10 @@ interface IAppProviderRef {
 const initialState: State = {
   exportSuccessAlert: false,
   savePlotAlert: false,
-  displayMode: DISPLAY_MODE.Notebook,
   sidecarToRight: true,
   colormaps: BASE_COLORMAPS,
   graphicsMethods: BASE_GRAPHICS,
   templates: BASE_TEMPLATES,
-  plotExists: false,
-  plotReady: false,
 };
 
 const AppAction = {
@@ -65,9 +51,6 @@ const AppAction = {
   },
   setSavePlotAlert: (value: boolean): Action => {
     return { type: "setSavePlotAlert", value };
-  },
-  setDisplayMode: (mode: DISPLAY_MODE): Action => {
-    return { type: "setDisplayMode", value: mode };
   },
   setSidecarToRight: (sidecarToRight: boolean): Action => {
     return { type: "setSidecarToRight", value: sidecarToRight };
@@ -81,12 +64,6 @@ const AppAction = {
   setTemplates: (templates: string[]): Action => {
     return { type: "setTemplates", value: templates };
   },
-  setPlotExist: (plotExists: boolean): Action => {
-    return { type: "setPlotExists", value: plotExists };
-  },
-  setPlotReady: (plotReady: boolean): Action => {
-    return { type: "setPlotReady", value: plotReady };
-  },
 };
 
 function appReducer(state: State, action: Action): State {
@@ -97,20 +74,11 @@ function appReducer(state: State, action: Action): State {
     case "setColormaps": {
       return { ...state, colormaps: action.value };
     }
-    case "setDisplayMode": {
-      return { ...state, displayMode: action.value };
-    }
     case "setExportSuccessAlert": {
       return { ...state, exportSuccessAlert: action.value };
     }
     case "setGraphicsMethods": {
       return { ...state, graphicsMethods: action.value };
-    }
-    case "setPlotExists": {
-      return { ...state, plotExists: action.value };
-    }
-    case "setPlotReady": {
-      return { ...state, plotReady: action.value };
     }
     case "setSavePlotAlert": {
       return { ...state, savePlotAlert: action.value };

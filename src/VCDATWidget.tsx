@@ -32,13 +32,11 @@ export enum VCDAT_MODALS {
  * This is the main component for the vcdat extension.
  */
 export default class VCDATWidget extends Widget {
-  public app: AppControl;
   public div: HTMLDivElement; // The div container for this widget
   public appRef: React.RefObject<IAppProviderRef>;
 
-  constructor(rootID: string, app: AppControl) {
+  constructor(rootID: string) {
     super();
-    this.app = app;
     this.div = document.createElement("div");
     this.div.id = rootID;
     this.node.appendChild(this.div);
@@ -46,8 +44,10 @@ export default class VCDATWidget extends Widget {
     this.title.iconClass = "jp-SideBar-tabIcon jp-icon-vcdat";
     this.title.closable = true;
     this.appRef = React.createRef();
+  }
 
-    this.createCommands();
+  public initialize(): void {
+    const app = AppControl.getInstance();
 
     const mainMenuProps: IMainMenuProps = {
       syncNotebook: (): boolean => {
@@ -67,36 +67,6 @@ export default class VCDATWidget extends Widget {
       }> => {
         return { height: "345px", width: "700px" };
       },
-      setPlotInfo: (plotname: string, plotFormat: string) => {
-        console.log(`Plot name: ${plotname}`, `Plot format: ${plotFormat}`);
-      },
-    };
-
-    const inputModalProps = {
-      acceptText: "Open File",
-      cancelText: "Cancel",
-      modalID: VCDAT_MODALS.FilePathInput,
-      inputListHeader: "Saved File Paths",
-      inputOptions: app.labControl.settings.getSavedPaths(),
-      invalidInputMessage:
-        "The path entered is not valid. Make sure it contains an appropriate filename.",
-      isValid: (input: string): boolean => {
-        const ext: string = Utilities.getExtension(input);
-        return input.length > 0 && EXTENSIONS.indexOf(`.${ext}`) >= 0;
-      },
-      message: "Enter the path and name of the file you wish to open.",
-      onModalClose: (input: string, savedInput: string[]): void => {
-        console.log(
-          "Input modal closed:",
-          `Input: ${input}`,
-          `Saved Paths: ${savedInput}`
-        );
-      },
-      onSavedOptionsChanged: async (savedPaths: string[]): Promise<void> => {
-        await LabControl.getInstance().settings.setSavedPaths(savedPaths);
-      },
-      placeHolder: "file_path/file.ext",
-      title: "Load Variables from Path",
     };
 
     ReactDOM.render(
@@ -104,7 +74,6 @@ export default class VCDATWidget extends Widget {
         <AppProvider ref={this.appRef}>
           <MainMenu {...mainMenuProps} />
           <ExportPlotModal {...exportPlotModalProps} />
-          <InputModal {...inputModalProps} />
           <PopUpModal
             title="Notice"
             message="Loading CDAT core modules. Please wait..."
@@ -119,62 +88,5 @@ export default class VCDATWidget extends Widget {
       </ErrorBoundary>,
       this.div
     );
-  }
-
-  private createCommands(): void {
-    const labControl: LabControl = this.app.labControl;
-    labControl.addCommand("vcdat:refresh-browser", (): void => {
-      labControl.commands.execute("filebrowser:go-to-path", {
-        path: ".",
-      });
-    });
-
-    // Add 'About' page access in help menu
-    labControl.addCommand(
-      "vcdat-show-about",
-      () => {
-        this.appRef.current.showModal(VCDAT_MODALS.About);
-      },
-      "About VCDAT",
-      "See the VCDAT about page."
-    );
-    labControl.helpMenuItem("vcdat-show-about");
-
-    // Test commands
-    labControl.addCommand(
-      "show-file-input",
-      () => {
-        this.appRef.current.showModal(VCDAT_MODALS.FilePathInput);
-      },
-      "File Input"
-    );
-    labControl.helpMenuItem("show-file-input");
-
-    labControl.addCommand(
-      "show-message-popup",
-      () => {
-        this.appRef.current.showModal(VCDAT_MODALS.LoadingModulesNotice);
-      },
-      "Loading Message"
-    );
-    labControl.helpMenuItem("show-message-popup");
-
-    labControl.addCommand(
-      "show-export-plot-popup",
-      () => {
-        this.appRef.current.showModal(VCDAT_MODALS.ExportPlot);
-      },
-      "Export Plot"
-    );
-    labControl.helpMenuItem("show-export-plot-popup");
-
-    labControl.addCommand(
-      "show-var-loader",
-      () => {
-        this.appRef.current.showModal(VCDAT_MODALS.VarLoader);
-      },
-      "Var Loader"
-    );
-    labControl.helpMenuItem("show-var-loader");
   }
 }

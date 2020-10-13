@@ -25,7 +25,7 @@ import {
 } from "../../modules/contexts/VariableContext";
 import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
 import { VCDAT_MODALS } from "../../VCDATWidget";
-import { useApp } from "../../modules/contexts/AppContext";
+import { usePlot, PlotAction } from "../../modules/contexts/PlotContext";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em",
@@ -39,17 +39,17 @@ const formOverflow: React.CSSProperties = {
 interface IVarMenuProps {
   updateNotebook: () => Promise<void>; // Updates the current notebook to check if it is vcdat ready
   syncNotebook: () => boolean; // Function that check if the Notebook should be synced/prepared
-  setPlotInfo: (plotName: string, plotFormat: string) => void;
 }
 
 interface IVarMenuState {
   modalOpen: boolean; // Whether a modal is currently open
 }
 
-const VarMenu = (props: IVarMenuProps) => {
+const VarMenu = (props: IVarMenuProps): JSX.Element => {
   const app: AppControl = AppControl.getInstance();
 
   const [varState, varDispatch] = useVariable();
+  const [plotState, plotDispatch] = usePlot();
   const [modalState, modalDispatch] = useModal();
 
   const [state, setState] = useState<IVarMenuState>({
@@ -64,6 +64,7 @@ const VarMenu = (props: IVarMenuProps) => {
    * @description launches the notebooks filebrowser so the user can select a data file
    */
   const launchFilepathModal = async (): Promise<void> => {
+    console.log("open file path modal.");
     modalDispatch(ModalAction.show(VCDAT_MODALS.FilePathInput));
   };
 
@@ -72,14 +73,6 @@ const VarMenu = (props: IVarMenuProps) => {
    */
   const launchFilebrowser = async (): Promise<void> => {
     await app.labControl.commands.execute("filebrowser:activate");
-  };
-
-  /**
-   * @description toggles the varLoaders menu
-   */
-  const launchVarLoader = async (fileVariables: Variable[]): Promise<void> => {
-    varDispatch(VariableAction.setFileVariables(fileVariables));
-    modalDispatch(ModalAction.show(VCDAT_MODALS.VarLoader));
   };
 
   const reloadVariable = async (
@@ -101,6 +94,12 @@ const VarMenu = (props: IVarMenuProps) => {
       return -1;
     }
     return varState.selectedVariables.indexOf(varID) + 1;
+  };
+
+  const setPlotInfo = (plotName: string, plotFormat: string) => {
+    console.log(`Plot name: ${plotName}`, `Plot format: ${plotFormat}`);
+    plotDispatch(PlotAction.setPlotName(plotName));
+    plotDispatch(PlotAction.setPlotFormat(plotFormat));
   };
 
   const setModalState = (newState: boolean): void => {
@@ -196,7 +195,7 @@ const VarMenu = (props: IVarMenuProps) => {
                       isSelected={isSelected}
                       selectOrder={getOrder(item.varID)}
                       variable={item}
-                      setPlotInfo={props.setPlotInfo}
+                      setPlotInfo={setPlotInfo}
                     />
                   </ListGroupItem>
                 );
@@ -205,11 +204,6 @@ const VarMenu = (props: IVarMenuProps) => {
           )}
         </CardBody>
       </Card>
-      <VarLoader
-        modalID={VCDAT_MODALS.VarLoader}
-        varTracker={app.varTracker}
-        loadSelectedVariables={app.codeInjector.loadMultipleVariables}
-      />
     </div>
   );
 };
