@@ -69,7 +69,7 @@ aliases:
   - &conda_upload
     name: conda_upload
     environment:
-      CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
+      CHANNELS: "-c cdat/label/v8.2.1 -c conda-forge -c cdat"
     command: |
       export REPO_DIR=`pwd`
       export PKG_NAME=jupyter-vcdat

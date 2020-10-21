@@ -23,23 +23,23 @@ RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "jupyterlab", "nb_conda
                     "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
 
 # dev conda channels (for developer deployment)
-DEV_CHANNELS = "-c cdat/label/nightly -c conda-forge"
+DEV_CHANNELS = "-c cdat/label/v8.2.1 -c conda-forge"
 
 # user conda channels (for stable deployment)
-USER_CHANNELS = "-c cdat/label/nightly -c conda-forge"
+USER_CHANNELS = "-c cdat/label/v8.2.1 -c conda-forge"
 
 # channels used for conda upload (conda deployment)
-UPLOAD_CHANNELS = "-c cdat/label/nightly -c conda-forge -c cdat"
+UPLOAD_CHANNELS = "-c cdat/label/v8.2.1 -c conda-forge -c cdat"
 
 # extra channels used for extra packages ( not used by default )
 EXTRA_CHANNELS = "-c pcmdi/label/nightly"
 
 # base packages (always added)
-BASE_CONDA_PKGS = "pip vcs mesalib tqdm nodejs 'python=3.7'"
-BASE_CONDA_PKGS += " jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS = "pip vcs 'mesalib=18.3.1' tqdm nodejs 'python=3.7'"
+BASE_CONDA_PKGS += " jupyterlab jupyterhub ipywidgets numpy"
 
 # extra packages ( Not included by default )
-EXTRA_PACKAGES = "vcsaddons thermo cmor eofs windspharm autopep8 mesalib "
+EXTRA_PACKAGES = "vcsaddons thermo cmor eofs windspharm autopep8 "
 EXTRA_PACKAGES += "scikit-learn wk nb_conda nb_conda_kernels plumbum scipy"
 
 # dev and test packages (for developer deployment)

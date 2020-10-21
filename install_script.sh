@@ -8,13 +8,13 @@
 FILENAME="jupyter-vcdat_logfile.txt"
 
 # dev conda channels to use
-DEV_CHANNELS="-c cdat/label/nightly -c conda-forge"
+DEV_CHANNELS="-c cdat/label/v8.2.1 -c conda-forge"
 
 # user conda channels (stable)
-USER_CHANNELS="-c cdat/label/nightly -c conda-forge"
+USER_CHANNELS="-c cdat/label/v8.2.1 -c conda-forge"
 
 # base packages
-BASE_CONDA_PKGS="pip vcs mesalib tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS="pip vcs 'mesalib=18.3.1' tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets numpy"
 
 # dev and test packages
 DEV_CONDA_PKGS="testsrunner cdat_info"
@@ -183,4 +183,4 @@ jupyter labextension install .
 
 # Success message
 echo Jupyter VCDAT has been successfully installed!
-echo "To run: conda activate ${REQUESTED_ENV_NAME} && jupyter lab"
+echo To run: conda activate ${REQUESTED_ENV_NAME} && jupyter lab
