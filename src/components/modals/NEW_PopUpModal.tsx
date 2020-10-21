@@ -1,7 +1,7 @@
 // Dependencies
 import * as React from "react";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
-import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
+import { useModal, ModalActions } from "../../modules/contexts/MainContext";
 
 interface IPopUpProps {
   message: string;
@@ -14,11 +14,11 @@ const PopUpModal = (props: IPopUpProps): JSX.Element => {
   const [modalState, modalDispatch] = useModal();
 
   const hide = (): void => {
-    modalDispatch(ModalAction.hide());
+    modalDispatch(ModalActions.hide());
   };
 
   const toggle = (): void => {
-    modalDispatch(ModalAction.toggle(props.modalID));
+    modalDispatch(ModalActions.toggle(props.modalID));
   };
 
   return (

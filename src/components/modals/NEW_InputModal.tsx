@@ -12,7 +12,7 @@ import {
   ModalHeader,
 } from "reactstrap";
 import ColorFunctions from "../../modules/utilities/ColorFunctions";
-import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
+import { useModal, ModalActions } from "../../modules/contexts/MainContext";
 
 const INVALID_INPUT_MSG_DEFAULT =
   "The text entered is not valid. Please try again or cancel.";
@@ -71,7 +71,6 @@ interface IInputModalState {
 }
 
 const InputModal = (props: IInputModalProps): JSX.Element => {
-  const [modalState, modalDispatch] = useModal();
   const [state, setState] = useState<IInputModalState>({
     input: "",
     isValid: true,
@@ -79,8 +78,10 @@ const InputModal = (props: IInputModalProps): JSX.Element => {
     showSaved: props.inputOptions ? true : false,
   });
 
+  const [modalState, modalDispatch] = useModal();
+
   const hide = (): void => {
-    modalDispatch(ModalAction.hide());
+    modalDispatch(ModalActions.hide());
     if (state.isValid) {
       props.onModalClose(state.input, state.savedInput);
     }
@@ -88,7 +89,7 @@ const InputModal = (props: IInputModalProps): JSX.Element => {
   };
 
   const toggle = (): void => {
-    modalDispatch(ModalAction.toggle(props.modalID));
+    modalDispatch(ModalActions.toggle(props.modalID));
   };
 
   const reset = (): void => {
@@ -122,7 +123,7 @@ const InputModal = (props: IInputModalProps): JSX.Element => {
       if (state.isValid) {
         props.onModalClose(state.input, state.savedInput);
         setState({ ...state, input: "" });
-        modalDispatch(ModalAction.hide());
+        modalDispatch(ModalActions.hide());
       }
     }
   };

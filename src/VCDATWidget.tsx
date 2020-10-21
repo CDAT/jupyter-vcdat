@@ -7,12 +7,9 @@ import * as ReactDOM from "react-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { MainMenu, IMainMenuProps } from "./components/menus/NEW_MainMenu";
 import AboutPopup from "./components/modals/NEW_AboutPopup";
-import { AppProvider, IAppProviderRef } from "./modules/contexts/AppContext";
+import { MainProvider, IAppProviderRef } from "./modules/contexts/MainContext";
 import LabControl from "./modules/LabControl";
 import AppControl from "./modules/AppControl";
-import Utilities from "./modules/Utilities/Utilities";
-import { EXTENSIONS } from "./modules/constants";
-import InputModal from "./components/modals/NEW_InputModal";
 import ExportPlotModal from "./components/modals/NEW_ExportPlotModal";
 import PopUpModal from "./components/modals/NEW_PopUpModal";
 
@@ -71,7 +68,7 @@ export default class VCDATWidget extends Widget {
 
     ReactDOM.render(
       <ErrorBoundary>
-        <AppProvider ref={this.appRef}>
+        <MainProvider ref={this.appRef}>
           <MainMenu {...mainMenuProps} />
           <ExportPlotModal {...exportPlotModalProps} />
           <PopUpModal
@@ -84,7 +81,7 @@ export default class VCDATWidget extends Widget {
             modalID={VCDAT_MODALS.About}
             version={LabControl.getInstance().settings.getVersion()}
           />
-        </AppProvider>
+        </MainProvider>
       </ErrorBoundary>,
       this.div
     );

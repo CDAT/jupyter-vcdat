@@ -10,7 +10,7 @@ import {
   ModalHeader,
   Row,
 } from "reactstrap";
-import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
+import { useModal, ModalActions } from "../../modules/contexts/MainContext";
 
 interface IAboutProps {
   version: string;
@@ -49,11 +49,11 @@ const AboutPopup = (props: IAboutProps): JSX.Element => {
   const [modalState, modalDispatch] = useModal();
 
   const hide = (): void => {
-    modalDispatch(ModalAction.hide());
+    modalDispatch(ModalActions.hide());
   };
 
   const toggle = (): void => {
-    modalDispatch(ModalAction.toggle(props.modalID));
+    modalDispatch(ModalActions.toggle(props.modalID));
   };
 
   return (

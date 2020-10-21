@@ -19,9 +19,14 @@ import { checkForExportedFileCommand } from "../../modules/PythonCommands";
 import Utilities from "../../modules/Utilities/Utilities";
 import { ExportFormat, ImageUnit } from "../../modules/types/types";
 import AppControl from "../../modules/AppControl";
-import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
-import { useApp, AppAction } from "../../modules/contexts/AppContext";
-import { usePlot, PlotAction } from "../../modules/contexts/PlotContext";
+import {
+  useModal,
+  ModalActions,
+  useApp,
+  usePlot,
+  AppActions,
+  PlotActions,
+} from "../../modules/contexts/MainContext";
 
 interface IExportPlotModalProps {
   app: AppControl;
@@ -109,7 +114,7 @@ const ExportPlotModal = (props: IExportPlotModalProps): JSX.Element => {
       validateExportName: false,
       validateFileFormat: false,
     });
-    modalDispatch(ModalAction.toggle(props.modalID));
+    modalDispatch(ModalActions.toggle(props.modalID));
   };
 
   const save = async (): Promise<void> => {
@@ -125,7 +130,7 @@ const ExportPlotModal = (props: IExportPlotModalProps): JSX.Element => {
     }
     setState({ ...state, validateFileFormat: false });
 
-    modalDispatch(ModalAction.toggle(props.modalID));
+    modalDispatch(ModalActions.toggle(props.modalID));
 
     // Remove extension if user typed it in and it matches current format
     if (Utilities.getExtension(state.plotName) === state.plotFileFormat) {
@@ -133,10 +138,10 @@ const ExportPlotModal = (props: IExportPlotModalProps): JSX.Element => {
       setState({ ...state, plotName });
     }
 
-    plotDispatch(PlotAction.setPlotName(state.plotName));
-    plotDispatch(PlotAction.setPlotFormat(state.plotFileFormat));
+    plotDispatch(PlotActions.setPlotName(state.plotName));
+    plotDispatch(PlotActions.setPlotFormat(state.plotFileFormat));
 
-    appDispatch(AppAction.setSavePlotAlert(true));
+    appDispatch(AppActions.setSavePlotAlert(true));
     await props.app.codeInjector.exportPlot(
       state.plotFileFormat,
       state.plotName,
@@ -152,12 +157,12 @@ const ExportPlotModal = (props: IExportPlotModalProps): JSX.Element => {
       );
 
       if (result === "True") {
-        appDispatch(AppAction.setExportSuccessAlert(true));
+        appDispatch(AppActions.setExportSuccessAlert(true));
         window.setTimeout(() => {
-          appDispatch(AppAction.setExportSuccessAlert(false));
+          appDispatch(AppActions.setExportSuccessAlert(false));
         }, 5000);
       }
-      appDispatch(AppAction.setSavePlotAlert(false));
+      appDispatch(AppActions.setSavePlotAlert(false));
     } catch (error) {
       console.error("error with checking file:", error);
     }

@@ -20,12 +20,14 @@ import VarLoader from "../modals/NEW_VarLoader";
 import { VarMini } from "../NEW_VarMini";
 import AppControl from "../../modules/AppControl";
 import {
+  ModalActions,
+  PlotActions,
+  useModal,
+  usePlot,
   useVariable,
-  VariableAction,
-} from "../../modules/contexts/VariableContext";
-import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
+  VariableActions,
+} from "../../modules/contexts/MainContext";
 import { VCDAT_MODALS } from "../../VCDATWidget";
-import { usePlot, PlotAction } from "../../modules/contexts/PlotContext";
 
 const varButtonStyle: React.CSSProperties = {
   marginBottom: "1em",
@@ -65,7 +67,7 @@ const VarMenu = (props: IVarMenuProps): JSX.Element => {
    */
   const launchFilepathModal = async (): Promise<void> => {
     console.log("open file path modal.");
-    modalDispatch(ModalAction.show(VCDAT_MODALS.FilePathInput));
+    modalDispatch(ModalActions.show(VCDAT_MODALS.FilePathInput)); // Modal is in MainMenu
   };
 
   /**
@@ -98,8 +100,8 @@ const VarMenu = (props: IVarMenuProps): JSX.Element => {
 
   const setPlotInfo = (plotName: string, plotFormat: string) => {
     console.log(`Plot name: ${plotName}`, `Plot format: ${plotFormat}`);
-    plotDispatch(PlotAction.setPlotName(plotName));
-    plotDispatch(PlotAction.setPlotFormat(plotFormat));
+    plotDispatch(PlotActions.setPlotName(plotName));
+    plotDispatch(PlotActions.setPlotFormat(plotFormat));
   };
 
   const setModalState = (newState: boolean): void => {
@@ -173,10 +175,10 @@ const VarMenu = (props: IVarMenuProps): JSX.Element => {
                     return;
                   }
                   if (isSelected(item.varID)) {
-                    varDispatch(VariableAction.deselectVariable(item.varID));
+                    varDispatch(VariableActions.deselectVariable(item.varID));
                     // app.varTracker.deselectVariable(item.varID);
                   } else {
-                    varDispatch(VariableAction.selectVariable(item.varID));
+                    varDispatch(VariableActions.selectVariable(item.varID));
                     // app.varTracker.selectVariable(item.varID);
                   }
                 };

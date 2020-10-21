@@ -11,8 +11,11 @@ import {
   DropdownToggle,
 } from "reactstrap";
 
-import { useApp } from "../../modules/contexts/AppContext";
-import { usePlot, PlotAction } from "../../modules/contexts/PlotContext";
+import {
+  PlotActions,
+  useApp,
+  usePlot,
+} from "../../modules/contexts/MainContext";
 
 const dropdownMenuStype: React.CSSProperties = {
   maxHeight: "250px",
@@ -57,7 +60,7 @@ const TemplateMenu = (props: ITemplateMenuProps): JSX.Element => {
                 <DropdownMenu style={dropdownMenuStype}>
                   {appState.templates.map((item: string) => {
                     const handleClick = (): void => {
-                      plotDispatch(PlotAction.selectTemplate(item));
+                      plotDispatch(PlotActions.selectTemplate(item));
                       props.setDropdown(false);
                     };
                     return (

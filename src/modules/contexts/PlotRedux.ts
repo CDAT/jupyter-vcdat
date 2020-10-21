@@ -1,7 +1,6 @@
-import React from "react";
 import { DISPLAY_MODE } from "../constants";
 
-type Action =
+export type PlotAction =
   | { type: "reset" }
   | { type: "setAnimateAxisInvert"; value: boolean }
   | { type: "setDisplayMode"; value: DISPLAY_MODE }
@@ -18,7 +17,7 @@ type Action =
   | { type: "selectGMGroup"; value: string }
   | { type: "selectTemplate"; value: string };
 
-type State = {
+export type PlotState = {
   animateAxisInvert: boolean;
   animationAxisIndex: number;
   animationRate: number;
@@ -35,11 +34,10 @@ type State = {
   selectedTemplate: string;
   shouldAnimate: boolean;
 };
-type Dispatch = (action: Action) => void;
 
-type PlotProviderProps = { children: React.ReactNode };
+export type PlotDispatch = (action: PlotAction) => void;
 
-const initialState: State = {
+export const initialPlotState: PlotState = {
   animateAxisInvert: false,
   animationAxisIndex: 0,
   animationRate: 5,
@@ -57,55 +55,55 @@ const initialState: State = {
   shouldAnimate: false,
 };
 
-const PlotAction = {
-  reset: (): Action => {
+export const PlotActions = {
+  reset: (): PlotAction => {
     return { type: "reset" };
   },
-  selectColormap: (colormap: string): Action => {
+  selectColormap: (colormap: string): PlotAction => {
     return { type: "selectColormap", value: colormap };
   },
-  setDisplayMode: (displayMode: DISPLAY_MODE): Action => {
+  setDisplayMode: (displayMode: DISPLAY_MODE): PlotAction => {
     return { type: "setDisplayMode", value: displayMode };
   },
-  selectGM: (graphicMethod: string): Action => {
+  selectGM: (graphicMethod: string): PlotAction => {
     return { type: "selectGM", value: graphicMethod };
   },
-  selectGMGroup: (gmGroup: string): Action => {
+  selectGMGroup: (gmGroup: string): PlotAction => {
     return { type: "selectGMGroup", value: gmGroup };
   },
-  selectTemplate: (template: string): Action => {
+  selectTemplate: (template: string): PlotAction => {
     return { type: "selectTemplate", value: template };
   },
-  setAnimateAxisInvert: (value: boolean): Action => {
+  setAnimateAxisInvert: (value: boolean): PlotAction => {
     return { type: "setAnimateAxisInvert", value };
   },
-  setAnimationAxisIndex: (index: number): Action => {
+  setAnimationAxisIndex: (index: number): PlotAction => {
     return { type: "setAnimationAxisIndex", value: index };
   },
-  setAnimationRate: (rate: number): Action => {
+  setAnimationRate: (rate: number): PlotAction => {
     return { type: "setAnimationRate", value: rate };
   },
-  setPlotExist: (plotExists: boolean): Action => {
+  setPlotExist: (plotExists: boolean): PlotAction => {
     return { type: "setPlotExists", value: plotExists };
   },
-  setPlotName: (name: string): Action => {
+  setPlotName: (name: string): PlotAction => {
     return { type: "setPlotName", value: name };
   },
-  setPlotReady: (plotReady: boolean): Action => {
+  setPlotReady: (plotReady: boolean): PlotAction => {
     return { type: "setPlotReady", value: plotReady };
   },
-  setOverlayMode: (overlayOn: boolean): Action => {
+  setOverlayMode: (overlayOn: boolean): PlotAction => {
     return { type: "setOverlayMode", value: overlayOn };
   },
-  setPlotFormat: (format: string): Action => {
+  setPlotFormat: (format: string): PlotAction => {
     return { type: "setPlotFormat", value: format };
   },
 };
 
-function plotReducer(state: State, action: Action): State {
+export function plotReducer(state: PlotState, action: PlotAction): PlotState {
   switch (action.type) {
     case "reset": {
-      return initialState;
+      return initialPlotState;
     }
     case "selectColormap": {
       return { ...state, selectedColormap: action.value };
@@ -155,42 +153,3 @@ function plotReducer(state: State, action: Action): State {
     }
   }
 }
-
-const PlotStateContext = React.createContext<State | undefined>(undefined);
-const PlotDispatchContext = React.createContext<Dispatch | undefined>(
-  undefined
-);
-
-// eslint-disable-next-line react/display-name
-const PlotProvider = ({ children }: PlotProviderProps): JSX.Element => {
-  const [state, dispatch] = React.useReducer(plotReducer, initialState);
-
-  return (
-    <PlotStateContext.Provider value={state}>
-      <PlotDispatchContext.Provider value={dispatch}>
-        {children}
-      </PlotDispatchContext.Provider>
-    </PlotStateContext.Provider>
-  );
-};
-function usePlotState(): State {
-  const context = React.useContext(PlotStateContext);
-  if (context === undefined) {
-    throw new Error("usePlotState must be used within PlotProvider");
-  }
-  return context;
-}
-
-function usePlotDispatch(): Dispatch {
-  const context = React.useContext(PlotDispatchContext);
-  if (context === undefined) {
-    throw new Error("usePlotDispatch must be used within a PlotProvider");
-  }
-  return context;
-}
-
-function usePlot(): [State, Dispatch] {
-  return [usePlotState(), usePlotDispatch()];
-}
-
-export { PlotProvider, usePlot, PlotAction };

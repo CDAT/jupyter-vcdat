@@ -11,11 +11,13 @@ import VarCard from "../NEW_VarCard";
 import Variable from "../../modules/types/Variable";
 import VariableTracker from "../../modules/NEW_VariableTracker";
 import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
-import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
 import {
+  useModal,
+  ModalActions,
   useVariable,
-  variableSort,
-} from "../../modules/contexts/VariableContext";
+} from "../../modules/contexts/MainContext";
+import { variableSort } from "../../modules/contexts/VariableRedux";
+import AppControl from "../../modules/AppControl";
 
 const modalOverflow: React.CSSProperties = {
   maxHeight: "70vh",
@@ -27,23 +29,22 @@ const noScroll: React.CSSProperties = {
 
 interface IVarLoaderProps {
   modalID: string;
-  loadSelectedVariables: (variables: Variable[]) => Promise<void>; // function to call when user hits load
-  varTracker: VariableTracker;
 }
 export interface IVarLoaderState {
   selections: Variable[]; // the variables the user has selected to be loaded
   variablesToShow: Variable[];
 }
 
-const initialState: IVarLoaderState = {
-  selections: [],
-  variablesToShow: [],
-};
-
 const VarLoader = (props: IVarLoaderProps): JSX.Element => {
-  const [state, setState] = useState<IVarLoaderState>(initialState);
   const [modalState, modalDispatch] = useModal();
   const [varState, varDispatch] = useVariable();
+  const app = AppControl.getInstance();
+
+  const initialState: IVarLoaderState = {
+    selections: [],
+    variablesToShow: varState.fileVariables,
+  };
+  const [state, setState] = useState<IVarLoaderState>(initialState);
 
   const reset = (): void => {
     setState(initialState);
@@ -55,7 +56,7 @@ const VarLoader = (props: IVarLoaderProps): JSX.Element => {
   const toggle = (): void => {
     // Reset the state of the var loader, then toggle
     reset();
-    modalDispatch(ModalAction.toggle(props.modalID));
+    modalDispatch(ModalActions.toggle(props.modalID));
   };
 
   const isSelected = (varID: string): boolean => {
@@ -104,10 +105,12 @@ const VarLoader = (props: IVarLoaderProps): JSX.Element => {
     // Reset the state of the var loader when done
     reset();
 
-    await props.loadSelectedVariables(varsToLoad);
+    await AppControl.getInstance().codeInjector.loadMultipleVariables(
+      varsToLoad
+    );
 
     // Save the notebook after variables have been added
-    await props.varTracker.saveMetaData();
+    await app.varTracker.saveMetaData();
   };
 
   /**
@@ -126,7 +129,7 @@ const VarLoader = (props: IVarLoaderProps): JSX.Element => {
    * @param variable Remove a variable from the list to be loaded
    */
   const deselectVariableForLoad = (variable: Variable): void => {
-    const idx: number = props.varTracker.findVariableByAlias(
+    const idx: number = app.varTracker.findVariableByAlias(
       variable.alias,
       state.selections
     )[0];
@@ -172,21 +175,21 @@ const VarLoader = (props: IVarLoaderProps): JSX.Element => {
     alias: string,
     varLoaderSelection: boolean
   ): boolean => {
-    let array: Variable[] = props.varTracker.variables;
+    let array: Variable[] = app.varTracker.variables;
     if (varLoaderSelection) {
       array = state.selections;
     }
-    return props.varTracker.findVariableByAlias(alias, array)[0] >= 0;
+    return app.varTracker.findVariableByAlias(alias, array)[0] >= 0;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (e.keyCode === 13) {
+    if (e.key === "Enter") {
       e.preventDefault();
     }
   };
 
   const handleLoadClick = (): void => {
-    modalDispatch(ModalAction.hide());
+    modalDispatch(ModalActions.hide());
     loadSelectedVariables(state.selections);
   };
 
@@ -194,6 +197,7 @@ const VarLoader = (props: IVarLoaderProps): JSX.Element => {
     <div>
       <Modal
         isOpen={modalState.modalOpen === props.modalID}
+        onOpened={reset}
         toggle={toggle}
         size="lg"
       >

@@ -76,8 +76,14 @@ export default class VariableTracker {
       }
     });
     this.selectedVariables = newSelection;
+    AppControl.getInstance().mainWidget.appRef.current.setSelectedVariables(
+      newSelection
+    );
 
     this._variables = newVariables;
+    AppControl.getInstance().mainWidget.appRef.current.setVariables(
+      newVariables
+    );
     this._variablesChanged.emit(newVariables);
   }
 

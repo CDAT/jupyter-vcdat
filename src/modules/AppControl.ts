@@ -10,8 +10,8 @@ import {
   VCDAT_VERSION,
   VCDAT_VERSION_KEY,
 } from "./constants";
-import { NotebookPanel } from "@jupyterlab/notebook";
-import { checkCDMS2FileOpens } from "./PythonCommands";
+import { NotebookPanel, NotebookTracker } from "@jupyterlab/notebook";
+import { checkCDMS2FileOpens, CHECK_PLOT_EXIST_CMD } from "./PythonCommands";
 import Variable from "./types/Variable";
 import VCDATWidget, { VCDAT_MODALS } from "../VCDATWidget";
 import CellUtilities from "./Utilities/CellUtilities";
@@ -20,6 +20,10 @@ import {
   ITutorialManager,
   TutorialDefault,
 } from "jupyterlab-tutorial";
+import { ACTIONS } from "react-joyride";
+import { PlotActions } from "./contexts/PlotRedux";
+import Utilities from "./Utilities/Utilities";
+import { IAppProviderRef } from "./contexts/MainContext";
 
 /**
  * Specifies the states of the Jupyterlab main area tab/notebook
@@ -115,6 +119,9 @@ export default class AppControl {
     labControl.attachWidget(mainWidget, "left");
     labControl.shell.activateById(mainWidget.id);
 
+    // Connect to notebook changed event
+    labControl.notebookTracker.currentChanged.connect(library.setNotebookPanel);
+
     return library;
   }
 
@@ -154,6 +161,10 @@ export default class AppControl {
 
   get notebookPanel(): NotebookPanel {
     return this.labControl.notebookPanel;
+  }
+
+  get mainContext(): IAppProviderRef {
+    return this.mainWidget.appRef.current;
   }
 
   public createTutorials(): void {
@@ -198,7 +209,7 @@ export default class AppControl {
     labControl.addCommand(
       "vcdat-show-about",
       () => {
-        this._appWidget.appRef.current.showModal(VCDAT_MODALS.About);
+        this.mainContext.showModal(VCDAT_MODALS.About);
       },
       "About VCDAT",
       "See the VCDAT about page."
@@ -209,7 +220,7 @@ export default class AppControl {
     labControl.addCommand(
       "show-file-input",
       () => {
-        this.mainWidget.appRef.current.showModal(VCDAT_MODALS.FilePathInput);
+        this.mainContext.showModal(VCDAT_MODALS.FilePathInput);
       },
       "File Input"
     );
@@ -218,9 +229,7 @@ export default class AppControl {
     labControl.addCommand(
       "show-message-popup",
       () => {
-        this.mainWidget.appRef.current.showModal(
-          VCDAT_MODALS.LoadingModulesNotice
-        );
+        this.mainContext.showModal(VCDAT_MODALS.LoadingModulesNotice);
       },
       "Loading Message"
     );
@@ -229,7 +238,7 @@ export default class AppControl {
     labControl.addCommand(
       "show-export-plot-popup",
       () => {
-        this.mainWidget.appRef.current.showModal(VCDAT_MODALS.ExportPlot);
+        this.mainContext.showModal(VCDAT_MODALS.ExportPlot);
       },
       "Export Plot"
     );
@@ -243,6 +252,21 @@ export default class AppControl {
       "Dispose"
     );
     labControl.addHelpMenuItem("dispose-notebook");
+  }
+
+  public async checkPlotExists(): Promise<boolean> {
+    try {
+      if (this.state.notebookState === NOTEBOOK_STATE.VCSReady) {
+        // Get the list of display elements in the canvas
+        const output: string = await this.labControl.runBackendCode(
+          CHECK_PLOT_EXIST_CMD
+        );
+        return Utilities.strToArray(output).length > 1;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
   }
 
   public async getNotebookPanel(): Promise<NotebookPanel> {
@@ -263,92 +287,85 @@ export default class AppControl {
     return newNotebookPanel;
   }
 
-  /*
-  public async setNotebookPanel(notebookPanel: NotebookPanel): Promise<void> {
+  public async setNotebookPanel(
+    notebookTracker: NotebookTracker,
+    notebookPanel: NotebookPanel
+  ): Promise<void> {
     try {
+      const app = AppControl.getInstance();
+      if (!app.notebookPanel) {
+        app.mainContext.reset();
+        return;
+      }
       // Exit early if no change needed
-      if (this.notebookPanel === notebookPanel) {
+      if (app.notebookPanel === notebookPanel) {
         // Update current state
-        await this.updateNotebookState();
+        await app.updateNotebookState();
         return;
       }
 
-      // Disconnect handlers from previous notebook_panel (if exists)
-      if (this.notebookPanel) {
-        // NotebookActions.executed.disconnect(this.handleNotebookCellRun);
-        this._notebookPanel.disposed.disconnect(this.handleNotebookDisposed);
-      }
-
-      // Update current notebook
-      this._notebookPanel = notebookPanel;
-
-      await this.vcsMenuRef.setState({
-        notebookPanel,
-      });
-
       // Update notebook state
-      await this.updateNotebookState();
-
-      // Update notebook in code injection manager
-      await this.codeInjector.setNotebook(notebookPanel);
-      await this.varTracker.setNotebook(notebookPanel);
-
-      // Reset the UI components
-      await this.vcsMenuRef.resetState();
+      await app.updateNotebookState();
 
       // Check if notebook is ready for vcs, and prepare it if so
       if (
-        this.state === NOTEBOOK_STATE.VCSReady ||
-        this.state === NOTEBOOK_STATE.InitialCellsReady
+        app.state.notebookState === NOTEBOOK_STATE.VCSReady ||
+        app.state.notebookState === NOTEBOOK_STATE.InitialCellsReady
       ) {
         // Run cells to make notebook vcs ready
-        if (this.state === NOTEBOOK_STATE.InitialCellsReady) {
+        if (app.state.notebookState === NOTEBOOK_STATE.InitialCellsReady) {
           // Run the imports cell
           const idx = CellUtilities.findCellWithMetaKey(
-            this._notebookPanel,
+            app.notebookPanel,
             IMPORT_CELL_KEY
           )[0];
           if (idx >= 0) {
-            await CellUtilities.runCellAtIndex(this._notebookPanel, idx);
+            await CellUtilities.runCellAtIndex(app.notebookPanel, idx);
             // select next cell
-            this.notebookPanel.content.activeCellIndex = idx + 1;
+            app.notebookPanel.content.activeCellIndex = idx + 1;
             // Update kernel list to identify this kernel is ready
-            this.kernels.push(
-              this.notebookPanel.sessionContext.session.kernel.id
+            app.state.kernels.push(
+              app.notebookPanel.sessionContext.session.kernel.id
             );
             // Update state
-            this.state = NOTEBOOK_STATE.VCSReady;
+            app.state.notebookState = NOTEBOOK_STATE.VCSReady;
           } else {
-            this.state = NOTEBOOK_STATE.ActiveNotebook;
+            app.state.notebookState = NOTEBOOK_STATE.ActiveNotebook;
             // Leave notebook alone if its not vcs ready, refresh var list for UI
-            await this.varTracker.refreshVariables();
-            this.varTracker.currentFile = "";
-            this.setPlotExists(false);
+            await app.varTracker.refreshVariables();
+            app.varTracker.currentFile = "";
+            app.mainContext.dispatch({
+              type: "plot",
+              action: PlotActions.setPlotExist(false),
+            });
             return;
           }
         }
 
         // Update the selected graphics method, variable list, templates and loaded variables
-        await this.refreshGraphicsList();
-        await this.refreshTemplatesList();
-        await this.varTracker.refreshVariables();
+        // await this.refreshGraphicsList();
+        // await this.refreshTemplatesList();
+        await app.varTracker.refreshVariables();
 
-        this.vcsMenuRef.getPlotOptions();
-        this.vcsMenuRef.getGraphicsSelections();
-        this.vcsMenuRef.getTemplateSelection();
+        // this.vcsMenuRef.getPlotOptions();
+        // this.vcsMenuRef.getGraphicsSelections();
+        // this.vcsMenuRef.getTemplateSelection();
 
         // Update whether a plot exists
-        const plotExists = await this.checkPlotExists();
-        this.setPlotExists(plotExists);
-
-        // Connect signals for the notebook
-        this.notebookPanel.disposed.connect(this.handleNotebookDisposed, this);
+        const plotExists = await app.checkPlotExists();
+        app.mainContext.dispatch({
+          type: "plot",
+          action: PlotActions.setPlotExist(plotExists),
+        });
       } else {
         // Leave notebook alone if its not vcs ready, refresh var list for UI
-        await this.varTracker.refreshVariables();
+        await app.varTracker.refreshVariables();
 
-        this.varTracker.currentFile = "";
-        this.setPlotExists(false);
+        app.varTracker.currentFile = "";
+        app.mainContext.dispatch({
+          type: "plot",
+          action: PlotActions.setPlotExist(false),
+        });
       }
     } catch (error) {
       if (error.status === "error") {
@@ -362,7 +379,7 @@ export default class AppControl {
         );
       }
     }
-  }*/
+  }
 
   public async updateNotebookState(): Promise<void> {
     try {
@@ -441,9 +458,7 @@ export default class AppControl {
       await this.getNotebookPanel();
 
       // Show load screen
-      this.mainWidget.appRef.current.showModal(
-        VCDAT_MODALS.LoadingModulesNotice
-      );
+      this.mainContext.showModal(VCDAT_MODALS.LoadingModulesNotice);
 
       // Inject the imports
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

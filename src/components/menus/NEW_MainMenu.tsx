@@ -9,18 +9,20 @@ import { VarMenu } from "./NEW_VarMenu";
 import TemplateMenu from "./NEW_TemplateMenu";
 import { VCDAT_MODALS } from "../../VCDATWidget";
 import VarLoader from "../modals/NEW_VarLoader";
-import { usePlot } from "../../modules/contexts/PlotContext";
-import { useApp, AppAction } from "../../modules/contexts/AppContext";
 import {
+  AppActions,
+  ModalActions,
+  useApp,
+  useModal,
+  usePlot,
   useVariable,
-  VariableAction,
-} from "../../modules/contexts/VariableContext";
-import { ModalAction, useModal } from "../../modules/contexts/ModalContext";
+  VariableActions,
+} from "../../modules/contexts/MainContext";
 import Variable from "../../modules/types/Variable";
 import { EXTENSIONS } from "../../modules/constants";
 import LabControl from "../../modules/LabControl";
 import Utilities from "../../modules/Utilities/Utilities";
-import InputModal from "../modals/InputModal";
+import InputModal from "../modals/NEW_InputModal";
 import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
 
 export enum MAIN_ALERTS {
@@ -67,31 +69,36 @@ const MainMenu = (props: IMainMenuProps): JSX.Element => {
    * @description toggles the varLoaders menu
    */
   const launchVarLoader = async (filePath: string): Promise<void> => {
+    // Prepare notebook panel
+    await AppControl.getInstance().getNotebookPanel();
+
     // Open the variable launcher modal
     const fileVars: Variable[] = await app.varTracker.getFileVariables(
       filePath
     );
     if (fileVars.length > 0) {
       console.log(fileVars);
-      varDispatch(VariableAction.setFileVariables(fileVars));
-      modalDispatch(ModalAction.show(VCDAT_MODALS.VarLoader));
+      varDispatch(VariableActions.setFileVariables(fileVars));
+      console.log(varState.fileVariables);
+      modalDispatch(ModalActions.show(VCDAT_MODALS.VarLoader));
     } else {
       NotebookUtilities.showMessage(
         "Notice",
         "No variables could be loaded from the file."
       );
+      varDispatch(VariableActions.setCurrentFile(""));
       app.varTracker.currentFile = "";
       return;
     }
   };
 
   const toggleSavePlotAlert = (): void => {
-    appDispatch(AppAction.setSavePlotAlert(false));
+    appDispatch(AppActions.setSavePlotAlert(false));
     app.labControl.commands.execute("vcdat:refresh-browser");
   };
 
   const hideExportSuccessAlert = (): void => {
-    appDispatch(AppAction.setExportSuccessAlert(false));
+    appDispatch(AppActions.setExportSuccessAlert(false));
   };
 
   const varMenuProps = {
@@ -157,11 +164,7 @@ const MainMenu = (props: IMainMenuProps): JSX.Element => {
         </Alert>
       </div>
       <InputModal {...filePathModalProps} />
-      <VarLoader
-        modalID={VCDAT_MODALS.VarLoader}
-        varTracker={app.varTracker}
-        loadSelectedVariables={app.codeInjector.loadMultipleVariables}
-      />
+      <VarLoader modalID={VCDAT_MODALS.VarLoader} />
     </Card>
   );
 };

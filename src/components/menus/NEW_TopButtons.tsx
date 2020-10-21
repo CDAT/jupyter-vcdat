@@ -5,8 +5,12 @@ import { Button, Card, CardBody, Col, Row } from "reactstrap";
 // Project Components
 import AppControl from "../../modules/AppControl";
 import NotebookUtilities from "../../modules/Utilities/NotebookUtilities";
-import { usePlot, PlotAction } from "../../modules/contexts/PlotContext";
-import { useModal, ModalAction } from "../../modules/contexts/ModalContext";
+import {
+  useModal,
+  ModalActions,
+  usePlot,
+  PlotActions,
+} from "../../modules/contexts/MainContext";
 import { VCDAT_MODALS } from "../../VCDATWidget";
 
 const btnStyle: React.CSSProperties = {
@@ -27,7 +31,7 @@ const TopButtons = (props: IVCSMenuProps): JSX.Element => {
   const [modalState, modalDispatch] = useModal();
 
   const showExportModal = (): void => {
-    modalDispatch(ModalAction.show(VCDAT_MODALS.ExportPlot));
+    modalDispatch(ModalActions.show(VCDAT_MODALS.ExportPlot));
   };
 
   const clearCanvas = (): void => {
@@ -64,7 +68,7 @@ const TopButtons = (props: IVCSMenuProps): JSX.Element => {
             plotState.currentDisplayMode
           );
         }
-        plotDispatch(PlotAction.setPlotExist(true));
+        plotDispatch(PlotActions.setPlotExist(true));
       }
     } catch (error) {
       console.error(error);

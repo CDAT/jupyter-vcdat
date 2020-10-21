@@ -27,13 +27,13 @@ import DimensionSlider from "./DimensionSlider";
 import Variable from "../modules/types/Variable";
 import NotebookUtilities from "../modules/Utilities/NotebookUtilities";
 import { checkForExportedFileCommand } from "../modules/PythonCommands";
-import VariableTracker from "../modules/VariableTracker";
 import AppControl from "../modules/AppControl";
 import {
+  AppActions,
+  useApp,
   useVariable,
-  VariableAction,
-} from "../modules/contexts/VariableContext";
-import { useApp, AppAction } from "../modules/contexts/AppContext";
+  VariableActions,
+} from "../modules/contexts/MainContext";
 
 const axisStyle: React.CSSProperties = {
   marginLeft: ".5em",
@@ -221,17 +221,17 @@ const VarMini = (props: IVarMiniProps): JSX.Element => {
     toggleSaveModal();
     props.setPlotInfo(splitFileName[0], splitFileName[1]);
 
-    appDispatch(AppAction.setSavePlotAlert(true));
+    appDispatch(AppActions.setSavePlotAlert(true));
 
     try {
       const result: string = await app.labControl.runBackendCode(
         checkForExportedFileCommand(state.filename)
       );
       if (result === "True") {
-        appDispatch(AppAction.setSavePlotAlert(false));
-        appDispatch(AppAction.setExportSuccessAlert(true));
+        appDispatch(AppActions.setSavePlotAlert(false));
+        appDispatch(AppActions.setExportSuccessAlert(true));
         window.setTimeout(() => {
-          appDispatch(AppAction.setExportSuccessAlert(false));
+          appDispatch(AppActions.setExportSuccessAlert(false));
         }, 5000);
       }
     } catch (error) {
@@ -354,7 +354,7 @@ const VarMini = (props: IVarMiniProps): JSX.Element => {
       setState({ ...state, variable: copy });
     }
     // Select the new variable (if previous one deleted)
-    varDispatch(VariableAction.selectVariable(state.variable.varID));
+    varDispatch(VariableActions.selectVariable(state.variable.varID));
     reset();
   };
 
