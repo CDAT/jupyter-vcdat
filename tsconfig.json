@@ -8,6 +8,7 @@
     "experimentalDecorators": true,
     "noEmitOnError": true,
     "noUnusedLocals": false,
+    "noImplicitAny": false,
     "outDir": "./lib",
     "target": "es2015",
     "jsx": "react",
