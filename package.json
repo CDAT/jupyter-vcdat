@@ -72,7 +72,7 @@
     "bootstrap": "^4.5.2",
     "bootstrap-slider": "^11.0.2",
     "jquery": "^3.5.1",
-    "jupyterlab-tutorial": "^1.0.5",
+    "jupyterlab-tutorial": "^1.0.6",
     "lodash": "^4.17.20",
     "moment": "^2.24.0",
     "query-string": "^6.13.6",
