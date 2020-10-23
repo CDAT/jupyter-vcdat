@@ -4,8 +4,8 @@ FROM nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
 ARG npm_version="nightly"
 
 # Install Conda packages
-ARG conda_channels="-c cdat/label/nightly -c conda-forge"
-ARG conda_packages="pip vcs mesalib tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
+ARG conda_channels="-c cdat/label/v8.2.1 -c conda-forge"
+ARG conda_packages="pip vcs 'mesalib=17.3.9' tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets numpy"
 RUN conda config --set channel_priority strict
 RUN conda install --force -y ${conda_channels} ${conda_packages}
 RUN conda clean -y --all

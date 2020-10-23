@@ -8,13 +8,13 @@
 FILENAME="jupyter-vcdat_logfile.txt"
 
 # dev conda channels to use
-DEV_CHANNELS="-c cdat/label/nightly -c conda-forge"
+DEV_CHANNELS="-c cdat/label/v8.2.1 -c conda-forge"
 
 # user conda channels (stable)
-USER_CHANNELS="-c cdat/label/nightly -c conda-forge"
+USER_CHANNELS="-c cdat/label/v8.2.1 -c conda-forge"
 
 # base packages
-BASE_CONDA_PKGS="pip vcs mesalib tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets 'numpy=1.17'"
+BASE_CONDA_PKGS="pip vcs 'mesalib=17.3.9' tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets numpy"
 
 # dev and test packages
 DEV_CONDA_PKGS="testsrunner cdat_info"
@@ -33,7 +33,7 @@ CONDA_CHANNELS="$USER_CHANNELS"
 CONDA_PACKAGES=$BASE_CONDA_PKGS
 
 function usage() {
-  cat << EOF
+  cat <<EOF
 usage: Install vcdat jupyter-lab extension
 
 optional arguments:
@@ -48,27 +48,33 @@ optional arguments:
   -n CONDA_ENV_NAME, --name CONDA_ENV_NAME
                         Name of the conda environment to install in (will create if not existing)
 EOF
-exit 0
+  exit 0
 }
 
 # Figure out command line arguments: http://linuxcommand.org/lc3_wss0120.php
 while [ "$1" != "" ]; do
   case $1 in
-    -f | --file ) shift
-                            FILENAME=$1
-                            ;;
-    -v | --VERBOSE )        VERBOSE=1
-                            ;;
-    -n | --name ) shift
-                            REQUESTED_ENV_NAME=$1
-                            ;;
-    -d | --dev )
-                            INSTALL_MODE="DEV"
-                            ;;
-    -h | --help )           usage
-                            ;;
-    * )                     usage
-                            exit 1
+  -f | --file)
+    shift
+    FILENAME=$1
+    ;;
+  -v | --VERBOSE)
+    VERBOSE=1
+    ;;
+  -n | --name)
+    shift
+    REQUESTED_ENV_NAME=$1
+    ;;
+  -d | --dev)
+    INSTALL_MODE="DEV"
+    ;;
+  -h | --help)
+    usage
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
   esac
   shift
 done
@@ -112,7 +118,7 @@ set -o pipefail
 
 set -E
 set -o functrace
-function handle_error {
+function handle_error() {
   local retval=$?
   local line=${last_lineno:-$1}
   echo "Failed at $line: $BASH_COMMAND"
@@ -129,8 +135,7 @@ if [ ${CONDA_DEFAULT_ENV:-"NA"} != ${REQUESTED_ENV_NAME} ]; then
   echo "Current conda does not match requested conda: ${CONDA_DEFAULT_ENV:-'NA'} vs ${REQUESTED_ENV_NAME}"
   envs=$(${CONDA_EXE} env list | cut -d ' ' -f1)
   found=0
-  for a_env in $envs
-  do
+  for a_env in $envs; do
     if [ $a_env == ${REQUESTED_ENV_NAME} ]; then
       found=1
     fi
@@ -165,9 +170,9 @@ python -m pip install sidecar || pip install sidecar
 
 # Install dev packages if needed
 if [ $INSTALL_MODE == "DEV" ]; then
-	python -m pip install flake8 || pip install flake8
-	python -m pip install selenium || pip install selenium
-	python -m pip install pyvirtualdisplay || pip install pyvirtualdisplay
+  python -m pip install flake8 || pip install flake8
+  python -m pip install selenium || pip install selenium
+  python -m pip install pyvirtualdisplay || pip install pyvirtualdisplay
 fi
 
 # Install extensions
