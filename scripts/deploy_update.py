@@ -35,7 +35,7 @@ UPLOAD_CHANNELS = "-c cdat/label/v8.2.1 -c conda-forge -c cdat"
 EXTRA_CHANNELS = "-c pcmdi/label/nightly"
 
 # base packages (always added)
-BASE_CONDA_PKGS = "pip vcs 'mesalib=18.3.1' tqdm nodejs 'python=3.7'"
+BASE_CONDA_PKGS = "pip vcs 'mesalib=17.3.9' tqdm nodejs 'python=3.7'"
 BASE_CONDA_PKGS += " jupyterlab jupyterhub ipywidgets numpy"
 
 # extra packages ( Not included by default )
