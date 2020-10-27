@@ -6,7 +6,7 @@ from string import Template
 TEMPLATES_DIR = "/deploy/deploy_templates"
 
 # Docker base image
-BASE_IMAGE = "nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest"
+BASE_IMAGE = "nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:1.0.0"
 
 # Docker selenium test images
 TEST_CHROME_IMAGE = "selenium/node-chrome"
