@@ -104,7 +104,7 @@ aliases:
       cd deploy
       echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
       echo "$DOCKER_TOKEN2" | docker login --username $DOCKER_USER --password-stdin $DOCKER_IMAGE_SOURCE
-      docker pull $DOCKER_BASE_IMAGE
+      docker pull $_base_image
       docker build --no-cache --tag=$_vcdat_tag:nightly .
       docker image tag $_vcdat_tag:nightly $_vcdat_tag:$LOCAL_VCDAT_VERSION
       docker push $_vcdat_tag:$LOCAL_VCDAT_VERSION
