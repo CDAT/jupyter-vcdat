@@ -170,9 +170,9 @@ python -m pip install sidecar || pip install sidecar
 
 # Install dev packages if needed
 if [ $INSTALL_MODE == "DEV" ]; then
-  python -m pip install flake8 || pip install flake8
-  python -m pip install selenium || pip install selenium
-  python -m pip install pyvirtualdisplay || pip install pyvirtualdisplay
+	python -m pip install flake8 || pip install flake8
+	python -m pip install selenium || pip install selenium
+	python -m pip install pyvirtualdisplay || pip install pyvirtualdisplay
 fi
 
 # Install extensions
