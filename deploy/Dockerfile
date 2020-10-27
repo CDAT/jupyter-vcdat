@@ -1,5 +1,5 @@
 # This dockerfile will create a docker image for an official release
-FROM nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:latest
+FROM nimbus16.llnl.gov:8443/default/nimbus-jupyterlab:1.0.0
 
 ARG npm_version="nightly"
 

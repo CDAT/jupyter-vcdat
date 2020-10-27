@@ -16,7 +16,6 @@ import {
 // Project Components
 import ColorFunctions from "../../modules/utilities/ColorFunctions";
 import Variable from "../../modules/types/Variable";
-import VarLoader from "../modals/NEW_VarLoader";
 import { VarMini } from "../NEW_VarMini";
 import AppControl from "../../modules/AppControl";
 import {
