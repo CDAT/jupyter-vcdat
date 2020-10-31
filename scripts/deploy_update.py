@@ -19,7 +19,7 @@ VCDAT_IMAGE_TAG = "cdat/vcdat"
 HOST_REQUIREMENTS = ["jupyterlab", "nodejs", "pip", "'python>=3.7'"]
 
 # Run requirements for conda package
-RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "jupyterlab", "nb_conda",
+RUN_REQUIREMENTS = ["'cdms2>=3.1.5'", "ipywidgets", "jupyterhub", "jupyterlab", "nb_conda",
                     "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
 
 # dev conda channels (for developer deployment)
@@ -35,8 +35,8 @@ UPLOAD_CHANNELS = "-c cdat/label/v8.2.1 -c conda-forge -c cdat"
 EXTRA_CHANNELS = "-c pcmdi/label/nightly"
 
 # base packages (always added)
-BASE_CONDA_PKGS = "pip vcs 'mesalib=17.3.9' tqdm nodejs 'python=3.7'"
-BASE_CONDA_PKGS += " jupyterlab jupyterhub ipywidgets numpy"
+BASE_CONDA_PKGS = "pip vcs 'cdms2>=3.1.5' 'mesalib=17.3.9' 'python=3.7'"
+BASE_CONDA_PKGS += " tqdm nodejs jupyterlab jupyterhub ipywidgets numpy"
 
 # extra packages ( Not included by default )
 EXTRA_PACKAGES = "vcsaddons thermo cmor eofs windspharm autopep8 "

@@ -14,7 +14,7 @@ DEV_CHANNELS="-c cdat/label/v8.2.1 -c conda-forge"
 USER_CHANNELS="-c cdat/label/v8.2.1 -c conda-forge"
 
 # base packages
-BASE_CONDA_PKGS="pip vcs 'mesalib=17.3.9' tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets numpy"
+BASE_CONDA_PKGS="pip vcs 'cdms2>=3.1.5' 'mesalib=17.3.9' 'python=3.7' tqdm nodejs jupyterlab jupyterhub ipywidgets numpy"
 
 # dev and test packages
 DEV_CONDA_PKGS="testsrunner cdat_info"
