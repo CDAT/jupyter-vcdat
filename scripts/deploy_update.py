@@ -39,7 +39,7 @@ BASE_LINUX_PKGS = "'mesalib=18.3.1'"
 BASE_MAC_PKGS = "'mesalib=17.3.9'"
 
 # base packages (always added)
-BASE_CONDA_PKGS = "pip vcs tqdm nodejs 'python=3.7'"
+BASE_CONDA_PKGS = "pip cdms2 vcs tqdm nodejs 'python=3.7'"
 BASE_CONDA_PKGS += " jupyterlab jupyterhub ipywidgets numpy"
 
 # extra packages ( Not included by default )
