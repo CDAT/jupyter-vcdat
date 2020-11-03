@@ -84,7 +84,7 @@
     "react-list": "^0.8.16",
     "react-load-script": "0.0.6",
     "react-toastify": "^6.0.9",
-    "reactstrap": "^8.6.0",
+    "reactstrap": "8.4.1",
     "remove": "^0.1.5",
     "ts-dedent": "^2.0.0"
   },
