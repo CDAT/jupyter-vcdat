@@ -22,7 +22,7 @@ def main():
 
     # Add argument options
     group.add_argument('--local', '-l', action="store_true",
-                       help=("<Optional> Generate the image from local the"
+                       help=("<Optional> Generate the image from local the "
                              "current directory instead of using an npm package."))
     group.add_argument('--version', '-v', default="nightly",
                        help=("<Optional> The npm version of jupyter-vcdat to "

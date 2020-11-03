@@ -13,8 +13,11 @@ DEV_CHANNELS="$_dev_channels"
 # user conda channels (stable)
 USER_CHANNELS="$_user_channels"
 
-# base packages
-BASE_CONDA_PKGS="$_base_conda_pkgs"
+# choose base packages based on OS
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  BASE_CONDA_PKGS="$_base_conda_pkgs $_linux_pkgs"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  BASE_CONDA_PKGS="$_base_conda_pkgs $_mac_pkgs"
 
 # dev and test packages
 DEV_CONDA_PKGS="$_dev_conda_pkgs"
@@ -28,7 +31,7 @@ VERBOSE=0
 # installation mode (USER or DEV)
 INSTALL_MODE="USER"
 
-# conda channel and CONDA_PACKAGES to use
+# conda channels to use
 CONDA_CHANNELS="$USER_CHANNELS"
 CONDA_PACKAGES=$BASE_CONDA_PKGS
 
