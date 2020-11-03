@@ -99,7 +99,7 @@
     "@types/react-dom": "^16.9.9",
     "@types/react-html-parser": "^2.0.1",
     "@types/react-list": "^0.8.4",
-    "@types/reactstrap": "^8.4.1",
+    "@types/reactstrap": "8.4.1",
     "@typescript-eslint/eslint-plugin": "^4.6.1",
     "@typescript-eslint/parser": "^4.6.1",
     "compare-versions": "^3.6.0",
