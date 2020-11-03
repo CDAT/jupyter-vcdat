@@ -18,6 +18,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   BASE_CONDA_PKGS="pip vcs tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets numpy 'mesalib=18.3.1'"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   BASE_CONDA_PKGS="pip vcs tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets numpy 'mesalib=17.3.9'"
+fi
 
 # dev and test packages
 DEV_CONDA_PKGS="testsrunner cdat_info"
