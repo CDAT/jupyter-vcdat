@@ -19,7 +19,7 @@ VCDAT_IMAGE_TAG = "cdat/vcdat"
 HOST_REQUIREMENTS = ["jupyterlab", "nodejs", "pip", "'python>=3.7'"]
 
 # Run requirements for conda package
-RUN_REQUIREMENTS = ["'cdms2>=3.1.5'", "ipywidgets", "jupyterhub", "jupyterlab", "nb_conda",
+RUN_REQUIREMENTS = ["cdms2", "ipywidgets", "jupyterhub", "jupyterlab", "nb_conda",
                     "nb_conda_kernels", "'python>=3.7'", "tqdm", "vcs"]
 
 # dev conda channels (for developer deployment)

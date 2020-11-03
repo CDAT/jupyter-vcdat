@@ -17,7 +17,7 @@ requirements:
     - pip
     - 'python>=3.7'
   run:
-    - 'cdms2>=3.1.5'
+    - cdms2
     - ipywidgets
     - jupyterhub
     - jupyterlab
