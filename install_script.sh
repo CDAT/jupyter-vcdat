@@ -13,8 +13,12 @@ DEV_CHANNELS="-c cdat/label/v8.2.1 -c conda-forge"
 # user conda channels (stable)
 USER_CHANNELS="-c cdat/label/v8.2.1 -c conda-forge"
 
-# base packages
-BASE_CONDA_PKGS="pip vcs 'mesalib=17.3.9' tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets numpy"
+# choose base packages based on OS
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  BASE_CONDA_PKGS="pip cdms2 vcs tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets numpy 'mesalib=18.3.1'"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  BASE_CONDA_PKGS="pip cdms2 vcs tqdm nodejs 'python=3.7' jupyterlab jupyterhub ipywidgets numpy 'mesalib=17.3.9'"
+fi
 
 # dev and test packages
 DEV_CONDA_PKGS="testsrunner cdat_info"
@@ -28,7 +32,7 @@ VERBOSE=0
 # installation mode (USER or DEV)
 INSTALL_MODE="USER"
 
-# conda channel and CONDA_PACKAGES to use
+# conda channels to use
 CONDA_CHANNELS="$USER_CHANNELS"
 CONDA_PACKAGES=$BASE_CONDA_PKGS
 

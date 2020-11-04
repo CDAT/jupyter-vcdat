@@ -34,8 +34,12 @@ UPLOAD_CHANNELS = "-c cdat/label/v8.2.1 -c conda-forge -c cdat"
 # extra channels used for extra packages ( not used by default )
 EXTRA_CHANNELS = "-c pcmdi/label/nightly"
 
+# OS specific packages to use based on environment
+BASE_LINUX_PKGS = "'mesalib=18.3.1'"
+BASE_MAC_PKGS = "'mesalib=17.3.9'"
+
 # base packages (always added)
-BASE_CONDA_PKGS = "pip vcs 'mesalib=17.3.9' tqdm nodejs 'python=3.7'"
+BASE_CONDA_PKGS = "pip cdms2 vcs tqdm nodejs 'python=3.7'"
 BASE_CONDA_PKGS += " jupyterlab jupyterhub ipywidgets numpy"
 
 # extra packages ( Not included by default )
@@ -143,7 +147,7 @@ def create_docker_script(template_user, template_dev, user_out, dev_out):
     # Combine all settings into dictonary for template to use
     data = {"_base_image": BASE_IMAGE, "_conda_channels": USER_CHANNELS,
             "_conda_pkgs": BASE_CONDA_PKGS, "_pip_install": _pip,
-            "_install_extensions": install_ext}
+            "_install_extensions": install_ext, "_linux_pkgs": BASE_LINUX_PKGS}
 
     # Create user docker file
     update_template(template_user, user_out, data)
@@ -172,7 +176,8 @@ def create_install_script(template_in, installer_out):
     data = {"_dev_channels": DEV_CHANNELS, "_user_channels": USER_CHANNELS,
             "_base_conda_pkgs": BASE_CONDA_PKGS, "_dev_conda_pkgs": DEV_CONDA_PKGS,
             "_base_pip_install": base_pip, "_dev_pip_install": dev_pip,
-            "_install_extensions": install_ext}
+            "_install_extensions": install_ext, "_linux_pkgs": BASE_LINUX_PKGS,
+            "_mac_pkgs": BASE_MAC_PKGS}
 
     # Create install file
     update_template(template_in, installer_out, data)

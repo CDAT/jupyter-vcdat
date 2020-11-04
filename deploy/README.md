@@ -67,9 +67,17 @@ docker build -t cdat/vcdat:<new version> .
 
 - Test the docker image runs properly:
 ```bash
-docker run -p 9000:9000 -v /<Path to directory to use in testing>/:/home/jovyan/testing/ -it cdat/vcdat:<new version> jupyter lab --port=9000
+# Test using current directory
+docker run -p 9000:9000 -v=$(pwd)/:/home/jovyan/local/ -it cdat/vcdat:<new version> jupyter-lab --port=9000
+
+OR
+
+# Test using specified directory
+docker run -p 9000:9000 -v /<Path to use in testing>/:/home/jovyan/testing/ -it cdat/vcdat:<new version> jupyter-lab --port=9000
 ```
-Note: Within browser, go to: localhost:9000, and enter the jupyterlab token from the console into the token field. Then you should see jupyter-vcdat in browser
+Note: Once image is running in the terminal, use the link shown near the bottom: 'http://127.0.0.1:9000...'
+OR within your browser, go to: localhost:9000, and enter the jupyterlab token from the console into the token field.
+You should now be able to see jupyter-vcdat in browser
 
 - After test is successful and image is running properly, publish to docker hub:
 ```bash
@@ -89,8 +97,13 @@ docker push cdat/vcdat:latest
 
 - Test the docker image runs properly:
 ```bash
-docker run -p 9000:9000 -v /<Path to directory to use in testing>/:\
-/home/jovyan/testing/ -it cdat/vcdat:local-branch jupyter-lab --port=9000
+# Test using current directory
+docker run -p 9000:9000 -v=$(pwd)/:/home/jovyan/local/ -it cdat/vcdat:local-branch jupyter-lab --port=9000
+
+OR
+
+# Test using specified directory
+docker run -p 9000:9000 -v /<Path to use in testing>/:/home/jovyan/testing/ -it cdat/vcdat:local-branch jupyter-lab --port=9000
 ```
 Note: Within browser, go to: localhost:9000/lab, and enter the jupyterlab token from the console into the token field. Then you should see jupyter-vcdat in browser
 
