@@ -1,4 +1,3 @@
-// Dependencies
 import { ISignal } from "@lumino/signaling";
 import * as React from "react";
 import {
@@ -54,7 +53,7 @@ interface IGraphicsMenuProps {
   overlayMode: boolean;
   shouldAnimate: boolean;
   toggleOverlayMode: () => void;
-  toggleSidecar: () => {};
+  toggleSidecar: () => Record<string, unknown>;
   toggleAnimate: () => void;
   toggleAnimateInverse: () => void;
   updateAnimateAxis: (axisId: number) => void;

@@ -32,10 +32,8 @@ module.exports = {
     "@typescript-eslint/adjacent-overload-signatures": "error",
     "@typescript-eslint/array-type": "error",
     "@typescript-eslint/ban-types": "error",
-    "@typescript-eslint/class-name-casing": "error",
     "@typescript-eslint/consistent-type-assertions": "error",
     "@typescript-eslint/indent": "off",
-    "@typescript-eslint/interface-name-prefix": ["error", "always"],
     "@typescript-eslint/member-delimiter-style": [
       "off",
       {

@@ -208,7 +208,7 @@ export default class LabControl {
   }
 
   // Add item to help menu
-  public addHelpMenuItem(commandID: string, args?: {}): void {
+  public addHelpMenuItem(commandID: string, args?: any): void {
     LabControl._instance.menu.helpMenu.menu.addItem({
       args,
       command: commandID,
